@@ -229,6 +229,21 @@ export const MyLeads = ({ leads, onLeadClick }: MyLeadsProps) => {
     }
   };
 
+  const getStatusLabel = (status: LeadStatus) => {
+    switch (status) {
+      case 'NEW':
+        return t`New`;
+      case 'CONTACTED':
+        return t`Contacted`;
+      case 'QUALIFIED':
+        return t`Qualified`;
+      case 'LOST':
+        return t`Lost`;
+      default:
+        return status;
+    }
+  };
+
   return (
     <Container>
       <FiltersBar>
@@ -283,7 +298,9 @@ export const MyLeads = ({ leads, onLeadClick }: MyLeadsProps) => {
                   </LeadContact>
                 </LeadInfo>
                 <LeadBadges>
-                  <StatusBadge status={lead.status}>{lead.status}</StatusBadge>
+                  <StatusBadge status={lead.status}>
+                    {getStatusLabel(lead.status)}
+                  </StatusBadge>
                   <SLAIndicator status={lead.slaStatus}>
                     {getSLAText(lead)}
                   </SLAIndicator>

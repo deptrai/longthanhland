@@ -326,6 +326,11 @@ msgstr ""
 msgid "📊 Commission Reports"
 msgstr ""
 
+#. js-lingui-id: +YFkkW
+#: src/pages/real-estate/ExecutiveDashboardPage.tsx
+msgid "📊 Executive Dashboard"
+msgstr ""
+
 #. js-lingui-id: fJN9vc
 #: src/pages/real-estate/LeadDistributionPage.tsx
 msgid "📊 Lead Distribution Dashboard"
@@ -2682,6 +2687,7 @@ msgid "Contact auto-creation"
 msgstr "Automatisk kontaktopprettelse"
 
 #. js-lingui-id: xDRw4L
+#: src/modules/real-estate/components/MyLeads.tsx
 #: src/modules/real-estate/components/MyLeads.tsx
 msgid "Contacted"
 msgstr ""
@@ -5530,6 +5536,11 @@ msgstr "Skjul tomme grupper"
 msgid "Hide hidden groups"
 msgstr "Skjul skjulte grupper"
 
+#. js-lingui-id: 1DkZMh
+#: src/pages/real-estate/ExecutiveDashboardPage.tsx
+msgid "High-level overview of company performance and key metrics"
+msgstr ""
+
 #. js-lingui-id: Xkd22/
 #: src/modules/command-menu/pages/page-layout/constants/GraphTypeInformation.ts
 msgid "Horizontal Bar Chart"
@@ -6486,6 +6497,7 @@ msgstr ""
 
 #. js-lingui-id: XbuiBx
 #: src/modules/real-estate/components/MyLeads.tsx
+#: src/modules/real-estate/components/MyLeads.tsx
 #: src/modules/real-estate/components/DealKanban.tsx
 msgid "Lost"
 msgstr ""
@@ -7065,6 +7077,7 @@ msgstr "Utløper aldri"
 #. js-lingui-id: isRobC
 #: src/pages/settings/data-model/SettingsNewObject.tsx
 #: src/modules/settings/developers/components/SettingsDevelopersWebhookForm.tsx
+#: src/modules/real-estate/components/MyLeads.tsx
 #: src/modules/real-estate/components/MyLeads.tsx
 #: src/modules/real-estate/components/DealKanban.tsx
 msgid "New"
@@ -8570,6 +8583,7 @@ msgid "Public Domains"
 msgstr "Offentlige domener"
 
 #. js-lingui-id: hi3Du/
+#: src/modules/real-estate/components/MyLeads.tsx
 #: src/modules/real-estate/components/MyLeads.tsx
 #: src/modules/real-estate/components/LeadDistributionDashboard.tsx
 #: src/modules/real-estate/components/DealKanban.tsx

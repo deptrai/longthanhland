@@ -8,7 +8,7 @@ import {
 } from '@/real-estate/data/executive-mock';
 import { PageContainer } from '@/ui/layout/page/components/PageContainer';
 import styled from '@emotion/styled';
-import { useLingui } from '@lingui/react';
+import { useLingui } from '@lingui/react/macro';
 
 const StyledHeader = styled.div`
   margin-bottom: 24px;
