@@ -1,15 +1,15 @@
-# PRD v1.3: Nền tảng Phân phối Bất động sản
+# PRD v1.4: Nền tảng Phân phối Bất động sản
 
 ## 📋 Thông tin Tài liệu
 
-- **Phiên bản**: 1.3 (FINAL)
+- **Phiên bản**: 1.4
 - **Ngày tạo**: 06/12/2025
-- **Ngày cập nhật**: 06/12/2025 (v1.3)
+- **Ngày cập nhật**: 25/12/2025 (v1.4)
 - **Người tạo**: Luis (Dev Team)
-- **Người phân tích**: Mary (Business Analyst)
-- **Trạng thái**: Ready for Approval
+- **Người phân tích**: Mary (Business Analyst) + John (Product Manager)
+- **Trạng thái**: Draft - Public Marketplace Module Added
 - **Business Feasibility**: ✅ CONFIRMED (81/100 - Highly Feasible)
-- **Dự án**: Real Estate Sales Distribution Platform
+- **Dự án**: Real Estate Sales Distribution Platform + Public Marketplace
 - **Nền tảng cơ sở**: Twenty CRM (Open-source)
 
 ### Changelog v1.2
@@ -45,6 +45,47 @@
 - ✅ **Support Structure** (Section 17.1): Detailed rationale for team sizing
 
 **Status**: **READY FOR APPROVAL** ✅
+
+---
+
+### Changelog v1.4 (PUBLIC MARKETPLACE MODULE)
+
+**Major Addition**: ✅ **Epic 8: Public Marketplace Module** - AI-Powered Real Estate Intelligence Platform
+
+**Strategic Expansion**:
+- Transform internal CRM thành dual-purpose platform (internal + public)
+- Target external users (buyers, sellers, brokers) ngoài company
+- AI-powered features: Research, Summary, Trust Score, Spam Filter
+- Generate unlimited quality leads cho internal sales team
+
+**Architecture Decision**: ✅ **Single Frontend với RBAC** (revised from dual-frontend)
+- Leverage Twenty CRM's existing RBAC system
+- Public User role với limited permissions
+- Simpler, faster development, easier maintenance
+
+**Key Features Added** (Section 4.8):
+- Module 4.8.1: Public User Management
+- Module 4.8.2: Public Listing Management
+- Module 4.8.3: AI Research Agent ⭐
+- Module 4.8.4: AI Summary Generation ⭐
+- Module 4.8.5: Trust Score Calculation ⭐
+- Module 4.8.6: Smart Spam Filter ⭐
+- Module 4.8.7: Inquiry System
+- Module 4.8.8: Lead Conversion Workflow
+
+**Success Metrics** (Section 14.8):
+- North Star: 500 qualified leads/month by Month 12
+- 5,000 registered public users Year 1
+- 10-15% lead conversion rate
+- Break-even Month 8-10
+
+**Updated Sections**:
+- ✅ **Personas** (Section 3.5-3.7): Added Public Buyer, Public Seller, Small Broker personas
+- ✅ **Costs** (Section 19.8): Added Public Marketplace costs (2.5B VNĐ Year 1)
+- ✅ **Timeline** (Section 16.2): Added Phase 4 (Public Marketplace - Month 6-18)
+- ✅ **Roadmap** (Section 16.2.4): 3-phase rollout (MVP, Growth, Vision)
+
+**Status**: **DRAFT - Ready for Review** 📝
 
 ---
 
@@ -138,6 +179,56 @@ Xây dựng nền tảng CRM tích hợp quản lý:
 - **Quyền hạn**: None (data subject only)
 
 **Note**: Trong Phase 1 (MVP), customers KHÔNG có portal. Tất cả interaction qua sales agents. Customer portal có thể được thêm vào Phase 3 nếu cần.
+
+### 3.5. Public Buyer/Renter (Khách hàng Công khai) - NEW ⭐
+
+- **Vai trò**: External user tìm kiếm bất động sản trên public marketplace
+- **Số lượng**: Unlimited (target: 5,000 Year 1)
+- **Nhiệm vụ**:
+  - Browse và search public listings
+  - View listing details với AI summary
+  - Send inquiries to sellers
+  - Save favorite listings
+  - View trust scores và verified badges
+- **Quyền hạn**:
+  - Browse listings (no auth required)
+  - Post inquiries (no auth required)
+  - Save favorites (requires registration)
+- **Tương tác với Internal System**:
+  - Inquiries về internal properties → auto-convert to leads
+  - Assigned to sales agents for follow-up
+
+### 3.6. Public Seller/Broker (Người bán Công khai) - NEW ⭐
+
+- **Vai trò**: External user đăng tin bán/cho thuê bất động sản
+- **Số lượng**: Target 500-1,000 active sellers Year 1
+- **Nhiệm vụ**:
+  - Register account (email + phone verification)
+  - Post property listings (free tier: 3 listings)
+  - Manage own listings
+  - Receive và respond to inquiries
+  - View performance analytics (views, contacts)
+- **Quyền hạn**:
+  - Create/edit/delete own listings
+  - View own inquiries
+  - Access seller dashboard
+  - Upgrade subscription tier
+- **Subscription Tiers**:
+  - FREE: 3 listings, 30 days, 5 photos
+  - BASIC (99k/month): 10 listings, 60 days, 10 photos
+  - PRO (299k/month): Unlimited, 90 days, 20 photos, featured listings
+
+### 3.7. Small Broker (Môi giới Nhỏ) - NEW ⭐
+
+- **Vai trò**: Independent broker sử dụng platform để manage listings
+- **Số lượng**: Target 100-200 brokers Year 1
+- **Nhiệm vụ**:
+  - Manage 5-20 property listings
+  - Professional branding (verified badge)
+  - Lead management tools
+  - Performance tracking
+- **Quyền hạn**: Same as Public Seller + Professional features
+- **Subscription**: Typically PRO or ENTERPRISE tier
 
 ---
 
@@ -680,6 +771,554 @@ EXTRACT(EPOCH FROM (firstResponseAt - createdAt)) / 60
   - Budget
   - Timeline
   - Link to lead detail page
+
+---
+
+### 4.8. Module 8: Public Marketplace (Thị trường Công khai) - NEW ⭐
+
+#### 4.8.1. Tổng quan
+
+**Mục tiêu**: Transform internal CRM thành dual-purpose platform phục vụ cả internal sales agents và external public users (buyers, sellers, brokers).
+
+**Vision**: "AI-Powered Real Estate Intelligence Platform That Generates Unlimited Quality Leads Through Trust & Automation"
+
+**Core Value Proposition**:
+- **For Company**: Nguồn leads vô hạn từ public marketplace
+- **For Public Users**: AI-powered verification, trust scores, spam-free experience
+- **For Buyers**: Verified listings với AI insights, tránh scams
+- **For Sellers**: Professional platform với AI tools, qualified leads
+
+**Architecture**: Single Frontend với RBAC + SSR Middleware for SEO
+
+**Frontend Architecture Decision** (ADR-006):
+- **Internal Pages** (`/admin/*`, `/agent/*`): React CSR (Client-Side Rendering)
+- **Public Pages** (`/listings/*`, `/`): Dynamic Rendering
+  - **Bots** (Googlebot, etc.) → Express SSR → Pre-rendered HTML + Meta Tags
+  - **Users** → React SPA → Interactive UI
+- **Rationale**: Achieve SEO requirements (indexing, meta tags, social sharing) without expensive NextJS migration
+- **Cost**: 200M VNĐ (4 weeks) vs 900M VNĐ (6 months) cho NextJS
+- **Implementation**: Express.js SSR middleware + react-dom/server + Redis caching
+- **Reference**: See `/docs/real-estate-platform/frontend-architecture-analysis.md`
+
+**SEO Strategy**:
+- Bot detection via user-agent
+- Dynamic meta tags per listing (title, description, OG tags)
+- Structured data (JSON-LD) for rich snippets
+- Redis caching (1 hour TTL, >80% hit rate target)
+- Target: Lighthouse SEO score >90, indexing <48 hours
+
+#### 4.8.2. Module 4.8.1: Public User Management
+
+**PublicUser Object**:
+
+| Field Name | Type | Description |
+|------------|------|-------------|
+| `email` | EMAIL | User email (unique, required) |
+| `phone` | PHONE | Contact phone (required, verified) |
+| `fullName` | TEXT | Full name |
+| `userType` | SELECT | BUYER / SELLER / BROKER |
+| `verified` | BOOLEAN | Phone/email verified |
+| `subscriptionTier` | SELECT | FREE / BASIC / PRO / ENTERPRISE |
+| `emailVerified` | BOOLEAN | Email verification status |
+| `phoneVerified` | BOOLEAN | Phone verification status |
+| `verifiedAt` | DATETIME | Verification timestamp |
+| `subscriptionExpiresAt` | DATETIME | Subscription expiry |
+| `totalListings` | NUMBER | Count of listings (computed) |
+| `activeListings` | NUMBER | Count of active listings (computed) |
+| `responseRate` | NUMBER | % of inquiries responded (computed) |
+| `avgResponseTime` | NUMBER | Average response time (hours) |
+| `memberSince` | DATETIME | Registration date |
+
+**Subscription Tiers**:
+
+| Tier | Price | Active Listings | Duration | Photos | Featured |
+|------|-------|----------------|----------|--------|----------|
+| FREE | 0đ | 3 | 30 days | 5 | 0 |
+| BASIC | 99k/month | 10 | 60 days | 10 | 1/month |
+| PRO | 299k/month | Unlimited | 90 days | 20 | 5/month |
+| ENTERPRISE | Custom | Unlimited | Custom | Unlimited | Unlimited |
+
+**User Registration Flow**:
+1. User submits email + password + phone + name
+2. Send email verification link
+3. Send SMS verification code
+4. User verifies both
+5. Account activated với FREE tier
+6. Assign "Public User" role
+
+**RBAC Permissions**:
+- `public_user.browse_listings` (all users, including anonymous)
+- `public_user.post_listing` (registered only)
+- `public_user.send_inquiry` (all users)
+- `public_user.save_favorites` (registered only)
+- `public_user.manage_own_listings` (registered only)
+
+#### 4.8.3. Module 4.8.2: Public Listing Management
+
+**PublicListing Object**:
+
+| Field Name | Type | Description |
+|------------|------|-------------|
+| `owner` | RELATION | Link to PublicUser |
+| `property` | RELATION | Link to Property (if converted) |
+| `title` | TEXT | Listing title (max 100 chars) |
+| `description` | RICH_TEXT | Full description (max 2000 chars) |
+| `listingType` | SELECT | SALE / RENT |
+| `propertyType` | SELECT | APARTMENT / HOUSE / LAND / VILLA / TOWNHOUSE / OFFICE |
+| `price` | CURRENCY | Price in VNĐ |
+| `area` | NUMBER | Area in m² |
+| `location` | ADDRESS | Full address |
+| `province` | TEXT | Province |
+| `district` | TEXT | District |
+| `ward` | TEXT | Ward (optional) |
+| `bedrooms` | NUMBER | Number of bedrooms |
+| `bathrooms` | NUMBER | Number of bathrooms |
+| `floor` | NUMBER | Floor number |
+| `orientation` | SELECT | North/South/East/West/etc. |
+| `status` | SELECT | DRAFT / PENDING_REVIEW / APPROVED / REJECTED / EXPIRED / SOLD |
+| `verified` | BOOLEAN | Admin verified |
+| `featured` | BOOLEAN | Paid featured listing |
+| `viewCount` | NUMBER | Total views |
+| `contactCount` | NUMBER | Total inquiries |
+| `trustScore` | NUMBER | AI trust score (0-100) |
+| `spamScore` | NUMBER | AI spam score (0-100) |
+| `expiresAt` | DATETIME | Listing expiration |
+| `approvedAt` | DATETIME | Admin approval timestamp |
+| `rejectedReason` | TEXT | Rejection reason |
+
+**Status Workflow**:
+```
+DRAFT → PENDING_REVIEW → APPROVED → EXPIRED/SOLD
+                       ↓
+                    REJECTED → (can edit & resubmit)
+```
+
+**Business Rules**:
+- FREE tier: Max 3 active listings
+- BASIC tier: Max 10 active listings
+- PRO/ENTERPRISE: Unlimited
+- Auto-expire after duration (30/60/90 days)
+- Can renew before expiry
+- Rejected listings can be edited and resubmitted
+
+#### 4.8.4. Module 4.8.3: AI Research Agent ⭐
+
+**Purpose**: Tự động research mỗi listing từ multiple sources để verify authenticity và build trust.
+
+**AIResearchResult Object**:
+
+| Field Name | Type | Description |
+|------------|------|-------------|
+| `listing` | RELATION | Link to PublicListing |
+| `sourcesChecked` | JSON | List of sources checked |
+| `similarListingsFound` | JSON | Similar listings data |
+| `priceRange` | JSON | {min, max, avg} from sources |
+| `duplicateDetected` | BOOLEAN | Duplicate found? |
+| `confidenceScore` | NUMBER | Research confidence (0-100) |
+| `completedAt` | DATETIME | Research completion time |
+| `status` | SELECT | PENDING / COMPLETED / FAILED |
+
+**Research Sources** (MVP):
+1. batdongsan.com.vn
+2. chottot.vn
+3. Facebook marketplace (if accessible)
+4. Google search
+
+**Research Process**:
+```javascript
+async function researchListing(listing) {
+  // 1. Extract key info
+  const query = {
+    address: listing.location,
+    price: listing.price,
+    area: listing.area,
+    type: listing.propertyType
+  };
+
+  // 2. Search each source
+  const results = await Promise.all([
+    searchBatDongSan(query),
+    searchChoTot(query),
+    searchFacebook(query),
+    searchGoogle(query)
+  ]);
+
+  // 3. Find similar listings (±20% price, same area)
+  const similar = results.flat().filter(r =>
+    Math.abs(r.price - query.price) / query.price < 0.2 &&
+    r.area === query.area
+  );
+
+  // 4. Calculate confidence
+  const confidence = calculateConfidence(similar, query);
+
+  // 5. Detect duplicates
+  const duplicate = similar.some(r =>
+    r.address === query.address &&
+    r.price === query.price
+  );
+
+  // 6. Save results
+  return {
+    sourcesChecked: ['batdongsan', 'chotot', 'facebook', 'google'],
+    similarListingsFound: similar,
+    priceRange: {
+      min: Math.min(...similar.map(r => r.price)),
+      max: Math.max(...similar.map(r => r.price)),
+      avg: average(similar.map(r => r.price))
+    },
+    duplicateDetected: duplicate,
+    confidenceScore: confidence
+  };
+}
+```
+
+**Trigger**: When listing status → PENDING_REVIEW
+
+**Performance**: Complete within 2 minutes, queue-based (BullMQ)
+
+#### 4.8.5. Module 4.8.4: AI Summary Generation ⭐
+
+**Purpose**: Generate AI-powered summary và insights cho mỗi listing.
+
+**AI Model**: OpenAI GPT-4
+
+**Summary Sections**:
+1. **Property Overview** (100-150 words)
+2. **Neighborhood Insights** (100-150 words)
+3. **Price Analysis** (50-100 words)
+4. **Investment Potential** (50-100 words)
+5. **Pros & Cons** (3-5 pros, 2-3 cons)
+
+**Input Data**:
+- Listing details
+- AI research results
+- Neighborhood data
+- Price history (if available)
+
+**Prompt Template**:
+```
+Analyze this property listing and provide insights in Vietnamese:
+
+Property: {title}
+Type: {propertyType}
+Location: {location}
+Price: {price} VNĐ
+Area: {area} m²
+
+Research Data:
+- Similar listings: {similarListings}
+- Price range: {priceRange}
+- Market average: {marketAvg}
+
+Generate:
+1. Property Overview (100-150 words)
+2. Neighborhood Insights (100-150 words)
+3. Price Analysis (50-100 words)
+4. Investment Potential (50-100 words)
+5. Pros (3-5 points)
+6. Cons (2-3 points)
+
+Be objective, factual, and helpful.
+```
+
+**Trigger**: After AI research completes
+
+**Storage**: Store in `aiSummary` field (RICH_TEXT) on PublicListing
+
+#### 4.8.6. Module 4.8.5: Trust Score Calculation ⭐
+
+**Purpose**: Calculate trust score (0-100) cho mỗi listing để help buyers assess reliability.
+
+**Formula**:
+```
+Trust Score =
+  (Price Verification × 0.30) +
+  (Seller Reputation × 0.25) +
+  (Listing Completeness × 0.20) +
+  (AI Research Confidence × 0.25)
+```
+
+**Component Calculations**:
+
+**1. Price Verification** (0-100):
+```javascript
+let score = 0;
+if (sourcesWithSimilarPrice >= 3) score = 100;
+else if (sourcesWithSimilarPrice === 2) score = 80;
+else if (sourcesWithSimilarPrice === 1) score = 60;
+else score = 40;
+
+// Bonus for price within market range
+const deviation = Math.abs(price - marketAvg) / marketAvg;
+if (deviation < 0.10) score += 20;
+else if (deviation < 0.20) score += 10;
+
+return Math.min(score, 100);
+```
+
+**2. Seller Reputation** (0-100):
+```javascript
+let score = 0;
+if (seller.phoneVerified && seller.emailVerified) score += 40;
+if (seller.profileComplete) score += 20;
+if (seller.responseRate > 0.8) score += 20;
+if (seller.successfulListings > 0) score += 20;
+return score;
+```
+
+**3. Listing Completeness** (0-100):
+```javascript
+let score = 0;
+if (allRequiredFields) score += 50;
+if (photos.length >= 5) score += 20;
+if (description.length > 200) score += 15;
+if (legalDocuments) score += 15;
+return score;
+```
+
+**4. AI Research Confidence** (0-100):
+- Direct from AI research confidence score
+
+**Display**:
+- Badge on listing card
+- Color coding:
+  - 80-100: Green (Excellent)
+  - 60-79: Yellow (Good)
+  - 40-59: Orange (Fair)
+  - 0-39: Red (Poor)
+- Detailed breakdown on listing detail page
+
+**Update Frequency**: Daily recalculation
+
+#### 4.8.7. Module 4.8.6: Smart Spam Filter ⭐
+
+**Purpose**: Tự động detect và filter spam listings.
+
+**Detection Rules** (MVP - Rule-based):
+
+**1. Duplicate Detection**:
+```javascript
+// Same address + price + area
+if (existingListing.address === newListing.address &&
+    existingListing.price === newListing.price &&
+    existingListing.area === newListing.area) {
+  spamScore += 30;
+}
+
+// Same photos (image hash)
+if (imageHashMatch(existingListing.photos, newListing.photos)) {
+  spamScore += 40;
+}
+
+// Same phone number + similar listing
+if (existingListing.owner.phone === newListing.owner.phone &&
+    similarListing(existingListing, newListing)) {
+  spamScore += 20;
+}
+```
+
+**2. Fake Price Detection**:
+```javascript
+const marketAvg = getMarketAverage(listing.location, listing.type);
+const deviation = Math.abs(listing.price - marketAvg) / marketAvg;
+
+if (deviation > 2.0) spamScore += 30; // >3x market avg
+if (deviation < -0.5) spamScore += 30; // <0.5x market avg
+if (listing.price % 1000000000 === 0) spamScore += 10; // Round numbers
+```
+
+**3. Spam Patterns**:
+```javascript
+// Title all caps
+if (listing.title === listing.title.toUpperCase()) spamScore += 15;
+
+// Excessive special characters
+if (countSpecialChars(listing.title) > 5) spamScore += 15;
+
+// Phone in title/description
+if (containsPhoneNumber(listing.title) ||
+    containsPhoneNumber(listing.description)) spamScore += 20;
+
+// External links
+if (containsURL(listing.description)) spamScore += 20;
+
+// Spam keywords
+const spamKeywords = ['liên hệ ngay', 'cơ hội vàng', 'giá sốc'];
+if (containsKeywords(listing, spamKeywords)) spamScore += 10;
+```
+
+**Spam Score Actions**:
+- 0-30: Clean (auto-approve if other criteria met)
+- 31-60: Suspicious (flag for manual review)
+- 61-100: Spam (auto-reject + notify user)
+
+**Future Enhancement** (Phase 2): ML-based spam detection
+
+#### 4.8.8. Module 4.8.7: Inquiry System
+
+**Inquiry Object**:
+
+| Field Name | Type | Description |
+|------------|------|-------------|
+| `listing` | RELATION | Link to PublicListing |
+| `inquirer` | RELATION | Link to PublicUser (if logged in) |
+| `message` | RICH_TEXT | Inquiry message |
+| `contactPhone` | PHONE | Contact phone |
+| `contactEmail` | EMAIL | Contact email (optional) |
+| `preferredContact` | SELECT | PHONE / EMAIL / BOTH |
+| `status` | SELECT | NEW / CONTACTED / CLOSED |
+| `notes` | RICH_TEXT | Seller's private notes |
+
+**Inquiry Flow**:
+1. Buyer fills inquiry form on listing detail page
+2. System creates Inquiry record
+3. Increment `listing.contactCount`
+4. Send notification to seller (email + SMS)
+5. Send confirmation to buyer (email)
+6. If listing is internal property → convert to lead (see 4.8.9)
+
+**Rate Limiting**:
+- Anonymous: Max 5 inquiries/hour per IP
+- Logged in: Max 20 inquiries/day per user
+
+**Seller Dashboard**:
+- View all inquiries for own listings
+- Filter by listing, status, date
+- Mark as contacted/closed
+- Add private notes
+- Click-to-call functionality
+
+#### 4.8.9. Module 4.8.8: Lead Conversion Workflow
+
+**Purpose**: Tự động convert public inquiries về internal properties thành leads cho sales agents.
+
+**Trigger**: When inquiry sent to listing với `property` link (internal property)
+
+**Conversion Process**:
+```javascript
+async function convertInquiryToLead(inquiry, listing) {
+  // 1. Create or update Contact
+  let contact = await findContactByPhone(inquiry.contactPhone);
+  if (!contact) {
+    contact = await createContact({
+      name: inquiry.inquirer?.fullName || 'Public Lead',
+      phone: inquiry.contactPhone,
+      email: inquiry.contactEmail,
+      source: 'PUBLIC_MARKETPLACE'
+    });
+  }
+
+  // 2. Create Deal
+  const deal = await createDeal({
+    contact: contact,
+    property: listing.property,
+    status: 'NEW_LEAD',
+    source: 'PUBLIC_MARKETPLACE',
+    notes: inquiry.message,
+    leadScore: calculateLeadScore(inquiry, listing)
+  });
+
+  // 3. Assign to sales agent
+  const agent = await assignSalesAgent(deal);
+  deal.assignedSales = agent;
+
+  // 4. Notify agent
+  await sendNotification(agent, {
+    type: 'NEW_PUBLIC_LEAD',
+    deal: deal,
+    inquiry: inquiry,
+    listing: listing,
+    trustScore: listing.trustScore
+  });
+
+  // 5. Link inquiry to deal
+  inquiry.convertedToDeal = deal;
+  inquiry.save();
+
+  return deal;
+}
+```
+
+**Lead Qualification**:
+```javascript
+function calculateLeadScore(inquiry, listing) {
+  let score = 0;
+
+  // Verified contact
+  if (inquiry.inquirer?.phoneVerified) score += 30;
+
+  // Quality message
+  if (inquiry.message.length > 50) score += 20;
+
+  // High trust listing
+  if (listing.trustScore > 60) score += 20;
+
+  // Budget indication
+  if (containsBudget(inquiry.message)) score += 15;
+
+  // Timeline indication
+  if (containsTimeline(inquiry.message)) score += 15;
+
+  return score;
+}
+```
+
+**Lead Quality Tiers**:
+- 80-100: HOT (immediate follow-up)
+- 60-79: WARM (follow-up within 24h)
+- 40-59: COLD (follow-up within 48h)
+- 0-39: UNQUALIFIED (low priority)
+
+**Auto-Assignment**:
+- HOT leads → Senior agents
+- WARM leads → Regular agents
+- COLD leads → Junior agents
+
+#### 4.8.10. Admin Features
+
+**Listing Approval Workflow**:
+1. Pending listings queue
+2. Review page với:
+   - All listing details
+   - AI research results
+   - Trust score breakdown
+   - Spam score
+   - Similar listings
+3. Actions:
+   - Approve (status → APPROVED)
+   - Reject (status → REJECTED, reason required)
+   - Request changes (status → CHANGES_REQUESTED)
+4. Auto-approval option (if trust score >80 AND spam score <30)
+
+**User Management**:
+- List all public users
+- Filter by type, status, subscription
+- Actions: verify, suspend, ban, reset password
+- View user activity log
+
+**Analytics Dashboard**:
+- Key metrics: users, listings, inquiries, leads
+- Charts: growth trends, conversion funnel
+- Tables: top listings, top sellers
+- Export to CSV
+
+#### 4.8.11. Success Metrics
+
+**North Star Metric**: Qualified Leads Generated per Month
+
+**Targets**:
+- Month 3: 50 qualified leads/month
+- Month 6: 200 qualified leads/month
+- Month 12: 500 qualified leads/month
+
+**Other KPIs**:
+- Registered users: 5,000 Year 1
+- Active listings: 8,000 Year 1
+- Lead conversion rate: 10-15%
+- AI accuracy: >90%
+- Spam detection: >95%
+- User satisfaction: >4.2/5
 
 ---
 
@@ -1611,6 +2250,44 @@ deploy:
 - **Error Rate**: % failed requests (target: <0.1%)
 - **Active Users**: Daily/Monthly active users
 
+### 14.8. Public Marketplace Metrics - NEW ⭐
+
+**North Star Metric**: Qualified Leads Generated per Month
+
+**Lead Generation Targets**:
+- Month 3: 50 qualified leads/month
+- Month 6: 200 qualified leads/month
+- Month 12: 500 qualified leads/month
+
+**User Acquisition**:
+- Registered public users: 5,000 Year 1
+- Active listings: 8,000 Year 1
+- Daily active users: 1,000 by Month 12
+
+**Engagement**:
+- Lead conversion rate: 10-15%
+- Inquiry response rate: >70%
+- Average session duration: >5 minutes
+- Listings per seller: >3
+
+**AI Performance**:
+- AI research accuracy: >90%
+- Trust score accuracy: >85%
+- Spam detection rate: >95%
+- AI response time: <2 seconds
+
+**Financial**:
+- Monthly recurring revenue (MRR): 100M VNĐ by Month 12
+- Average revenue per user (ARPU): 150k VNĐ
+- Customer acquisition cost (CAC): <1.5M VNĐ
+- Lifetime value (LTV): >2.4M VNĐ
+
+**Quality**:
+- User satisfaction: >4.2/5
+- Listing approval rate: >85%
+- Verified listings: >50%
+- Platform uptime: >99.5%
+
 ---
 
 ## 15. Rủi ro & Giả định
@@ -1795,6 +2472,120 @@ deploy:
 - **AI Features**: Lead scoring, price recommendations
 - **Integration**: Accounting software integration
 - **Marketing**: Landing page builder for projects
+
+### 16.5. Phase 4: Public Marketplace - 12 months (Month 6-18) - NEW ⭐
+
+**Goal**: Launch AI-powered public marketplace để generate unlimited quality leads
+
+**Prerequisites**:
+- ✅ Internal CRM stable (Phase 1-3 complete)
+- ✅ 6-12 months runway secured (2.5B VNĐ)
+- ✅ Product Manager hired
+- ✅ 50+ beta users committed
+
+**Timeline**: Start Month 6 after internal CRM launch
+
+#### Phase 4.1: MVP (Month 6-9) - 3 months
+
+**Goal**: Launch functional marketplace với core AI features
+
+**Month 6: Foundation**
+- Setup development environment
+- Database schema design
+- Create new entities (PublicUser, PublicListing, Inquiry, AIResearchResult)
+- Implement RBAC for public users
+- Basic frontend views (browse, search, detail)
+
+**Month 7: Core Features**
+- User registration & authentication
+- Post listing flow
+- Inquiry system
+- Admin approval workflow
+- AI Research Agent (basic - 3 sources)
+- Trust score calculation
+
+**Month 8: AI & Polish**
+- AI Summary generation (OpenAI GPT-4)
+- Spam filter (rule-based)
+- Lead conversion workflow
+- Analytics dashboard
+- Testing & bug fixes
+
+**Month 9: Beta Launch**
+- Beta program với 50 users
+- 200 listings target
+- Collect feedback
+- Iterate and improve
+
+**Deliverables**:
+- Functional marketplace
+- AI research & summary working
+- Trust scores calculated
+- Lead generation active
+- 50 beta users, 200 listings
+
+#### Phase 4.2: Growth (Month 10-12) - 3 months
+
+**Goal**: Scale users, add monetization, enhance AI
+
+**Month 10: Monetization**
+- Subscription tiers (FREE/BASIC/PRO/ENTERPRISE)
+- Payment integration (VNPay, MoMo)
+- Featured listings
+- Seller dashboard với analytics
+
+**Month 11: Enhanced AI**
+- AI Consultation chatbot (OpenAI GPT-4)
+- Advanced spam detection (ML model)
+- Research từ 5+ sources
+- Price trend prediction
+
+**Month 12: Scale & Optimize**
+- Performance optimization
+- SEO optimization
+- Email/SMS notifications
+- Mobile responsiveness improvements
+- Public launch
+
+**Deliverables**:
+- 1,000 users, 2,000 listings
+- Monetization active
+- AI chatbot live
+- 200 qualified leads/month
+
+#### Phase 4.3: Vision (Month 13-18) - 6 months
+
+**Goal**: Advanced features, mobile apps, market leadership
+
+**Month 13-15: Advanced Features**
+- Mobile apps (iOS/Android) - React Native
+- Interactive map view
+- Price history charts
+- Virtual tours (360° photos)
+- Comparison tool
+
+**Month 16-18: Ecosystem**
+- API for third-party integrations
+- Partner integrations
+- Affiliate program
+- Market reports & analytics
+- Predictive analytics
+
+**Deliverables**:
+- 5,000 users, 8,000 listings
+- Mobile apps launched
+- 500 qualified leads/month
+- Market leadership trong Long Thành
+
+**Success Criteria**:
+- ✅ 5,000 registered users Year 1
+- ✅ 500 qualified leads/month by Month 12
+- ✅ 10-15% lead conversion rate
+- ✅ Break-even Month 8-10
+- ✅ User satisfaction >4.2/5
+- ✅ AI accuracy >90%
+
+**Budget**: 2.5B VNĐ Year 1 (see Section 19.8)
 
 ---
 
@@ -2163,6 +2954,87 @@ Year 2:
 - Analytics: Google Analytics 4 or Mixpanel
 - In-app telemetry: Track feature usage per user
 - Weekly surveys: NPS + specific feedback
+
+### 19.8. Public Marketplace Costs (Year 1) - NEW ⭐
+
+**Development Costs**:
+
+| Item | Cost (VNĐ) | Notes |
+|------|-----------|-------|
+| **Phase 4.1: MVP (3 months)** | 450,000,000 | 2 developers × 5M/day × 90 days |
+| **Phase 4.2: Growth (3 months)** | 450,000,000 | 2 developers × 5M/day × 90 days |
+| **SSR Implementation (4 weeks)** | 200,000,000 | SSR middleware for SEO (2 devs × 4 weeks) |
+| **Product Manager** | 360,000,000 | 30M/month × 12 months |
+| **UI/UX Design** | 60,000,000 | Public marketplace design |
+| **QA Testing** | 80,000,000 | Testing & bug fixes |
+| **Subtotal Development** | **1,600,000,000** | |
+
+**Infrastructure Costs (Monthly)**:
+
+| Item | Cost (VNĐ) | Notes |
+|------|-----------|-------|
+| **AI Services (OpenAI GPT-4)** | 10,000,000 | Summary, chatbot, ~10k requests/month |
+| **Web Scraping Infrastructure** | 3,000,000 | Proxies, scraping tools |
+| **Additional Server Capacity** | 2,500,000 | Handle public traffic |
+| **SMS/Email Services** | 5,000,000 | Notifications, verifications |
+| **CDN & Storage** | 2,500,000 | Images, static assets |
+| **Subtotal/Month** | **23,000,000** | |
+| **Subtotal/Year** | **276,000,000** | |
+
+**Operational Costs (Monthly)**:
+
+| Item | Cost (VNĐ) | Notes |
+|------|-----------|-------|
+| **Content Moderators (2)** | 12,000,000 | Review listings, 6M each |
+| **Customer Support (2)** | 12,000,000 | Handle public user inquiries |
+| **Marketing** | 20,000,000 | Digital ads, content, SEO |
+| **Subtotal/Month** | **44,000,000** | |
+| **Subtotal/Year** | **528,000,000** | |
+
+**Total Public Marketplace Costs**:
+
+| Category | Year 1 (VNĐ) | Year 2+ (VNĐ) |
+|----------|-------------|---------------|
+| Development (one-time) | 1,600,000,000 | 200,000,000 (maintenance) |
+| Infrastructure (annual) | 276,000,000 | 276,000,000 |
+| Operations (annual) | 528,000,000 | 528,000,000 |
+| **TOTAL** | **2,404,000,000** | **1,004,000,000** |
+
+**Revenue Projections**:
+
+| Source | Year 1 (VNĐ) | Year 2 (VNĐ) |
+|--------|-------------|-------------|
+| Subscriptions | 257,000,000 | 1,280,000,000 |
+| Featured Listings | 32,000,000 | 162,000,000 |
+| Lead Commissions | 3,000,000,000 | 15,000,000,000 |
+| **TOTAL** | **3,289,000,000** | **16,442,000,000** |
+
+**Public Marketplace ROI**:
+
+```
+Year 1:
+- Revenue: 3,289M VNĐ
+- Costs: 2,404M VNĐ
+- Profit: +885M VNĐ (+37% ROI)
+- Break-even: Month 9
+
+Year 2:
+- Revenue: 16,442M VNĐ
+- Costs: 1,004M VNĐ
+- Profit: +15,438M VNĐ (+1,538% ROI)
+```
+
+**Note**: Revenue heavily depends on lead conversion (10% of inquiries → deals). Pilot program will validate this assumption.
+
+**Combined Total Costs (Internal CRM + Public Marketplace)**:
+
+| Category | Year 1 (VNĐ) | Year 2+ (VNĐ) |
+|----------|-------------|---------------|
+| Internal CRM | 1,797,000,000 | 1,287,000,000 |
+| Public Marketplace | 2,404,000,000 | 1,004,000,000 |
+| **GRAND TOTAL** | **4,201,000,000** | **2,291,000,000** |
+
+**Note**: Public Marketplace costs include 200M VNĐ for SSR implementation (4 weeks) to achieve SEO requirements without expensive NextJS migration (which would cost 900M VNĐ).
 - Support ticket system: Track volume and types
 
 **Reporting Frequency**:
@@ -2210,6 +3082,7 @@ Year 2:
 | 1.1 | 06/12/2025 | Luis | Added data models, user stories, architecture diagrams |
 | 1.2 | 06/12/2025 | Mary (BA) + Luis | **Major Update**: Added Customer Persona, Module 2.5 (Contact), Module 2.6 (Deal), File Storage Strategy, Phase 0 (Technical Validation), Maintenance Plan, Legal & Compliance, Cost-Benefit Analysis. Fixed all critical issues from PRD Analysis Report v1.0. Status: Ready for Review |
 | 1.3 | 06/12/2025 | Mary (BA) | **FINAL VERSION**: Incorporated Business Feasibility Analysis findings. **Added**: Pilot Program (200 agents, 2 months), Scaled Support Team (3→5 people), Adoption KPIs section. **Updated**: Total costs (1.387B → 1.797B Year 1), Timeline (added pilot phase), Roadmap (pilot before full rollout). **Status**: Ready for Approval. **Business Feasibility**: CONFIRMED (81/100 - Highly Feasible) |
+| 1.4 | 25/12/2025 | John (PM) + Mary (BA) | **PUBLIC MARKETPLACE MODULE**: Transform platform thành dual-purpose (internal + public). **Added**: Epic 8 (Module 4.8) - Public Marketplace với 8 sub-modules, 3 new personas (Public Buyer/Seller/Broker), AI-powered features (Research Agent, Summary, Trust Score, Spam Filter), Inquiry system, Lead conversion workflow. **Updated**: Section 14.8 (Public Marketplace metrics), Section 16.5 (Phase 4 roadmap), Section 19.8 (costs 2.2B VNĐ Year 1). **Architecture**: Single frontend với RBAC (revised from dual-frontend). **Status**: Draft - Ready for Review |
 
 ---
 

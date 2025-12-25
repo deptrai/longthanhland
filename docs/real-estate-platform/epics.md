@@ -326,6 +326,592 @@ Tài liệu này mô tả đầy đủ cấu trúc Epic và Story cho Nền tả
 
 ---
 
+## Epic 8: Public Marketplace (Thị trường Công khai) 🌐
+
+**Giá trị:** Transform internal CRM thành dual-purpose platform, generate unlimited qualified leads từ public marketplace
+
+**Phạm vi:**
+- SSR infrastructure cho SEO (Express middleware)
+- Public user management (registration, authentication, subscriptions)
+- Public listing management (post, approve, browse, search)
+- AI-powered features (research, summary, trust score, spam filter)
+- Inquiry system & lead conversion workflow
+- Monetization (subscriptions, featured listings)
+- Analytics & reporting
+
+**Số lượng story:** 38 stories
+**Phụ thuộc:** Epic 1-7 (internal CRM foundation)
+**Timeline:** 16 weeks (Phase 4)
+**Kết quả:** Functional public marketplace generating 500 qualified leads/month
+
+**Assumptions (CONFIRMED):**
+- ✅ OpenAI via v98store key (already implemented)
+- ✅ Web scraping via Perplexica API
+- ✅ VNPay payment integration
+- ✅ Redis available for SSR caching
+
+### Sub-Epics:
+
+**Epic 8.1: Foundation & SSR Setup** (6 stories, Week 1-2)
+**Epic 8.2: Public User Management** (5 stories, Week 2-3)
+**Epic 8.3: Public Listing Management** (6 stories, Week 3-5)
+**Epic 8.4: AI Research & Trust System** (5 stories, Week 5-7)
+**Epic 8.5: AI Summary & Spam Filter** (4 stories, Week 7-9)
+**Epic 8.6: Inquiry & Lead Conversion** (5 stories, Week 9-11)
+**Epic 8.7: Monetization & Analytics** (4 stories, Week 12-14)
+**Epic 8.8: Advanced Features** (3 stories, Week 15-16)
+
+---
+
+### Epic 8.1: Foundation & SSR Setup (6 stories)
+
+#### Story 8.1.1: Project Setup & Module Structure 🏗️
+
+**As a** developer,
+**I want** to set up the Public Marketplace module structure within Twenty CRM,
+**So that** we have a clean foundation for implementing all public marketplace features.
+
+**Acceptance Criteria:**
+- ✅ Given the Twenty CRM monorepo exists, When I create the public marketplace module structure, Then directories are created: `packages/twenty-server/src/modules/public-marketplace/`, `packages/twenty-front/src/modules/public-marketplace/`, `packages/twenty-front/server/`
+- ✅ Given module structure created, When I register the module, Then it's properly registered in Twenty's DI system
+- ✅ Given module registered, When I check configuration, Then tsconfig and jest.config are created
+
+**Tech Tasks:**
+1. Create backend module directory structure
+2. Create frontend components directory
+3. Create SSR server directory
+4. Register module in `core-modules.module.ts`
+5. Create README.md documenting module purpose
+6. Setup configuration files
+
+**Prerequisites:** None (first story)
+**Estimate:** 4 hours
+**Priority:** P0 (Blocking)
+
+**Technical Notes:**
+- Follow Twenty's module conventions
+- Use `@Module()` decorator for NestJS
+- Reference: `/docs/real-estate-platform/architecture.md`
+
+---
+
+#### Story 8.1.2: Express SSR Server Setup 🚀
+
+**As a** developer,
+**I want** to set up an Express.js SSR server for public pages,
+**So that** search engine bots receive pre-rendered HTML with proper meta tags.
+
+**Acceptance Criteria:**
+- ✅ Given project structure set up (Story 8.1.1), When I create Express SSR server, Then server in `packages/twenty-front/server/index.ts` is created
+- ✅ Given server created, When I start server, Then it listens on port 3002 (configurable)
+- ✅ Given server running, When I access routes, Then basic routing works for `/`, `/listings`, `/listings/:id`
+- ✅ Given server running, When I check health, Then `/health` endpoint responds
+
+**Tech Tasks:**
+1. Install Express.js 4.18.x
+2. Create server entry point
+3. Setup basic routing
+4. Integrate with Vite build output
+5. Configure logging (Winston)
+6. Add health check endpoint
+7. Setup graceful shutdown
+
+**Prerequisites:** Story 8.1.1
+**Estimate:** 6 hours
+**Priority:** P0
+
+**Technical Notes:**
+- Reference ADR-006 in architecture.md
+- Environment variables: `SSR_PORT`, `SSR_ENABLED`
+- Use existing Twenty infrastructure
+
+---
+
+#### Story 8.1.3: Bot Detection Middleware 🤖
+
+**As a** developer,
+**I want** to implement bot detection middleware,
+**So that** we can serve SSR content to bots and CSR to regular users.
+
+**Acceptance Criteria:**
+- ✅ Given Express SSR server running (Story 8.1.2), When request comes, Then middleware detects if user-agent is a bot
+- ✅ Given bot detected, When middleware processes, Then `req.isBot = true` is set
+- ✅ Given regular user, When middleware processes, Then `req.isBot = false` is set
+- ✅ Given bot detection, When logging, Then detection results are logged
+
+**Tech Tasks:**
+1. Create `server/middleware/bot-detection.ts`
+2. Implement regex pattern matching for bots:
+   - Googlebot, Bingbot, Slurp, DuckDuckBot
+   - Baiduspider, Yandexbot
+   - Social bots: facebookexternalhit, Twitterbot, LinkedInBot
+3. Add unit tests for detection logic
+4. Integrate middleware into Express app
+
+**Prerequisites:** Story 8.1.2
+**Estimate:** 4 hours
+**Priority:** P0
+
+**Technical Notes:**
+- Consider using `isbot` npm package
+- Case-insensitive matching
+- Reference: frontend-architecture-analysis.md Section 5.2
+
+---
+
+#### Story 8.1.4: SSR Rendering for Public Routes 🎨
+
+**As a** developer,
+**I want** to implement SSR rendering for public marketplace routes,
+**So that** bots receive fully rendered HTML with content.
+
+**Acceptance Criteria:**
+- ✅ Given bot detection working (Story 8.1.3), When bot requests page, Then server uses `react-dom/server.renderToString()` to render
+- ✅ Given rendering, When data needed, Then GraphQL API is called before rendering
+- ✅ Given HTML rendered, When response sent, Then complete HTML with status 200 returned
+- ✅ Given SSR rendering, When measured, Then completes within 500ms (target)
+- ✅ Given SSR error, When fallback needed, Then gracefully falls back to CSR
+
+**Tech Tasks:**
+1. Create `server/ssr-renderer.ts` module
+2. Setup `StaticRouter` from `react-router-dom/server`
+3. Implement Apollo Client SSR for data fetching
+4. Create `getServerSideProps` pattern for async data
+5. Add error boundaries for SSR failures
+6. Implement routes: `/`, `/listings`, `/listings/:id`
+
+**Prerequisites:** Story 8.1.3
+**Estimate:** 8 hours
+**Priority:** P0
+
+**Technical Notes:**
+- Critical route: `/listings/:id` (most important for SEO)
+- Reference ADR-006 implementation section
+
+---
+
+#### Story 8.1.5: Dynamic Meta Tags Generation 🏷️
+
+**As a** developer,
+**I want** to generate dynamic meta tags for each listing page,
+**So that** search engines and social media platforms display rich previews.
+
+**Acceptance Criteria:**
+- ✅ Given SSR rendering working (Story 8.1.4), When listing page rendered for bot, Then HTML includes: title tag, meta description, OG tags, Twitter Card tags, canonical URL
+- ✅ Given meta tags, When generated, Then dynamically based on listing data
+- ✅ Given homepage/browse pages, When rendered, Then default meta tags used
+- ✅ Given images in meta, When URLs generated, Then absolute URLs used
+
+**Tech Tasks:**
+1. Create `server/meta-tags-generator.ts` module
+2. Implement `generateListingMetaTags(listing)` function
+3. Generate tags:
+   - `<title>` with listing title + location
+   - `<meta name="description">` (max 160 chars)
+   - OG tags: title, description, image, url, type
+   - Twitter Card tags
+   - Canonical URL
+4. Escape special characters
+5. Use React Helmet or similar
+
+**Prerequisites:** Story 8.1.4
+**Estimate:** 4 hours
+**Priority:** P1
+
+**Technical Notes:**
+- Reference frontend-architecture-analysis.md Section 5.2
+- Template-based generation
+
+---
+
+#### Story 8.1.6: Redis Caching for SSR ⚡
+
+**As a** developer,
+**I want** to implement Redis caching for SSR-rendered pages,
+**So that** we reduce server load and improve response times.
+
+**Acceptance Criteria:**
+- ✅ Given SSR and meta tags working (Story 8.1.5), When bot requests recently rendered page, Then Redis cache checked first
+- ✅ Given cache hit, When HTML found, Then cached HTML returned
+- ✅ Given cache miss, When HTML not found, Then fresh HTML rendered and cached
+- ✅ Given caching, When TTL set, Then 1-hour TTL used
+- ✅ Given cache metrics, When monitored, Then hit/miss logged
+- ✅ Given cache hit rate, When measured, Then >80% target
+
+**Tech Tasks:**
+1. Use existing Redis connection from Twenty CRM
+2. Create `server/cache-manager.ts` module
+3. Implement cache key pattern: `ssr:${route}:${params}`
+4. Implement cache get/set with TTL
+5. Add cache invalidation webhook
+6. Add metrics to monitoring dashboard
+7. Configure `SSR_CACHE_TTL` environment variable
+
+**Prerequisites:** Story 8.1.5
+**Estimate:** 6 hours
+**Priority:** P1
+
+**Technical Notes:**
+- Cache invalidation on listing update critical
+- Monitor cache performance
+
+---
+
+### Epic 8.2: Public User Management (5 stories)
+
+#### Story 8.2.1: PublicUser Entity & CRUD 👤
+
+**As a** developer,
+**I want** to create the PublicUser entity with CRUD operations,
+**So that** we can store and manage public user data.
+
+**Acceptance Criteria:**
+- ✅ Given module structure (Epic 8.1), When I create PublicUser entity, Then `PublicUserWorkspaceEntity` created with Twenty's `@WorkspaceEntity` decorator
+- ✅ Given entity created, When fields defined, Then includes: email, phone, fullName, userType, verified, subscriptionTier (per PRD 4.8.2)
+- ✅ Given entity registered, When GraphQL generated, Then CRUD operations auto-generated
+- ✅ Given database, When migration run, Then PublicUser table created
+- ✅ Given service, When created, Then `PublicUserService` with TwentyORMGlobalManager exists
+
+**Tech Tasks:**
+1. Create `public-user.workspace-entity.ts`
+2. Define fields with `@WorkspaceField` decorators:
+   - email (EMAIL, unique, required)
+   - phone (PHONE, required, verified)
+   - fullName (TEXT)
+   - userType (SELECT: BUYER, SELLER, BROKER)
+   - verified (BOOLEAN, default false)
+   - subscriptionTier (SELECT: FREE, BASIC, PRO, ENTERPRISE)
+   - Computed: totalListings, activeListings, responseRate
+3. Create database migration
+4. Create `PublicUserService`
+5. Register in `RealEstateModule`
+6. Add validation (email format, phone format)
+
+**Prerequisites:** Epic 8.1 complete
+**Estimate:** 6 hours
+**Priority:** P0
+
+**Technical Notes:**
+- Follow Twenty's entity pattern (architecture.md Section 4.1)
+- Reference PRD v1.4 Section 4.8.2
+
+---
+
+#### Story 8.2.2: User Registration & Verification 📧
+
+**As a** public user,
+**I want** to register an account with email and phone verification,
+**So that** I can access the marketplace as a verified user.
+
+**Acceptance Criteria:**
+- ✅ Given PublicUser entity (Story 8.2.1), When I submit registration form, Then system validates email/phone and creates user with `verified = false`
+- ✅ Given user created, When verification sent, Then email verification link and SMS code sent
+- ✅ Given email link clicked, When verified, Then `emailVerified = true`
+- ✅ Given SMS code entered, When correct, Then `phoneVerified = true`
+- ✅ Given both verified, When checked, Then `verified = true` and `verifiedAt` timestamp set
+
+**Tech Tasks:**
+1. Create `PublicUserResolver` with `registerPublicUser` mutation
+2. Validate email format and uniqueness
+3. Validate phone number (Vietnamese format)
+4. Use existing email service from Twenty CRM
+5. Integrate SMS service (Twilio or Vietnamese provider)
+6. Generate verification tokens (24h expiry)
+7. Implement rate limiting (max 3 attempts/IP/hour)
+8. Create frontend registration form component
+
+**Prerequisites:** Story 8.2.1
+**Estimate:** 8 hours
+**Priority:** P0
+
+**Technical Notes:**
+- SMS provider: VIETGUYS or similar
+- Token security critical
+
+---
+
+#### Story 8.2.3: Public User Authentication 🔐
+
+**As a** public user,
+**I want** to log in with my email and password,
+**So that** I can access my account and marketplace features.
+
+**Acceptance Criteria:**
+- ✅ Given verified account (Story 8.2.2), When I submit login credentials, Then system validates and generates JWT token (7-day expiry)
+- ✅ Given token generated, When response sent, Then token and user profile returned
+- ✅ Given JWT token, When created, Then includes: userId, email, userType, subscriptionTier, expiry, signature
+- ✅ Given invalid credentials, When login attempted, Then 401 error returned
+- ✅ Given unverified account, When login attempted, Then 403 error with message returned
+
+**Tech Tasks:**
+1. Extend Twenty's existing auth system for public users
+2. Create `PublicAuthResolver` with `loginPublicUser` mutation
+3. Use bcrypt for password hashing (already in Twenty)
+4. Generate JWT with secret from environment
+5. Set secure HTTP-only cookie
+6. Implement refresh token mechanism
+7. Create frontend login form component
+
+**Prerequisites:** Story 8.2.2
+**Estimate:** 6 hours
+**Priority:** P0
+
+**Technical Notes:**
+- JWT secret from environment variable
+- Secure cookie configuration
+
+---
+
+#### Story 8.2.4: Subscription Tiers & RBAC 💎
+
+**As a** developer,
+**I want** to implement subscription tiers with role-based access control,
+**So that** users have appropriate permissions based on their subscription level.
+
+**Acceptance Criteria:**
+- ✅ Given public users authenticated (Story 8.2.3), When subscription tier set, Then permissions enforced: FREE (3 listings, 30 days), BASIC (10 listings, 60 days), PRO (unlimited, 90 days), ENTERPRISE (custom)
+- ✅ Given RBAC permissions, When defined, Then includes: browse_listings (all), post_listing (registered), send_inquiry (all), save_favorites (registered), manage_own_listings (registered)
+- ✅ Given permissions, When checked in resolvers, Then enforced via decorators
+
+**Tech Tasks:**
+1. Extend Twenty's RBAC system (architecture.md Section 7)
+2. Create custom role: `PUBLIC_USER_ROLE`
+3. Define subscription tier limits in code
+4. Implement permission decorators: `@RequirePublicUserPermission()`
+5. Check subscription limits in listing creation
+6. Display subscription limits in frontend UI
+
+**Prerequisites:** Story 8.2.3
+**Estimate:** 6 hours
+**Priority:** P1
+
+**Technical Notes:**
+- Subscription limits enforced at service layer
+- Permission checks at resolver layer
+
+---
+
+#### Story 8.2.5: User Profile Management ⚙️
+
+**As a** public user,
+**I want** to view and update my profile information,
+**So that** I can keep my account details current.
+
+**Acceptance Criteria:**
+- ✅ Given logged in (Story 8.2.3), When I navigate to profile, Then I see: fullName, email, phone, userType, subscriptionTier, listings count, responseRate, memberSince
+- ✅ Given profile page, When I edit, Then I can update: fullName, phone (requires re-verification), password (requires current), profilePhoto
+- ✅ Given changes made, When saved, Then validated and stored
+- ✅ Given sensitive fields, When changed, Then additional verification required
+
+**Tech Tasks:**
+1. Create `updatePublicUserProfile` mutation
+2. Create frontend profile page component
+3. Implement form validation
+4. Handle image upload for profile photo (Twenty's file storage)
+5. Add audit log for profile changes
+6. Implement rate limiting on updates
+
+**Prerequisites:** Story 8.2.4
+**Estimate:** 6 hours
+**Priority:** P2
+
+**Technical Notes:**
+- Phone change requires re-verification
+- Password change requires current password
+
+---
+
+### Epic 8.3: Public Listing Management (6 stories)
+
+#### Story 8.3.1: PublicListing Entity & CRUD 🏠
+
+**As a** developer,
+**I want** to create the PublicListing entity with CRUD operations,
+**So that** sellers can create and manage property listings.
+
+**Acceptance Criteria:**
+- ✅ Given PublicUser entity (Epic 8.2), When I create PublicListing entity, Then `PublicListingWorkspaceEntity` created with all fields from PRD 4.8.3
+- ✅ Given entity created, When relations defined, Then `owner` → PublicUser, `property` → Property (nullable)
+- ✅ Given fields defined, When status enum created, Then includes: DRAFT, PENDING_REVIEW, APPROVED, REJECTED, EXPIRED, SOLD
+- ✅ Given entity complete, When GraphQL generated, Then CRUD operations available
+- ✅ Given database, When migration run, Then PublicListing table created
+
+**Tech Tasks:**
+1. Create `public-listing.workspace-entity.ts`
+2. Define fields: title, description, listingType, propertyType, price, location, images[], status
+3. Define relations: owner, property
+4. Add computed fields: viewCount, contactCount, daysListed
+5. Add timestamps: createdAt, updatedAt, publishedAt, expiresAt
+6. Create database migration
+7. Add validation: price > 0, title max 100 chars, description max 2000 chars
+
+**Prerequisites:** Epic 8.2 complete
+**Estimate:** 6 hours
+**Priority:** P0
+
+**Technical Notes:**
+- Image storage: Twenty's file storage system
+- Reference PRD v1.4 Section 4.8.3
+
+---
+
+#### Story 8.3.2: Post Listing Flow 📝
+
+**As a** seller,
+**I want** to post a new property listing,
+**So that** buyers can discover my property.
+
+**Acceptance Criteria:**
+- ✅ Given logged in as verified seller (Epic 8.2), When I submit listing form, Then system validates fields, checks subscription limits, uploads images, creates listing with DRAFT status
+- ✅ Given listing form, When displayed, Then includes: basic info (title, description, type), property details (bedrooms, bathrooms, area, price), location (address, district, city, coordinates), images (up to subscription limit), contact info
+- ✅ Given form, When validated, Then client-side validation active
+- ✅ Given images, When uploaded, Then resized and optimized
+
+**Tech Tasks:**
+1. Create `createPublicListing` mutation in `PublicListingResolver`
+2. Validate all required fields
+3. Check subscription limits (active listings count)
+4. Handle image upload (max 10MB/image, JPG/PNG/WebP)
+5. Create frontend multi-step listing form
+6. Use React Hook Form for form management
+7. Implement auto-save draft functionality
+8. Add location autocomplete (Google Maps API)
+
+**Prerequisites:** Story 8.3.1
+**Estimate:** 10 hours
+**Priority:** P0
+
+**Technical Notes:**
+- Multi-step form for better UX
+- Image optimization critical
+
+---
+
+#### Story 8.3.3: Admin Approval Workflow ✅
+
+**As an** admin,
+**I want** to review and approve/reject pending listings,
+**So that** we maintain quality and prevent spam.
+
+**Acceptance Criteria:**
+- ✅ Given listing submitted with PENDING_REVIEW (Story 8.3.2), When I view moderation queue, Then I see: list of pending listings, details, trust score, spam flags, approve/reject buttons
+- ✅ Given listing reviewed, When I approve, Then status changes to APPROVED and `publishedAt` set
+- ✅ Given listing reviewed, When I reject, Then I provide reason and status changes to REJECTED
+- ✅ Given approval/rejection, When processed, Then seller receives notification
+
+**Tech Tasks:**
+1. Create `approvePublicListing` and `rejectPublicListing` mutations
+2. Create admin moderation queue component
+3. Implement permissions (admin only)
+4. Setup notification service (email + in-app)
+5. Add audit log (who approved/rejected, when)
+6. Implement bulk actions (approve/reject multiple)
+
+**Prerequisites:** Story 8.3.2
+**Estimate:** 8 hours
+**Priority:** P0
+
+**Technical Notes:**
+- Queue should show trust score if available
+- Spam flags should be highlighted
+
+---
+
+#### Story 8.3.4: Listing Status Management 🔄
+
+**As a** seller,
+**I want** to manage my listing status,
+**So that** I can keep listings up-to-date.
+
+**Acceptance Criteria:**
+- ✅ Given approved listing (Story 8.3.3), When I navigate to dashboard, Then I see all my listings with status
+- ✅ Given listing actions, When available, Then I can: edit (requires re-approval), renew (extends expiresAt), mark as sold (changes to SOLD), delete (draft/rejected only)
+- ✅ Given status transitions, When executed, Then follow rules: APPROVED→DRAFT (edit), APPROVED→SOLD (sold), APPROVED→EXPIRED (auto), EXPIRED→PENDING_REVIEW (renew)
+- ✅ Given auto-expiry, When job runs, Then daily job expires old listings
+
+**Tech Tasks:**
+1. Create mutations: `updatePublicListing`, `renewPublicListing`, `markListingAsSold`
+2. Create seller dashboard component
+3. Create background job: `ExpireListingsJob` (runs daily midnight)
+4. Setup notifications (remind 3 days before expiry)
+5. Add audit log for status changes
+
+**Prerequisites:** Story 8.3.3
+**Estimate:** 8 hours
+**Priority:** P1
+
+**Technical Notes:**
+- Auto-expiry job critical for data quality
+- Renewal extends by subscription duration
+
+---
+
+#### Story 8.3.5: Browse & Search Listings 🔍
+
+**As a** buyer,
+**I want** to browse and search property listings,
+**So that** I can find properties matching my criteria.
+
+**Acceptance Criteria:**
+- ✅ Given approved listings (Story 8.3.3), When I navigate to browse page, Then I see: grid/list view, filters (location, type, price, bedrooms, area), sort options (newest, price), pagination (20/page), listing cards
+- ✅ Given filters, When applied, Then results update dynamically
+- ✅ Given search query, When entered, Then listings searched by: title, description, location
+- ✅ Given Vietnamese text, When searched, Then diacritics supported
+
+**Tech Tasks:**
+1. Create `searchPublicListings` query with filters
+2. Create frontend browse page with filter sidebar
+3. Use PostgreSQL full-text search
+4. Implement cursor-based pagination
+5. Cache popular filter combinations in Redis
+6. Ensure SSR-rendered for bots
+
+**Prerequisites:** Story 8.3.4
+**Estimate:** 10 hours
+**Priority:** P0
+
+**Technical Notes:**
+- SEO critical - must be SSR
+- Vietnamese text search important
+
+---
+
+#### Story 8.3.6: Listing Detail Page with SSR 📄
+
+**As a** buyer,
+**I want** to view detailed listing information,
+**So that** I can decide if interested.
+
+**Acceptance Criteria:**
+- ✅ Given listing clicked from browse (Story 8.3.5), When detail page loads, Then I see: full image gallery, complete details, location map, seller contact, trust score, AI summary, inquiry form
+- ✅ Given bot request, When page rendered, Then SSR with: dynamic meta tags, structured data (JSON-LD), all content pre-rendered
+- ✅ Given page view, When tracked, Then viewCount incremented
+- ✅ Given similar listings, When shown, Then displayed at bottom
+
+**Tech Tasks:**
+1. Create listing detail page component
+2. Implement SSR in Express server (Epic 8.1)
+3. Generate dynamic meta tags (title, description, OG tags)
+4. Add structured data (Schema.org RealEstateListing)
+5. Create image gallery with lightbox
+6. Integrate Google Maps Embed API
+7. Track page views and time on page
+8. Implement similar listings recommendation
+
+**Prerequisites:** Story 8.3.5, Epic 8.1 (SSR)
+**Estimate:** 10 hours
+**Priority:** P0
+
+**Technical Notes:**
+- Most critical page for SEO
+- Structured data essential for rich snippets
+
+---
+
+_[Epic 8.4-8.8 stories continue with same detailed format...]_
+
+---
+
 ## Bước tiếp theo
 
 Sau khi bạn đồng ý cấu trúc epic:
@@ -335,4 +921,4 @@ Sau khi bạn đồng ý cấu trúc epic:
 
 ---
 
-_Nếu bạn OK với cấu trúc epic này, chúng ta sẽ chuyển sang bước chi tiết hóa từng story._
+_Epic 8 (Public Marketplace) đã được thêm vào với 18/38 stories fully detailed. Các stories còn lại (Epic 8.4-8.8) sẽ được expand theo format tương tự._

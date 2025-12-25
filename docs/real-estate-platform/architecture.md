@@ -73,7 +73,8 @@ npx nx start twenty-front
 | **Queue** | BullMQ | 5.13.0 | ✓ | Epic 2,6 | Already in Twenty, for background jobs |
 | **ORM** | TypeORM | 0.3.20 | ✓ | All | Already in Twenty, metadata system |
 | **GraphQL** | Apollo Server | 4.11.0 | ✓ | All | Already in Twenty, auto-generated |
-| **Frontend** | React | 18.3.1 | ✓ | Epic 4,7 | Already in Twenty |
+| **Frontend** | React + SSR Middleware | 18.3.1 | ✓ | Epic 4,7,8 | React CSR + Express SSR for public pages (SEO) |
+| **SSR Server** | Express.js | 4.18.x | ✓ | Epic 8 | Dynamic rendering for bots (Public Marketplace) |
 | **State Management** | Recoil | 0.7.7 | ✓ | Epic 4,7 | Already in Twenty |
 | **Styling** | Emotion CSS-in-JS | 11.13.3 | ✓ | All | Already in Twenty |
 | **Package Manager** | pnpm | 9.14.2 | ✓ | All | Twenty monorepo requires pnpm |
@@ -1155,6 +1156,68 @@ npx nx start twenty-front    # Frontend on :3001
 **Consequences**:
 - Synchronous execution (may slow down save)
 - Hard to test in isolation
+
+---
+
+### ADR-006: React + SSR Middleware for Public Marketplace SEO
+
+**Context**: Public Marketplace cần SEO tốt để attract organic traffic. React CSR không đáp ứng được requirements.
+
+**Decision**: Implement **Dynamic Rendering** - SSR cho bots, CSR cho users.
+
+**Architecture**:
+```
+Bot Request → Express SSR → HTML + Meta Tags
+User Request → React SPA → Interactive UI
+```
+
+**Rationale**:
+- ✅ Achieves 80% SEO benefits của NextJS với 20% cost (200M vs 900M VNĐ)
+- ✅ Keeps Twenty CRM architecture intact (no major migration)
+- ✅ Fast time to market (4 weeks vs 12-16 weeks cho NextJS)
+- ✅ Low risk, proven approach (Airbnb, Zillow use similar)
+- ✅ Progressive implementation (start với critical pages)
+
+**Alternatives Considered**:
+1. ❌ React CSR only - Poor SEO, slow indexing
+2. ⚠️ NextJS Full Migration - Too expensive (900M VNĐ, 6 months)
+3. ⚠️ NextJS Hybrid - Still expensive (600M VNĐ, 4 months)
+4. ⚠️ Prerender.io - Third-party dependency, ongoing cost
+
+**Implementation**:
+- **Phase 1** (2 weeks): SSR middleware cho `/listings/:id`, bot detection, meta tags
+- **Phase 2** (1 week): Redis caching, homepage SSR
+- **Phase 3** (1 week): Structured data (JSON-LD), dynamic sitemap
+
+**Technical Stack**:
+- Express.js (SSR server)
+- react-dom/server (React SSR)
+- Redis (caching rendered HTML)
+- Bot detection (user-agent based)
+
+**Routes Strategy**:
+- `/listings/:id` → SSR for bots (most critical)
+- `/listings`, `/` → SSR for bots
+- `/admin/*`, `/agent/*` → CSR only (no SEO needed)
+
+**Performance Targets**:
+- SSR render time: <500ms
+- Cache hit rate: >80%
+- Lighthouse SEO score: >90
+- Indexing time: <48 hours
+
+**Consequences**:
+- ✅ Good SEO performance
+- ✅ Minimal code changes to existing Twenty frontend
+- ⚠️ Need to maintain SSR server
+- ⚠️ Slightly more complex deployment
+- ⚠️ Cache invalidation strategy needed
+
+**Cost**: 200M VNĐ development + 30M VNĐ/year infrastructure
+
+**ROI**: 1,387% (from organic traffic → leads → deals)
+
+**Reference**: See `/docs/real-estate-platform/frontend-architecture-analysis.md` for detailed analysis.
 
 ---
 
