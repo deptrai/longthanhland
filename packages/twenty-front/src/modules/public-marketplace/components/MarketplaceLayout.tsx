@@ -1,6 +1,8 @@
 import styled from '@emotion/styled';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { AIAssistantSidebar } from '..';
+import { LanguageProvider, useLanguage } from '../i18n/LanguageContext';
+import { LanguageSwitcher } from './LanguageSwitcher';
 
 const Container = styled.div`
   background-color: ${({ theme }) => theme.background.primary};
