@@ -51,6 +51,7 @@ import {
     ListingDetailPage,
     LoginPage,
     DashboardPage as MarketplaceDashboardPage,
+    MarketplaceLayout,
     PaymentPage,
     PostListingPage,
     ProfilePage,
