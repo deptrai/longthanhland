@@ -474,6 +474,24 @@ export const BrowsePage = () => {
         </Section>
 
         <NewsSection />
+
+        {/* Enhanced Trust Score Demo */}
+        <Section style={{ marginTop: '3rem' }}>
+          <SectionHeader>
+            <SectionTitle>
+              🎯 Enhanced Trust Score Demo (10 AI-Powered Criteria)
+            </SectionTitle>
+          </SectionHeader>
+          <div style={{ marginTop: '1.5rem' }}>
+            <h3 style={{ marginBottom: '1rem', color: '#fff' }}>
+              Premium Property Example (96/100)
+            </h3>
+            <EnhancedTrustScore
+              score={96}
+              breakdown={enhancedTrustScoreBreakdowns['listing-1']}
+            />
+          </div>
+        </Section>
       </MaxWidth>
     </Container>
   );
