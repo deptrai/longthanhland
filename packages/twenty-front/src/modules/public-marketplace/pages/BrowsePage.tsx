@@ -471,6 +471,8 @@ export const BrowsePage = () => {
             ))}
           </Table>
         </Section>
+
+        <NewsSection />
       </MaxWidth>
     </Container>
   );

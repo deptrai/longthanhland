@@ -16,4 +16,5 @@ export { RegisterPage } from './pages/RegisterPage';
 
 export { AIAssistantSidebar } from './components/AIAssistantSidebar';
 export { MarketplaceLayout } from './components/MarketplaceLayout';
+export { NewsSection } from './components/NewsSection';
 
