@@ -173,7 +173,7 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
 
   &:hover {
     background-color: ${({ theme, variant }) =>
-      variant === 'secondary' ? theme.background.tertiary : theme.color.blue70};
+      variant === 'secondary' ? theme.background.tertiary : theme.color.blue};
   }
 
   &:disabled {

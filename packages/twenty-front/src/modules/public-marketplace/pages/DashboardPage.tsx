@@ -1,5 +1,10 @@
 import styled from '@emotion/styled';
-import { IconEye, IconHome, IconMessageCircle, IconTrendingUp } from 'twenty-ui';
+import {
+    IconEye,
+    IconHome,
+    IconMessage,
+    IconTrendingUp,
+} from 'twenty-ui/display';
 import { mockPublicListings, mockSellerStats } from '../data/mock-data';
 
 const Container = styled.div`
@@ -9,8 +14,8 @@ const Container = styled.div`
 `;
 
 const MaxWidth = styled.div`
-  max-width: 1400px;
   margin: 0 auto;
+  max-width: 1400px;
 `;
 
 const Title = styled.h1`
@@ -42,8 +47,8 @@ const StatHeader = styled.div`
 `;
 
 const StatLabel = styled.div`
-  font-size: 0.875rem;
   color: ${({ theme }) => theme.font.color.tertiary};
+  font-size: 0.875rem;
 `;
 
 const StatIcon = styled.div<{ color?: string }>`
@@ -80,28 +85,28 @@ const Card = styled.div`
 `;
 
 const CardHeader = styled.div`
-  padding: 1.5rem;
   border-bottom: 1px solid ${({ theme }) => theme.border.color.medium};
+  padding: 1.5rem;
 `;
 
 const CardTitle = styled.h2`
+  color: ${({ theme }) => theme.font.color.primary};
   font-size: 1.25rem;
   font-weight: 600;
-  color: ${({ theme }) => theme.font.color.primary};
 `;
 
 const Table = styled.div``;
 
 const TableHeader = styled.div`
-  display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1fr;
-  gap: 1rem;
-  padding: 1rem 1.5rem;
   background-color: ${({ theme }) => theme.background.tertiary};
   border-bottom: 1px solid ${({ theme }) => theme.border.color.medium};
+  color: ${({ theme }) => theme.font.color.tertiary};
+  display: grid;
   font-size: 0.875rem;
   font-weight: 600;
-  color: ${({ theme }) => theme.font.color.tertiary};
+  gap: 1rem;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  padding: 1rem 1.5rem;
 `;
 
 const TableRow = styled.div`
@@ -196,7 +201,7 @@ export const DashboardPage = () => {
             <StatHeader>
               <StatLabel>Inquiries</StatLabel>
               <StatIcon color="#8B5CF6">
-                <IconMessageCircle size={20} />
+                <IconMessage size={20} />
               </StatIcon>
             </StatHeader>
             <StatValue>{stats.totalInquiries}</StatValue>

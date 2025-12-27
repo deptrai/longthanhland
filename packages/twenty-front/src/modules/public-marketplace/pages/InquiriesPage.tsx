@@ -8,8 +8,8 @@ const Container = styled.div`
 `;
 
 const MaxWidth = styled.div`
-  max-width: 1400px;
   margin: 0 auto;
+  max-width: 1400px;
 `;
 
 const Title = styled.h1`
@@ -29,15 +29,15 @@ const Card = styled.div`
 const Table = styled.div``;
 
 const TableHeader = styled.div`
-  display: grid;
-  grid-template-columns: 1.5fr 2fr 1fr 120px;
-  gap: 1rem;
-  padding: 1rem 1.5rem;
   background-color: ${({ theme }) => theme.background.tertiary};
   border-bottom: 1px solid ${({ theme }) => theme.border.color.medium};
+  color: ${({ theme }) => theme.font.color.tertiary};
+  display: grid;
   font-size: 0.875rem;
   font-weight: 600;
-  color: ${({ theme }) => theme.font.color.tertiary};
+  gap: 1rem;
+  grid-template-columns: 1.5fr 2fr 1fr 120px;
+  padding: 1rem 1.5rem;
 `;
 
 const TableRow = styled.div`
@@ -67,25 +67,19 @@ const BuyerName = styled.div`
 `;
 
 const BuyerEmail = styled.div`
-  font-size: 0.875rem;
   color: ${({ theme }) => theme.font.color.tertiary};
+  font-size: 0.875rem;
 `;
 
 const ListingTitle = styled.div`
   color: ${({ theme }) => theme.font.color.primary};
 `;
 
-const Date = styled.div`
+const StyledDate = styled.div`
   color: ${({ theme }) => theme.font.color.tertiary};
 `;
 
 const StatusBadge = styled.span<{ status: string }>`
-  display: inline-block;
-  padding: 0.25rem 0.75rem;
-  border-radius: 9999px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  text-align: center;
   background-color: ${({ status }) => {
     switch (status) {
       case 'NEW':
@@ -98,6 +92,7 @@ const StatusBadge = styled.span<{ status: string }>`
         return '#88888820';
     }
   }};
+  border-radius: 9999px;
   color: ${({ status }) => {
     switch (status) {
       case 'NEW':
@@ -110,6 +105,11 @@ const StatusBadge = styled.span<{ status: string }>`
         return '#888888';
     }
   }};
+  display: inline-block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0.25rem 0.75rem;
+  text-align: center;
 `;
 
 export const InquiriesPage = () => {
@@ -141,7 +141,7 @@ export const InquiriesPage = () => {
                   <BuyerEmail>{inquiry.buyerEmail}</BuyerEmail>
                 </BuyerInfo>
                 <ListingTitle>{inquiry.listingTitle}</ListingTitle>
-                <Date>{formatDate(inquiry.createdAt)}</Date>
+                <StyledDate>{formatDate(inquiry.createdAt)}</StyledDate>
                 <div>
                   <StatusBadge status={inquiry.status}>
                     {inquiry.status === 'NEW' && 'New'}

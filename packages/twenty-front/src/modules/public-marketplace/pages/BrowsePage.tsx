@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 import { useState } from 'react';
-import { IconBath, IconBed, IconMapPin, IconSearch } from 'twenty-ui';
+import { IconMap, IconSearch } from 'twenty-ui/display';
 import { mockPublicListings } from '../data/mock-data';
 
 const Container = styled.div`
@@ -10,8 +10,8 @@ const Container = styled.div`
 `;
 
 const MaxWidth = styled.div`
-  max-width: 1400px;
   margin: 0 auto;
+  max-width: 1400px;
 `;
 
 const Header = styled.div`
@@ -42,7 +42,7 @@ const PostButton = styled.button`
   transition: background-color 0.2s;
 
   &:hover {
-    background-color: ${({ theme }) => theme.color.blue70};
+    background-color: ${({ theme }) => theme.color.blue};
   }
 `;
 
@@ -53,9 +53,9 @@ const SearchBar = styled.div`
 `;
 
 const SearchInput = styled.div`
-  position: relative;
   flex: 1;
   max-width: 600px;
+  position: relative;
 `;
 
 const SearchIcon = styled.div`
@@ -112,9 +112,9 @@ const SectionHeader = styled.div`
 `;
 
 const SectionTitle = styled.h2`
+  color: ${({ theme }) => theme.font.color.primary};
   font-size: 1.25rem;
   font-weight: 600;
-  color: ${({ theme }) => theme.font.color.primary};
 `;
 
 const FeaturedBadge = styled.span`
@@ -141,7 +141,9 @@ const ListingCard = styled.div<{ isFeatured?: boolean }>`
   border-radius: 12px;
   overflow: hidden;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
 
   &:hover {
     transform: translateY(-4px);
@@ -156,24 +158,24 @@ const ImageContainer = styled.div`
 `;
 
 const Image = styled.img`
-  width: 100%;
   height: 100%;
   object-fit: cover;
+  width: 100%;
 `;
 
 const FeaturedTag = styled.div`
-  position: absolute;
-  top: 0.75rem;
-  left: 0.75rem;
+  align-items: center;
   background-color: ${({ theme }) => theme.color.yellow};
-  color: ${({ theme }) => theme.background.primary};
-  padding: 0.375rem 0.75rem;
   border-radius: 6px;
+  color: ${({ theme }) => theme.background.primary};
+  display: flex;
   font-size: 0.75rem;
   font-weight: 700;
-  display: flex;
-  align-items: center;
   gap: 0.25rem;
+  left: 0.75rem;
+  padding: 0.375rem 0.75rem;
+  position: absolute;
+  top: 0.75rem;
 `;
 
 const CardContent = styled.div`
@@ -207,9 +209,9 @@ const PriceRow = styled.div`
 `;
 
 const Price = styled.div`
+  color: ${({ theme }) => theme.color.blue};
   font-size: 1.5rem;
   font-weight: 700;
-  color: ${({ theme }) => theme.color.blue};
 `;
 
 const Features = styled.div`
@@ -241,17 +243,17 @@ const ProgressBar = styled.div`
 `;
 
 const Progress = styled.div<{ value: number }>`
-  height: 100%;
-  width: ${({ value }) => value}%;
   background-color: ${({ theme }) => theme.color.green};
   border-radius: 4px;
+  height: 100%;
   transition: width 0.3s;
+  width: ${({ value }) => value}%;
 `;
 
 const TrustValue = styled.span`
+  color: ${({ theme }) => theme.color.green};
   font-size: 0.875rem;
   font-weight: 600;
-  color: ${({ theme }) => theme.color.green};
 `;
 
 const Table = styled.div`
@@ -262,15 +264,15 @@ const Table = styled.div`
 `;
 
 const TableHeader = styled.div`
-  display: grid;
-  grid-template-columns: 2fr 1fr 1fr 100px;
-  gap: 1rem;
-  padding: 1rem 1.5rem;
   background-color: ${({ theme }) => theme.background.tertiary};
   border-bottom: 1px solid ${({ theme }) => theme.border.color.medium};
+  color: ${({ theme }) => theme.font.color.tertiary};
+  display: grid;
   font-size: 0.875rem;
   font-weight: 600;
-  color: ${({ theme }) => theme.font.color.tertiary};
+  gap: 1rem;
+  grid-template-columns: 2fr 1fr 1fr 100px;
+  padding: 1rem 1.5rem;
 `;
 
 const TableRow = styled.div`
@@ -319,8 +321,8 @@ const PropertyTitle = styled.div`
 `;
 
 const PropertyMeta = styled.div`
-  font-size: 0.875rem;
   color: ${({ theme }) => theme.font.color.tertiary};
+  font-size: 0.875rem;
 `;
 
 export const BrowsePage = () => {
@@ -347,10 +349,12 @@ export const BrowsePage = () => {
       <MaxWidth>
         <Header>
           <Title>
-            <IconMapPin size={28} />
+            <IconMap size={28} />
             Public Marketplace
           </Title>
-          <PostButton onClick={() => (window.location.href = '/marketplace/post')}>
+          <PostButton
+            onClick={() => (window.location.href = '/marketplace/post')}
+          >
             + Post Listing
           </PostButton>
         </Header>
@@ -401,22 +405,16 @@ export const BrowsePage = () => {
                   <CardContent>
                     <ListingTitle>{listing.title}</ListingTitle>
                     <Location>
-                      <IconMapPin size={16} />
+                      <IconMap size={16} />
                       {listing.district}, {listing.city}
                     </Location>
                     <PriceRow>
                       <Price>{formatPrice(listing.price)}</Price>
                     </PriceRow>
                     <Features>
-                      <Feature>
-                        <IconBed size={16} />
-                        {listing.bedrooms}
-                      </Feature>
-                      <Feature>
-                        <IconBath size={16} />
-                        {listing.bathrooms}
-                      </Feature>
-                      <Feature>{listing.area}m²</Feature>
+                      <Feature>{listing.bedrooms} BR</Feature>
+                      <Feature>{listing.bathrooms} BA</Feature>
+                      <Feature>{listing.area} m²</Feature>
                     </Features>
                     <TrustScore>
                       <ProgressBar>
@@ -454,7 +452,8 @@ export const BrowsePage = () => {
                   <PropertyDetails>
                     <PropertyTitle>{listing.title}</PropertyTitle>
                     <PropertyMeta>
-                      {listing.bedrooms}BR • {listing.bathrooms}BA • {listing.area}m²
+                      {listing.bedrooms}BR • {listing.bathrooms}BA •{' '}
+                      {listing.area}m²
                     </PropertyMeta>
                   </PropertyDetails>
                 </PropertyInfo>

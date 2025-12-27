@@ -1,7 +1,7 @@
 import styled from '@emotion/styled';
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { IconBath, IconBed, IconCheck, IconMapPin, IconRuler } from 'twenty-ui';
+import { IconCheck, IconMap } from 'twenty-ui/display';
 import { mockPublicListings } from '../data/mock-data';
 
 const Container = styled.div`
@@ -11,23 +11,23 @@ const Container = styled.div`
 `;
 
 const MaxWidth = styled.div`
-  max-width: 1400px;
   margin: 0 auto;
+  max-width: 1400px;
 `;
 
 const HeroImage = styled.div`
-  position: relative;
-  height: 400px;
-  border-radius: 16px;
-  overflow: hidden;
-  margin-bottom: 2rem;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 16px;
+  height: 400px;
+  margin-bottom: 2rem;
+  overflow: hidden;
+  position: relative;
 `;
 
 const Image = styled.img`
-  width: 100%;
   height: 100%;
   object-fit: cover;
+  width: 100%;
 `;
 
 const Overlay = styled.div`
@@ -78,9 +78,9 @@ const StatLabel = styled.div`
 `;
 
 const StatValue = styled.div`
+  color: ${({ theme }) => theme.color.blue};
   font-size: 1.875rem;
   font-weight: 700;
-  color: ${({ theme }) => theme.color.blue};
 `;
 
 const TrustScoreCard = styled.div`
@@ -99,31 +99,31 @@ const TrustHeader = styled.div`
 `;
 
 const TrustTitle = styled.h3`
+  color: ${({ theme }) => theme.font.color.primary};
   font-size: 1.25rem;
   font-weight: 600;
-  color: ${({ theme }) => theme.font.color.primary};
 `;
 
 const TrustValue = styled.span`
+  color: ${({ theme }) => theme.color.green};
   font-size: 2rem;
   font-weight: 700;
-  color: ${({ theme }) => theme.color.green};
 `;
 
 const ProgressBar = styled.div`
-  height: 12px;
   background-color: ${({ theme }) => theme.background.primary};
   border-radius: 6px;
-  overflow: hidden;
+  height: 12px;
   margin-bottom: 1.5rem;
+  overflow: hidden;
 `;
 
 const Progress = styled.div<{ value: number }>`
-  height: 100%;
-  width: ${({ value }) => value}%;
   background-color: ${({ theme }) => theme.color.green};
   border-radius: 6px;
+  height: 100%;
   transition: width 0.3s;
+  width: ${({ value }) => value}%;
 `;
 
 const TrustBreakdown = styled.div`
@@ -173,16 +173,16 @@ const InquiryButton = styled.button`
   transition: background-color 0.2s;
 
   &:hover {
-    background-color: ${({ theme }) => theme.color.blue70};
+    background-color: ${({ theme }) => theme.color.blue};
   }
 `;
 
 const SellerInfo = styled.div`
-  display: flex;
   align-items: center;
+  border-top: 1px solid ${({ theme }) => theme.border.color.medium};
+  display: flex;
   gap: 1rem;
   padding-top: 1rem;
-  border-top: 1px solid ${({ theme }) => theme.border.color.medium};
 `;
 
 const SellerAvatar = styled.div`
@@ -202,13 +202,13 @@ const SellerDetails = styled.div`
 `;
 
 const SellerName = styled.div`
-  font-weight: 600;
   color: ${({ theme }) => theme.font.color.primary};
+  font-weight: 600;
 `;
 
 const SellerLabel = styled.div`
-  font-size: 0.875rem;
   color: ${({ theme }) => theme.font.color.tertiary};
+  font-size: 0.875rem;
 `;
 
 export const ListingDetailPage = () => {
@@ -223,7 +223,9 @@ export const ListingDetailPage = () => {
         <MaxWidth>
           <Card>
             <Title>Listing not found</Title>
-            <Description>The listing you're looking for doesn't exist.</Description>
+            <Description>
+              The listing you're looking for doesn't exist.
+            </Description>
           </Card>
         </MaxWidth>
       </Container>
@@ -258,7 +260,7 @@ export const ListingDetailPage = () => {
           <HeroContent>
             <Title>{listing.title}</Title>
             <Location>
-              <IconMapPin size={24} />
+              <IconMap size={24} />
               {listing.district}, {listing.city}
             </Location>
           </HeroContent>
@@ -271,24 +273,15 @@ export const ListingDetailPage = () => {
           </StatCard>
           <StatCard>
             <StatLabel>Bedrooms</StatLabel>
-            <StatValue>
-              <IconBed size={32} style={{ marginRight: '0.5rem' }} />
-              {listing.bedrooms}
-            </StatValue>
+            <StatValue>{listing.bedrooms}</StatValue>
           </StatCard>
           <StatCard>
             <StatLabel>Bathrooms</StatLabel>
-            <StatValue>
-              <IconBath size={32} style={{ marginRight: '0.5rem' }} />
-              {listing.bathrooms}
-            </StatValue>
+            <StatValue>{listing.bathrooms}</StatValue>
           </StatCard>
           <StatCard>
             <StatLabel>Area</StatLabel>
-            <StatValue>
-              <IconRuler size={32} style={{ marginRight: '0.5rem' }} />
-              {listing.area}m²
-            </StatValue>
+            <StatValue>{listing.area}m²</StatValue>
           </StatCard>
         </Grid>
 

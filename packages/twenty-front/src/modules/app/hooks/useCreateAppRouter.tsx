@@ -45,6 +45,18 @@ import { PropertyDetailPage } from '~/pages/real-estate/PropertyDetailPage';
 import { PropertyFilterPage } from '~/pages/real-estate/PropertyFilterPage';
 import { SalesDashboardPage } from '~/pages/real-estate/SalesDashboardPage';
 
+import {
+    BrowsePage,
+    InquiriesPage,
+    ListingDetailPage,
+    LoginPage,
+    DashboardPage as MarketplaceDashboardPage,
+    PaymentPage,
+    PostListingPage,
+    ProfilePage,
+    RegisterPage,
+} from '@/public-marketplace';
+
 export const useCreateAppRouter = (
   isFunctionSettingsEnabled?: boolean,
   isAdminPageEnabled?: boolean,

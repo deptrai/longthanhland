@@ -144,7 +144,7 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
     background-color: ${({ theme, variant }) =>
       variant === 'secondary'
         ? theme.background.tertiary
-        : theme.color.blue70};
+        : theme.color.blue};
   }
 
   &:disabled {

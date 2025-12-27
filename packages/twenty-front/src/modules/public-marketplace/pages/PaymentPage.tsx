@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { IconCheck } from 'twenty-ui';
+import { IconCheck } from 'twenty-ui/display';
 import { mockSubscriptionPlans } from '../data/mock-data';
 
 const Container = styled.div`
@@ -9,13 +9,13 @@ const Container = styled.div`
 `;
 
 const MaxWidth = styled.div`
-  max-width: 1200px;
   margin: 0 auto;
+  max-width: 1200px;
 `;
 
 const Header = styled.div`
-  text-align: center;
   margin-bottom: 3rem;
+  text-align: center;
 `;
 
 const Title = styled.h1`
@@ -26,8 +26,8 @@ const Title = styled.h1`
 `;
 
 const Subtitle = styled.p`
-  font-size: 1.125rem;
   color: ${({ theme }) => theme.font.color.tertiary};
+  font-size: 1.125rem;
 `;
 
 const PlansGrid = styled.div`
@@ -45,7 +45,9 @@ const PlanCard = styled.div<{ featured?: boolean }>`
   border-radius: 16px;
   padding: 2rem;
   position: relative;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
 
   &:hover {
     transform: translateY(-4px);
@@ -54,23 +56,23 @@ const PlanCard = styled.div<{ featured?: boolean }>`
 `;
 
 const FeaturedBadge = styled.div`
-  position: absolute;
-  top: -12px;
-  left: 50%;
-  transform: translateX(-50%);
   background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-  color: white;
-  padding: 0.375rem 1rem;
   border-radius: 9999px;
+  color: white;
   font-size: 0.75rem;
   font-weight: 700;
-  text-transform: uppercase;
+  left: 50%;
   letter-spacing: 0.05em;
+  padding: 0.375rem 1rem;
+  position: absolute;
+  text-transform: uppercase;
+  top: -12px;
+  transform: translateX(-50%);
 `;
 
 const PlanHeader = styled.div`
-  text-align: center;
   margin-bottom: 2rem;
+  text-align: center;
 `;
 
 const PlanName = styled.h3`
@@ -85,9 +87,9 @@ const PlanPrice = styled.div`
 `;
 
 const Price = styled.span`
+  color: ${({ theme }) => theme.font.color.primary};
   font-size: 3rem;
   font-weight: 700;
-  color: ${({ theme }) => theme.font.color.primary};
 `;
 
 const PriceUnit = styled.span`
@@ -97,8 +99,8 @@ const PriceUnit = styled.span`
 `;
 
 const PricePeriod = styled.div`
-  font-size: 0.875rem;
   color: ${({ theme }) => theme.font.color.tertiary};
+  font-size: 0.875rem;
 `;
 
 const FeaturesList = styled.ul`
@@ -108,12 +110,12 @@ const FeaturesList = styled.ul`
 `;
 
 const Feature = styled.li`
-  display: flex;
   align-items: center;
+  color: ${({ theme }) => theme.font.color.secondary};
+  display: flex;
+  font-size: 0.875rem;
   gap: 0.75rem;
   padding: 0.75rem 0;
-  font-size: 0.875rem;
-  color: ${({ theme }) => theme.font.color.secondary};
 `;
 
 const CheckIcon = styled.div`
@@ -128,7 +130,9 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
   color: ${({ theme, variant }) =>
     variant === 'secondary' ? theme.font.color.primary : 'white'};
   border: ${({ theme, variant }) =>
-    variant === 'secondary' ? `1px solid ${theme.border.color.medium}` : 'none'};
+    variant === 'secondary'
+      ? `1px solid ${theme.border.color.medium}`
+      : 'none'};
   border-radius: 8px;
   padding: 0.875rem 1rem;
   font-size: 1rem;
@@ -138,7 +142,7 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
 
   &:hover {
     background-color: ${({ theme, variant }) =>
-      variant === 'secondary' ? theme.background.tertiary : theme.color.blue70};
+      variant === 'secondary' ? theme.background.tertiary : theme.color.blue};
   }
 
   &:disabled {
