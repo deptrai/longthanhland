@@ -1,7 +1,8 @@
 import styled from '@emotion/styled';
 import { useState } from 'react';
 import { IconMap, IconSearch } from 'twenty-ui/display';
-import { NewsSection } from '../components/NewsSection';
+import { EnhancedTrustScore, NewsSection } from '..';
+import { enhancedTrustScoreBreakdowns } from '../data/enhanced-trust-score-data';
 import { mockPublicListings } from '../data/mock-data';
 
 const Container = styled.div`
