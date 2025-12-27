@@ -16,7 +16,10 @@ export { RegisterPage } from './pages/RegisterPage';
 export { TrustScoreDemoPage } from './pages/TrustScoreDemoPage';
 
 export { AIAssistantSidebar } from './components/AIAssistantSidebar';
+export { Breadcrumb } from './components/Breadcrumb';
 export { EnhancedTrustScore } from './components/EnhancedTrustScore';
+export { ImageSlider } from './components/ImageSlider';
+export { MarketplaceFooter } from './components/MarketplaceFooter';
 export { MarketplaceLayout } from './components/MarketplaceLayout';
 export { NewsSection } from './components/NewsSection';
 

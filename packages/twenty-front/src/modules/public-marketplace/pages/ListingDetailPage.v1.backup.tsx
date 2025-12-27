@@ -2,9 +2,7 @@ import styled from '@emotion/styled';
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { IconHeart, IconMail, IconMap, IconPhone } from 'twenty-ui/display';
-import { Breadcrumb } from '../components/Breadcrumb';
 import { EnhancedTrustScore } from '../components/EnhancedTrustScore';
-import { ImageSlider } from '../components/ImageSlider';
 import { mockPublicListings } from '../data/mock-data';
 import { useLanguage } from '../i18n/LanguageContext';
 import { calculateTrustScore } from '../utils/calculateTrustScore';
@@ -20,20 +18,47 @@ const MaxWidth = styled.div`
   max-width: 1400px;
 `;
 
+const HeroImage = styled.div`
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 16px;
+  height: 400px;
+  margin-bottom: 2rem;
+  overflow: hidden;
+  position: relative;
+`;
+
+const Image = styled.img`
+  height: 100%;
+  object-fit: cover;
+  width: 100%;
+`;
+
+const Overlay = styled.div`
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.6) 0%, transparent 50%);
+`;
+
+const HeroContent = styled.div`
+  position: absolute;
+  bottom: 2rem;
+  left: 2rem;
+  color: white;
+`;
+
 const Title = styled.h1`
-  color: ${({ theme }) => theme.font.color.primary};
-  font-size: 2rem;
+  font-size: 2.5rem;
   font-weight: 700;
-  margin: 1.5rem 0 1rem;
+  margin-bottom: 0.5rem;
 `;
 
 const LocationText = styled.div`
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 1rem;
-  color: ${({ theme }) => theme.font.color.tertiary};
-  margin-bottom: 2rem;
+  font-size: 1.125rem;
+  opacity: 0.9;
+  color: white;
 `;
 
 const Grid = styled.div`
@@ -330,23 +355,19 @@ export const ListingDetailPage = () => {
   return (
     <Container>
       <MaxWidth>
-        {/* Breadcrumb Navigation */}
-        <Breadcrumb
-          type="Cho thuê"
-          city={listing.city}
-          district={listing.district}
-          propertyName={listing.title}
-        />
-
-        {/* Image Slider */}
-        <ImageSlider images={listing.images} title={listing.title} />
-
-        {/* Title and Location */}
-        <Title>{listing.title}</Title>
-        <LocationText>
-          <IconMap size={20} />
-          {listing.district}, {listing.city}
-        </LocationText>
+        <HeroImage>
+          {listing.images[0] && (
+            <Image src={listing.images[0]} alt={listing.title} />
+          )}
+          <Overlay />
+          <HeroContent>
+            <Title>{listing.title}</Title>
+            <LocationText>
+              <IconMap size={24} />
+              {listing.district}, {listing.city}
+            </LocationText>
+          </HeroContent>
+        </HeroImage>
 
         <Grid>
           <StatCard>
@@ -530,9 +551,6 @@ export const ListingDetailPage = () => {
           </Card>
         )}
       </MaxWidth>
-
-      {/* Footer */}
-      <MarketplaceFooter />
     </Container>
   );
 };

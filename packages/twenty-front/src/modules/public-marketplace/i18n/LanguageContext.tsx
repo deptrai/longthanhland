@@ -1,19 +1,21 @@
-import { ReactNode, createContext, useContext, useState } from 'react';
-import { Language, TranslationKey, translations } from './translations';
+import { createContext, useContext, useState, type ReactNode } from 'react';
+import { translations, type Language } from './translations';
 
 interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
-  t: (key: TranslationKey) => string;
+  t: (key: string) => string;
 }
 
-const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
+const LanguageContext = createContext<LanguageContextType | undefined>(
+  undefined,
+);
 
 export const LanguageProvider = ({ children }: { children: ReactNode }) => {
   const [language, setLanguage] = useState<Language>(() => {
     // Check localStorage for saved language preference
     const savedLang = localStorage.getItem('marketplace-language');
-    return (savedLang === 'en' || savedLang === 'vi') ? savedLang : 'vi';
+    return savedLang === 'en' || savedLang === 'vi' ? savedLang : 'vi';
   });
 
   const handleSetLanguage = (lang: Language) => {
@@ -21,12 +23,25 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
     localStorage.setItem('marketplace-language', lang);
   };
 
-  const t = (key: TranslationKey): string => {
-    return translations[language][key] || key;
+  const t = (key: string): string => {
+    const keys = key.split('.');
+    let value: any = translations[language];
+
+    for (const k of keys) {
+      if (value && typeof value === 'object' && k in value) {
+        value = value[k];
+      } else {
+        return key;
+      }
+    }
+
+    return typeof value === 'string' ? value : key;
   };
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage: handleSetLanguage, t }}>
+    <LanguageContext.Provider
+      value={{ language, setLanguage: handleSetLanguage, t }}
+    >
       {children}
     </LanguageContext.Provider>
   );
