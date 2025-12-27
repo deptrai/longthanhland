@@ -1,12 +1,7 @@
 import styled from '@emotion/styled';
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import {
-    IconMail,
-    IconMap,
-    IconPhone,
-    IconShoppingCart
-} from 'twenty-ui/display';
+import { IconHeart, IconMail, IconMap, IconPhone } from 'twenty-ui/display';
 import { EnhancedTrustScore } from '../components/EnhancedTrustScore';
 import { mockPublicListings } from '../data/mock-data';
 import { useLanguage } from '../i18n/LanguageContext';
@@ -477,7 +472,7 @@ export const ListingDetailPage = () => {
             </AmenityCard>
             <AmenityCard>
               <AmenityIcon>
-                <IconShoppingCart size={24} />
+                <IconMap size={24} />
               </AmenityIcon>
               <AmenityContent>
                 <AmenityTitle>{t('detail.markets')}</AmenityTitle>
