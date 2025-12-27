@@ -1,7 +1,7 @@
 import styled from '@emotion/styled';
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { IconCheck, IconMap } from 'twenty-ui/display';
+import { IconMap } from 'twenty-ui/display';
 import { mockPublicListings } from '../data/mock-data';
 
 const Container = styled.div`
@@ -285,33 +285,11 @@ export const ListingDetailPage = () => {
           </StatCard>
         </Grid>
 
-        <TrustScoreCard>
-          <TrustHeader>
-            <TrustTitle>Trust Score</TrustTitle>
-            <TrustValue>{listing.trustScore}%</TrustValue>
-          </TrustHeader>
-          <ProgressBar>
-            <Progress value={listing.trustScore} />
-          </ProgressBar>
-          <TrustBreakdown>
-            <TrustItem>
-              <IconCheck size={16} color="#22C55E" />
-              Verified Info (95%)
-            </TrustItem>
-            <TrustItem>
-              <IconCheck size={16} color="#22C55E" />
-              Market Price (88%)
-            </TrustItem>
-            <TrustItem>
-              <IconCheck size={16} color="#22C55E" />
-              Location (94%)
-            </TrustItem>
-            <TrustItem>
-              <IconCheck size={16} color="#22C55E" />
-              Legal Status OK
-            </TrustItem>
-          </TrustBreakdown>
-        </TrustScoreCard>
+        {/* Enhanced Trust Score with 10 AI-powered criteria */}
+        <EnhancedTrustScore
+          score={listing.trustScore}
+          breakdown={enhancedTrustScoreBreakdowns['listing-1']}
+        />
 
         <Card>
           <SectionTitle>Description</SectionTitle>

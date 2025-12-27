@@ -15,6 +15,7 @@ export { ProfilePage } from './pages/ProfilePage';
 export { RegisterPage } from './pages/RegisterPage';
 
 export { AIAssistantSidebar } from './components/AIAssistantSidebar';
+export { EnhancedTrustScore } from './components/EnhancedTrustScore';
 export { MarketplaceLayout } from './components/MarketplaceLayout';
 export { NewsSection } from './components/NewsSection';
 
