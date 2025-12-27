@@ -1,15 +1,7 @@
 import styled from '@emotion/styled';
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import {
-    IconBuilding,
-    IconMail,
-    IconMap,
-    IconPhone,
-    IconSchool,
-    IconShoppingCart,
-    IconTree,
-} from 'twenty-ui/display';
+import { IconBuilding, IconMail, IconMap, IconPhone, IconSchool, IconShoppingCart, IconTree } from 'twenty-ui/display';
 import { EnhancedTrustScore } from '../components/EnhancedTrustScore';
 import { mockPublicListings } from '../data/mock-data';
 import { useLanguage } from '../i18n/LanguageContext';
@@ -58,6 +50,7 @@ const Title = styled.h1`
   font-size: 2.5rem;
   font-weight: 700;
   margin-bottom: 0.5rem;
+  color: white;
 `;
 
 const LocationText = styled.div`
@@ -95,6 +88,26 @@ const StatValue = styled.div`
   font-weight: 700;
 `;
 
+const Card = styled.div`
+  background-color: ${({ theme }) => theme.background.secondary};
+  border: 1px solid ${({ theme }) => theme.border.color.medium};
+  border-radius: 12px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+`;
+
+const SectionTitle = styled.h2`
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: ${({ theme }) => theme.font.color.primary};
+  margin-bottom: 1.5rem;
+`;
+
+const Description = styled.p`
+  color: ${({ theme }) => theme.font.color.secondary};
+  line-height: 1.6;
+`;
+
 const SpecGrid = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -102,11 +115,11 @@ const SpecGrid = styled.div`
 `;
 
 const SpecItem = styled.div`
-  background-color: ${({ theme }) => theme.background.tertiary};
-  border-radius: 8px;
   display: flex;
   justify-content: space-between;
   padding: 1rem;
+  background-color: ${({ theme }) => theme.background.tertiary};
+  border-radius: 8px;
 `;
 
 const SpecLabel = styled.span`
@@ -127,12 +140,12 @@ const AmenityGrid = styled.div`
 `;
 
 const AmenityCard = styled.div`
-  align-items: flex-start;
-  background-color: ${({ theme }) => theme.background.tertiary};
-  border-radius: 8px;
   display: flex;
+  align-items: flex-start;
   gap: 1rem;
   padding: 1rem;
+  background-color: ${({ theme }) => theme.background.tertiary};
+  border-radius: 8px;
 `;
 
 const AmenityIcon = styled.div`
@@ -180,6 +193,41 @@ const ContactButton = styled.button`
   }
 `;
 
+const SellerInfo = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+`;
+
+const SellerAvatar = styled.div`
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+  font-size: 1.25rem;
+`;
+
+const SellerDetails = styled.div`
+  flex: 1;
+`;
+
+const SellerName = styled.div`
+  color: ${({ theme }) => theme.font.color.primary};
+  font-weight: 600;
+  font-size: 1.125rem;
+  margin-bottom: 0.25rem;
+`;
+
+const SellerLabel = styled.div`
+  color: ${({ theme }) => theme.font.color.tertiary};
+  font-size: 0.875rem;
+`;
+
 const ContactInfo = styled.div`
   display: flex;
   flex-direction: column;
@@ -188,11 +236,11 @@ const ContactInfo = styled.div`
 `;
 
 const ContactItem = styled.div`
-  align-items: center;
-  color: ${({ theme }) => theme.font.color.secondary};
   display: flex;
-  font-size: 0.9375rem;
+  align-items: center;
   gap: 0.75rem;
+  color: ${({ theme }) => theme.font.color.secondary};
+  font-size: 0.9375rem;
 `;
 
 const RelatedGrid = styled.div`
@@ -221,9 +269,9 @@ const RelatedImage = styled.div`
 `;
 
 const RelatedImageTag = styled.img`
+  width: 100%;
   height: 100%;
   object-fit: cover;
-  width: 100%;
 `;
 
 const RelatedContent = styled.div`
@@ -231,10 +279,10 @@ const RelatedContent = styled.div`
 `;
 
 const RelatedTitle = styled.div`
-  color: ${({ theme }) => theme.font.color.primary};
-  font-size: 0.9375rem;
   font-weight: 600;
+  color: ${({ theme }) => theme.font.color.primary};
   margin-bottom: 0.5rem;
+  font-size: 0.9375rem;
 `;
 
 const RelatedPrice = styled.div`
@@ -252,65 +300,9 @@ const MapPlaceholder = styled.div`
   justify-content: center;
   color: ${({ theme }) => theme.font.color.tertiary};
   font-size: 1rem;
-  gap: 1rem;
 `;
 
-const Card = styled.div`
-  background-color: ${({ theme }) => theme.background.secondary};
-  border: 1px solid ${({ theme }) => theme.border.color.medium};
-  border-radius: 12px;
-  padding: 2rem;
-  margin-bottom: 2rem;
-`;
-
-const SectionTitle = styled.h3`
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: ${({ theme }) => theme.font.color.primary};
-  margin-bottom: 1rem;
-`;
-
-const Description = styled.p`
-  color: ${({ theme }) => theme.font.color.secondary};
-  line-height: 1.6;
-`;
-
-const SellerAvatar = styled.div`
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-weight: 700;
-  font-size: 1.25rem;
-`;
-
-const SellerInfo = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-`;
-
-const SellerDetails = styled.div`
-  flex: 1;
-`;
-
-const SellerName = styled.div`
-  color: ${({ theme }) => theme.font.color.primary};
-  font-weight: 600;
-  font-size: 1.125rem;
-  margin-bottom: 0.25rem;
-`;
-
-const SellerLabel = styled.div`
-  color: ${({ theme }) => theme.font.color.tertiary};
-  font-size: 0.875rem;
-`;
-
-export const ListingDetailPage = () => {
+export const EnhancedListingDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const listing = mockPublicListings.find((l) => l.id === id);
   const { t } = useLanguage();
@@ -323,18 +315,14 @@ export const ListingDetailPage = () => {
         <MaxWidth>
           <Card>
             <Title>Listing not found</Title>
-            <Description>
-              The listing you're looking for doesn't exist.
-            </Description>
+            <Description>The listing you're looking for doesn't exist.</Description>
           </Card>
         </MaxWidth>
       </Container>
     );
   }
 
-  // Calculate Enhanced Trust Score dynamically for this listing
-  const { score: trustScore, breakdown: trustBreakdown } =
-    calculateTrustScore(listing);
+  const { score: trustScore, breakdown: trustBreakdown } = calculateTrustScore(listing);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('vi-VN', {
@@ -355,18 +343,14 @@ export const ListingDetailPage = () => {
 
   // Mock related listings
   const relatedListings = mockPublicListings
-    .filter(
-      (l) => l.id !== listing.id && l.propertyType === listing.propertyType,
-    )
+    .filter((l) => l.id !== listing.id && l.propertyType === listing.propertyType)
     .slice(0, 3);
 
   return (
     <Container>
       <MaxWidth>
         <HeroImage>
-          {listing.images[0] && (
-            <Image src={listing.images[0]} alt={listing.title} />
-          )}
+          {listing.images[0] && <Image src={listing.images[0]} alt={listing.title} />}
           <Overlay />
           <HeroContent>
             <Title>{listing.title}</Title>
@@ -396,7 +380,7 @@ export const ListingDetailPage = () => {
           </StatCard>
         </Grid>
 
-        {/* Enhanced Trust Score with 10 AI-powered criteria - calculated dynamically */}
+        {/* Enhanced Trust Score */}
         <EnhancedTrustScore score={trustScore} breakdown={trustBreakdown} />
 
         {/* Description */}
@@ -444,7 +428,7 @@ export const ListingDetailPage = () => {
           </Description>
           <MapPlaceholder>
             <IconMap size={48} />
-            <span>{t('detail.map')} - Coming Soon</span>
+            <span style={{ marginLeft: '1rem' }}>{t('detail.map')} - Coming Soon</span>
           </MapPlaceholder>
         </Card>
 
@@ -527,9 +511,7 @@ export const ListingDetailPage = () => {
             </ContactItem>
             <ContactItem>
               <IconMail size={18} />
-              <span>
-                {listing.sellerName.toLowerCase().replace(' ', '.')}@example.com
-              </span>
+              <span>{listing.sellerName.toLowerCase().replace(' ', '.')}@example.com</span>
             </ContactItem>
           </ContactInfo>
         </ContactCard>
@@ -543,10 +525,7 @@ export const ListingDetailPage = () => {
                 <RelatedCard key={related.id}>
                   <RelatedImage>
                     {related.images[0] && (
-                      <RelatedImageTag
-                        src={related.images[0]}
-                        alt={related.title}
-                      />
+                      <RelatedImageTag src={related.images[0]} alt={related.title} />
                     )}
                   </RelatedImage>
                   <RelatedContent>
