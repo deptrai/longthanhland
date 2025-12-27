@@ -1,0 +1,344 @@
+import styled from '@emotion/styled';
+import { useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { IconBath, IconBed, IconCheck, IconMapPin, IconRuler } from 'twenty-ui';
+import { mockPublicListings } from '../data/mock-data';
+
+const Container = styled.div`
+  min-height: 100vh;
+  background-color: ${({ theme }) => theme.background.primary};
+  padding: 2rem;
+`;
+
+const MaxWidth = styled.div`
+  max-width: 1400px;
+  margin: 0 auto;
+`;
+
+const HeroImage = styled.div`
+  position: relative;
+  height: 400px;
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 2rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+`;
+
+const Image = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+`;
+
+const Overlay = styled.div`
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.6) 0%, transparent 50%);
+`;
+
+const HeroContent = styled.div`
+  position: absolute;
+  bottom: 2rem;
+  left: 2rem;
+  color: white;
+`;
+
+const Title = styled.h1`
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+`;
+
+const Location = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.125rem;
+  opacity: 0.9;
+`;
+
+const Grid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+`;
+
+const StatCard = styled.div`
+  background-color: ${({ theme }) => theme.background.secondary};
+  border: 1px solid ${({ theme }) => theme.border.color.medium};
+  border-radius: 12px;
+  padding: 1.5rem;
+`;
+
+const StatLabel = styled.div`
+  font-size: 0.875rem;
+  color: ${({ theme }) => theme.font.color.tertiary};
+  margin-bottom: 0.5rem;
+`;
+
+const StatValue = styled.div`
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: ${({ theme }) => theme.color.blue};
+`;
+
+const TrustScoreCard = styled.div`
+  background-color: ${({ theme }) => theme.background.secondary};
+  border: 1px solid ${({ theme }) => theme.border.color.medium};
+  border-radius: 12px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+`;
+
+const TrustHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+`;
+
+const TrustTitle = styled.h3`
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: ${({ theme }) => theme.font.color.primary};
+`;
+
+const TrustValue = styled.span`
+  font-size: 2rem;
+  font-weight: 700;
+  color: ${({ theme }) => theme.color.green};
+`;
+
+const ProgressBar = styled.div`
+  height: 12px;
+  background-color: ${({ theme }) => theme.background.primary};
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+`;
+
+const Progress = styled.div<{ value: number }>`
+  height: 100%;
+  width: ${({ value }) => value}%;
+  background-color: ${({ theme }) => theme.color.green};
+  border-radius: 6px;
+  transition: width 0.3s;
+`;
+
+const TrustBreakdown = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+`;
+
+const TrustItem = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: ${({ theme }) => theme.font.color.secondary};
+`;
+
+const Card = styled.div`
+  background-color: ${({ theme }) => theme.background.secondary};
+  border: 1px solid ${({ theme }) => theme.border.color.medium};
+  border-radius: 12px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+`;
+
+const SectionTitle = styled.h3`
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: ${({ theme }) => theme.font.color.primary};
+  margin-bottom: 1rem;
+`;
+
+const Description = styled.p`
+  color: ${({ theme }) => theme.font.color.tertiary};
+  line-height: 1.6;
+`;
+
+const InquiryButton = styled.button`
+  width: 100%;
+  background-color: ${({ theme }) => theme.color.blue};
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: ${({ theme }) => theme.color.blue70};
+  }
+`;
+
+const SellerInfo = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid ${({ theme }) => theme.border.color.medium};
+`;
+
+const SellerAvatar = styled.div`
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+`;
+
+const SellerDetails = styled.div`
+  flex: 1;
+`;
+
+const SellerName = styled.div`
+  font-weight: 600;
+  color: ${({ theme }) => theme.font.color.primary};
+`;
+
+const SellerLabel = styled.div`
+  font-size: 0.875rem;
+  color: ${({ theme }) => theme.font.color.tertiary};
+`;
+
+export const ListingDetailPage = () => {
+  const { id } = useParams<{ id: string }>();
+  const listing = mockPublicListings.find((l) => l.id === id);
+
+  const [showInquiryForm, setShowInquiryForm] = useState(false);
+
+  if (!listing) {
+    return (
+      <Container>
+        <MaxWidth>
+          <Card>
+            <Title>Listing not found</Title>
+            <Description>The listing you're looking for doesn't exist.</Description>
+          </Card>
+        </MaxWidth>
+      </Container>
+    );
+  }
+
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('vi-VN', {
+      style: 'currency',
+      currency: 'VND',
+      maximumFractionDigits: 0,
+    }).format(price);
+  };
+
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
+  return (
+    <Container>
+      <MaxWidth>
+        <HeroImage>
+          {listing.images[0] && (
+            <Image src={listing.images[0]} alt={listing.title} />
+          )}
+          <Overlay />
+          <HeroContent>
+            <Title>{listing.title}</Title>
+            <Location>
+              <IconMapPin size={24} />
+              {listing.district}, {listing.city}
+            </Location>
+          </HeroContent>
+        </HeroImage>
+
+        <Grid>
+          <StatCard>
+            <StatLabel>Price</StatLabel>
+            <StatValue>{formatPrice(listing.price)}</StatValue>
+          </StatCard>
+          <StatCard>
+            <StatLabel>Bedrooms</StatLabel>
+            <StatValue>
+              <IconBed size={32} style={{ marginRight: '0.5rem' }} />
+              {listing.bedrooms}
+            </StatValue>
+          </StatCard>
+          <StatCard>
+            <StatLabel>Bathrooms</StatLabel>
+            <StatValue>
+              <IconBath size={32} style={{ marginRight: '0.5rem' }} />
+              {listing.bathrooms}
+            </StatValue>
+          </StatCard>
+          <StatCard>
+            <StatLabel>Area</StatLabel>
+            <StatValue>
+              <IconRuler size={32} style={{ marginRight: '0.5rem' }} />
+              {listing.area}m²
+            </StatValue>
+          </StatCard>
+        </Grid>
+
+        <TrustScoreCard>
+          <TrustHeader>
+            <TrustTitle>Trust Score</TrustTitle>
+            <TrustValue>{listing.trustScore}%</TrustValue>
+          </TrustHeader>
+          <ProgressBar>
+            <Progress value={listing.trustScore} />
+          </ProgressBar>
+          <TrustBreakdown>
+            <TrustItem>
+              <IconCheck size={16} color="#22C55E" />
+              Verified Info (95%)
+            </TrustItem>
+            <TrustItem>
+              <IconCheck size={16} color="#22C55E" />
+              Market Price (88%)
+            </TrustItem>
+            <TrustItem>
+              <IconCheck size={16} color="#22C55E" />
+              Location (94%)
+            </TrustItem>
+            <TrustItem>
+              <IconCheck size={16} color="#22C55E" />
+              Legal Status OK
+            </TrustItem>
+          </TrustBreakdown>
+        </TrustScoreCard>
+
+        <Card>
+          <SectionTitle>Description</SectionTitle>
+          <Description>{listing.description}</Description>
+        </Card>
+
+        <Card>
+          <SectionTitle>Contact Seller</SectionTitle>
+          <InquiryButton onClick={() => setShowInquiryForm(!showInquiryForm)}>
+            Send Inquiry
+          </InquiryButton>
+          <SellerInfo>
+            <SellerAvatar>{getInitials(listing.sellerName)}</SellerAvatar>
+            <SellerDetails>
+              <SellerName>{listing.sellerName}</SellerName>
+              <SellerLabel>Property Owner</SellerLabel>
+            </SellerDetails>
+          </SellerInfo>
+        </Card>
+      </MaxWidth>
+    </Container>
+  );
+};

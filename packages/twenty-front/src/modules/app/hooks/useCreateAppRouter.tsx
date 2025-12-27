@@ -134,6 +134,22 @@ export const useCreateAppRouter = (
           />
           <Route path="/real-estate/plot-map" element={<PlotMapPage />} />
           <Route path="/real-estate/leads" element={<MyLeadsPage />} />
+          <Route path="/marketplace" element={<BrowsePage />} />
+          <Route path="/marketplace/browse" element={<BrowsePage />} />
+          <Route
+            path="/marketplace/listings/:id"
+            element={<ListingDetailPage />}
+          />
+          <Route path="/marketplace/register" element={<RegisterPage />} />
+          <Route path="/marketplace/login" element={<LoginPage />} />
+          <Route path="/marketplace/profile" element={<ProfilePage />} />
+          <Route
+            path="/marketplace/dashboard"
+            element={<MarketplaceDashboardPage />}
+          />
+          <Route path="/marketplace/post" element={<PostListingPage />} />
+          <Route path="/marketplace/inquiries" element={<InquiriesPage />} />
+          <Route path="/marketplace/payment" element={<PaymentPage />} />
           <Route
             path={AppPath.SettingsCatchAll}
             element={
