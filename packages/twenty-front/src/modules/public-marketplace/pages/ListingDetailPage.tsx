@@ -2,13 +2,10 @@ import styled from '@emotion/styled';
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import {
-    IconBuilding,
     IconMail,
     IconMap,
     IconPhone,
-    IconSchool,
-    IconShoppingCart,
-    IconTree,
+    IconShoppingCart
 } from 'twenty-ui/display';
 import { EnhancedTrustScore } from '../components/EnhancedTrustScore';
 import { mockPublicListings } from '../data/mock-data';
@@ -454,7 +451,7 @@ export const ListingDetailPage = () => {
           <AmenityGrid>
             <AmenityCard>
               <AmenityIcon>
-                <IconSchool size={24} />
+                <IconMap size={24} />
               </AmenityIcon>
               <AmenityContent>
                 <AmenityTitle>{t('detail.schools')}</AmenityTitle>
@@ -467,7 +464,7 @@ export const ListingDetailPage = () => {
             </AmenityCard>
             <AmenityCard>
               <AmenityIcon>
-                <IconBuilding size={24} />
+                <IconHeart size={24} />
               </AmenityIcon>
               <AmenityContent>
                 <AmenityTitle>{t('detail.hospitals')}</AmenityTitle>
@@ -493,7 +490,7 @@ export const ListingDetailPage = () => {
             </AmenityCard>
             <AmenityCard>
               <AmenityIcon>
-                <IconTree size={24} />
+                <IconMap size={24} />
               </AmenityIcon>
               <AmenityContent>
                 <AmenityTitle>{t('detail.parks')}</AmenityTitle>
