@@ -3,7 +3,6 @@ import { useState } from 'react';
 import { IconRobot, IconSend } from 'twenty-ui/display';
 
 const Sidebar = styled.aside`
-  width: 320px;
   background-color: ${({ theme }) => theme.background.secondary};
   border-left: 1px solid ${({ theme }) => theme.border.color.medium};
   display: flex;
@@ -11,6 +10,7 @@ const Sidebar = styled.aside`
   height: 100vh;
   position: sticky;
   top: 0;
+  width: 320px;
 `;
 
 const Header = styled.div`
@@ -35,22 +35,22 @@ const Title = styled.h3`
 `;
 
 const Status = styled.span`
-  font-size: 0.75rem;
   color: ${({ theme }) => theme.font.color.tertiary};
+  font-size: 0.75rem;
 `;
 
 const MessagesContainer = styled.div`
-  flex: 1;
-  overflow-y: auto;
-  padding: 1rem;
   display: flex;
+  flex: 1;
   flex-direction: column;
   gap: 1rem;
+  overflow-y: auto;
+  padding: 1rem;
 `;
 
 const WelcomeMessage = styled.div`
-  text-align: center;
   padding: 2rem 1rem;
+  text-align: center;
 `;
 
 const WelcomeText = styled.p`
@@ -83,9 +83,9 @@ const SuggestedButton = styled.button`
 `;
 
 const Message = styled.div<{ $isUser: boolean }>`
+  align-items: ${({ $isUser }) => ($isUser ? 'flex-end' : 'flex-start')};
   display: flex;
   flex-direction: column;
-  align-items: ${({ $isUser }) => ($isUser ? 'flex-end' : 'flex-start')};
 `;
 
 const MessageBubble = styled.div<{ $isUser: boolean }>`
@@ -111,10 +111,10 @@ const LoadingIndicator = styled.div`
 `;
 
 const InputContainer = styled.div`
-  padding: 1rem;
   border-top: 1px solid ${({ theme }) => theme.border.color.medium};
   display: flex;
   gap: 0.5rem;
+  padding: 1rem;
 `;
 
 const Input = styled.input`
@@ -169,9 +169,9 @@ export const AIAssistantSidebar = () => {
   const [loading, setLoading] = useState(false);
 
   const suggestedQuestions = [
-    'Tìm căn hộ dưới 3 tỷ ở Quận 7',
-    'Giá nhà ở Thủ Đức hiện nay như thế nào?',
-    'Quy trình mua nhà cần những gì?',
+    'Tìm hidden gem đất nền Long Thành dưới 3 tỷ',
+    'So sánh giá căn hộ Quận 2 vs Quận 7',
+    'Phân tích tiềm năng tăng giá khu vực sân bay',
   ];
 
   const handleSend = async () => {
@@ -182,16 +182,92 @@ export const AIAssistantSidebar = () => {
     setInput('');
     setLoading(true);
 
-    // Mock AI response (will be replaced with actual API call in backend implementation)
+    // Mock AI response demonstrating hidden gem discovery process
     setTimeout(() => {
+      let responseContent = '';
+
+      // Intelligent response based on user query
+      if (
+        input.toLowerCase().includes('hidden gem') ||
+        input.toLowerCase().includes('long thành')
+      ) {
+        responseContent = `🎯 **Phân tích Hidden Gems Long Thành**
+
+Tôi đã tìm thấy 2 cơ hội đầu tư tiềm năng:
+
+**1. Đất nền Long Thành - Khu dân cư Bàu Cạn**
+💰 Giá: 2.2 tỷ (120m²) - Dưới ngân sách!
+📍 Cách sân bay: 6km
+⭐ Trust Score: 89%
+✨ **Ưu điểm**: Giá tốt nhất khu vực, hạ tầng hoàn thiện, gần trường học & chợ
+
+**2. Đất nền Long Thành - Gần sân bay**
+💰 Giá: 2.8 tỷ (150m²)
+📍 Cách sân bay: 3km - Vị trí đắc địa!
+⭐ Trust Score: 92%
+✨ **Ưu điểm**: Tiềm năng tăng giá cao khi sân bay hoạt động (2025)
+
+📊 **Dự báo**: Giá đất Long Thành có thể tăng 30-50% trong 2 năm tới khi sân bay đi vào hoạt động.`;
+      } else if (
+        input.toLowerCase().includes('so sánh') ||
+        input.toLowerCase().includes('quận')
+      ) {
+        responseContent = `📊 **So sánh Quận 2 vs Quận 7**
+
+**Quận 2 (Thủ Đức)**:
+💰 Giá TB: 4.2 - 9.8 tỷ
+📈 Tăng trưởng: +15%/năm
+🏢 Dự án nổi bật: Masteri, Gateway, Estella Heights
+✅ Ưu điểm: Khu quốc tế, trường học tốt, Metro
+
+**Quận 7 (Phú Mỹ Hưng)**:
+💰 Giá TB: 8.5 - 35 tỷ
+📈 Tăng trưởng: +12%/năm
+🏢 Dự án nổi bật: Vinhomes, Phú Mỹ Hưng
+✅ Ưu điểm: Hạ tầng hoàn thiện, an ninh tốt
+
+💡 **Khuyến nghị**: Quận 2 phù hợp đầu tư ngắn hạn (tiềm năng cao), Quận 7 phù hợp ở lâu dài (ổn định).`;
+      } else if (
+        input.toLowerCase().includes('tiềm năng') ||
+        input.toLowerCase().includes('sân bay')
+      ) {
+        responseContent = `🚀 **Phân tích Tiềm năng Khu vực Sân bay Long Thành**
+
+**Dự án**: Sân bay quốc tế Long Thành
+📅 Hoàn thành: Giai đoạn 1 - 2025
+💼 Quy mô: 5,000 ha, 100 triệu khách/năm
+
+**Tác động đến BĐS**:
+📈 Giá đất tăng: 30-50% (2024-2026)
+🏗️ Hạ tầng: Cao tốc, Metro đang xây dựng
+🏢 Khu công nghiệp: Thu hút FDI mạnh
+
+**Khu vực HOT**:
+1️⃣ Bán kính 5km: Tăng giá 40-50%
+2️⃣ Mặt tiền QL51: Tiềm năng kinh doanh cao
+3️⃣ Khu dân cư quy hoạch: An toàn pháp lý
+
+💎 **Hidden Gems hiện tại**: 2.2-2.8 tỷ
+🎯 **Dự báo 2026**: 3.5-4.5 tỷ (+50-60%)`;
+      } else {
+        responseContent = `Xin chào! Tôi là AI Assistant của Public Marketplace.
+
+Tôi có thể giúp bạn:
+🔍 Tìm kiếm hidden gems với giá tốt
+📊 Phân tích thị trường và tiềm năng tăng giá
+💡 So sánh các khu vực đầu tư
+📈 Dự báo xu hướng bất động sản
+
+Hãy thử các câu hỏi gợi ý bên dưới để khám phá cơ hội đầu tư tốt nhất!`;
+      }
+
       const mockResponse: ChatMessage = {
         role: 'assistant',
-        content:
-          'Xin chào! Tôi là trợ lý AI của Public Marketplace. Hiện tại tôi đang trong chế độ demo. Tính năng này sẽ được kích hoạt đầy đủ trong các phiên bản tiếp theo với tích hợp OpenAI GPT-4.',
+        content: responseContent,
       };
       setMessages((prev) => [...prev, mockResponse]);
       setLoading(false);
-    }, 1000);
+    }, 1500);
   };
 
   const handleSuggestedQuestion = (question: string) => {
