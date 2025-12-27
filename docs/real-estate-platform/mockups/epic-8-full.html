@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Epic 8 - Complete Mockups with Full Details</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'twenty-primary': '#1a1a1a',
+                        'twenty-sidebar': '#141414',
+                        'twenty-surface': '#1e1e1e',
+                        'twenty-border': '#333333',
+                        'twenty-text': '#ffffff',
+                        'twenty-muted': '#888888',
+                        'status-available': '#22C55E',
+                        'status-reserved': '#EAB308',
+                        'status-deposit': '#3B82F6',
+                        'status-sold': '#8B5CF6',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+        .tab-active { border-bottom: 2px solid #3B82F6; color: #3B82F6; }
+        .view { display: none; }
+        .view.active { display: block; }
+    </style>
+</head>
+<body class="bg-twenty-primary text-twenty-text">
+    <!-- Navigation -->
+    <div class="sticky top-0 bg-twenty-surface border-b border-twenty-border z-50">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex gap-1 py-2 overflow-x-auto text-sm">
+                <button onclick="showView('browse')" class="tab-btn px-3 py-2 rounded hover:bg-twenty-border transition tab-active">Browse</button>
+                <button onclick="showView('detail')" class="tab-btn px-3 py-2 rounded hover:bg-twenty-border transition">Detail</button>
+                <button onclick="showView('register')" class="tab-btn px-3 py-2 rounded hover:bg-twenty-border transition">Register</button>
+                <button onclick="showView('login')" class="tab-btn px-3 py-2 rounded hover:bg-twenty-border transition">Login</button>
+                <button onclick="showView('profile')" class="tab-btn px-3 py-2 rounded hover:bg-twenty-border transition">Profile</button>
+                <button onclick="showView('dashboard')" class="tab-btn px-3 py-2 rounded hover:bg-twenty-border transition">Dashboard</button>
+                <button onclick="showView('post')" class="tab-btn px-3 py-2 rounded hover:bg-twenty-border transition">Post</button>
+                <button onclick="showView('inquiries')" class="tab-btn px-3 py-2 rounded hover:bg-twenty-border transition">Inquiries</button>
+                <button onclick="showView('payment')" class="tab-btn px-3 py-2 rounded hover:bg-twenty-border transition">Payment</button>
+                <button onclick="showView('moderation')" class="tab-btn px-3 py-2 rounded hover:bg-twenty-border transition">Moderation</button>
+                <button onclick="showView('revenue')" class="tab-btn px-3 py-2 rounded hover:bg-twenty-border transition">Revenue</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex min-h-screen">
+        <main class="flex-1 p-6">
+            <!-- PLACEHOLDER: All 11 screens will be added here -->
+            <div id="browse" class="view active">
+                <h1 class="text-2xl">Browse screen - Full details coming...</h1>
+            </div>
+        </main>
+
+        <!-- AI Chatbot Sidebar -->
+        <aside class="w-80 bg-twenty-sidebar border-l border-twenty-border flex flex-col">
+            <div class="p-4 border-b border-twenty-border">
+                <div class="flex items-center gap-2">
+                    <i class="ti ti-robot text-blue-400"></i>
+                    <h3 class="font-semibold">AI Assistant</h3>
+                </div>
+            </div>
+            <div class="flex-1 p-4">
+                <p class="text-sm text-twenty-muted">Persistent chatbot sidebar</p>
+            </div>
+        </aside>
+    </div>
+
+    <script>
+        function showView(id) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('tab-active'));
+            event.target.classList.add('tab-active');
+        }
+    </script>
+</body>
+</html>

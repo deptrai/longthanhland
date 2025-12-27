@@ -908,7 +908,736 @@ Tài liệu này mô tả đầy đủ cấu trúc Epic và Story cho Nền tả
 
 ---
 
-_[Epic 8.4-8.8 stories continue with same detailed format...]_
+### Epic 8.4: AI Research & Trust System (5 stories)
+
+#### Story 8.4.1: AIResearchResult Entity & Job Setup 🔬
+
+**As a** developer,
+**I want** to create the AIResearchResult entity and background job infrastructure,
+**So that** we can store and process AI research results.
+
+**Acceptance Criteria:**
+- ✅ Given PublicListing entity (Epic 8.3), When I create AIResearchResult entity, Then `AIResearchResultWorkspaceEntity` created with fields from PRD 4.8.4
+- ✅ Given entity created, When relation defined, Then `listing` → PublicListing relation exists
+- ✅ Given BullMQ job, When created, Then `AIResearchJob` triggered on listing approval
+- ✅ Given job processor, When created, Then `AIResearchProcessor` handles job execution
+- ✅ Given job queued, When listing approved, Then job automatically queued
+- ✅ Given job execution, When processing, Then completes within 2 minutes with max 3 retry attempts
+
+**Tech Tasks:**
+1. Create `ai-research-result.workspace-entity.ts`
+2. Define fields: sourcesChecked, similarListingsFound, priceRange, suspiciousPatterns, researchedAt
+3. Create BullMQ job: `AIResearchJob`
+4. Create processor: `AIResearchProcessor`
+5. Queue job on listing status change to APPROVED
+6. Implement retry logic (max 3 attempts)
+7. Add job monitoring and error logging
+
+**Prerequisites:** Epic 8.3 complete
+**Estimate:** 6 hours
+**Priority:** P0
+
+**Technical Notes:**
+- Follow Twenty's background job pattern (architecture.md Section 4.4)
+- Use `@Processor()` and `@Process()` decorators
+- Job queue: `public-marketplace-ai-research`
+- Reference PRD v1.4 Section 4.8.4
+
+---
+
+#### Story 8.4.2: Perplexica API Integration 🌐
+
+**As a** developer,
+**I want** to integrate Perplexica API for web research,
+**So that** we can research similar listings from other platforms.
+
+**Acceptance Criteria:**
+- ✅ Given AIResearchJob processing (Story 8.4.1), When job runs, Then Perplexica API called to research similar listings
+- ✅ Given Perplexica API, When called, Then searches batdongsan.com.vn and chợ tốt for similar properties by location + price range
+- ✅ Given API response, When received, Then extracts: title, price, location, contact, images from results
+- ✅ Given extracted data, When stored, Then saved in `similarListingsFound` field (JSON array)
+- ✅ Given rate limiting, When enforced, Then max 10 requests/minute per source respected
+
+**Tech Tasks:**
+1. Create `PerplexicaService` with API integration
+2. Implement search methods for each source (batdongsan, chợ tốt)
+3. Configure Perplexica API endpoint and authentication
+4. Parse and extract data from API responses
+5. Handle API errors (retry with exponential backoff)
+6. Implement rate limiting
+7. Cache results for 24 hours to reduce API calls
+8. Sanitize and validate scraped data
+
+**Prerequisites:** Story 8.4.1
+**Estimate:** 10 hours
+**Priority:** P0
+
+**Technical Notes:**
+- Use Perplexica API (not Puppeteer/Playwright as confirmed)
+- Environment variables: `PERPLEXICA_API_URL`, `PERPLEXICA_API_KEY`
+- Legal: Ensure compliance with terms of service
+
+---
+
+#### Story 8.4.3: AI Research Processing & Storage 📊
+
+**As a** developer,
+**I want** to process researched data and generate insights,
+**So that** we provide valuable information to users.
+
+**Acceptance Criteria:**
+- ✅ Given Perplexica returns similar listings (Story 8.4.2), When AI research processes data, Then calculates: price range (min, max, average), detects suspicious patterns, counts sources checked
+- ✅ Given suspicious patterns, When detected, Then flags: price >30% below market, duplicate images, contact matches known scammers, spam keywords in description
+- ✅ Given processing complete, When results stored, Then all data saved in AIResearchResult entity
+- ✅ Given listing updated, When flagged, Then `aiResearchCompleted = true` set
+- ✅ Given processing time, When measured, Then completes within 2 minutes
+
+**Tech Tasks:**
+1. Create `AIResearchService` with analysis methods
+2. Implement price analysis: calculate min, max, average from similar listings
+3. Implement image comparison: use perceptual hashing (pHash) for duplicate detection
+4. Implement spam detection: keyword matching + pattern recognition
+5. Store results as JSON in AIResearchResult
+6. Update listing's `aiResearchCompleted` flag
+7. Add metrics tracking: job success rate, processing time
+8. Store raw data for debugging (optional, with TTL)
+
+**Prerequisites:** Story 8.4.2
+**Estimate:** 8 hours
+**Priority:** P0
+
+**Technical Notes:**
+- Image comparison: pHash algorithm for duplicate detection
+- Spam keywords: maintain blacklist in database
+
+---
+
+#### Story 8.4.4: Trust Score Calculation Algorithm 🎯
+
+**As a** developer,
+**I want** to implement the trust score calculation algorithm,
+**So that** buyers can assess listing reliability.
+
+**Acceptance Criteria:**
+- ✅ Given AI research results (Story 8.4.3), When trust score calculated, Then score (0-100) based on: seller verification (30pts), listing completeness (20pts), market alignment (20pts), research validation (15pts), engagement (10pts), platform history (5pts)
+- ✅ Given score calculated, When stored, Then saved in `listing.trustScore` field
+- ✅ Given score breakdown, When available, Then stored for transparency
+- ✅ Given daily recalculation, When job runs, Then all listing scores updated
+
+**Tech Tasks:**
+1. Create `TrustScoreService` with `calculateTrustScore()` method
+2. Implement weighted algorithm:
+   - Seller verification: phone (+15), email (+15)
+   - Listing completeness: all fields (+10), multiple images (+10)
+   - Market alignment: price within range (+20)
+   - Research validation: similar listings found (+10), no suspicious patterns (+5)
+   - Engagement: views, inquiries, response rate (+10)
+   - Platform history: account age, previous listings (+5)
+3. Create background job: `RecalculateTrustScoresJob` (runs daily)
+4. Store score history for trend analysis
+5. Make weights configurable
+
+**Prerequisites:** Story 8.4.3
+**Estimate:** 6 hours
+**Priority:** P1
+
+**Technical Notes:**
+- Algorithm: Weighted sum of factors
+- Reference PRD v1.4 Section 4.8.6 for complete algorithm
+- Configurable weights for tuning
+
+---
+
+#### Story 8.4.5: Display Trust Score & Research Results 🏆
+
+**As a** buyer,
+**I want** to see trust score and AI research results,
+**So that** I can make informed decisions.
+
+**Acceptance Criteria:**
+- ✅ Given trust score calculated (Story 8.4.4), When I view listing detail, Then I see: trust score badge (0-100) with color (80-100 green, 50-79 yellow, 0-49 red), AI research summary (similar listings count, price range, market alignment), warning flags if suspicious patterns
+- ✅ Given "View Details" clicked, When expanded, Then I see: full AI research breakdown, similar listings from other platforms, trust score factors, research timestamp
+- ✅ Given research results, When displayed, Then user-friendly format with icons and colors
+
+**Tech Tasks:**
+1. Create `TrustScoreBadge` component
+2. Create `AIResearchPanel` component (expandable)
+3. Display trust score with color coding
+4. Show AI research summary
+5. Implement expandable details section
+6. Add icons and visual indicators
+7. Add tooltip explaining trust score
+8. Link to similar listings (external, new tab)
+9. Cache research results in component state
+
+**Prerequisites:** Story 8.4.4
+**Estimate:** 6 hours
+**Priority:** P1
+
+**Technical Notes:**
+- Visual design critical for user trust
+- Clear explanation of what trust score means
+
+---
+
+### Epic 8.5: AI Summary & Spam Filter (4 stories)
+
+#### Story 8.5.1: OpenAI Integration & AI Summary Generation ✨
+
+**As a** developer,
+**I want** to integrate OpenAI GPT-4 for generating listing summaries,
+**So that** buyers get AI-powered insights.
+
+**Acceptance Criteria:**
+- ✅ Given listing approved (Epic 8.3), When AI summary job runs, Then calls OpenAI GPT-4 via v98store key
+- ✅ Given API called, When response received, Then generates summary with: property highlights (3-5 features), neighborhood analysis, investment potential, suitable buyer profile
+- ✅ Given summary generated, When stored, Then saved in `listing.aiSummary` field (RICH_TEXT)
+- ✅ Given processing time, When measured, Then completes within 10 seconds
+- ✅ Given API errors, When occurred, Then retries 3 times with exponential backoff
+- ✅ Given token usage, When tracked, Then cost monitored
+
+**Tech Tasks:**
+1. Create `OpenAIService` with `generateListingSummary()` method
+2. Use existing v98store OpenAI key (already implemented)
+3. Use GPT-4 model (or GPT-3.5-turbo for cost optimization)
+4. Create effective prompt template including: listing data, location, price, area, Vietnamese market context
+5. Parse and format response
+6. Store in aiSummary field
+7. Create background job: `GenerateAISummaryJob`
+8. Implement rate limiting (max 100 requests/hour)
+9. Track token usage and cost
+
+**Prerequisites:** Epic 8.3 complete
+**Estimate:** 8 hours
+**Priority:** P0
+
+**Technical Notes:**
+- Use existing v98store key (confirmed)
+- Prompt engineering critical for quality
+- Reference PRD v1.4 Section 4.8.5
+
+---
+
+#### Story 8.5.2: Spam Detection Rules & Filtering 🛡️
+
+**As a** developer,
+**I want** to implement spam detection rules,
+**So that** we automatically filter low-quality listings.
+
+**Acceptance Criteria:**
+- ✅ Given listing submitted (Epic 8.3), When spam detection runs, Then checks: duplicate detection (same title/description), suspicious keywords ("100% guaranteed", etc.), contact spam (multiple phones, external URLs), image spam (no images or stock photos), price anomalies (price=0 or unrealistically low), rapid posting (>5 listings/hour)
+- ✅ Given spam detected, When flagged, Then listing marked with `spamScore` (0-100)
+- ✅ Given high spam score (>70), When detected, Then auto-rejects listing, notifies admin, temporarily suspends user if repeated
+- ✅ Given spam detection, When runs, Then executes before admin approval
+
+**Tech Tasks:**
+1. Create `SpamDetectionService` with rule-based checks
+2. Implement duplicate detection: Levenshtein distance for text similarity
+3. Maintain spam keyword blacklist in database
+4. Check for multiple phone numbers and URLs in description
+5. Validate images exist and not stock photos
+6. Check price anomalies
+7. Track user posting rate
+8. Store spam flags in `listing.spamFlags` (JSON array)
+9. Create `SpamRule` entity for configurable rules
+10. Admin dashboard to review flagged listings
+
+**Prerequisites:** Epic 8.3 complete
+**Estimate:** 10 hours
+**Priority:** P0
+
+**Technical Notes:**
+- Rules configurable via database
+- Reference PRD v1.4 Section 4.8.7
+
+---
+
+#### Story 8.5.3: Content Moderation Queue 👮
+
+**As an** admin,
+**I want** to review flagged listings in moderation queue,
+**So that** I can manually verify spam detection.
+
+**Acceptance Criteria:**
+- ✅ Given spam detection flags listings (Story 8.5.2), When I access moderation queue, Then I see: list sorted by spam score (highest first), listing details with spam flags highlighted, spam score breakdown, actions (approve, reject, mark false positive)
+- ✅ Given listing approved, When action taken, Then spam flags cleared and listing published
+- ✅ Given listing rejected, When action taken, Then rejected with reason
+- ✅ Given false positive marked, When action taken, Then spam rules adjusted (feedback loop)
+- ✅ Given queue statistics, When displayed, Then shows: total flagged, reviewed today, pending
+
+**Tech Tasks:**
+1. Create moderation queue component (similar to approval queue)
+2. Create `reviewSpamFlag` mutation
+3. Implement permissions (admin only)
+4. Display spam flags with highlighting
+5. Implement feedback loop: track false positives
+6. Add bulk actions (approve/reject multiple)
+7. Setup notifications (alert when queue >50 pending)
+8. Add queue statistics dashboard
+
+**Prerequisites:** Story 8.5.2
+**Estimate:** 8 hours
+**Priority:** P1
+
+**Technical Notes:**
+- Feedback loop improves detection over time
+- Similar UI to approval queue
+
+---
+
+#### Story 8.5.4: Display AI Summary on Listings 💬
+
+**As a** buyer,
+**I want** to see AI-generated summary on listing pages,
+**So that** I can quickly understand key insights.
+
+**Acceptance Criteria:**
+- ✅ Given AI summary generated (Story 8.5.1), When I view listing detail, Then I see: AI summary section with icon (✨ AI Insights), property highlights (bullet points), neighborhood analysis (paragraph), investment potential (rating/text), suitable buyer profile (text)
+- ✅ Given summary displayed, When shown, Then clearly labeled as AI-generated
+- ✅ Given rich text format, When rendered, Then displays bold, lists, etc.
+- ✅ Given summary unavailable, When checked, Then section hidden
+- ✅ Given mobile view, When displayed, Then responsive design
+
+**Tech Tasks:**
+1. Create `AISummaryPanel` component
+2. Use rich text renderer for `aiSummary` field
+3. Add sparkle/AI icon to indicate AI-generated
+4. Style with distinct visual design
+5. Implement loading state (skeleton while generating)
+6. Add disclaimer: "AI-generated content, verify independently"
+7. Make responsive for mobile
+
+**Prerequisites:** Story 8.5.1
+**Estimate:** 4 hours
+**Priority:** P1
+
+**Technical Notes:**
+- Clear AI labeling important for transparency
+- Distinct visual style differentiates from user content
+
+---
+
+### Epic 8.6: Inquiry & Lead Conversion (5 stories)
+
+#### Story 8.6.1: Inquiry Entity & CRUD 💬
+
+**As a** developer,
+**I want** to create the Inquiry entity with CRUD operations,
+**So that** buyers can send inquiries to sellers.
+
+**Acceptance Criteria:**
+- ✅ Given PublicListing entity (Epic 8.3), When I create Inquiry entity, Then `InquiryWorkspaceEntity` created with fields from PRD 4.8.8
+- ✅ Given entity created, When relations defined, Then `listing` → PublicListing, `inquirer` → PublicUser (nullable)
+- ✅ Given fields defined, When created, Then includes: message, contactPhone, contactEmail, preferredContact, status, notes
+- ✅ Given status enum, When defined, Then includes: NEW, CONTACTED, CLOSED
+- ✅ Given GraphQL, When generated, Then CRUD operations available
+- ✅ Given database, When migration run, Then Inquiry table created
+
+**Tech Tasks:**
+1. Create `inquiry.workspace-entity.ts`
+2. Define fields: message, contactPhone, contactEmail, preferredContact, status, notes
+3. Define relations: listing, inquirer (nullable for anonymous)
+4. Add validation: message min 10 chars, max 500 chars
+5. Add timestamps: createdAt, respondedAt, closedAt
+6. Create database migration
+7. Support anonymous inquiries (inquirer = null)
+
+**Prerequisites:** Epic 8.3 complete
+**Estimate:** 4 hours
+**Priority:** P0
+
+**Technical Notes:**
+- Anonymous inquiries supported
+- Reference PRD v1.4 Section 4.8.8
+
+---
+
+#### Story 8.6.2: Inquiry Form & Notifications 📧
+
+**As a** buyer,
+**I want** to send an inquiry about a listing,
+**So that** I can get more information.
+
+**Acceptance Criteria:**
+- ✅ Given listing detail page (Epic 8.3), When I submit inquiry form, Then creates Inquiry with NEW status, increments `listing.contactCount`, sends email to seller, sends SMS to seller (if enabled), sends confirmation to buyer, returns success message
+- ✅ Given inquiry form, When displayed, Then includes: message textarea (required, 10-500 chars), contact phone (required), contact email (optional), preferred contact method (PHONE/EMAIL/BOTH), agreement checkbox
+- ✅ Given rate limiting, When enforced, Then max 3 inquiries per IP per hour
+- ✅ Given logged in user, When form shown, Then contact info pre-filled
+
+**Tech Tasks:**
+1. Create `createInquiry` mutation in `InquiryResolver`
+2. Create inquiry form component (modal or inline)
+3. Validate message length and contact info
+4. Implement rate limiting (Redis-based, track IP)
+5. Send email notification to seller (professional template)
+6. Send SMS notification to seller (short with link)
+7. Send confirmation email to buyer
+8. Pre-fill form for logged-in users
+9. Track inquiry conversion rate
+
+**Prerequisites:** Story 8.6.1
+**Estimate:** 8 hours
+**Priority:** P0
+
+**Technical Notes:**
+- Rate limiting prevents spam
+- Email/SMS templates professional
+
+---
+
+#### Story 8.6.3: Lead Conversion Workflow 🔄
+
+**As a** developer,
+**I want** to implement automatic lead conversion for internal properties,
+**So that** inquiries become leads for sales agents.
+
+**Acceptance Criteria:**
+- ✅ Given inquiry created for listing with internal property link (Story 8.6.2), When processed, Then checks if `listing.property` exists, creates/updates Contact with inquirer info, creates Deal with: property, status NEW_LEAD, source PUBLIC_MARKETPLACE, notes (inquiry message), lead score (calculated), assigns to sales agent, sends notification to agent, links inquiry to deal
+- ✅ Given lead score, When calculated, Then based on: verified contact (+30), quality message (+20), high trust listing (+20), budget indication (+15), timeline indication (+15)
+- ✅ Given conversion, When executed, Then happens asynchronously (background job)
+
+**Tech Tasks:**
+1. Create `ConvertInquiryToLeadJob` background job
+2. Trigger when inquiry created for listing with `property` link
+3. Implement lead score algorithm (PRD 4.8.9)
+4. Find or create Contact (match by phone/email)
+5. Create Deal entity with appropriate fields
+6. Use existing Deal entity from internal CRM
+7. Link inquiry to deal (`inquiry.convertedToDeal`)
+8. Add audit log for conversions
+
+**Prerequisites:** Story 8.6.2
+**Estimate:** 10 hours
+**Priority:** P0
+
+**Technical Notes:**
+- Critical for business value - lead generation
+- Reference PRD v1.4 Section 4.8.9
+
+---
+
+#### Story 8.6.4: Lead Assignment to Agents 👥
+
+**As a** developer,
+**I want** to assign converted leads to sales agents automatically,
+**So that** leads are distributed fairly.
+
+**Acceptance Criteria:**
+- ✅ Given lead created from inquiry (Story 8.6.3), When assignment runs, Then uses existing lead assignment algorithm (Module 5), assigns based on: property location (agent territory), agent availability (not on leave), agent workload (active deals), round-robin within eligible agents
+- ✅ Given agent assigned, When notified, Then receives: lead details (contact, property, inquiry message), trust score, lead score, inquiry timestamp
+- ✅ Given no eligible agents, When checked, Then assigns to default admin and alerts management
+- ✅ Given assignment time, When measured, Then completes within 1 minute
+
+**Tech Tasks:**
+1. Reuse existing `LeadAssignmentService` from Module 5
+2. Extend to support PUBLIC_MARKETPLACE source
+3. Send notification to assigned agent (email + in-app)
+4. Include link to deal in CRM
+5. Track SLA: time from inquiry to agent response
+6. Add metrics: assignment success rate, response time
+
+**Prerequisites:** Story 8.6.3
+**Estimate:** 6 hours
+**Priority:** P0
+
+**Technical Notes:**
+- Reuse existing Module 5 logic
+- Reference PRD v1.4 Section 4.5
+
+---
+
+#### Story 8.6.5: Inquiry Management Dashboard 📊
+
+**As a** seller,
+**I want** to view and manage inquiries about my listings,
+**So that** I can respond to buyers.
+
+**Acceptance Criteria:**
+- ✅ Given listings with inquiries (Story 8.6.2), When I navigate to inquiry dashboard, Then I see: list of all inquiries, details (listing, message, contact, timestamp), status (NEW/CONTACTED/CLOSED), actions (mark contacted, mark closed, add notes)
+- ✅ Given filters, When available, Then can filter by: status, listing, search contact/message
+- ✅ Given sorting, When available, Then can sort by date (newest first)
+- ✅ Given NEW inquiries, When displayed, Then highlighted
+- ✅ Given statistics, When shown, Then displays: total inquiries, response rate (% contacted within 24h), average response time
+
+**Tech Tasks:**
+1. Create inquiry dashboard component
+2. Create queries: `getMyInquiries`, `getInquiryStats`
+3. Create mutations: `updateInquiryStatus`, `addInquiryNotes`
+4. Implement filters and sorting
+5. Add real-time updates (WebSocket or polling)
+6. Add browser notifications for new inquiries
+7. Implement click-to-call if available
+8. Add export to CSV functionality
+
+**Prerequisites:** Story 8.6.4
+**Estimate:** 8 hours
+**Priority:** P1
+
+**Technical Notes:**
+- Real-time updates improve responsiveness
+- Response rate metric important for seller quality
+
+---
+
+### Epic 8.7: Monetization & Analytics (4 stories)
+
+#### Story 8.7.1: Subscription Payment Integration 💳
+
+**As a** seller,
+**I want** to upgrade my subscription tier with payment,
+**So that** I can access premium features.
+
+**Acceptance Criteria:**
+- ✅ Given logged in as public user (Epic 8.2), When I select subscription tier (BASIC/PRO/ENTERPRISE), Then system displays details and pricing, redirects to VNPay gateway, processes payment securely, updates `subscriptionTier` and `subscriptionExpiresAt` on success, sends confirmation email with receipt
+- ✅ Given payment methods, When available, Then supports: VNPay (Vietnamese gateway), MoMo wallet, Bank transfer (manual verification)
+- ✅ Given subscription, When active, Then auto-renews before expiry (optional)
+- ✅ Given payment history, When stored, Then available for accounting
+
+**Tech Tasks:**
+1. Integrate VNPay SDK for Node.js
+2. Create `SubscriptionPaymentService`
+3. Create mutations: `createPayment`, `verifyPayment`
+4. Setup webhook to handle payment callbacks from VNPay
+5. Validate payment signatures for security
+6. Configure environment variables: `VNPAY_TMN_CODE`, `VNPAY_HASH_SECRET`
+7. Create frontend payment flow component
+8. Store pricing in database (`SubscriptionPlan` entity)
+
+**Prerequisites:** Epic 8.2 complete
+**Estimate:** 10 hours
+**Priority:** P1
+
+**Technical Notes:**
+- VNPay SDK integration
+- Reference PRD v1.4 Section 4.8.2 (Subscription Tiers)
+
+---
+
+#### Story 8.7.2: Featured Listings Feature ⭐
+
+**As a** seller with PRO subscription,
+**I want** to feature my listings,
+**So that** they appear prominently in search results.
+
+**Acceptance Criteria:**
+- ✅ Given PRO or ENTERPRISE subscription (Story 8.7.1), When I select listing to feature, Then system checks quota (5/month for PRO), marks as featured (`isFeatured = true`), sets `featuredUntil` (30 days), deducts from quota, moves to top of search results
+- ✅ Given featured listings, When displayed, Then shows "Featured" badge, appears at top of browse page, has highlighted styling, shows in "Featured Listings" section on homepage
+- ✅ Given featured status, When expires, Then after 30 days status removed
+- ✅ Given quota, When checked, Then remaining quota displayed
+
+**Tech Tasks:**
+1. Add fields to PublicListing: `isFeatured`, `featuredUntil`, `featuredCount`
+2. Create mutation: `featureListing`
+3. Modify search query: sort by `isFeatured DESC, createdAt DESC`
+4. Create background job: `ExpireFeaturedListingsJob` (runs daily)
+5. Create frontend feature button on listing management
+6. Implement quota tracking (reset monthly on renewal)
+7. Track analytics: featured listing performance (views, inquiries)
+
+**Prerequisites:** Story 8.7.1
+**Estimate:** 6 hours
+**Priority:** P2
+
+**Technical Notes:**
+- Featured listings boost visibility significantly
+- Quota enforcement at service layer
+
+---
+
+#### Story 8.7.3: Seller Analytics Dashboard 📈
+
+**As a** seller,
+**I want** to view analytics about my listings,
+**So that** I can understand performance and optimize.
+
+**Acceptance Criteria:**
+- ✅ Given listings with activity (Epic 8.3, 8.6), When I navigate to analytics dashboard, Then I see: overview metrics (total listings, views, inquiries, conversion rate, response time), listing performance table (each listing with metrics, sortable), trends chart (views/inquiries over time, last 30 days), top performing listings
+- ✅ Given filters, When available, Then can filter by date range (7 days, 30 days, all time)
+- ✅ Given export, When clicked, Then data exported to CSV
+- ✅ Given comparison, When enabled, Then can compare listings side-by-side
+
+**Tech Tasks:**
+1. Create analytics dashboard component with charts (Chart.js or Recharts)
+2. Create query: `getSellerAnalytics` with date range filter
+3. Pre-compute daily metrics (background job)
+4. Store analytics in `ListingAnalytics` table (date, listingId, views, inquiries)
+5. Cache dashboard data for 1 hour
+6. Make responsive (mobile-friendly charts)
+7. Implement CSV export functionality
+
+**Prerequisites:** Story 8.7.2
+**Estimate:** 10 hours
+**Priority:** P2
+
+**Technical Notes:**
+- Pre-computed metrics for performance
+- Cache to reduce database load
+
+---
+
+#### Story 8.7.4: Revenue Tracking & Reporting 💰
+
+**As an** admin,
+**I want** to track revenue from subscriptions and featured listings,
+**So that** I can monitor business performance.
+
+**Acceptance Criteria:**
+- ✅ Given payments processed (Story 8.7.1, 8.7.2), When I access revenue dashboard, Then I see: revenue metrics (total, MRR, by source, ARPU), subscription metrics (active by tier, new/churned this month, conversion rate), revenue trends (last 12 months chart, growth rate), top customers (highest lifetime value)
+- ✅ Given filters, When available, Then can filter by date range
+- ✅ Given export, When clicked, Then revenue report exported to CSV/PDF
+- ✅ Given transaction history, When viewed, Then detailed transactions shown
+
+**Tech Tasks:**
+1. Create admin revenue dashboard component
+2. Create query: `getRevenueMetrics` (admin only)
+3. Store transactions in `PaymentTransaction` entity
+4. Pre-compute monthly metrics (background job)
+5. Create revenue trends chart
+6. Implement permissions (admin only access)
+7. Generate PDF report with charts
+8. Plan integration with accounting software (future)
+
+**Prerequisites:** Story 8.7.3
+**Estimate:** 8 hours
+**Priority:** P2
+
+**Technical Notes:**
+- Admin only - strict permissions
+- Financial data security critical
+
+---
+
+### Epic 8.8: Advanced Features & Optimization (3 stories)
+
+#### Story 8.8.1: AI Consultation Chatbot 🤖
+
+**As a** buyer,
+**I want** to chat with an AI assistant about properties,
+**So that** I get instant answers.
+
+**Acceptance Criteria:**
+- ✅ Given viewing marketplace (Epic 8.3), When I click chat icon, Then chatbot widget opens with: welcome message, suggested questions, text input, chat history
+- ✅ Given question asked, When AI responds, Then understands Vietnamese, provides relevant answers about: property recommendations (budget/location), market trends/prices, neighborhood info, buying process guidance, responds within 3 seconds, cites sources
+- ✅ Given context awareness, When chatting, Then remembers conversation history, knows which listing I'm viewing, personalizes based on search history (if logged in)
+
+**Tech Tasks:**
+1. Use OpenAI GPT-4 with function calling (v98store key)
+2. Create `ChatbotService` with conversation management
+3. Create chatbot widget component (floating button)
+4. Include context: listing data, user search history, market data
+5. Define functions for: property search, price lookup, etc.
+6. Implement rate limiting (max 20 messages per session)
+7. Store conversations for analysis (optional)
+8. Add fallback: if AI fails, show contact form
+9. Use GPT-3.5-turbo for simple queries (cost optimization)
+
+**Prerequisites:** Epic 8.4, 8.5 complete
+**Estimate:** 12 hours
+**Priority:** P2
+
+**Technical Notes:**
+- Function calling for structured responses
+- Cost optimization important
+
+---
+
+#### Story 8.8.2: Dynamic Sitemap & Structured Data 🗺️
+
+**As a** developer,
+**I want** to generate dynamic sitemap and structured data,
+**So that** search engines better index listings.
+
+**Acceptance Criteria:**
+- ✅ Given listings exist (Epic 8.3), When search engines request `/sitemap.xml`, Then system generates XML sitemap with: all public URLs (homepage, browse, all approved listings, categories), URL metadata (last modified, change frequency, priority), daily updates (background job), correct content-type (application/xml)
+- ✅ Given bots view listing pages (Epic 8.3.6), When rendered, Then includes structured data: Schema.org RealEstateListing JSON-LD, properties (name, description, price, address, images), validates with Google Rich Results Test
+- ✅ Given sitemap generated, When submitted, Then to Google Search Console and Bing Webmaster Tools
+
+**Tech Tasks:**
+1. Create `/sitemap.xml` endpoint in Express SSR server
+2. Generate sitemap using `sitemap` npm package
+3. Create background job: `GenerateSitemapJob` (runs daily 2am)
+4. Cache sitemap in Redis (24 hour TTL)
+5. Add structured data to SSR meta tags (Story 8.1.5)
+6. Use Schema.org RealEstateListing type
+7. Validate with Google Rich Results Test tool
+8. Add sitemap URL to robots.txt
+
+**Prerequisites:** Epic 8.4, 8.5 complete
+**Estimate:** 6 hours
+**Priority:** P1
+
+**Technical Notes:**
+- Critical for SEO
+- Structured data enables rich snippets
+
+---
+
+#### Story 8.8.3: Performance Optimization & Monitoring 🚀
+
+**As a** developer,
+**I want** to optimize platform performance and setup monitoring,
+**So that** we ensure fast load times and catch issues early.
+
+**Acceptance Criteria:**
+- ✅ Given platform running (All epics), When performance optimized, Then achieves: SSR render <500ms (P95), API response <200ms (P95), Lighthouse SEO >90, page load <2s (P75), cache hit rate >80%
+- ✅ Given optimizations implemented, When applied, Then includes: database query optimization (indexes, analysis), Redis caching for expensive queries, image optimization (WebP, lazy loading), CDN for static assets, code splitting for frontend, Gzip compression
+- ✅ Given monitoring setup, When configured, Then includes: APM (New Relic or Datadog), error tracking (Sentry), uptime monitoring (Pingdom), custom metrics (SSR performance, cache hit rate, API latency), alerts (Slack/email for critical issues)
+
+**Tech Tasks:**
+1. Add database indexes on frequently queried fields
+2. Use `EXPLAIN ANALYZE` to optimize slow queries
+3. Implement multi-level caching (Redis + in-memory)
+4. Use Sharp for image processing, serve WebP format
+5. Setup CDN (CloudFlare or AWS CloudFront)
+6. Implement code splitting with React.lazy()
+7. Integrate APM SDK in server code
+8. Setup Sentry for error tracking
+9. Create Grafana dashboards for metrics
+10. Run load testing with k6 or Artillery
+11. Set and enforce performance budgets
+
+**Prerequisites:** All previous epics complete
+**Estimate:** 16 hours
+**Priority:** P1
+
+**Technical Notes:**
+- Performance critical for SEO and UX
+- Monitoring essential for production
+
+---
+
+## Epic 8 Summary
+
+**Total Stories**: 38 stories across 8 sub-epics
+**Timeline**: 16 weeks (Phase 4)
+**Team**: 2 developers
+
+**Story Distribution**:
+- Epic 8.1 (Foundation & SSR): 6 stories, 32 hours
+- Epic 8.2 (User Management): 5 stories, 32 hours
+- Epic 8.3 (Listing Management): 6 stories, 52 hours
+- Epic 8.4 (AI Research & Trust): 5 stories, 36 hours
+- Epic 8.5 (AI Summary & Spam): 4 stories, 30 hours
+- Epic 8.6 (Inquiry & Lead): 5 stories, 36 hours
+- Epic 8.7 (Monetization): 4 stories, 34 hours
+- Epic 8.8 (Advanced Features): 3 stories, 34 hours
+
+**Total Estimated Hours**: 286 hours (~18 weeks for 2 developers)
+
+**Key Milestones**:
+- Week 2: SSR infrastructure complete
+- Week 5: Core marketplace functional (users + listings)
+- Week 9: AI features complete (research, summary, trust, spam)
+- Week 11: Lead generation active
+- Week 14: Monetization live
+- Week 16: Advanced features & optimization complete
+
+**Success Criteria**:
+- ✅ 500 qualified leads/month by Month 12
+- ✅ 5,000 registered users Year 1
+- ✅ Lighthouse SEO score >90
+- ✅ 10-15% lead conversion rate
+- ✅ Break-even by Month 9
 
 ---
 

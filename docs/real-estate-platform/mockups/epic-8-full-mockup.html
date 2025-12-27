@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Epic 8 Public Marketplace - Complete Mockups (11 Screens)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'twenty-primary': '#1a1a1a',
+                        'twenty-sidebar': '#141414',
+                        'twenty-surface': '#1e1e1e',
+                        'twenty-border': '#333333',
+                        'twenty-text': '#ffffff',
+                        'twenty-muted': '#888888',
+                        'status-available': '#22C55E',
+                        'status-reserved': '#EAB308',
+                        'status-deposit': '#3B82F6',
+                        'status-sold': '#8B5CF6',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+        .tab-active { border-bottom: 2px solid #3B82F6; color: #3B82F6; }
+        .view { display: none; }
+        .view.active { display: block; }
+    </style>
+</head>
+<body class="bg-twenty-primary text-twenty-text">
+    <div class="sticky top-0 bg-twenty-surface border-b border-twenty-border z-50">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex gap-1 py-2 overflow-x-auto text-sm">
+                <button onclick="showView('browse')" class="tab-btn px-3 py-2 rounded hover:bg-twenty-border transition tab-active">🏠 Browse</button>
+                <button onclick="showView('detail')" class="tab-btn px-3 py-2 rounded hover:bg-twenty-border transition">📄 Detail</button>
+                <button onclick="showView('register')" class="tab-btn px-3 py-2 rounded hover:bg-twenty-border transition">📝 Register</button>
+                <button onclick="showView('login')" class="tab-btn px-3 py-2 rounded hover:bg-twenty-border transition">🔐 Login</button>
+                <button onclick="showView('profile')" class="tab-btn px-3 py-2 rounded hover:bg-twenty-border transition">⚙️ Profile</button>
+                <button onclick="showView('dashboard')" class="tab-btn px-3 py-2 rounded hover:bg-twenty-border transition">📊 Dashboard</button>
+                <button onclick="showView('post')" class="tab-btn px-3 py-2 rounded hover:bg-twenty-border transition">➕ Post</button>
+                <button onclick="showView('inquiries')" class="tab-btn px-3 py-2 rounded hover:bg-twenty-border transition">💬 Inquiries</button>
+                <button onclick="showView('payment')" class="tab-btn px-3 py-2 rounded hover:bg-twenty-border transition">💳 Payment</button>
+                <button onclick="showView('moderation')" class="tab-btn px-3 py-2 rounded hover:bg-twenty-border transition">✅ Moderation</button>
+                <button onclick="showView('revenue')" class="tab-btn px-3 py-2 rounded hover:bg-twenty-border transition">💰 Revenue</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex min-h-screen">
+        <main class="flex-1 p-6">
+            <!-- Browse View (Story 8.3.5) -->
+            <div id="browse" class="view active">
+                <div class="flex items-center justify-between mb-6">
+                    <div class="flex items-center gap-2">
+                        <i class="ti ti-home text-2xl text-blue-400"></i>
+                        <h1 class="text-2xl font-semibold">Public Marketplace</h1>
+                    </div>
+                    <button class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition">
+                        <i class="ti ti-plus"></i> Post Listing
+                    </button>
+                </div>
+
+                <div class="flex gap-4 mb-6">
+                    <div class="relative flex-1 max-w-2xl">
+                        <i class="ti ti-search absolute left-3 top-1/2 -translate-y-1/2 text-twenty-muted"></i>
+                        <input type="text" placeholder="Search location, property type..." class="w-full bg-twenty-surface border border-twenty-border rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:border-blue-500">
+                    </div>
+                    <select class="bg-twenty-surface border border-twenty-border rounded-lg px-4 py-2">
+                        <option>All Categories</option>
+                        <option>Apartment</option>
+                        <option>House</option>
+                        <option>Land</option>
+                    </select>
+                </div>
+
+                <div class="mb-6">
+                    <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
+                        <i class="ti ti-star text-yellow-500"></i> Featured Listings
+                    </h2>
+                    <div class="grid grid-cols-3 gap-4">
+                        <div class="bg-twenty-surface border-2 border-yellow-500/50 rounded-xl overflow-hidden hover:border-yellow-500 transition cursor-pointer">
+                            <div class="relative h-48 bg-gradient-to-br from-gray-700 to-gray-800">
+                                <img src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=400&h=300&fit=crop" class="w-full h-full object-cover">
+                                <div class="absolute top-2 left-2 bg-yellow-500 text-black px-2 py-1 rounded text-xs font-semibold">
+                                    <i class="ti ti-star-filled"></i> Featured
+                                </div>
+                            </div>
+                            <div class="p-4">
+                                <h3 class="font-semibold mb-1">Modern 3BR Apartment</h3>
+                                <p class="text-sm text-twenty-muted mb-2"><i class="ti ti-map-pin mr-1"></i> District 7, HCM</p>
+                                <div class="flex items-center justify-between mb-3">
+                                    <span class="text-xl font-bold text-blue-400">3.5B VND</span>
+                                    <div class="flex gap-2 text-sm text-twenty-muted">
+                                        <span><i class="ti ti-bed"></i> 3</span>
+                                        <span><i class="ti ti-bath"></i> 2</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2 mb-3">
+                                    <div class="flex-1 bg-twenty-primary rounded-full h-2">
+                                        <div class="bg-status-available h-2 rounded-full" style="width: 92%"></div>
+                                    </div>
+                                    <span class="text-xs text-status-available font-semibold">92%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-twenty-surface border border-twenty-border rounded-xl overflow-hidden">
+                    <table class="w-full">
+                        <thead class="bg-twenty-sidebar border-b border-twenty-border">
+                            <tr>
+                                <th class="text-left px-6 py-4 text-sm font-medium text-twenty-muted">Property</th>
+                                <th class="text-left px-6 py-4 text-sm font-medium text-twenty-muted">Location</th>
+                                <th class="text-right px-6 py-4 text-sm font-medium text-twenty-muted">Price</th>
+                                <th class="text-center px-6 py-4 text-sm font-medium text-twenty-muted">Trust</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-twenty-border">
+                            <tr class="hover:bg-twenty-border/50 cursor-pointer">
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-12 h-12 rounded-lg overflow-hidden">
+                                            <img src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=100" class="w-full h-full object-cover">
+                                        </div>
+                                        <div>
+                                            <div class="font-medium">Cozy 2BR Apartment</div>
+                                            <div class="text-sm text-twenty-muted">2BR • 1BA • 85m²</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 text-twenty-muted">District 1</td>
+                                <td class="px-6 py-4 text-right font-medium text-blue-400">2.8B VND</td>
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center justify-center gap-2">
+                                        <div class="w-16 bg-twenty-primary rounded-full h-2">
+                                            <div class="bg-status-available h-2 rounded-full" style="width: 85%"></div>
+                                        </div>
+                                        <span class="text-xs text-status-available font-semibold">85%</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Detail View (Story 8.3.6) -->
+            <div id="detail" class="view">
+                <div class="relative h-64 rounded-xl overflow-hidden mb-6">
+                    <img src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=1200" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-twenty-primary/80 to-transparent"></div>
+                    <div class="absolute bottom-4 left-4">
+                        <h1 class="text-3xl font-bold">Modern 3BR Apartment</h1>
+                        <p class="text-twenty-muted"><i class="ti ti-map-pin"></i> District 7, HCM</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-4 gap-4 mb-6">
+                    <div class="bg-twenty-surface border border-twenty-border rounded-xl p-4">
+                        <div class="text-sm text-twenty-muted mb-1">Price</div>
+                        <div class="text-2xl font-bold text-blue-400">3.5B VND</div>
+                    </div>
+                    <div class="bg-twenty-surface border border-twenty-border rounded-xl p-4">
+                        <div class="text-sm text-twenty-muted mb-1">Bedrooms</div>
+                        <div class="text-2xl font-bold">3</div>
+                    </div>
+                    <div class="bg-twenty-surface border border-twenty-border rounded-xl p-4">
+                        <div class="text-sm text-twenty-muted mb-1">Bathrooms</div>
+                        <div class="text-2xl font-bold">2</div>
+                    </div>
+                    <div class="bg-twenty-surface border border-twenty-border rounded-xl p-4">
+                        <div class="text-sm text-twenty-muted mb-1">Area</div>
+                        <div class="text-2xl font-bold">120m²</div>
+                    </div>
+                </div>
+
+                <div class="bg-twenty-surface border border-twenty-border rounded-xl p-6 mb-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold">Trust Score</h3>
+                        <span class="text-2xl font-bold text-status-available">92%</span>
+                    </div>
+                    <div class="bg-twenty-primary rounded-full h-3 mb-4">
+                        <div class="bg-status-available h-3 rounded-full" style="width: 92%"></div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 text-sm">
+                        <div><i class="ti ti-check text-status-available"></i> Verified Info (95%)</div>
+                        <div><i class="ti ti-check text-status-available"></i> Market Price (88%)</div>
+                        <div><i class="ti ti-check text-status-available"></i> Location (94%)</div>
+                        <div><i class="ti ti-check text-status-available"></i> Legal Status OK</div>
+                    </div>
+                </div>
+
+                <div class="bg-twenty-surface border border-twenty-border rounded-xl p-6">
+                    <h3 class="text-lg font-semibold mb-3">Description</h3>
+                    <p class="text-twenty-muted">Beautiful modern apartment in District 7 with contemporary design and high-quality finishes.</p>
+                </div>
+            </div>
+
+            <!-- Register View (Story 8.2.2) -->
+            <div id="register" class="view">
+                <div class="max-w-md mx-auto">
+                    <div class="text-center mb-8">
+                        <h1 class="text-3xl font-bold mb-2">Create Account</h1>
+                        <p class="text-twenty-muted">Join our marketplace</p>
+                    </div>
+                    <div class="bg-twenty-surface border border-twenty-border rounded-xl p-6">
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm mb-2">Full Name *</label>
+                                <input type="text" placeholder="John Doe" class="w-full bg-twenty-primary border border-twenty-border rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm mb-2">Email *</label>
+                                <input type="email" placeholder="john@example.com" class="w-full bg-twenty-primary border border-twenty-border rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm mb-2">Phone *</label>
+                                <input type="tel" placeholder="+84 123 456 789" class="w-full bg-twenty-primary border border-twenty-border rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm mb-2">Password *</label>
+                                <input type="password" placeholder="••••••••" class="w-full bg-twenty-primary border border-twenty-border rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500">
+                            </div>
+                            <button class="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-lg font-semibold transition">
+                                Create Account
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Login View (Story 8.2.3) -->
+            <div id="login" class="view">
+                <div class="max-w-md mx-auto">
+                    <div class="text-center mb-8">
+                        <h1 class="text-3xl font-bold mb-2">Welcome Back</h1>
+                        <p class="text-twenty-muted">Login to your account</p>
+                    </div>
+                    <div class="bg-twenty-surface border border-twenty-border rounded-xl p-6">
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm mb-2">Email/Phone *</label>
+                                <input type="text" class="w-full bg-twenty-primary border border-twenty-border rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm mb-2">Password *</label>
+                                <input type="password" class="w-full bg-twenty-primary border border-twenty-border rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500">
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <label class="flex items-center gap-2">
+                                    <input type="checkbox">
+                                    <span class="text-sm">Remember me</span>
+                                </label>
+                                <a href="#" class="text-sm text-blue-400">Forgot password?</a>
+                            </div>
+                            <button class="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-lg font-semibold transition">
+                                Login
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile View (Story 8.2.5) -->
+            <div id="profile" class="view">
+                <div class="max-w-3xl mx-auto">
+                    <h1 class="text-2xl font-semibold mb-6">My Profile</h1>
+                    <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl p-6 mb-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <div class="text-sm opacity-90">Current Plan</div>
+                                <div class="text-2xl font-bold">PRO Subscription</div>
+                                <div class="text-sm opacity-90">Expires: Jan 15, 2026</div>
+                            </div>
+                            <button class="px-4 py-2 bg-white/20 rounded-lg hover:bg-white/30 transition">Upgrade</button>
+                        </div>
+                    </div>
+                    <div class="bg-twenty-surface border border-twenty-border rounded-xl p-6">
+                        <h2 class="text-lg font-semibold mb-4">Profile Information</h2>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm mb-2">Full Name</label>
+                                <input type="text" value="John Doe" class="w-full bg-twenty-primary border border-twenty-border rounded-lg px-4 py-2">
+                            </div>
+                            <div>
+                                <label class="block text-sm mb-2">Email</label>
+                                <input type="email" value="john@example.com" class="w-full bg-twenty-primary border border-twenty-border rounded-lg px-4 py-2">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard View (Story 8.7.3) -->
+            <div id="dashboard" class="view">
+                <h1 class="text-2xl font-semibold mb-6">Seller Dashboard</h1>
+                <div class="grid grid-cols-4 gap-4 mb-6">
+                    <div class="bg-twenty-surface border border-twenty-border rounded-xl p-4">
+                        <div class="text-sm text-twenty-muted mb-1">Total Views</div>
+                        <div class="text-2xl font-bold">1,234</div>
+                        <div class="text-sm text-status-available">+15% ↑</div>
+                    </div>
+                    <div class="bg-twenty-surface border border-twenty-border rounded-xl p-4">
+                        <div class="text-sm text-twenty-muted mb-1">Inquiries</div>
+                        <div class="text-2xl font-bold">45</div>
+                        <div class="text-sm text-status-available">+8% ↑</div>
+                    </div>
+                    <div class="bg-twenty-surface border border-twenty-border rounded-xl p-4">
+                        <div class="text-sm text-twenty-muted mb-1">Active Listings</div>
+                        <div class="text-2xl font-bold">5</div>
+                    </div>
+                    <div class="bg-twenty-surface border border-twenty-border rounded-xl p-4">
+                        <div class="text-sm text-twenty-muted mb-1">Conversion</div>
+                        <div class="text-2xl font-bold">12%</div>
+                    </div>
+                </div>
+                <div class="bg-twenty-surface border border-twenty-border rounded-xl overflow-hidden">
+                    <div class="px-6 py-4 border-b border-twenty-border">
+                        <h2 class="text-lg font-semibold">My Listings</h2>
+                    </div>
+                    <table class="w-full">
+                        <thead class="bg-twenty-sidebar border-b border-twenty-border">
+                            <tr>
+                                <th class="text-left px-6 py-4 text-sm text-twenty-muted">Title</th>
+                                <th class="text-left px-6 py-4 text-sm text-twenty-muted">Status</th>
+                                <th class="text-right px-6 py-4 text-sm text-twenty-muted">Views</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-twenty-border">
+                            <tr class="hover:bg-twenty-border/50">
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-2">
+                                        <i class="ti ti-star-filled text-yellow-500"></i>
+                                        <span class="font-medium">Modern 3BR Apartment</span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="px-2 py-1 rounded-full bg-status-available/20 text-status-available text-sm">Live</span>
+                                </td>
+                                <td class="px-6 py-4 text-right">456</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Post View (Story 8.3.2) -->
+            <div id="post" class="view">
+                <div class="max-w-3xl mx-auto">
+                    <h1 class="text-2xl font-semibold mb-6">Post New Listing</h1>
+                    <div class="bg-twenty-surface border border-twenty-border rounded-xl p-6 mb-6">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <div class="w-8 h-8 rounded-full bg-status-available flex items-center justify-center text-sm">1</div>
+                                <span class="text-sm">Basic</span>
+                            </div>
+                            <div class="flex-1 h-0.5 bg-blue-500 mx-2"></div>
+                            <div class="flex items-center gap-2">
+                                <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-sm">2</div>
+                                <span class="text-sm">Details</span>
+                            </div>
+                            <div class="flex-1 h-0.5 bg-twenty-border mx-2"></div>
+                            <div class="flex items-center gap-2">
+                                <div class="w-8 h-8 rounded-full bg-twenty-border flex items-center justify-center text-sm text-twenty-muted">3</div>
+                                <span class="text-sm text-twenty-muted">Images</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-twenty-surface border border-twenty-border rounded-xl p-6">
+                        <h2 class="text-lg font-semibold mb-4">Property Details</h2>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm mb-2">Bedrooms *</label>
+                                <select class="w-full bg-twenty-primary border border-twenty-border rounded-lg px-4 py-2">
+                                    <option>1</option>
+                                    <option>2</option>
+                                    <option selected>3</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm mb-2">Bathrooms *</label>
+                                <select class="w-full bg-twenty-primary border border-twenty-border rounded-lg px-4 py-2">
+                                    <option>1</option>
+                                    <option selected>2</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Inquiries View (Story 8.6.5) -->
+            <div id="inquiries" class="view">
+                <h1 class="text-2xl font-semibold mb-6">Inquiry Management</h1>
+                <div class="bg-twenty-surface border border-twenty-border rounded-xl overflow-hidden">
+                    <table class="w-full">
+                        <thead class="bg-twenty-sidebar border-b border-twenty-border">
+                            <tr>
+                                <th class="text-left px-6 py-4 text-sm text-twenty-muted">Buyer</th>
+                                <th class="text-left px-6 py-4 text-sm text-twenty-muted">Listing</th>
+                                <th class="text-left px-6 py-4 text-sm text-twenty-muted">Date</th>
+                                <th class="text-center px-6 py-4 text-sm text-twenty-muted">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-twenty-border">
+                            <tr class="hover:bg-twenty-border/50">
+                                <td class="px-6 py-4">
+                                    <div>
+                                        <div class="font-medium">Nguyen Van A</div>
+                                        <div class="text-sm text-twenty-muted">nguyenvana@email.com</div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">Modern 3BR Apartment</td>
+                                <td class="px-6 py-4 text-twenty-muted">Dec 27, 2025</td>
+                                <td class="px-6 py-4 text-center">
+                                    <span class="px-2 py-1 rounded-full bg-blue-500/20 text-blue-400 text-sm">New</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Payment View (Story 8.7.1) -->
+            <div id="payment" class="view">
+                <div class="max-w-5xl mx-auto">
+                    <div class="text-center mb-8">
+                        <h1 class="text-3xl font-bold mb-2">Upgrade Subscription</h1>
+                        <p class="text-twenty-muted">Choose your plan</p>
+                    </div>
+                    <div class="grid grid-cols-3 gap-6">
+                        <div class="bg-twenty-surface border border-twenty-border rounded-xl p-6">
+                            <div class="text-center mb-6">
+                                <h3 class="text-xl font-bold mb-2">FREE</h3>
+                                <div class="text-3xl font-bold">0 VND</div>
+                            </div>
+                            <ul class="space-y-2 text-sm mb-6">
+                                <li><i class="ti ti-check text-status-available"></i> 3 listings</li>
+                                <li><i class="ti ti-x text-twenty-muted"></i> No featured</li>
+                            </ul>
+                            <button class="w-full py-2 bg-twenty-primary border border-twenty-border rounded-lg" disabled>Current</button>
+                        </div>
+                        <div class="bg-twenty-surface border-2 border-blue-500 rounded-xl p-6">
+                            <div class="text-center mb-6">
+                                <h3 class="text-xl font-bold mb-2">PRO</h3>
+                                <div class="text-3xl font-bold">99,000 VND</div>
+                                <div class="text-sm text-twenty-muted">per month</div>
+                            </div>
+                            <ul class="space-y-2 text-sm mb-6">
+                                <li><i class="ti ti-check text-status-available"></i> 20 listings</li>
+                                <li><i class="ti ti-check text-status-available"></i> 5 featured/month</li>
+                            </ul>
+                            <button class="w-full py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg">Upgrade</button>
+                        </div>
+                        <div class="bg-twenty-surface border border-twenty-border rounded-xl p-6">
+                            <div class="text-center mb-6">
+                                <h3 class="text-xl font-bold mb-2">ENTERPRISE</h3>
+                                <div class="text-3xl font-bold">299,000 VND</div>
+                                <div class="text-sm text-twenty-muted">per month</div>
+                            </div>
+                            <ul class="space-y-2 text-sm mb-6">
+                                <li><i class="ti ti-check text-status-available"></i> Unlimited</li>
+                                <li><i class="ti ti-check text-status-available"></i> 20 featured/month</li>
+                            </ul>
+                            <button class="w-full py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg">Upgrade</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Moderation View (Story 8.3.3, 8.5.3) -->
+            <div id="moderation" class="view">
+                <h1 class="text-2xl font-semibold mb-6">Moderation Queue</h1>
+                <div class="bg-twenty-surface border border-twenty-border rounded-xl overflow-hidden">
+                    <table class="w-full">
+                        <thead class="bg-twenty-sidebar border-b border-twenty-border">
+                            <tr>
+                                <th class="text-left px-6 py-4 text-sm text-twenty-muted">Listing</th>
+                                <th class="text-left px-6 py-4 text-sm text-twenty-muted">Seller</th>
+                                <th class="text-center px-6 py-4 text-sm text-twenty-muted">Status</th>
+                                <th class="text-center px-6 py-4 text-sm text-twenty-muted">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-twenty-border">
+                            <tr class="hover:bg-twenty-border/50">
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-12 h-12 rounded-lg overflow-hidden">
+                                            <img src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=100" class="w-full h-full object-cover">
+                                        </div>
+                                        <div>
+                                            <div class="font-medium">Beachfront Villa</div>
+                                            <div class="text-sm text-twenty-muted">Vung Tau • 5BR</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">Le Van C</td>
+                                <td class="px-6 py-4 text-center">
+                                    <span class="px-2 py-1 rounded-full bg-status-reserved/20 text-status-reserved text-sm">Pending</span>
+                                </td>
+                                <td class="px-6 py-4 text-center">
+                                    <button class="px-3 py-1 bg-status-available text-white rounded text-sm mr-2">Approve</button>
+                                    <button class="px-3 py-1 bg-red-500 text-white rounded text-sm">Reject</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Revenue View (Story 8.7.4) -->
+            <div id="revenue" class="view">
+                <h1 class="text-2xl font-semibold mb-6">Revenue Dashboard</h1>
+                <div class="grid grid-cols-4 gap-4 mb-6">
+                    <div class="bg-twenty-surface border border-twenty-border rounded-xl p-4">
+                        <div class="text-sm text-twenty-muted mb-1">Total Revenue</div>
+                        <div class="text-2xl font-bold text-blue-400">45.6M VND</div>
+                        <div class="text-sm text-status-available">+23% ↑</div>
+                    </div>
+                    <div class="bg-twenty-surface border border-twenty-border rounded-xl p-4">
+                        <div class="text-sm text-twenty-muted mb-1">MRR</div>
+                        <div class="text-2xl font-bold text-blue-400">12.8M VND</div>
+                    </div>
+                    <div class="bg-twenty-surface border border-twenty-border rounded-xl p-4">
+                        <div class="text-sm text-twenty-muted mb-1">Active Subs</div>
+                        <div class="text-2xl font-bold">156</div>
+                    </div>
+                    <div class="bg-twenty-surface border border-twenty-border rounded-xl p-4">
+                        <div class="text-sm text-twenty-muted mb-1">ARPU</div>
+                        <div class="text-2xl font-bold">82K VND</div>
+                    </div>
+                </div>
+                <div class="bg-twenty-surface border border-twenty-border rounded-xl overflow-hidden">
+                    <div class="px-6 py-4 border-b border-twenty-border">
+                        <h2 class="text-lg font-semibold">Recent Transactions</h2>
+                    </div>
+                    <table class="w-full">
+                        <thead class="bg-twenty-sidebar border-b border-twenty-border">
+                            <tr>
+                                <th class="text-left px-6 py-4 text-sm text-twenty-muted">Customer</th>
+                                <th class="text-left px-6 py-4 text-sm text-twenty-muted">Plan</th>
+                                <th class="text-right px-6 py-4 text-sm text-twenty-muted">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-twenty-border">
+                            <tr class="hover:bg-twenty-border/50">
+                                <td class="px-6 py-4">Nguyen Van A</td>
+                                <td class="px-6 py-4">
+                                    <span class="px-2 py-1 rounded-full bg-blue-500/20 text-blue-400 text-sm">PRO</span>
+                                </td>
+                                <td class="px-6 py-4 text-right font-medium text-blue-400">99,000 VND</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+
+        <!-- AI Chatbot Sidebar (Story 8.8.1) -->
+        <aside class="w-80 bg-twenty-sidebar border-l border-twenty-border flex flex-col">
+            <div class="p-4 border-b border-twenty-border">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <i class="ti ti-robot text-blue-400 text-xl"></i>
+                        <h3 class="font-semibold">AI Assistant</h3>
+                    </div>
+                    <span class="text-xs text-twenty-muted">Online</span>
+                </div>
+            </div>
+            <div class="flex-1 overflow-y-auto p-4 space-y-4">
+                <div class="flex gap-2">
+                    <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-sm font-semibold">AI</div>
+                    <div class="flex-1 bg-twenty-surface border border-twenty-border rounded-lg p-3 text-sm">
+                        <p class="mb-2">Xin chào! Tôi có thể giúp gì?</p>
+                        <div class="space-y-1">
+                            <button class="w-full text-left px-3 py-2 bg-twenty-primary border border-twenty-border rounded hover:border-blue-500 transition text-xs">
+                                Tìm căn hộ dưới 3 tỷ
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="p-4 border-t border-twenty-border">
+                <input type="text" placeholder="Type..." class="w-full bg-twenty-surface border border-twenty-border rounded-lg px-3 py-2 text-sm">
+            </div>
+        </aside>
+    </div>
+
+    <script>
+        function showView(id) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('tab-active'));
+            event.target.classList.add('tab-active');
+        }
+    </script>
+</body>
+</html>
