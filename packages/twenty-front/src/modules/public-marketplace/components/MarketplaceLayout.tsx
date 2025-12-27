@@ -1,0 +1,134 @@
+import styled from '@emotion/styled';
+import { Outlet, useNavigate } from 'react-router-dom';
+
+const Container = styled.div`
+  min-height: 100vh;
+  background-color: ${({ theme }) => theme.background.primary};
+`;
+
+const Header = styled.header`
+  background-color: ${({ theme }) => theme.background.secondary};
+  border-bottom: 1px solid ${({ theme }) => theme.border.color.medium};
+  padding: 1rem 2rem;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+`;
+
+const HeaderContent = styled.div`
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+`;
+
+const Logo = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+
+  &:hover {
+    opacity: 0.8;
+  }
+`;
+
+const LogoText = styled.h1`
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: ${({ theme }) => theme.font.color.primary};
+  margin: 0;
+`;
+
+const Nav = styled.nav`
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+`;
+
+const NavLink = styled.button<{ $active?: boolean }>`
+  background: none;
+  border: none;
+  color: ${({ theme, $active }) =>
+    $active ? theme.color.blue : theme.font.color.secondary};
+  font-size: 0.9375rem;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0.5rem 0;
+  border-bottom: 2px solid
+    ${({ theme, $active }) => ($active ? theme.color.blue : 'transparent')};
+  transition: all 0.2s;
+
+  &:hover {
+    color: ${({ theme }) => theme.color.blue};
+  }
+`;
+
+const MainContent = styled.main`
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+`;
+
+export const MarketplaceLayout = () => {
+  const navigate = useNavigate();
+  const currentPath = window.location.pathname;
+
+  const handleNavigation = (path: string) => {
+    navigate(path);
+  };
+
+  return (
+    <Container>
+      <Header>
+        <HeaderContent>
+          <Logo onClick={() => handleNavigation('/marketplace/browse')}>
+            <LogoText>🏠 Public Marketplace</LogoText>
+          </Logo>
+          <Nav>
+            <NavLink
+              $active={currentPath.includes('/browse')}
+              onClick={() => handleNavigation('/marketplace/browse')}
+            >
+              Browse
+            </NavLink>
+            <NavLink
+              $active={currentPath.includes('/dashboard')}
+              onClick={() => handleNavigation('/marketplace/dashboard')}
+            >
+              Dashboard
+            </NavLink>
+            <NavLink
+              $active={currentPath.includes('/post')}
+              onClick={() => handleNavigation('/marketplace/post')}
+            >
+              Post Listing
+            </NavLink>
+            <NavLink
+              $active={currentPath.includes('/inquiries')}
+              onClick={() => handleNavigation('/marketplace/inquiries')}
+            >
+              Inquiries
+            </NavLink>
+            <NavLink
+              $active={currentPath.includes('/payment')}
+              onClick={() => handleNavigation('/marketplace/payment')}
+            >
+              Subscription
+            </NavLink>
+            <NavLink
+              $active={currentPath.includes('/profile')}
+              onClick={() => handleNavigation('/marketplace/profile')}
+            >
+              Profile
+            </NavLink>
+          </Nav>
+        </HeaderContent>
+      </Header>
+      <MainContent>
+        <Outlet />
+      </MainContent>
+    </Container>
+  );
+};

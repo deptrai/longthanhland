@@ -146,6 +146,18 @@ export const useCreateAppRouter = (
           />
           <Route path="/real-estate/plot-map" element={<PlotMapPage />} />
           <Route path="/real-estate/leads" element={<MyLeadsPage />} />
+          <Route
+            path={AppPath.SettingsCatchAll}
+            element={
+              <SettingsRoutes
+                isFunctionSettingsEnabled={isFunctionSettingsEnabled}
+                isAdminPageEnabled={isAdminPageEnabled}
+              />
+            }
+          />
+          <Route path={AppPath.NotFoundWildcard} element={<NotFound />} />
+        </Route>
+        <Route element={<MarketplaceLayout />}>
           <Route path="/marketplace" element={<BrowsePage />} />
           <Route path="/marketplace/browse" element={<BrowsePage />} />
           <Route
@@ -162,16 +174,6 @@ export const useCreateAppRouter = (
           <Route path="/marketplace/post" element={<PostListingPage />} />
           <Route path="/marketplace/inquiries" element={<InquiriesPage />} />
           <Route path="/marketplace/payment" element={<PaymentPage />} />
-          <Route
-            path={AppPath.SettingsCatchAll}
-            element={
-              <SettingsRoutes
-                isFunctionSettingsEnabled={isFunctionSettingsEnabled}
-                isAdminPageEnabled={isAdminPageEnabled}
-              />
-            }
-          />
-          <Route path={AppPath.NotFoundWildcard} element={<NotFound />} />
         </Route>
         <Route element={<BlankLayout />}>
           <Route path={AppPath.Authorize} element={<Authorize />} />
