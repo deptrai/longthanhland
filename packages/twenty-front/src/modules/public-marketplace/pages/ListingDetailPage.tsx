@@ -5,6 +5,7 @@ import { IconHeart, IconMail, IconMap, IconPhone } from 'twenty-ui/display';
 import { Breadcrumb } from '../components/Breadcrumb';
 import { EnhancedTrustScore } from '../components/EnhancedTrustScore';
 import { ImageSlider } from '../components/ImageSlider';
+import { MarketplaceFooter } from '../components/MarketplaceFooter';
 import { mockPublicListings } from '../data/mock-data';
 import { useLanguage } from '../i18n/LanguageContext';
 import { calculateTrustScore } from '../utils/calculateTrustScore';
