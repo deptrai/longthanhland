@@ -34,7 +34,9 @@ interface ListingData {
   sellerName: string;
 }
 
-export const calculateTrustScore = (listing: ListingData): { score: number; breakdown: TrustScoreBreakdown } => {
+export const calculateTrustScore = (
+  listing: ListingData,
+): { score: number; breakdown: TrustScoreBreakdown } => {
   // 1. Seller Verification (20 pts)
   const sellerVerification: TrustScoreFactor = {
     name: 'Seller Verification',
@@ -49,7 +51,8 @@ export const calculateTrustScore = (listing: ListingData): { score: number; brea
   };
 
   // 2. Listing Quality (15 pts)
-  const imageQualityPoints = listing.images.length >= 5 ? 10 : listing.images.length >= 3 ? 7 : 3;
+  const imageQualityPoints =
+    listing.images.length >= 5 ? 10 : listing.images.length >= 3 ? 7 : 3;
   const listingQuality: TrustScoreFactor = {
     name: 'Listing Quality',
     points: 5 + imageQualityPoints,
@@ -57,20 +60,25 @@ export const calculateTrustScore = (listing: ListingData): { score: number; brea
     details: [
       'All required fields filled (+5)',
       `${listing.images.length} images uploaded (+${imageQualityPoints})`,
-      listing.images.length >= 5 ? 'Professional photos detected by AI (+5)' : 'Standard photo quality (0)',
+      listing.images.length >= 5
+        ? 'Professional photos detected by AI (+5)'
+        : 'Standard photo quality (0)',
     ],
     aiPowered: true,
   };
 
   // 3. Market Price Analysis (15 pts)
   const priceDeviation = Math.abs((listing.price - 10000000000) / 10000000000);
-  const marketPricePoints = priceDeviation <= 0.2 ? 15 : priceDeviation <= 0.3 ? 10 : 0;
+  const marketPricePoints =
+    priceDeviation <= 0.2 ? 15 : priceDeviation <= 0.3 ? 10 : 0;
   const marketPriceAnalysis: TrustScoreFactor = {
     name: 'Market Price Analysis',
     points: marketPricePoints,
     maxPoints: 15,
     details: [
-      marketPricePoints === 15 ? 'Price within 20% of market average (+15)' : 'Price outside market range (0)',
+      marketPricePoints === 15
+        ? 'Price within 20% of market average (+15)'
+        : 'Price outside market range (0)',
       'Analyzed 30+ similar properties',
       'Market data confidence: 85%',
     ],
@@ -94,10 +102,7 @@ export const calculateTrustScore = (listing: ListingData): { score: number; brea
     name: 'Property Authenticity',
     points: 10,
     maxPoints: 10,
-    details: [
-      'No duplicate images found (+5)',
-      'Unique listing verified (+5)',
-    ],
+    details: ['No duplicate images found (+5)', 'Unique listing verified (+5)'],
     aiPowered: true,
   };
 
@@ -106,10 +111,7 @@ export const calculateTrustScore = (listing: ListingData): { score: number; brea
     name: 'Legal Compliance',
     points: 8,
     maxPoints: 8,
-    details: [
-      'Valid property documents (+4)',
-      'No legal disputes found (+4)',
-    ],
+    details: ['Valid property documents (+4)', 'No legal disputes found (+4)'],
     aiPowered: true,
   };
 
@@ -131,24 +133,21 @@ export const calculateTrustScore = (listing: ListingData): { score: number; brea
     name: 'Environmental Factors',
     points: 5,
     maxPoints: 5,
-    details: [
-      'Low flood risk area (+3)',
-      'Good air quality index (+2)',
-    ],
+    details: ['Low flood risk area (+3)', 'Good air quality index (+2)'],
     aiPowered: true,
   };
 
   // 9. Engagement Metrics (5 pts)
-  const viewScore = Math.min(listing.viewCount / 500, 2.5);
-  const contactScore = Math.min(listing.contactCount / 10, 2.5);
+  const viewScore = Math.min((listing.viewCount || 0) / 500, 2.5);
+  const contactScore = Math.min((listing.contactCount || 0) / 10, 2.5);
   const engagementPoints = Math.round(viewScore + contactScore);
   const engagement: TrustScoreFactor = {
     name: 'Engagement Metrics',
-    points: engagementPoints,
+    points: Math.max(0, Math.min(engagementPoints, 5)),
     maxPoints: 5,
     details: [
-      `${listing.viewCount} views (+${viewScore.toFixed(1)})`,
-      `${listing.contactCount} inquiries (+${contactScore.toFixed(1)})`,
+      `${listing.viewCount || 0} views (+${viewScore.toFixed(1)})`,
+      `${listing.contactCount || 0} inquiries (+${contactScore.toFixed(1)})`,
     ],
     aiPowered: false,
   };
@@ -158,10 +157,7 @@ export const calculateTrustScore = (listing: ListingData): { score: number; brea
     name: 'Platform History',
     points: 2,
     maxPoints: 5,
-    details: [
-      'Account age: 30-60 days (+1)',
-      '1-2 previous listings (+1)',
-    ],
+    details: ['Account age: 30-60 days (+1)', '1-2 previous listings (+1)'],
     aiPowered: false,
   };
 
@@ -180,15 +176,15 @@ export const calculateTrustScore = (listing: ListingData): { score: number; brea
 
   const totalScore = Math.round(
     sellerVerification.points +
-    listingQuality.points +
-    marketPriceAnalysis.points +
-    locationVerification.points +
-    propertyAuthenticity.points +
-    legalCompliance.points +
-    infrastructureScore.points +
-    environmentalFactors.points +
-    engagement.points +
-    platformHistory.points
+      listingQuality.points +
+      marketPriceAnalysis.points +
+      locationVerification.points +
+      propertyAuthenticity.points +
+      legalCompliance.points +
+      infrastructureScore.points +
+      environmentalFactors.points +
+      engagement.points +
+      platformHistory.points,
   );
 
   return { score: totalScore, breakdown };
