@@ -13,6 +13,7 @@ export { PaymentPage } from './pages/PaymentPage';
 export { PostListingPage } from './pages/PostListingPage';
 export { ProfilePage } from './pages/ProfilePage';
 export { RegisterPage } from './pages/RegisterPage';
+export { TrustScoreDemoPage } from './pages/TrustScoreDemoPage';
 
 export { AIAssistantSidebar } from './components/AIAssistantSidebar';
 export { EnhancedTrustScore } from './components/EnhancedTrustScore';
