@@ -14,4 +14,6 @@ export { PostListingPage } from './pages/PostListingPage';
 export { ProfilePage } from './pages/ProfilePage';
 export { RegisterPage } from './pages/RegisterPage';
 
+export { AIAssistantSidebar } from './components/AIAssistantSidebar';
 export { MarketplaceLayout } from './components/MarketplaceLayout';
+

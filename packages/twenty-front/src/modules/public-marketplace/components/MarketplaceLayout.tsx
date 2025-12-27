@@ -1,9 +1,11 @@
 import styled from '@emotion/styled';
 import { Outlet, useNavigate } from 'react-router-dom';
+import { AIAssistantSidebar } from '..';
 
 const Container = styled.div`
-  min-height: 100vh;
   background-color: ${({ theme }) => theme.background.primary};
+  display: flex;
+  min-height: 100vh;
 `;
 
 const Header = styled.header`
@@ -16,11 +18,11 @@ const Header = styled.header`
 `;
 
 const HeaderContent = styled.div`
-  max-width: 1400px;
-  margin: 0 auto;
-  display: flex;
   align-items: center;
+  display: flex;
   justify-content: space-between;
+  margin: 0 auto;
+  max-width: 1400px;
 `;
 
 const Logo = styled.div`
@@ -65,10 +67,17 @@ const NavLink = styled.button<{ $active?: boolean }>`
   }
 `;
 
+const MainWrapper = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+`;
+
 const MainContent = styled.main`
   max-width: 1400px;
   margin: 0 auto;
   padding: 2rem;
+  width: 100%;
 `;
 
 export const MarketplaceLayout = () => {
@@ -81,54 +90,57 @@ export const MarketplaceLayout = () => {
 
   return (
     <Container>
-      <Header>
-        <HeaderContent>
-          <Logo onClick={() => handleNavigation('/marketplace/browse')}>
-            <LogoText>🏠 Public Marketplace</LogoText>
-          </Logo>
-          <Nav>
-            <NavLink
-              $active={currentPath.includes('/browse')}
-              onClick={() => handleNavigation('/marketplace/browse')}
-            >
-              Browse
-            </NavLink>
-            <NavLink
-              $active={currentPath.includes('/dashboard')}
-              onClick={() => handleNavigation('/marketplace/dashboard')}
-            >
-              Dashboard
-            </NavLink>
-            <NavLink
-              $active={currentPath.includes('/post')}
-              onClick={() => handleNavigation('/marketplace/post')}
-            >
-              Post Listing
-            </NavLink>
-            <NavLink
-              $active={currentPath.includes('/inquiries')}
-              onClick={() => handleNavigation('/marketplace/inquiries')}
-            >
-              Inquiries
-            </NavLink>
-            <NavLink
-              $active={currentPath.includes('/payment')}
-              onClick={() => handleNavigation('/marketplace/payment')}
-            >
-              Subscription
-            </NavLink>
-            <NavLink
-              $active={currentPath.includes('/profile')}
-              onClick={() => handleNavigation('/marketplace/profile')}
-            >
-              Profile
-            </NavLink>
-          </Nav>
-        </HeaderContent>
-      </Header>
-      <MainContent>
-        <Outlet />
-      </MainContent>
+      <MainWrapper>
+        <Header>
+          <HeaderContent>
+            <Logo onClick={() => handleNavigation('/marketplace/browse')}>
+              <LogoText>🏠 Public Marketplace</LogoText>
+            </Logo>
+            <Nav>
+              <NavLink
+                $active={currentPath.includes('/browse')}
+                onClick={() => handleNavigation('/marketplace/browse')}
+              >
+                Browse
+              </NavLink>
+              <NavLink
+                $active={currentPath.includes('/dashboard')}
+                onClick={() => handleNavigation('/marketplace/dashboard')}
+              >
+                Dashboard
+              </NavLink>
+              <NavLink
+                $active={currentPath.includes('/post')}
+                onClick={() => handleNavigation('/marketplace/post')}
+              >
+                Post Listing
+              </NavLink>
+              <NavLink
+                $active={currentPath.includes('/inquiries')}
+                onClick={() => handleNavigation('/marketplace/inquiries')}
+              >
+                Inquiries
+              </NavLink>
+              <NavLink
+                $active={currentPath.includes('/payment')}
+                onClick={() => handleNavigation('/marketplace/payment')}
+              >
+                Subscription
+              </NavLink>
+              <NavLink
+                $active={currentPath.includes('/profile')}
+                onClick={() => handleNavigation('/marketplace/profile')}
+              >
+                Profile
+              </NavLink>
+            </Nav>
+          </HeaderContent>
+        </Header>
+        <MainContent>
+          <Outlet />
+        </MainContent>
+      </MainWrapper>
+      <AIAssistantSidebar />
     </Container>
   );
 };
