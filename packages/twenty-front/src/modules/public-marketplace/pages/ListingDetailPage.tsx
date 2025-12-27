@@ -2,7 +2,9 @@ import styled from '@emotion/styled';
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { IconMap } from 'twenty-ui/display';
+import { EnhancedTrustScore } from '../components/EnhancedTrustScore';
 import { mockPublicListings } from '../data/mock-data';
+import { calculateTrustScore } from '../utils/calculateTrustScore';
 
 const Container = styled.div`
   min-height: 100vh;
@@ -232,6 +234,10 @@ export const ListingDetailPage = () => {
     );
   }
 
+  // Calculate Enhanced Trust Score dynamically for this listing
+  const { score: trustScore, breakdown: trustBreakdown } =
+    calculateTrustScore(listing);
+
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('vi-VN', {
       style: 'currency',
@@ -285,11 +291,8 @@ export const ListingDetailPage = () => {
           </StatCard>
         </Grid>
 
-        {/* Enhanced Trust Score with 10 AI-powered criteria */}
-        <EnhancedTrustScore
-          score={listing.trustScore}
-          breakdown={enhancedTrustScoreBreakdowns['listing-1']}
-        />
+        {/* Enhanced Trust Score with 10 AI-powered criteria - calculated dynamically */}
+        <EnhancedTrustScore score={trustScore} breakdown={trustBreakdown} />
 
         <Card>
           <SectionTitle>Description</SectionTitle>
