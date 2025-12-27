@@ -80,9 +80,10 @@ const MainContent = styled.main`
   width: 100%;
 `;
 
-export const MarketplaceLayout = () => {
+const MarketplaceLayoutContent = () => {
   const navigate = useNavigate();
   const currentPath = window.location.pathname;
+  const { t } = useLanguage();
 
   const handleNavigation = (path: string) => {
     navigate(path);
@@ -94,45 +95,46 @@ export const MarketplaceLayout = () => {
         <Header>
           <HeaderContent>
             <Logo onClick={() => handleNavigation('/marketplace/browse')}>
-              <LogoText>🏠 Public Marketplace</LogoText>
+              <LogoText>🏠 {t('browse.title')}</LogoText>
             </Logo>
             <Nav>
               <NavLink
                 $active={currentPath.includes('/browse')}
                 onClick={() => handleNavigation('/marketplace/browse')}
               >
-                Browse
+                {t('nav.browse')}
               </NavLink>
               <NavLink
                 $active={currentPath.includes('/dashboard')}
                 onClick={() => handleNavigation('/marketplace/dashboard')}
               >
-                Dashboard
+                {t('nav.dashboard')}
               </NavLink>
               <NavLink
                 $active={currentPath.includes('/post')}
                 onClick={() => handleNavigation('/marketplace/post')}
               >
-                Post Listing
+                {t('nav.postListing')}
               </NavLink>
               <NavLink
                 $active={currentPath.includes('/inquiries')}
                 onClick={() => handleNavigation('/marketplace/inquiries')}
               >
-                Inquiries
+                {t('nav.inquiries')}
               </NavLink>
               <NavLink
                 $active={currentPath.includes('/payment')}
                 onClick={() => handleNavigation('/marketplace/payment')}
               >
-                Subscription
+                {t('nav.subscription')}
               </NavLink>
               <NavLink
                 $active={currentPath.includes('/profile')}
                 onClick={() => handleNavigation('/marketplace/profile')}
               >
-                Profile
+                {t('nav.profile')}
               </NavLink>
+              <LanguageSwitcher />
             </Nav>
           </HeaderContent>
         </Header>
@@ -142,5 +144,13 @@ export const MarketplaceLayout = () => {
       </MainWrapper>
       <AIAssistantSidebar />
     </Container>
+  );
+};
+
+export const MarketplaceLayout = () => {
+  return (
+    <LanguageProvider>
+      <MarketplaceLayoutContent />
+    </LanguageProvider>
   );
 };
