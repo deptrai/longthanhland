@@ -71,7 +71,7 @@ const GENERATE_TASK_TARGET_SEEDS = (): TaskTargetDataSeed[] => {
       personId: null,
       companyId:
         COMPANY_DATA_SEED_IDS[
-          `ID_${COMPANY_INDEX}` as keyof typeof COMPANY_DATA_SEED_IDS
+          `ID_${((COMPANY_INDEX - 1) % 10) + 1}` as keyof typeof COMPANY_DATA_SEED_IDS
         ],
       opportunityId: null,
     });

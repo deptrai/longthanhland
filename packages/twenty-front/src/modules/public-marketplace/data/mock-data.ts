@@ -1,11 +1,11 @@
 import type {
-    Inquiry,
-    PublicListing,
-    PublicUser,
-    RevenueStats,
-    SellerStats,
-    SubscriptionPlan,
-    Transaction,
+  Inquiry,
+  PublicListing,
+  PublicUser,
+  RevenueStats,
+  SellerStats,
+  SubscriptionPlan,
+  Transaction,
 } from '../types';
 
 export const mockPublicUsers: PublicUser[] = [

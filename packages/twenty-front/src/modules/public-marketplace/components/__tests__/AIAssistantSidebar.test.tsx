@@ -1,9 +1,9 @@
 import {
-    act,
-    fireEvent,
-    render,
-    screen,
-    waitFor,
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
 } from '@testing-library/react';
 import { getJestMetadataAndApolloMocksWrapper } from '~/testing/jest/getJestMetadataAndApolloMocksWrapper';
 import { AIAssistantSidebar } from '../AIAssistantSidebar';

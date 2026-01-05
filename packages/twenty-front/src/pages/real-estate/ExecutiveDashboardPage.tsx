@@ -1,10 +1,10 @@
 import { ExecutiveDashboard } from '@/real-estate/components/ExecutiveDashboard';
 import {
-    mockExecutiveStats,
-    mockLeaderboard,
-    mockPipelineHealth,
-    mockProjectPerformance,
-    mockRevenueTrend,
+  mockExecutiveStats,
+  mockLeaderboard,
+  mockPipelineHealth,
+  mockProjectPerformance,
+  mockRevenueTrend,
 } from '@/real-estate/data/executive-mock';
 import { PageContainer } from '@/ui/layout/page/components/PageContainer';
 import styled from '@emotion/styled';

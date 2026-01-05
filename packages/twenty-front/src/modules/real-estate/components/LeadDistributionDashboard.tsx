@@ -1,9 +1,9 @@
 import styled from '@emotion/styled';
 import { useLingui } from '@lingui/react/macro';
 import type {
-    AgentWorkload,
-    LeadDistributionStats,
-    SlaDataPoint,
+  AgentWorkload,
+  LeadDistributionStats,
+  SlaDataPoint,
 } from '../data/lead-distribution-mock';
 
 const StyledContainer = styled.div`

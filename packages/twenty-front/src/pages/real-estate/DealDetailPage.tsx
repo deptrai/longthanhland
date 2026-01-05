@@ -1,7 +1,7 @@
 import { DealDetail } from '@/real-estate/components/DealDetail';
 import {
-    mockDealActivities,
-    mockDeals,
+  mockDealActivities,
+  mockDeals,
 } from '@/real-estate/data/customer-deal-mock';
 import { PageContainer } from '@/ui/layout/page/components/PageContainer';
 import styled from '@emotion/styled';

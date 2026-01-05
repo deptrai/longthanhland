@@ -1,7 +1,7 @@
 import { DashboardStats } from '@/real-estate/components/DashboardStats';
 import {
-    mockDashboardStats,
-    mockRecentProperties,
+  mockDashboardStats,
+  mockRecentProperties,
 } from '@/real-estate/data/mock-data';
 import { PageContainer } from '@/ui/layout/page/components/PageContainer';
 import styled from '@emotion/styled';

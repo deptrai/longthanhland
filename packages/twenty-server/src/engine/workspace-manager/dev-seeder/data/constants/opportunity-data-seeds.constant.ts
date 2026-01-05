@@ -183,7 +183,7 @@ const GENERATE_OPPORTUNITY_SEEDS = (): OpportunityDataSeed[] => {
         ] || PERSON_DATA_SEED_IDS.ID_1,
       companyId:
         COMPANY_DATA_SEED_IDS[
-          `ID_${Math.ceil(INDEX / 2)}` as keyof typeof COMPANY_DATA_SEED_IDS
+          `ID_${((Math.ceil(INDEX / 2) - 1) % 10) + 1}` as keyof typeof COMPANY_DATA_SEED_IDS
         ] || COMPANY_DATA_SEED_IDS.ID_1,
       createdBySource: 'MANUAL',
       createdByWorkspaceMemberId: WORKSPACE_MEMBER_DATA_SEED_IDS.TIM,

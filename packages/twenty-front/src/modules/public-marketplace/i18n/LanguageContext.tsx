@@ -28,7 +28,12 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
     let value: any = translations[language];
 
     for (const k of keys) {
-      if (value && typeof value === 'object' && k in value) {
+      if (
+        value !== null &&
+        value !== undefined &&
+        typeof value === 'object' &&
+        Object.prototype.hasOwnProperty.call(value, k)
+      ) {
         value = value[k];
       } else {
         return key;
@@ -49,7 +54,7 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
 
 export const useLanguage = () => {
   const context = useContext(LanguageContext);
-  if (!context) {
+  if (context === undefined) {
     throw new Error('useLanguage must be used within LanguageProvider');
   }
   return context;

@@ -33,9 +33,9 @@ const NewsCard = styled.article`
 `;
 
 const NewsImage = styled.img`
-  width: 100%;
   height: 200px;
   object-fit: cover;
+  width: 100%;
 `;
 
 const NewsContent = styled.div`
@@ -54,11 +54,11 @@ const NewsCategory = styled.span`
 `;
 
 const NewsTitle = styled.h3`
+  color: ${({ theme }) => theme.font.color.primary};
   font-size: 1.125rem;
   font-weight: 600;
-  color: ${({ theme }) => theme.font.color.primary};
-  margin-bottom: 0.5rem;
   line-height: 1.4;
+  margin-bottom: 0.5rem;
 `;
 
 const NewsExcerpt = styled.p`

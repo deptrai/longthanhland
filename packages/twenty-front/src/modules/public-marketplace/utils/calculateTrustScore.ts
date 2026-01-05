@@ -19,7 +19,7 @@ export interface TrustScoreBreakdown {
   platformHistory: TrustScoreFactor;
 }
 
-interface ListingData {
+export type TrustScoreListing = {
   id: string;
   title: string;
   description: string;
@@ -28,14 +28,16 @@ interface ListingData {
   bedrooms: number;
   bathrooms: number;
   area: number;
-  viewCount: number;
-  contactCount: number;
+  viewCount?: number;
+  contactCount?: number;
+  views?: number;
+  inquiries?: number;
   trustScore: number;
   sellerName: string;
-}
+};
 
 export const calculateTrustScore = (
-  listing: ListingData,
+  listing: TrustScoreListing,
 ): { score: number; breakdown: TrustScoreBreakdown } => {
   // 1. Seller Verification (20 pts)
   const sellerVerification: TrustScoreFactor = {
@@ -138,16 +140,18 @@ export const calculateTrustScore = (
   };
 
   // 9. Engagement Metrics (5 pts)
-  const viewScore = Math.min((listing.viewCount || 0) / 500, 2.5);
-  const contactScore = Math.min((listing.contactCount || 0) / 10, 2.5);
+  const viewCount = listing.viewCount ?? listing.views ?? 0;
+  const contactCount = listing.contactCount ?? listing.inquiries ?? 0;
+  const viewScore = Math.min(viewCount / 500, 2.5);
+  const contactScore = Math.min(contactCount / 10, 2.5);
   const engagementPoints = Math.round(viewScore + contactScore);
   const engagement: TrustScoreFactor = {
     name: 'Engagement Metrics',
     points: Math.max(0, Math.min(engagementPoints, 5)),
     maxPoints: 5,
     details: [
-      `${listing.viewCount || 0} views (+${viewScore.toFixed(1)})`,
-      `${listing.contactCount || 0} inquiries (+${contactScore.toFixed(1)})`,
+      `${viewCount} views (+${viewScore.toFixed(1)})`,
+      `${contactCount} inquiries (+${contactScore.toFixed(1)})`,
     ],
     aiPowered: false,
   };

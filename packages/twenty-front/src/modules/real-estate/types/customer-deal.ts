@@ -1,6 +1,12 @@
 // Epic 3: Customer & Deal Management Types
 
-export type DealStage = 'NEW' | 'QUALIFIED' | 'PROPOSAL' | 'NEGOTIATION' | 'WON' | 'LOST';
+export type DealStage =
+  | 'NEW'
+  | 'QUALIFIED'
+  | 'PROPOSAL'
+  | 'NEGOTIATION'
+  | 'WON'
+  | 'LOST';
 
 export interface Customer {
   id: string;

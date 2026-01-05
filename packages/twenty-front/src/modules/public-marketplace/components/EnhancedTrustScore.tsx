@@ -27,17 +27,17 @@ const Title = styled.h3`
 `;
 
 const ScoreBadge = styled.div<{ score: number }>`
-  display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
   background-color: ${({ score }) => {
     if (score >= 80) return '#10b981';
     if (score >= 50) return '#f59e0b';
     return '#ef4444';
   }};
+  border-radius: 8px;
   color: white;
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.75rem 1.5rem;
 `;
 
 const ScoreNumber = styled.div`
@@ -90,15 +90,15 @@ const FactorHeader = styled.div`
 `;
 
 const FactorName = styled.div`
+  color: ${({ theme }) => theme.font.color.primary};
   font-size: 0.9375rem;
   font-weight: 600;
-  color: ${({ theme }) => theme.font.color.primary};
 `;
 
 const FactorScore = styled.div`
+  color: ${({ theme }) => theme.color.blue};
   font-size: 0.875rem;
   font-weight: 600;
-  color: ${({ theme }) => theme.color.blue};
 `;
 
 const ProgressBar = styled.div`
@@ -111,10 +111,14 @@ const ProgressBar = styled.div`
 `;
 
 const Progress = styled.div<{ percentage: number }>`
+  background: linear-gradient(
+    90deg,
+    ${({ theme }) => theme.color.blue},
+    ${({ theme }) => theme.color.blue70}
+  );
   height: 100%;
-  width: ${({ percentage }) => percentage}%;
-  background: linear-gradient(90deg, ${({ theme }) => theme.color.blue}, ${({ theme }) => theme.color.blue70});
   transition: width 0.3s ease;
+  width: ${({ percentage }) => percentage}%;
 `;
 
 const FactorDetails = styled.div`
@@ -159,7 +163,10 @@ interface EnhancedTrustScoreProps {
   };
 }
 
-export const EnhancedTrustScore = ({ score, breakdown }: EnhancedTrustScoreProps) => {
+export const EnhancedTrustScore = ({
+  score,
+  breakdown,
+}: EnhancedTrustScoreProps) => {
   const [expanded, setExpanded] = useState(false);
 
   const getScoreLabel = (score: number): string => {

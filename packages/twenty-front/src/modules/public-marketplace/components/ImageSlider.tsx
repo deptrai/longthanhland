@@ -2,28 +2,28 @@ import styled from '@emotion/styled';
 import { useState } from 'react';
 import { IconChevronLeft, IconChevronRight } from 'twenty-ui/display';
 
-const SliderContainer = styled.div`
+const StyledSliderContainer = styled.div`
   position: relative;
   width: 100%;
   height: 500px;
   border-radius: 16px;
   overflow: hidden;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background-color: ${({ theme }) => theme.background.tertiary};
 `;
 
-const SliderImage = styled.img`
-  width: 100%;
+const StyledSliderImage = styled.img`
   height: 100%;
   object-fit: cover;
+  width: 100%;
 `;
 
-const SliderButton = styled.button`
+const StyledSliderButton = styled.button`
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  background-color: rgba(0, 0, 0, 0.5);
-  color: white;
-  border: none;
+  background-color: ${({ theme }) => theme.background.secondary};
+  color: ${({ theme }) => theme.font.color.primary};
+  border: 1px solid ${({ theme }) => theme.border.color.medium};
   width: 48px;
   height: 48px;
   border-radius: 50%;
@@ -35,7 +35,7 @@ const SliderButton = styled.button`
   z-index: 10;
 
   &:hover {
-    background-color: rgba(0, 0, 0, 0.7);
+    background-color: ${({ theme }) => theme.background.tertiary};
   }
 
   &:disabled {
@@ -44,20 +44,21 @@ const SliderButton = styled.button`
   }
 `;
 
-const PrevButton = styled(SliderButton)`
+const StyledPrevButton = styled(StyledSliderButton)`
   left: 1rem;
 `;
 
-const NextButton = styled(SliderButton)`
+const StyledNextButton = styled(StyledSliderButton)`
   right: 1rem;
 `;
 
-const Counter = styled.div`
+const StyledCounter = styled.div`
   position: absolute;
   bottom: 1rem;
   right: 1rem;
-  background-color: rgba(0, 0, 0, 0.7);
-  color: white;
+  background-color: ${({ theme }) => theme.background.secondary};
+  color: ${({ theme }) => theme.font.color.primary};
+  border: 1px solid ${({ theme }) => theme.border.color.medium};
   padding: 0.5rem 1rem;
   border-radius: 20px;
   font-size: 0.875rem;
@@ -65,7 +66,7 @@ const Counter = styled.div`
   z-index: 10;
 `;
 
-const ThumbnailContainer = styled.div`
+const StyledThumbnailContainer = styled.div`
   display: flex;
   gap: 0.5rem;
   margin-top: 1rem;
@@ -87,13 +88,14 @@ const ThumbnailContainer = styled.div`
   }
 `;
 
-const Thumbnail = styled.div<{ active: boolean }>`
+const StyledThumbnail = styled.div<{ active: boolean }>`
   min-width: 80px;
   height: 60px;
   border-radius: 8px;
   overflow: hidden;
   cursor: pointer;
-  border: 2px solid ${({ active, theme }) => (active ? theme.color.blue : 'transparent')};
+  border: 2px solid
+    ${({ active, theme }) => (active ? theme.color.blue : 'transparent')};
   opacity: ${({ active }) => (active ? 1 : 0.6)};
   transition: all 0.2s;
 
@@ -102,10 +104,10 @@ const Thumbnail = styled.div<{ active: boolean }>`
   }
 `;
 
-const ThumbnailImage = styled.img`
-  width: 100%;
+const StyledThumbnailImage = styled.img`
   height: 100%;
   object-fit: cover;
+  width: 100%;
 `;
 
 interface ImageSliderProps {
@@ -130,44 +132,58 @@ export const ImageSlider = ({ images, title }: ImageSliderProps) => {
 
   if (images.length === 0) {
     return (
-      <SliderContainer>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'white' }}>
+      <StyledSliderContainer>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            height: '100%',
+            color: 'white',
+          }}
+        >
           No images available
         </div>
-      </SliderContainer>
+      </StyledSliderContainer>
     );
   }
 
   return (
     <>
-      <SliderContainer>
-        <SliderImage src={images[currentIndex]} alt={`${title} - Image ${currentIndex + 1}`} />
+      <StyledSliderContainer>
+        <StyledSliderImage
+          src={images[currentIndex]}
+          alt={`${title} - Image ${currentIndex + 1}`}
+        />
         {images.length > 1 && (
           <>
-            <PrevButton onClick={handlePrev}>
+            <StyledPrevButton onClick={handlePrev}>
               <IconChevronLeft size={24} />
-            </PrevButton>
-            <NextButton onClick={handleNext}>
+            </StyledPrevButton>
+            <StyledNextButton onClick={handleNext}>
               <IconChevronRight size={24} />
-            </NextButton>
-            <Counter>
+            </StyledNextButton>
+            <StyledCounter>
               {currentIndex + 1} / {images.length}
-            </Counter>
+            </StyledCounter>
           </>
         )}
-      </SliderContainer>
+      </StyledSliderContainer>
       {images.length > 1 && (
-        <ThumbnailContainer>
+        <StyledThumbnailContainer>
           {images.map((image, index) => (
-            <Thumbnail
+            <StyledThumbnail
               key={index}
               active={index === currentIndex}
               onClick={() => handleThumbnailClick(index)}
             >
-              <ThumbnailImage src={image} alt={`${title} - Thumbnail ${index + 1}`} />
-            </Thumbnail>
+              <StyledThumbnailImage
+                src={image}
+                alt={`${title} - Thumbnail ${index + 1}`}
+              />
+            </StyledThumbnail>
           ))}
-        </ThumbnailContainer>
+        </StyledThumbnailContainer>
       )}
     </>
   );

@@ -9,9 +9,9 @@ import { DefaultLayout } from '@/ui/layout/page/components/DefaultLayout';
 import { AppPath } from 'twenty-shared/types';
 
 import {
-    createBrowserRouter,
-    createRoutesFromElements,
-    Route,
+  createBrowserRouter,
+  createRoutesFromElements,
+  Route,
 } from 'react-router-dom';
 import { Authorize } from '~/pages/auth/Authorize';
 import { PasswordReset } from '~/pages/auth/PasswordReset';
@@ -46,16 +46,16 @@ import { PropertyFilterPage } from '~/pages/real-estate/PropertyFilterPage';
 import { SalesDashboardPage } from '~/pages/real-estate/SalesDashboardPage';
 
 import {
-    BrowsePage,
-    InquiriesPage,
-    ListingDetailPage,
-    LoginPage,
-    DashboardPage as MarketplaceDashboardPage,
-    MarketplaceLayout,
-    PaymentPage,
-    PostListingPage,
-    ProfilePage,
-    RegisterPage,
+  BrowsePage,
+  InquiriesPage,
+  ListingDetailPage,
+  LoginPage,
+  DashboardPage as MarketplaceDashboardPage,
+  MarketplaceLayout,
+  PaymentPage,
+  PostListingPage,
+  ProfilePage,
+  RegisterPage,
 } from '@/public-marketplace';
 
 export const useCreateAppRouter = (

@@ -1,9 +1,9 @@
 import styled from '@emotion/styled';
 import {
-    IconEye,
-    IconHome,
-    IconMessage,
-    IconTrendingUp,
+  IconEye,
+  IconHome,
+  IconMessage,
+  IconTrendingUp,
 } from 'twenty-ui/display';
 import { mockPublicListings, mockSellerStats } from '../data/mock-data';
 

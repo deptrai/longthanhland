@@ -3,14 +3,14 @@ import { NavigationDrawerSection } from '@/ui/navigation/navigation-drawer/compo
 import { NavigationDrawerSectionTitle } from '@/ui/navigation/navigation-drawer/components/NavigationDrawerSectionTitle';
 import { useLingui } from '@lingui/react/macro';
 import {
-    IconCalendar,
-    IconChartBar,
-    IconCheck,
-    IconCurrencyDollar,
-    IconList,
-    IconPhone,
-    IconSearch,
-    IconUsers,
+  IconCalendar,
+  IconChartBar,
+  IconCheck,
+  IconCurrencyDollar,
+  IconList,
+  IconPhone,
+  IconSearch,
+  IconUsers,
 } from 'twenty-ui/display';
 
 export const RealEstateNavigationSection = () => {

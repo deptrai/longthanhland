@@ -1,8 +1,8 @@
 import styled from '@emotion/styled';
 import { useLingui } from '@lingui/react/macro';
 import {
-    type DashboardStats as DashboardStatsType,
-    type RecentProperty,
+  type DashboardStats as DashboardStatsType,
+  type RecentProperty,
 } from '../types';
 
 interface DashboardStatsProps {

@@ -9,8 +9,8 @@ const Container = styled.div`
 `;
 
 const MaxWidth = styled.div`
-  max-width: 1200px;
   margin: 0 auto;
+  max-width: 1200px;
 `;
 
 const Title = styled.h1`
@@ -122,13 +122,9 @@ const ButtonGroup = styled.div`
 
 const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
   background-color: ${({ theme, variant }) =>
-    variant === 'secondary'
-      ? theme.background.primary
-      : theme.color.blue};
+    variant === 'secondary' ? theme.background.primary : theme.color.blue};
   color: ${({ theme, variant }) =>
-    variant === 'secondary'
-      ? theme.font.color.primary
-      : 'white'};
+    variant === 'secondary' ? theme.font.color.primary : 'white'};
   border: ${({ theme, variant }) =>
     variant === 'secondary'
       ? `1px solid ${theme.border.color.medium}`
@@ -142,9 +138,7 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
 
   &:hover {
     background-color: ${({ theme, variant }) =>
-      variant === 'secondary'
-        ? theme.background.tertiary
-        : theme.color.blue};
+      variant === 'secondary' ? theme.background.tertiary : theme.color.blue};
   }
 
   &:disabled {
@@ -177,17 +171,15 @@ export const ProfilePage = () => {
 
   const [isSaving, setIsSaving] = useState(false);
 
-  const handleProfileChange = (field: string) => (
-    e: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    setProfileData((prev) => ({ ...prev, [field]: e.target.value }));
-  };
+  const handleProfileChange =
+    (field: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
+      setProfileData((prev) => ({ ...prev, [field]: e.target.value }));
+    };
 
-  const handlePasswordChange = (field: string) => (
-    e: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    setPasswordData((prev) => ({ ...prev, [field]: e.target.value }));
-  };
+  const handlePasswordChange =
+    (field: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
+      setPasswordData((prev) => ({ ...prev, [field]: e.target.value }));
+    };
 
   const handleProfileSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

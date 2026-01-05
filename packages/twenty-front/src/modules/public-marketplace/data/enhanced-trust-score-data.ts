@@ -92,11 +92,7 @@ export const enhancedTrustScoreBreakdowns = {
       name: 'Engagement Metrics',
       points: 4,
       maxPoints: 5,
-      details: [
-        '1,245 views (+2)',
-        '28 inquiries (+2)',
-        'Response rate: 75%',
-      ],
+      details: ['1,245 views (+2)', '28 inquiries (+2)', 'Response rate: 75%'],
       aiPowered: false,
     },
     platformHistory: {

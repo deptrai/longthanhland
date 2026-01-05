@@ -8,8 +8,8 @@ const Container = styled.div`
 `;
 
 const MaxWidth = styled.div`
-  max-width: 900px;
   margin: 0 auto;
+  max-width: 900px;
 `;
 
 const Title = styled.h1`
@@ -54,13 +54,14 @@ const StepNumber = styled.div<{ active?: boolean; completed?: boolean }>`
       : active
         ? theme.color.blue
         : theme.background.tertiary};
-  color: ${({ active, completed }) => (active || completed ? 'white' : '#888888')};
+  color: ${({ active, completed }) =>
+    active || completed ? 'white' : '#888888'};
 `;
 
 const StepLabel = styled.span<{ active?: boolean }>`
-  font-size: 0.875rem;
   color: ${({ theme, active }) =>
     active ? theme.font.color.primary : theme.font.color.tertiary};
+  font-size: 0.875rem;
 `;
 
 const StepDivider = styled.div<{ completed?: boolean }>`
@@ -92,10 +93,10 @@ const Form = styled.form`
 `;
 
 const FormGroup = styled.div<{ fullWidth?: boolean }>`
-  grid-column: ${({ fullWidth }) => (fullWidth ? '1 / -1' : 'auto')};
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  grid-column: ${({ fullWidth }) => (fullWidth ? '1 / -1' : 'auto')};
 `;
 
 const Label = styled.label`
@@ -163,7 +164,9 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
   color: ${({ theme, variant }) =>
     variant === 'secondary' ? theme.font.color.primary : 'white'};
   border: ${({ theme, variant }) =>
-    variant === 'secondary' ? `1px solid ${theme.border.color.medium}` : 'none'};
+    variant === 'secondary'
+      ? `1px solid ${theme.border.color.medium}`
+      : 'none'};
   border-radius: 8px;
   padding: 0.75rem 1.5rem;
   font-size: 0.875rem;
@@ -197,11 +200,15 @@ export const PostListingPage = () => {
     propertyType: 'APARTMENT',
   });
 
-  const handleChange = (field: string) => (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>,
-  ) => {
-    setFormData((prev) => ({ ...prev, [field]: e.target.value }));
-  };
+  const handleChange =
+    (field: string) =>
+    (
+      e: React.ChangeEvent<
+        HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+      >,
+    ) => {
+      setFormData((prev) => ({ ...prev, [field]: e.target.value }));
+    };
 
   const handleNext = () => {
     if (currentStep < 3) {
@@ -230,14 +237,20 @@ export const PostListingPage = () => {
         <Stepper>
           <StepperContent>
             <Step active={currentStep === 1} completed={currentStep > 1}>
-              <StepNumber active={currentStep === 1} completed={currentStep > 1}>
+              <StepNumber
+                active={currentStep === 1}
+                completed={currentStep > 1}
+              >
                 1
               </StepNumber>
               <StepLabel active={currentStep === 1}>Basic</StepLabel>
             </Step>
             <StepDivider completed={currentStep > 1} />
             <Step active={currentStep === 2} completed={currentStep > 2}>
-              <StepNumber active={currentStep === 2} completed={currentStep > 2}>
+              <StepNumber
+                active={currentStep === 2}
+                completed={currentStep > 2}
+              >
                 2
               </StepNumber>
               <StepLabel active={currentStep === 2}>Details</StepLabel>

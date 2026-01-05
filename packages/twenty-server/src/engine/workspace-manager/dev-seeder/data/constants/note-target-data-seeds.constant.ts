@@ -65,7 +65,7 @@ const GENERATE_NOTE_TARGET_SEEDS = (): NoteTargetDataSeed[] => {
       personId: null,
       companyId:
         COMPANY_DATA_SEED_IDS[
-          `ID_${COMPANY_INDEX}` as keyof typeof COMPANY_DATA_SEED_IDS
+          `ID_${((COMPANY_INDEX - 1) % 10) + 1}` as keyof typeof COMPANY_DATA_SEED_IDS
         ],
       opportunityId: null,
     });

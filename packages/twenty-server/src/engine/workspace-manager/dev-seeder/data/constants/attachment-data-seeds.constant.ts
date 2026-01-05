@@ -227,7 +227,7 @@ const GENERATE_ATTACHMENT_SEEDS = (): AttachmentDataSeed[] => {
 
   // Get available entity IDs
   const PERSON_IDS = Object.values(PERSON_DATA_SEED_IDS).slice(0, 120); // Use first 120 persons
-  const COMPANY_IDS = Object.values(COMPANY_DATA_SEED_IDS).slice(0, 120); // Use first 120 companies
+  const COMPANY_IDS = Object.values(COMPANY_DATA_SEED_IDS).slice(0, 10); // Use all 10 Vietnamese companies
   const NOTE_IDS = Object.values(NOTE_DATA_SEED_IDS).slice(0, 80); // Use first 80 notes
   const TASK_IDS = Object.values(TASK_DATA_SEED_IDS).slice(0, 60); // Use first 60 tasks
   const OPPORTUNITY_IDS = Object.values(OPPORTUNITY_DATA_SEED_IDS).slice(0, 20); // Use first 20 opportunities

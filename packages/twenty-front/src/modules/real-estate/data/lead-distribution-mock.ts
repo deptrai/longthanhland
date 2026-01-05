@@ -135,11 +135,7 @@ export const mockAssignmentRules: AssignmentRule[] = [
     active: true,
     description: 'High-value leads go to senior agents',
     applies_to: 'Leads with budget > 10B VND',
-    logic: [
-      'Assign to senior agents only:',
-      '- Luis Phan',
-      '- John Doe',
-    ],
+    logic: ['Assign to senior agents only:', '- Luis Phan', '- John Doe'],
   },
 ];
 
@@ -148,7 +144,8 @@ export const mockNotifications: Notification[] = [
     id: 'notif-1',
     type: 'new_lead',
     title: 'New lead assigned',
-    message: 'Nguyen Van X from Facebook\nBudget: 2-3B VND · District 9\nSLA: First contact within 2 hours',
+    message:
+      'Nguyen Van X from Facebook\nBudget: 2-3B VND · District 9\nSLA: First contact within 2 hours',
     timestamp: '2 min ago',
     leadId: 'lead-1',
     leadName: 'Nguyen Van X',
@@ -159,7 +156,8 @@ export const mockNotifications: Notification[] = [
     id: 'notif-2',
     type: 'sla_warning',
     title: 'SLA approaching (80%)',
-    message: 'Lead: Pham Thi Y (Assigned 1h ago)\nRemaining: 24 minutes for first contact',
+    message:
+      'Lead: Pham Thi Y (Assigned 1h ago)\nRemaining: 24 minutes for first contact',
     timestamp: '15 min ago',
     leadId: 'lead-2',
     leadName: 'Pham Thi Y',

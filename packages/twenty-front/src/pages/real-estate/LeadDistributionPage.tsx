@@ -1,8 +1,8 @@
 import { LeadDistributionDashboard } from '@/real-estate/components/LeadDistributionDashboard';
 import {
-    mockAgentWorkloads,
-    mockDistributionStats,
-    mockSlaData,
+  mockAgentWorkloads,
+  mockDistributionStats,
+  mockSlaData,
 } from '@/real-estate/data/lead-distribution-mock';
 import { PageContainer } from '@/ui/layout/page/components/PageContainer';
 import styled from '@emotion/styled';

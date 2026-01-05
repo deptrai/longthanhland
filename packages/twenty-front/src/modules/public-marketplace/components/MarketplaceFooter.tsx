@@ -2,35 +2,35 @@ import styled from '@emotion/styled';
 import { IconMail, IconPhone } from 'twenty-ui/display';
 import { useLanguage } from '../i18n/LanguageContext';
 
-const FooterContainer = styled.footer`
+const StyledFooterContainer = styled.footer`
   background-color: ${({ theme }) => theme.background.secondary};
   border-top: 1px solid ${({ theme }) => theme.border.color.medium};
   padding: 3rem 2rem 2rem;
   margin-top: 4rem;
 `;
 
-const FooterContent = styled.div`
-  max-width: 1400px;
+const StyledFooterContent = styled.div`
   margin: 0 auto;
+  max-width: 1400px;
 `;
 
-const FooterGrid = styled.div`
+const StyledFooterGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 2rem;
   margin-bottom: 2rem;
 `;
 
-const FooterSection = styled.div``;
+const StyledFooterSection = styled.div``;
 
-const FooterTitle = styled.h3`
+const StyledFooterTitle = styled.h3`
   font-size: 1rem;
   font-weight: 600;
   color: ${({ theme }) => theme.font.color.primary};
   margin-bottom: 1rem;
 `;
 
-const FooterLink = styled.a`
+const StyledFooterLink = styled.a`
   display: block;
   color: ${({ theme }) => theme.font.color.tertiary};
   text-decoration: none;
@@ -43,16 +43,16 @@ const FooterLink = styled.a`
   }
 `;
 
-const ContactItem = styled.div`
-  display: flex;
+const StyledContactItem = styled.div`
   align-items: center;
-  gap: 0.75rem;
   color: ${({ theme }) => theme.font.color.secondary};
-  margin-bottom: 0.75rem;
+  display: flex;
   font-size: 0.875rem;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
 `;
 
-const FooterBottom = styled.div`
+const StyledFooterBottom = styled.div`
   border-top: 1px solid ${({ theme }) => theme.border.color.medium};
   padding-top: 1.5rem;
   text-align: center;
@@ -60,66 +60,83 @@ const FooterBottom = styled.div`
   font-size: 0.875rem;
 `;
 
-const CompanyInfo = styled.div`
-  margin-bottom: 1rem;
+const StyledCompanyInfo = styled.div`
   line-height: 1.6;
+  margin-bottom: 1rem;
 `;
 
 export const MarketplaceFooter = () => {
   const { t } = useLanguage();
 
   return (
-    <FooterContainer>
-      <FooterContent>
-        <FooterGrid>
-          <FooterSection>
-            <FooterTitle>{t('nav.logo')}</FooterTitle>
-            <CompanyInfo>
+    <StyledFooterContainer>
+      <StyledFooterContent>
+        <StyledFooterGrid>
+          <StyledFooterSection>
+            <StyledFooterTitle>{t('nav.logo')}</StyledFooterTitle>
+            <StyledCompanyInfo>
               <div>CÔNG TY CỔ PHẦN TWENTY</div>
               <div>Tầng 5, Tòa nhà ABC, Hà Nội, Việt Nam</div>
-            </CompanyInfo>
-            <ContactItem>
+            </StyledCompanyInfo>
+            <StyledContactItem>
               <IconPhone size={18} />
               <span>1900 1881</span>
-            </ContactItem>
-            <ContactItem>
+            </StyledContactItem>
+            <StyledContactItem>
               <IconMail size={18} />
               <span>support@twenty.com</span>
-            </ContactItem>
-          </FooterSection>
+            </StyledContactItem>
+          </StyledFooterSection>
 
-          <FooterSection>
-            <FooterTitle>Hướng dẫn</FooterTitle>
-            <FooterLink href="/about">Về chúng tôi</FooterLink>
-            <FooterLink href="/pricing">Báo giá và hỗ trợ</FooterLink>
-            <FooterLink href="/faq">Câu hỏi thường gặp</FooterLink>
-            <FooterLink href="/contact">Liên hệ</FooterLink>
-          </FooterSection>
+          <StyledFooterSection>
+            <StyledFooterTitle>Hướng dẫn</StyledFooterTitle>
+            <StyledFooterLink href="/about">Về chúng tôi</StyledFooterLink>
+            <StyledFooterLink href="/pricing">
+              Báo giá và hỗ trợ
+            </StyledFooterLink>
+            <StyledFooterLink href="/faq">Câu hỏi thường gặp</StyledFooterLink>
+            <StyledFooterLink href="/contact">Liên hệ</StyledFooterLink>
+          </StyledFooterSection>
 
-          <FooterSection>
-            <FooterTitle>Quy định</FooterTitle>
-            <FooterLink href="/terms">Quy định đăng tin</FooterLink>
-            <FooterLink href="/policy">Quy chế hoạt động</FooterLink>
-            <FooterLink href="/privacy">Chính sách bảo mật</FooterLink>
-            <FooterLink href="/complaints">Giải quyết khiếu nại</FooterLink>
-          </FooterSection>
+          <StyledFooterSection>
+            <StyledFooterTitle>Quy định</StyledFooterTitle>
+            <StyledFooterLink href="/terms">Quy định đăng tin</StyledFooterLink>
+            <StyledFooterLink href="/policy">
+              Quy chế hoạt động
+            </StyledFooterLink>
+            <StyledFooterLink href="/privacy">
+              Chính sách bảo mật
+            </StyledFooterLink>
+            <StyledFooterLink href="/complaints">
+              Giải quyết khiếu nại
+            </StyledFooterLink>
+          </StyledFooterSection>
 
-          <FooterSection>
-            <FooterTitle>Dịch vụ</FooterTitle>
-            <FooterLink href="/marketplace/browse">{t('nav.browse')}</FooterLink>
-            <FooterLink href="/marketplace/post">{t('nav.postListing')}</FooterLink>
-            <FooterLink href="/marketplace/dashboard">{t('nav.dashboard')}</FooterLink>
-            <FooterLink href="/marketplace/subscription">{t('nav.subscription')}</FooterLink>
-          </FooterSection>
-        </FooterGrid>
+          <StyledFooterSection>
+            <StyledFooterTitle>Dịch vụ</StyledFooterTitle>
+            <StyledFooterLink href="/marketplace/browse">
+              {t('nav.browse')}
+            </StyledFooterLink>
+            <StyledFooterLink href="/marketplace/post">
+              {t('nav.postListing')}
+            </StyledFooterLink>
+            <StyledFooterLink href="/marketplace/dashboard">
+              {t('nav.dashboard')}
+            </StyledFooterLink>
+            <StyledFooterLink href="/marketplace/subscription">
+              {t('nav.subscription')}
+            </StyledFooterLink>
+          </StyledFooterSection>
+        </StyledFooterGrid>
 
-        <FooterBottom>
+        <StyledFooterBottom>
           <div>Copyright © 2024 Twenty CRM. All rights reserved.</div>
           <div style={{ marginTop: '0.5rem' }}>
-            Giấy phép thiết lập trang thông tin điện tử tổng hợp trên mạng số 123/GP-TTĐT
+            Giấy phép thiết lập trang thông tin điện tử tổng hợp trên mạng số
+            123/GP-TTĐT
           </div>
-        </FooterBottom>
-      </FooterContent>
-    </FooterContainer>
+        </StyledFooterBottom>
+      </StyledFooterContent>
+    </StyledFooterContainer>
   );
 };

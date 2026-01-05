@@ -5,30 +5,31 @@ import { IconHeart, IconMail, IconMap, IconPhone } from 'twenty-ui/display';
 import { Breadcrumb } from '../components/Breadcrumb';
 import { EnhancedTrustScore } from '../components/EnhancedTrustScore';
 import { ImageSlider } from '../components/ImageSlider';
+import { LocationMap } from '../components/LocationMap';
 import { MarketplaceFooter } from '../components/MarketplaceFooter';
 import { mockPublicListings } from '../data/mock-data';
 import { useLanguage } from '../i18n/LanguageContext';
 import { calculateTrustScore } from '../utils/calculateTrustScore';
 
-const Container = styled.div`
+const StyledContainer = styled.div`
   min-height: 100vh;
   background-color: ${({ theme }) => theme.background.primary};
   padding: 2rem;
 `;
 
-const MaxWidth = styled.div`
+const StyledMaxWidth = styled.div`
   margin: 0 auto;
   max-width: 1400px;
 `;
 
-const Title = styled.h1`
+const StyledTitle = styled.h1`
   color: ${({ theme }) => theme.font.color.primary};
   font-size: 2rem;
   font-weight: 700;
   margin: 1.5rem 0 1rem;
 `;
 
-const LocationText = styled.div`
+const StyledLocationText = styled.div`
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -37,39 +38,39 @@ const LocationText = styled.div`
   margin-bottom: 2rem;
 `;
 
-const Grid = styled.div`
+const StyledGrid = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr;
   gap: 1.5rem;
   margin-bottom: 2rem;
 `;
 
-const StatCard = styled.div`
+const StyledStatCard = styled.div`
   background-color: ${({ theme }) => theme.background.secondary};
   border: 1px solid ${({ theme }) => theme.border.color.medium};
   border-radius: 12px;
   padding: 1.5rem;
 `;
 
-const StatLabel = styled.div`
+const StyledStatLabel = styled.div`
   font-size: 0.875rem;
   color: ${({ theme }) => theme.font.color.tertiary};
   margin-bottom: 0.5rem;
 `;
 
-const StatValue = styled.div`
+const StyledStatValue = styled.div`
   color: ${({ theme }) => theme.color.blue};
   font-size: 1.875rem;
   font-weight: 700;
 `;
 
-const SpecGrid = styled.div`
+const StyledSpecGrid = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1.5rem;
 `;
 
-const SpecItem = styled.div`
+const StyledSpecItem = styled.div`
   background-color: ${({ theme }) => theme.background.tertiary};
   border-radius: 8px;
   display: flex;
@@ -77,24 +78,24 @@ const SpecItem = styled.div`
   padding: 1rem;
 `;
 
-const SpecLabel = styled.span`
+const StyledSpecLabel = styled.span`
   color: ${({ theme }) => theme.font.color.tertiary};
   font-size: 0.9375rem;
 `;
 
-const SpecValue = styled.span`
+const StyledSpecValue = styled.span`
   color: ${({ theme }) => theme.font.color.primary};
   font-weight: 600;
   font-size: 0.9375rem;
 `;
 
-const AmenityGrid = styled.div`
+const StyledAmenityGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 1.5rem;
 `;
 
-const AmenityCard = styled.div`
+const StyledAmenityCard = styled.div`
   align-items: flex-start;
   background-color: ${({ theme }) => theme.background.tertiary};
   border-radius: 8px;
@@ -103,26 +104,26 @@ const AmenityCard = styled.div`
   padding: 1rem;
 `;
 
-const AmenityIcon = styled.div`
+const StyledAmenityIcon = styled.div`
   color: ${({ theme }) => theme.color.blue};
 `;
 
-const AmenityContent = styled.div`
+const StyledAmenityContent = styled.div`
   flex: 1;
 `;
 
-const AmenityTitle = styled.div`
+const StyledAmenityTitle = styled.div`
   font-weight: 600;
   color: ${({ theme }) => theme.font.color.primary};
   margin-bottom: 0.25rem;
 `;
 
-const AmenityList = styled.div`
+const StyledAmenityList = styled.div`
   color: ${({ theme }) => theme.font.color.tertiary};
   font-size: 0.875rem;
 `;
 
-const ContactCard = styled.div`
+const StyledContactCard = styled.div`
   background-color: ${({ theme }) => theme.background.secondary};
   border: 1px solid ${({ theme }) => theme.border.color.medium};
   border-radius: 12px;
@@ -130,7 +131,7 @@ const ContactCard = styled.div`
   margin-bottom: 2rem;
 `;
 
-const ContactButton = styled.button`
+const StyledContactButton = styled.button`
   width: 100%;
   background-color: ${({ theme }) => theme.color.blue};
   color: white;
@@ -148,14 +149,14 @@ const ContactButton = styled.button`
   }
 `;
 
-const ContactInfo = styled.div`
+const StyledContactInfo = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
   margin-top: 1rem;
 `;
 
-const ContactItem = styled.div`
+const StyledContactItem = styled.div`
   align-items: center;
   color: ${({ theme }) => theme.font.color.secondary};
   display: flex;
@@ -163,13 +164,13 @@ const ContactItem = styled.div`
   gap: 0.75rem;
 `;
 
-const RelatedGrid = styled.div`
+const StyledRelatedGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1.5rem;
 `;
 
-const RelatedCard = styled.div`
+const StyledRelatedCard = styled.div`
   background-color: ${({ theme }) => theme.background.secondary};
   border: 1px solid ${({ theme }) => theme.border.color.medium};
   border-radius: 12px;
@@ -182,48 +183,36 @@ const RelatedCard = styled.div`
   }
 `;
 
-const RelatedImage = styled.div`
+const StyledRelatedImage = styled.div`
   height: 180px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background-color: ${({ theme }) => theme.background.tertiary};
   position: relative;
 `;
 
-const RelatedImageTag = styled.img`
+const StyledRelatedImageTag = styled.img`
   height: 100%;
   object-fit: cover;
   width: 100%;
 `;
 
-const RelatedContent = styled.div`
+const StyledRelatedContent = styled.div`
   padding: 1rem;
 `;
 
-const RelatedTitle = styled.div`
+const StyledRelatedTitle = styled.div`
   color: ${({ theme }) => theme.font.color.primary};
   font-size: 0.9375rem;
   font-weight: 600;
   margin-bottom: 0.5rem;
 `;
 
-const RelatedPrice = styled.div`
+const StyledRelatedPrice = styled.div`
   color: ${({ theme }) => theme.color.blue};
   font-weight: 700;
   font-size: 1.125rem;
 `;
 
-const MapPlaceholder = styled.div`
-  height: 300px;
-  background-color: ${({ theme }) => theme.background.tertiary};
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: ${({ theme }) => theme.font.color.tertiary};
-  font-size: 1rem;
-  gap: 1rem;
-`;
-
-const Card = styled.div`
+const StyledCard = styled.div`
   background-color: ${({ theme }) => theme.background.secondary};
   border: 1px solid ${({ theme }) => theme.border.color.medium};
   border-radius: 12px;
@@ -231,23 +220,23 @@ const Card = styled.div`
   margin-bottom: 2rem;
 `;
 
-const SectionTitle = styled.h3`
+const StyledSectionTitle = styled.h3`
   font-size: 1.25rem;
   font-weight: 600;
   color: ${({ theme }) => theme.font.color.primary};
   margin-bottom: 1rem;
 `;
 
-const Description = styled.p`
+const StyledDescription = styled.p`
   color: ${({ theme }) => theme.font.color.secondary};
   line-height: 1.6;
 `;
 
-const SellerAvatar = styled.div`
+const StyledSellerAvatar = styled.div`
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background-color: ${({ theme }) => theme.color.blue};
   display: flex;
   align-items: center;
   justify-content: center;
@@ -256,24 +245,24 @@ const SellerAvatar = styled.div`
   font-size: 1.25rem;
 `;
 
-const SellerInfo = styled.div`
+const StyledSellerInfo = styled.div`
   display: flex;
   align-items: center;
   gap: 1rem;
 `;
 
-const SellerDetails = styled.div`
+const StyledSellerDetails = styled.div`
   flex: 1;
 `;
 
-const SellerName = styled.div`
+const StyledSellerName = styled.div`
   color: ${({ theme }) => theme.font.color.primary};
   font-weight: 600;
   font-size: 1.125rem;
   margin-bottom: 0.25rem;
 `;
 
-const SellerLabel = styled.div`
+const StyledSellerLabel = styled.div`
   color: ${({ theme }) => theme.font.color.tertiary};
   font-size: 0.875rem;
 `;
@@ -287,16 +276,16 @@ export const ListingDetailPage = () => {
 
   if (!listing) {
     return (
-      <Container>
-        <MaxWidth>
-          <Card>
-            <Title>Listing not found</Title>
-            <Description>
+      <StyledContainer>
+        <StyledMaxWidth>
+          <StyledCard>
+            <StyledTitle>Listing not found</StyledTitle>
+            <StyledDescription>
               The listing you're looking for doesn't exist.
-            </Description>
-          </Card>
-        </MaxWidth>
-      </Container>
+            </StyledDescription>
+          </StyledCard>
+        </StyledMaxWidth>
+      </StyledContainer>
     );
   }
 
@@ -329,8 +318,8 @@ export const ListingDetailPage = () => {
     .slice(0, 3);
 
   return (
-    <Container>
-      <MaxWidth>
+    <StyledContainer>
+      <StyledMaxWidth>
         {/* Breadcrumb Navigation */}
         <Breadcrumb
           type="Cho thuê"
@@ -343,197 +332,207 @@ export const ListingDetailPage = () => {
         <ImageSlider images={listing.images} title={listing.title} />
 
         {/* Title and Location */}
-        <Title>{listing.title}</Title>
-        <LocationText>
+        <StyledTitle>{listing.title}</StyledTitle>
+        <StyledLocationText>
           <IconMap size={20} />
           {listing.district}, {listing.city}
-        </LocationText>
+        </StyledLocationText>
 
-        <Grid>
-          <StatCard>
-            <StatLabel>{t('detail.price')}</StatLabel>
-            <StatValue>{formatPrice(listing.price)}</StatValue>
-          </StatCard>
-          <StatCard>
-            <StatLabel>{t('detail.bedrooms')}</StatLabel>
-            <StatValue>{listing.bedrooms}</StatValue>
-          </StatCard>
-          <StatCard>
-            <StatLabel>{t('detail.bathrooms')}</StatLabel>
-            <StatValue>{listing.bathrooms}</StatValue>
-          </StatCard>
-          <StatCard>
-            <StatLabel>{t('detail.area')}</StatLabel>
-            <StatValue>{listing.area}m²</StatValue>
-          </StatCard>
-        </Grid>
+        <StyledGrid>
+          <StyledStatCard>
+            <StyledStatLabel>{t('detail.price')}</StyledStatLabel>
+            <StyledStatValue>{formatPrice(listing.price)}</StyledStatValue>
+          </StyledStatCard>
+          <StyledStatCard>
+            <StyledStatLabel>{t('detail.bedrooms')}</StyledStatLabel>
+            <StyledStatValue>{listing.bedrooms}</StyledStatValue>
+          </StyledStatCard>
+          <StyledStatCard>
+            <StyledStatLabel>{t('detail.bathrooms')}</StyledStatLabel>
+            <StyledStatValue>{listing.bathrooms}</StyledStatValue>
+          </StyledStatCard>
+          <StyledStatCard>
+            <StyledStatLabel>{t('detail.area')}</StyledStatLabel>
+            <StyledStatValue>{listing.area}m²</StyledStatValue>
+          </StyledStatCard>
+        </StyledGrid>
 
         {/* Enhanced Trust Score with 10 AI-powered criteria - calculated dynamically */}
         <EnhancedTrustScore score={trustScore} breakdown={trustBreakdown} />
 
         {/* Description */}
-        <Card>
-          <SectionTitle>{t('detail.description')}</SectionTitle>
-          <Description>{listing.description}</Description>
-        </Card>
+        <StyledCard>
+          <StyledSectionTitle>{t('detail.description')}</StyledSectionTitle>
+          <StyledDescription>{listing.description}</StyledDescription>
+        </StyledCard>
 
         {/* Property Specifications */}
-        <Card>
-          <SectionTitle>{t('detail.specifications')}</SectionTitle>
-          <SpecGrid>
-            <SpecItem>
-              <SpecLabel>{t('detail.furniture')}</SpecLabel>
-              <SpecValue>{t('detail.furnished')}</SpecValue>
-            </SpecItem>
-            <SpecItem>
-              <SpecLabel>{t('detail.direction')}</SpecLabel>
-              <SpecValue>{t('detail.south')}</SpecValue>
-            </SpecItem>
-            <SpecItem>
-              <SpecLabel>{t('detail.balconyDirection')}</SpecLabel>
-              <SpecValue>{t('detail.east')}</SpecValue>
-            </SpecItem>
-            <SpecItem>
-              <SpecLabel>{t('detail.floor')}</SpecLabel>
-              <SpecValue>5/20</SpecValue>
-            </SpecItem>
-            <SpecItem>
-              <SpecLabel>{t('detail.legalStatus')}</SpecLabel>
-              <SpecValue>{t('detail.pinkBook')}</SpecValue>
-            </SpecItem>
-            <SpecItem>
-              <SpecLabel>{t('common.bedrooms')}</SpecLabel>
-              <SpecValue>{listing.bedrooms}</SpecValue>
-            </SpecItem>
-          </SpecGrid>
-        </Card>
+        <StyledCard>
+          <StyledSectionTitle>{t('detail.specifications')}</StyledSectionTitle>
+          <StyledSpecGrid>
+            <StyledSpecItem>
+              <StyledSpecLabel>{t('detail.furniture')}</StyledSpecLabel>
+              <StyledSpecValue>{t('detail.furnished')}</StyledSpecValue>
+            </StyledSpecItem>
+            <StyledSpecItem>
+              <StyledSpecLabel>{t('detail.direction')}</StyledSpecLabel>
+              <StyledSpecValue>{t('detail.south')}</StyledSpecValue>
+            </StyledSpecItem>
+            <StyledSpecItem>
+              <StyledSpecLabel>{t('detail.balconyDirection')}</StyledSpecLabel>
+              <StyledSpecValue>{t('detail.east')}</StyledSpecValue>
+            </StyledSpecItem>
+            <StyledSpecItem>
+              <StyledSpecLabel>{t('detail.floor')}</StyledSpecLabel>
+              <StyledSpecValue>5/20</StyledSpecValue>
+            </StyledSpecItem>
+            <StyledSpecItem>
+              <StyledSpecLabel>{t('detail.legalStatus')}</StyledSpecLabel>
+              <StyledSpecValue>{t('detail.pinkBook')}</StyledSpecValue>
+            </StyledSpecItem>
+            <StyledSpecItem>
+              <StyledSpecLabel>{t('common.bedrooms')}</StyledSpecLabel>
+              <StyledSpecValue>{listing.bedrooms}</StyledSpecValue>
+            </StyledSpecItem>
+          </StyledSpecGrid>
+        </StyledCard>
 
         {/* Location & Map */}
-        <Card>
-          <SectionTitle>{t('detail.location')}</SectionTitle>
-          <Description style={{ marginBottom: '1.5rem' }}>
+        <StyledCard>
+          <StyledSectionTitle>{t('detail.location')}</StyledSectionTitle>
+          <StyledDescription style={{ marginBottom: '1.5rem' }}>
             {listing.district}, {listing.city}
-          </Description>
-          <MapPlaceholder>
-            <IconMap size={48} />
-            <span>{t('detail.map')} - Coming Soon</span>
-          </MapPlaceholder>
-        </Card>
+          </StyledDescription>
+          <LocationMap
+            address={listing.location}
+            city={listing.city}
+            district={listing.district}
+            useRealMap={true}
+          />
+        </StyledCard>
 
         {/* Nearby Amenities */}
-        <Card>
-          <SectionTitle>{t('detail.nearbyAmenities')}</SectionTitle>
-          <AmenityGrid>
-            <AmenityCard>
-              <AmenityIcon>
+        <StyledCard>
+          <StyledSectionTitle>{t('detail.nearbyAmenities')}</StyledSectionTitle>
+          <StyledAmenityGrid>
+            <StyledAmenityCard>
+              <StyledAmenityIcon>
                 <IconMap size={24} />
-              </AmenityIcon>
-              <AmenityContent>
-                <AmenityTitle>{t('detail.schools')}</AmenityTitle>
-                <AmenityList>
+              </StyledAmenityIcon>
+              <StyledAmenityContent>
+                <StyledAmenityTitle>{t('detail.schools')}</StyledAmenityTitle>
+                <StyledAmenityList>
                   Trường THPT Chu Văn An (500m)
                   <br />
                   Trường TH Đoàn Thị Điểm (800m)
-                </AmenityList>
-              </AmenityContent>
-            </AmenityCard>
-            <AmenityCard>
-              <AmenityIcon>
+                </StyledAmenityList>
+              </StyledAmenityContent>
+            </StyledAmenityCard>
+            <StyledAmenityCard>
+              <StyledAmenityIcon>
                 <IconHeart size={24} />
-              </AmenityIcon>
-              <AmenityContent>
-                <AmenityTitle>{t('detail.hospitals')}</AmenityTitle>
-                <AmenityList>
+              </StyledAmenityIcon>
+              <StyledAmenityContent>
+                <StyledAmenityTitle>{t('detail.hospitals')}</StyledAmenityTitle>
+                <StyledAmenityList>
                   Bệnh viện Bạch Mai (1.2km)
                   <br />
                   Phòng khám Đa khoa (300m)
-                </AmenityList>
-              </AmenityContent>
-            </AmenityCard>
-            <AmenityCard>
-              <AmenityIcon>
+                </StyledAmenityList>
+              </StyledAmenityContent>
+            </StyledAmenityCard>
+            <StyledAmenityCard>
+              <StyledAmenityIcon>
                 <IconMap size={24} />
-              </AmenityIcon>
-              <AmenityContent>
-                <AmenityTitle>{t('detail.markets')}</AmenityTitle>
-                <AmenityList>
+              </StyledAmenityIcon>
+              <StyledAmenityContent>
+                <StyledAmenityTitle>{t('detail.markets')}</StyledAmenityTitle>
+                <StyledAmenityList>
                   Siêu thị Vinmart (200m)
                   <br />
                   Chợ Hôm (600m)
-                </AmenityList>
-              </AmenityContent>
-            </AmenityCard>
-            <AmenityCard>
-              <AmenityIcon>
+                </StyledAmenityList>
+              </StyledAmenityContent>
+            </StyledAmenityCard>
+            <StyledAmenityCard>
+              <StyledAmenityIcon>
                 <IconMap size={24} />
-              </AmenityIcon>
-              <AmenityContent>
-                <AmenityTitle>{t('detail.parks')}</AmenityTitle>
-                <AmenityList>
+              </StyledAmenityIcon>
+              <StyledAmenityContent>
+                <StyledAmenityTitle>{t('detail.parks')}</StyledAmenityTitle>
+                <StyledAmenityList>
                   Công viên Thống Nhất (1km)
                   <br />
                   Hồ Hoàng Cầu (400m)
-                </AmenityList>
-              </AmenityContent>
-            </AmenityCard>
-          </AmenityGrid>
-        </Card>
+                </StyledAmenityList>
+              </StyledAmenityContent>
+            </StyledAmenityCard>
+          </StyledAmenityGrid>
+        </StyledCard>
 
         {/* Contact Seller */}
-        <ContactCard>
-          <SectionTitle>{t('detail.contactSeller')}</SectionTitle>
-          <ContactButton onClick={() => setShowInquiryForm(!showInquiryForm)}>
+        <StyledContactCard>
+          <StyledSectionTitle>{t('detail.contactSeller')}</StyledSectionTitle>
+          <StyledContactButton
+            onClick={() => setShowInquiryForm(!showInquiryForm)}
+          >
             {t('detail.sendInquiry')}
-          </ContactButton>
-          <SellerInfo>
-            <SellerAvatar>{getInitials(listing.sellerName)}</SellerAvatar>
-            <SellerDetails>
-              <SellerName>{listing.sellerName}</SellerName>
-              <SellerLabel>{t('detail.propertyOwner')}</SellerLabel>
-            </SellerDetails>
-          </SellerInfo>
-          <ContactInfo>
-            <ContactItem>
+          </StyledContactButton>
+          <StyledSellerInfo>
+            <StyledSellerAvatar>
+              {getInitials(listing.sellerName)}
+            </StyledSellerAvatar>
+            <StyledSellerDetails>
+              <StyledSellerName>{listing.sellerName}</StyledSellerName>
+              <StyledSellerLabel>{t('detail.propertyOwner')}</StyledSellerLabel>
+            </StyledSellerDetails>
+          </StyledSellerInfo>
+          <StyledContactInfo>
+            <StyledContactItem>
               <IconPhone size={18} />
               <span>0903 469 ***</span>
-            </ContactItem>
-            <ContactItem>
+            </StyledContactItem>
+            <StyledContactItem>
               <IconMail size={18} />
               <span>
                 {listing.sellerName.toLowerCase().replace(' ', '.')}@example.com
               </span>
-            </ContactItem>
-          </ContactInfo>
-        </ContactCard>
+            </StyledContactItem>
+          </StyledContactInfo>
+        </StyledContactCard>
 
         {/* Related Listings */}
         {relatedListings.length > 0 && (
-          <Card>
-            <SectionTitle>{t('detail.relatedListings')}</SectionTitle>
-            <RelatedGrid>
+          <StyledCard>
+            <StyledSectionTitle>
+              {t('detail.relatedListings')}
+            </StyledSectionTitle>
+            <StyledRelatedGrid>
               {relatedListings.map((related) => (
-                <RelatedCard key={related.id}>
-                  <RelatedImage>
+                <StyledRelatedCard key={related.id}>
+                  <StyledRelatedImage>
                     {related.images[0] && (
-                      <RelatedImageTag
+                      <StyledRelatedImageTag
                         src={related.images[0]}
                         alt={related.title}
                       />
                     )}
-                  </RelatedImage>
-                  <RelatedContent>
-                    <RelatedTitle>{related.title}</RelatedTitle>
-                    <RelatedPrice>{formatPrice(related.price)}</RelatedPrice>
-                  </RelatedContent>
-                </RelatedCard>
+                  </StyledRelatedImage>
+                  <StyledRelatedContent>
+                    <StyledRelatedTitle>{related.title}</StyledRelatedTitle>
+                    <StyledRelatedPrice>
+                      {formatPrice(related.price)}
+                    </StyledRelatedPrice>
+                  </StyledRelatedContent>
+                </StyledRelatedCard>
               ))}
-            </RelatedGrid>
-          </Card>
+            </StyledRelatedGrid>
+          </StyledCard>
         )}
-      </MaxWidth>
+      </StyledMaxWidth>
 
       {/* Footer */}
       <MarketplaceFooter />
-    </Container>
+    </StyledContainer>
   );
 };

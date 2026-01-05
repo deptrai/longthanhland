@@ -1,4 +1,10 @@
-import type { DashboardStats, Project, ProjectFile, Property, RecentProperty } from '../types';
+import type {
+  DashboardStats,
+  Project,
+  ProjectFile,
+  Property,
+  RecentProperty,
+} from '../types';
 
 export const mockProjects: Project[] = [
   {
@@ -10,7 +16,8 @@ export const mockProjects: Project[] = [
     totalProperties: 500,
     availableProperties: 245,
     priceFrom: 2500000000,
-    imageUrl: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800&h=400&fit=crop',
+    imageUrl:
+      'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800&h=400&fit=crop',
   },
   {
     id: '2',
@@ -21,7 +28,8 @@ export const mockProjects: Project[] = [
     totalProperties: 200,
     availableProperties: 89,
     priceFrom: 3800000000,
-    imageUrl: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&h=400&fit=crop',
+    imageUrl:
+      'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&h=400&fit=crop',
   },
   {
     id: '3',
@@ -32,7 +40,8 @@ export const mockProjects: Project[] = [
     totalProperties: 300,
     availableProperties: 300,
     priceFrom: 1800000000,
-    imageUrl: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&h=400&fit=crop',
+    imageUrl:
+      'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&h=400&fit=crop',
   },
 ];
 
@@ -143,7 +152,10 @@ export const mockDashboardStats: DashboardStats = {
   soldPercentage: 44,
 };
 
-export const mockRecentProperties: RecentProperty[] = mockProperties.slice(0, 4);
+export const mockRecentProperties: RecentProperty[] = mockProperties.slice(
+  0,
+  4,
+);
 
 export const mockProjectFiles: ProjectFile[] = [
   {

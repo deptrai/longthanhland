@@ -188,16 +188,15 @@ export const LoginPage = () => {
     }, 1000);
   };
 
-  const handleChange = (field: string) => (
-    e: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    const value = field === 'rememberMe' ? e.target.checked : e.target.value;
-    setFormData((prev) => ({ ...prev, [field]: value }));
-    // Clear error when user starts typing
-    if (errors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: '' }));
-    }
-  };
+  const handleChange =
+    (field: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = field === 'rememberMe' ? e.target.checked : e.target.value;
+      setFormData((prev) => ({ ...prev, [field]: value }));
+      // Clear error when user starts typing
+      if (errors[field]) {
+        setErrors((prev) => ({ ...prev, [field]: '' }));
+      }
+    };
 
   return (
     <Container>

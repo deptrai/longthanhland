@@ -1,7 +1,15 @@
 import styled from '@emotion/styled';
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { IconBuilding, IconMail, IconMap, IconPhone, IconSchool, IconShoppingCart, IconTree } from 'twenty-ui/display';
+import {
+  IconBuilding,
+  IconMail,
+  IconMap,
+  IconPhone,
+  IconSchool,
+  IconShoppingCart,
+  IconTree,
+} from 'twenty-ui/display';
 import { EnhancedTrustScore } from '../components/EnhancedTrustScore';
 import { mockPublicListings } from '../data/mock-data';
 import { useLanguage } from '../i18n/LanguageContext';
@@ -47,10 +55,10 @@ const HeroContent = styled.div`
 `;
 
 const Title = styled.h1`
+  color: white;
   font-size: 2.5rem;
   font-weight: 700;
   margin-bottom: 0.5rem;
-  color: white;
 `;
 
 const LocationText = styled.div`
@@ -115,11 +123,11 @@ const SpecGrid = styled.div`
 `;
 
 const SpecItem = styled.div`
+  background-color: ${({ theme }) => theme.background.tertiary};
+  border-radius: 8px;
   display: flex;
   justify-content: space-between;
   padding: 1rem;
-  background-color: ${({ theme }) => theme.background.tertiary};
-  border-radius: 8px;
 `;
 
 const SpecLabel = styled.span`
@@ -140,12 +148,12 @@ const AmenityGrid = styled.div`
 `;
 
 const AmenityCard = styled.div`
-  display: flex;
   align-items: flex-start;
-  gap: 1rem;
-  padding: 1rem;
   background-color: ${({ theme }) => theme.background.tertiary};
   border-radius: 8px;
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
 `;
 
 const AmenityIcon = styled.div`
@@ -236,11 +244,11 @@ const ContactInfo = styled.div`
 `;
 
 const ContactItem = styled.div`
-  display: flex;
   align-items: center;
-  gap: 0.75rem;
   color: ${({ theme }) => theme.font.color.secondary};
+  display: flex;
   font-size: 0.9375rem;
+  gap: 0.75rem;
 `;
 
 const RelatedGrid = styled.div`
@@ -269,9 +277,9 @@ const RelatedImage = styled.div`
 `;
 
 const RelatedImageTag = styled.img`
-  width: 100%;
   height: 100%;
   object-fit: cover;
+  width: 100%;
 `;
 
 const RelatedContent = styled.div`
@@ -279,10 +287,10 @@ const RelatedContent = styled.div`
 `;
 
 const RelatedTitle = styled.div`
-  font-weight: 600;
   color: ${({ theme }) => theme.font.color.primary};
-  margin-bottom: 0.5rem;
   font-size: 0.9375rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
 `;
 
 const RelatedPrice = styled.div`
@@ -315,14 +323,17 @@ export const EnhancedListingDetailPage = () => {
         <MaxWidth>
           <Card>
             <Title>Listing not found</Title>
-            <Description>The listing you're looking for doesn't exist.</Description>
+            <Description>
+              The listing you're looking for doesn't exist.
+            </Description>
           </Card>
         </MaxWidth>
       </Container>
     );
   }
 
-  const { score: trustScore, breakdown: trustBreakdown } = calculateTrustScore(listing);
+  const { score: trustScore, breakdown: trustBreakdown } =
+    calculateTrustScore(listing);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('vi-VN', {
@@ -343,14 +354,18 @@ export const EnhancedListingDetailPage = () => {
 
   // Mock related listings
   const relatedListings = mockPublicListings
-    .filter((l) => l.id !== listing.id && l.propertyType === listing.propertyType)
+    .filter(
+      (l) => l.id !== listing.id && l.propertyType === listing.propertyType,
+    )
     .slice(0, 3);
 
   return (
     <Container>
       <MaxWidth>
         <HeroImage>
-          {listing.images[0] && <Image src={listing.images[0]} alt={listing.title} />}
+          {listing.images[0] && (
+            <Image src={listing.images[0]} alt={listing.title} />
+          )}
           <Overlay />
           <HeroContent>
             <Title>{listing.title}</Title>
@@ -428,7 +443,9 @@ export const EnhancedListingDetailPage = () => {
           </Description>
           <MapPlaceholder>
             <IconMap size={48} />
-            <span style={{ marginLeft: '1rem' }}>{t('detail.map')} - Coming Soon</span>
+            <span style={{ marginLeft: '1rem' }}>
+              {t('detail.map')} - Coming Soon
+            </span>
           </MapPlaceholder>
         </Card>
 
@@ -511,7 +528,9 @@ export const EnhancedListingDetailPage = () => {
             </ContactItem>
             <ContactItem>
               <IconMail size={18} />
-              <span>{listing.sellerName.toLowerCase().replace(' ', '.')}@example.com</span>
+              <span>
+                {listing.sellerName.toLowerCase().replace(' ', '.')}@example.com
+              </span>
             </ContactItem>
           </ContactInfo>
         </ContactCard>
@@ -525,7 +544,10 @@ export const EnhancedListingDetailPage = () => {
                 <RelatedCard key={related.id}>
                   <RelatedImage>
                     {related.images[0] && (
-                      <RelatedImageTag src={related.images[0]} alt={related.title} />
+                      <RelatedImageTag
+                        src={related.images[0]}
+                        alt={related.title}
+                      />
                     )}
                   </RelatedImage>
                   <RelatedContent>

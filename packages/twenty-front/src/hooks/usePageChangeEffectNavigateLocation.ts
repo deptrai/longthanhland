@@ -43,6 +43,13 @@ export const usePageChangeEffectNavigateLocation = () => {
     AppPath.BookCallDecision,
     AppPath.BookCall,
   ];
+  const publicMarketplacePaths = [
+    '/marketplace',
+    '/marketplace/browse',
+    '/marketplace/listings',
+    '/marketplace/register',
+    '/marketplace/login',
+  ];
 
   const objectNamePlural = useParams().objectNamePlural ?? '';
   const objectMetadataItems = useRecoilValue(objectMetadataItemsState);
@@ -51,12 +58,17 @@ export const usePageChangeEffectNavigateLocation = () => {
   );
   const verifyEmailRedirectPath = useRecoilValue(verifyEmailRedirectPathState);
 
+  const isPublicMarketplacePath = publicMarketplacePaths.some((path) =>
+    location.pathname.startsWith(path),
+  );
+
   if (
     (!isLoggedIn || (isLoggedIn && !isOnAWorkspace)) &&
     !someMatchingLocationOf([
       ...onGoingUserCreationPaths,
       AppPath.ResetPassword,
-    ])
+    ]) &&
+    !isPublicMarketplacePath
   ) {
     return AppPath.SignInUp;
   }

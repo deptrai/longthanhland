@@ -1,11 +1,11 @@
 import styled from '@emotion/styled';
 import { useLingui } from '@lingui/react/macro';
 import type {
-    ExecutiveStats,
-    Leaderboard,
-    PipelineHealth,
-    ProjectPerformance,
-    RevenueTrendPoint,
+  ExecutiveStats,
+  Leaderboard,
+  PipelineHealth,
+  ProjectPerformance,
+  RevenueTrendPoint,
 } from '../data/executive-mock';
 
 const StyledContainer = styled.div`

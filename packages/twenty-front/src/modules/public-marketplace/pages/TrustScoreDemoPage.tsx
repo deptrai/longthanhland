@@ -21,10 +21,10 @@ const Title = styled.h1`
 `;
 
 const Description = styled.p`
-  font-size: 1rem;
   color: ${({ theme }) => theme.font.color.secondary};
-  margin-bottom: 2rem;
+  font-size: 1rem;
   line-height: 1.6;
+  margin-bottom: 2rem;
 `;
 
 const DemoSection = styled.div`
@@ -44,12 +44,15 @@ export const TrustScoreDemoPage = () => {
       <MaxWidth>
         <Title>🎯 Enhanced Trust Score System Demo</Title>
         <Description>
-          Hệ thống đánh giá Trust Score nâng cao với 10 tiêu chí (tăng từ 6 tiêu chí ban đầu),
-          bao gồm 7 tiêu chí mới được powered by AI để đánh giá bất động sản toàn diện hơn.
+          Hệ thống đánh giá Trust Score nâng cao với 10 tiêu chí (tăng từ 6 tiêu
+          chí ban đầu), bao gồm 7 tiêu chí mới được powered by AI để đánh giá
+          bất động sản toàn diện hơn.
         </Description>
 
         <DemoSection>
-          <SectionTitle>Listing 1: Premium Property (96/100 - Excellent Trust)</SectionTitle>
+          <SectionTitle>
+            Listing 1: Premium Property (96/100 - Excellent Trust)
+          </SectionTitle>
           <EnhancedTrustScore
             score={96}
             breakdown={enhancedTrustScoreBreakdowns['listing-1']}
@@ -57,7 +60,9 @@ export const TrustScoreDemoPage = () => {
         </DemoSection>
 
         <DemoSection>
-          <SectionTitle>Listing 2: Standard Property (79/100 - Good Trust)</SectionTitle>
+          <SectionTitle>
+            Listing 2: Standard Property (79/100 - Good Trust)
+          </SectionTitle>
           <EnhancedTrustScore
             score={79}
             breakdown={enhancedTrustScoreBreakdowns['listing-2']}
@@ -65,7 +70,9 @@ export const TrustScoreDemoPage = () => {
         </DemoSection>
 
         <DemoSection>
-          <SectionTitle>Listing 3: Luxury Property (98/100 - Excellent Trust)</SectionTitle>
+          <SectionTitle>
+            Listing 3: Luxury Property (98/100 - Excellent Trust)
+          </SectionTitle>
           <EnhancedTrustScore
             score={98}
             breakdown={enhancedTrustScoreBreakdowns['listing-3']}
