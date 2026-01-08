@@ -195,34 +195,33 @@ export default function HomePage() {
 
                     <div className="space-y-8">
                         <FadeIn>
-                            <FadeIn>
-                                <span className="text-accent-gold font-bold tracking-widest uppercase">Thiên Nhiên và Công Nghệ được ứng dụng</span>
-                                <h2 className="font-serif text-4xl lg:text-5xl font-bold leading-tight mt-2">Khu Vườn Trong Túi Bạn</h2>
-                            </FadeIn>
-                            <FadeIn delay={0.2}>
-                                <p className="text-xl text-brand-100/90 font-light">&ldquo;Đây không phải dự án trên giấy. Đây là sự sống thật, đang sinh sôi và được theo dõi, giám sát thông qua công nghệ.&rdquo;</p>
-                            </FadeIn>
+                            <span className="text-accent-gold font-bold tracking-widest uppercase">Thiên Nhiên và Công Nghệ được ứng dụng</span>
+                            <h2 className="font-serif text-4xl lg:text-5xl font-bold leading-tight mt-2">Khu Vườn Trong Túi Bạn</h2>
+                        </FadeIn>
+                        <FadeIn delay={0.2}>
+                            <p className="text-xl text-brand-100/90 font-light">&ldquo;Đây không phải dự án trên giấy. Đây là sự sống thật, đang sinh sôi và được theo dõi, giám sát thông qua công nghệ.&rdquo;</p>
+                        </FadeIn>
 
-                            <StaggerContainer className="space-y-4">
-                                {[
-                                    'Bản đồ vệ tinh vị trí cây chính xác',
-                                    'Hệ thống camera/ drone trực tiếp cập nhật hình ảnh',
-                                    'Chỉ số CO2 hấp thụ & sự phát triển của cây'
-                                ].map((item, index) => (
-                                    <StaggerItem key={index} className="flex items-center gap-4">
-                                        <span className="w-8 h-8 rounded-full bg-brand-500 flex items-center justify-center shadow-lg shadow-brand-500/50">✓</span>
-                                        <span className="text-lg">{item}</span>
-                                    </StaggerItem>
-                                ))}
-                            </StaggerContainer>
+                        <StaggerContainer className="space-y-4">
+                            {[
+                                'Bản đồ vệ tinh vị trí cây chính xác',
+                                'Hệ thống camera/ drone trực tiếp cập nhật hình ảnh',
+                                'Chỉ số CO2 hấp thụ & sự phát triển của cây'
+                            ].map((item, index) => (
+                                <StaggerItem key={index} className="flex items-center gap-4">
+                                    <span className="w-8 h-8 rounded-full bg-brand-500 flex items-center justify-center shadow-lg shadow-brand-500/50">✓</span>
+                                    <span className="text-lg">{item}</span>
+                                </StaggerItem>
+                            ))}
+                        </StaggerContainer>
 
-                            <FadeIn delay={0.6}>
-                                <ScaleHover>
-                                    <button className="bg-white text-brand-900 px-8 py-3 rounded-full font-bold hover:bg-brand-50 transition-colors mt-4 shadow-lg hover:shadow-white/20">
-                                        Xem Vườn Trồng Tập Trung
-                                    </button>
-                                </ScaleHover>
-                            </FadeIn>
+                        <FadeIn delay={0.6}>
+                            <ScaleHover>
+                                <button className="bg-white text-brand-900 px-8 py-3 rounded-full font-bold hover:bg-brand-50 transition-colors mt-4 shadow-lg hover:shadow-white/20">
+                                    Xem Vườn Trồng Tập Trung
+                                </button>
+                            </ScaleHover>
+                        </FadeIn>
                     </div>
                 </div>
             </section>
@@ -326,4 +325,3 @@ export default function HomePage() {
         </main>
     )
 }
-```
