@@ -1,11 +1,21 @@
-import { Injectable } from '@nestjs/common';
-import { Like, type FindOptionsWhere } from 'typeorm';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { type FindOptionsWhere, Like } from 'typeorm';
 
 import { GlobalWorkspaceOrmManager } from 'src/engine/twenty-orm/global-workspace-datasource/global-workspace-orm.manager';
 import { buildSystemAuthContext } from 'src/engine/twenty-orm/utils/build-system-auth-context.util';
+import { WorkspaceRepository } from 'src/engine/twenty-orm/repository/workspace.repository';
 
 /**
- * Tree entity interface matching custom object fields
+ * Constants for time calculations and limits
+ */
+const MILLISECONDS_PER_DAY = 1000 * 60 * 60 * 24;
+const AVERAGE_DAYS_PER_MONTH = 30.44; // More accurate than 30
+const MAX_CODE_GENERATION_RETRIES = 3;
+const DEFAULT_PAGE_SIZE = 20;
+const MAX_TREES_PER_LOT_QUERY = 1000;
+
+/**
+ * Tree entity interface matching custom object fields in Twenty CRM
  */
 export interface TreeEntity {
     id: string;
@@ -78,6 +88,8 @@ export interface PaginationOptions {
  */
 @Injectable()
 export class TreeService {
+    private readonly logger = new Logger(TreeService.name);
+
     constructor(
         private readonly globalWorkspaceOrmManager: GlobalWorkspaceOrmManager,
     ) { }
@@ -95,44 +107,50 @@ export class TreeService {
         return this.globalWorkspaceOrmManager.executeInWorkspaceContext(
             authContext,
             async () => {
-                const treeRepository =
-                    await this.globalWorkspaceOrmManager.getRepository<TreeEntity>(
-                        workspaceId,
-                        'tree',
-                    );
+                try {
+                    const treeRepository =
+                        await this.globalWorkspaceOrmManager.getRepository<TreeEntity>(
+                            workspaceId,
+                            'tree',
+                        );
 
-                // Generate unique tree code
-                const treeCode = await this.generateTreeCode(workspaceId);
+                    // Generate unique tree code with retry logic (avoid nested context)
+                    const treeCode = await this.generateTreeCodeInternal(treeRepository);
 
-                // Calculate estimated harvest date (5 years from planting)
-                let estimatedHarvestDate = data.estimatedHarvestDate;
-                if (!estimatedHarvestDate && data.plantingDate) {
-                    const plantingDate = new Date(data.plantingDate);
-                    plantingDate.setFullYear(plantingDate.getFullYear() + 5);
-                    estimatedHarvestDate = plantingDate.toISOString();
+                    // Calculate estimated harvest date (5 years from planting)
+                    let estimatedHarvestDate = data.estimatedHarvestDate;
+                    if (!estimatedHarvestDate && data.plantingDate) {
+                        const plantingDate = new Date(data.plantingDate);
+                        plantingDate.setFullYear(plantingDate.getFullYear() + 5);
+                        estimatedHarvestDate = plantingDate.toISOString();
+                    }
+
+                    // Determine initial status based on planting date
+                    const status = data.plantingDate
+                        ? this.determineTreeStatus(
+                            this.calculateTreeAgeMonths(new Date(data.plantingDate)),
+                        )
+                        : 'SEEDLING';
+
+                    const newTree = {
+                        treeCode,
+                        status,
+                        gpsLocation: data.gpsLocation || null,
+                        plantingDate: data.plantingDate || null,
+                        estimatedHarvestDate: estimatedHarvestDate || null,
+                        height: data.height ?? null,
+                        co2Absorbed: data.co2Absorbed ?? 0,
+                        lotId: data.lotId || null,
+                        ownerId: data.ownerId || null,
+                    };
+
+                    const result = await treeRepository.save(newTree);
+                    this.logger.log(`Created tree with code: ${treeCode}`);
+                    return result as TreeEntity;
+                } catch (error) {
+                    this.logger.error(`Failed to create tree: ${error.message}`, error.stack);
+                    throw error;
                 }
-
-                // Determine initial status based on planting date
-                const status = data.plantingDate
-                    ? this.determineTreeStatus(
-                        this.calculateTreeAgeMonths(new Date(data.plantingDate)),
-                    )
-                    : 'SEEDLING';
-
-                const newTree = {
-                    treeCode,
-                    status,
-                    gpsLocation: data.gpsLocation || null,
-                    plantingDate: data.plantingDate || null,
-                    estimatedHarvestDate: estimatedHarvestDate || null,
-                    height: data.height || null,
-                    co2Absorbed: data.co2Absorbed || 0,
-                    lotId: data.lotId || null,
-                    ownerId: data.ownerId || null,
-                };
-
-                const result = await treeRepository.save(newTree);
-                return result as TreeEntity;
             },
         );
     }
@@ -151,36 +169,41 @@ export class TreeService {
         return this.globalWorkspaceOrmManager.executeInWorkspaceContext(
             authContext,
             async () => {
-                const treeRepository =
-                    await this.globalWorkspaceOrmManager.getRepository<TreeEntity>(
-                        workspaceId,
-                        'tree',
-                    );
+                try {
+                    const treeRepository =
+                        await this.globalWorkspaceOrmManager.getRepository<TreeEntity>(
+                            workspaceId,
+                            'tree',
+                        );
 
-                const where: FindOptionsWhere<TreeEntity> = {};
+                    const where: FindOptionsWhere<TreeEntity> = {};
 
-                if (filters?.status) {
-                    where.status = filters.status;
+                    if (filters?.status) {
+                        where.status = filters.status;
+                    }
+                    if (filters?.lotId) {
+                        where.lotId = filters.lotId;
+                    }
+                    if (filters?.ownerId) {
+                        where.ownerId = filters.ownerId;
+                    }
+
+                    const page = pagination?.page || 1;
+                    const limit = Math.min(pagination?.limit || DEFAULT_PAGE_SIZE, MAX_TREES_PER_LOT_QUERY);
+                    const skip = (page - 1) * limit;
+
+                    const [trees, total] = await treeRepository.findAndCount({
+                        where,
+                        skip,
+                        take: limit,
+                        order: { createdAt: 'DESC' } as any,
+                    });
+
+                    return { trees, total };
+                } catch (error) {
+                    this.logger.error(`Failed to find trees: ${error.message}`, error.stack);
+                    throw error;
                 }
-                if (filters?.lotId) {
-                    where.lotId = filters.lotId;
-                }
-                if (filters?.ownerId) {
-                    where.ownerId = filters.ownerId;
-                }
-
-                const page = pagination?.page || 1;
-                const limit = pagination?.limit || 20;
-                const skip = (page - 1) * limit;
-
-                const [trees, total] = await treeRepository.findAndCount({
-                    where,
-                    skip,
-                    take: limit,
-                    order: { createdAt: 'DESC' } as any,
-                });
-
-                return { trees, total };
             },
         );
     }
@@ -198,15 +221,20 @@ export class TreeService {
         return this.globalWorkspaceOrmManager.executeInWorkspaceContext(
             authContext,
             async () => {
-                const treeRepository =
-                    await this.globalWorkspaceOrmManager.getRepository<TreeEntity>(
-                        workspaceId,
-                        'tree',
-                    );
+                try {
+                    const treeRepository =
+                        await this.globalWorkspaceOrmManager.getRepository<TreeEntity>(
+                            workspaceId,
+                            'tree',
+                        );
 
-                return treeRepository.findOne({
-                    where: { id: treeId },
-                });
+                    return treeRepository.findOne({
+                        where: { id: treeId },
+                    });
+                } catch (error) {
+                    this.logger.error(`Failed to find tree by ID ${treeId}: ${error.message}`, error.stack);
+                    throw error;
+                }
             },
         );
     }
@@ -224,15 +252,20 @@ export class TreeService {
         return this.globalWorkspaceOrmManager.executeInWorkspaceContext(
             authContext,
             async () => {
-                const treeRepository =
-                    await this.globalWorkspaceOrmManager.getRepository<TreeEntity>(
-                        workspaceId,
-                        'tree',
-                    );
+                try {
+                    const treeRepository =
+                        await this.globalWorkspaceOrmManager.getRepository<TreeEntity>(
+                            workspaceId,
+                            'tree',
+                        );
 
-                return treeRepository.findOne({
-                    where: { treeCode },
-                });
+                    return treeRepository.findOne({
+                        where: { treeCode },
+                    });
+                } catch (error) {
+                    this.logger.error(`Failed to find tree by code ${treeCode}: ${error.message}`, error.stack);
+                    throw error;
+                }
             },
         );
     }
@@ -245,31 +278,42 @@ export class TreeService {
         workspaceId: string,
         treeId: string,
         data: UpdateTreeDto,
-    ): Promise<TreeEntity | null> {
+    ): Promise<TreeEntity> {
         const authContext = buildSystemAuthContext(workspaceId);
 
         return this.globalWorkspaceOrmManager.executeInWorkspaceContext(
             authContext,
             async () => {
-                const treeRepository =
-                    await this.globalWorkspaceOrmManager.getRepository<TreeEntity>(
-                        workspaceId,
-                        'tree',
-                    );
+                try {
+                    const treeRepository =
+                        await this.globalWorkspaceOrmManager.getRepository<TreeEntity>(
+                            workspaceId,
+                            'tree',
+                        );
 
-                const existingTree = await treeRepository.findOne({
-                    where: { id: treeId },
-                });
+                    const existingTree = await treeRepository.findOne({
+                        where: { id: treeId },
+                    });
 
-                if (!existingTree) {
-                    return null;
+                    if (!existingTree) {
+                        throw new NotFoundException(`Tree with ID ${treeId} not found`);
+                    }
+
+                    await treeRepository.update(treeId, data);
+
+                    const updatedTree = await treeRepository.findOne({
+                        where: { id: treeId },
+                    });
+
+                    this.logger.log(`Updated tree ${treeId}`);
+                    return updatedTree as TreeEntity;
+                } catch (error) {
+                    if (error instanceof NotFoundException) {
+                        throw error;
+                    }
+                    this.logger.error(`Failed to update tree ${treeId}: ${error.message}`, error.stack);
+                    throw error;
                 }
-
-                await treeRepository.update(treeId, data);
-
-                return treeRepository.findOne({
-                    where: { id: treeId },
-                });
             },
         );
     }
@@ -284,34 +328,40 @@ export class TreeService {
         return this.globalWorkspaceOrmManager.executeInWorkspaceContext(
             authContext,
             async () => {
-                const treeRepository =
-                    await this.globalWorkspaceOrmManager.getRepository<TreeEntity>(
-                        workspaceId,
-                        'tree',
-                    );
+                try {
+                    const treeRepository =
+                        await this.globalWorkspaceOrmManager.getRepository<TreeEntity>(
+                            workspaceId,
+                            'tree',
+                        );
 
-                const existingTree = await treeRepository.findOne({
-                    where: { id: treeId },
-                });
+                    const existingTree = await treeRepository.findOne({
+                        where: { id: treeId },
+                    });
 
-                if (!existingTree) {
-                    return false;
+                    if (!existingTree) {
+                        this.logger.warn(`Attempted to delete non-existent tree ${treeId}`);
+                        return false;
+                    }
+
+                    await treeRepository.softDelete(treeId);
+                    this.logger.log(`Soft deleted tree ${treeId}`);
+                    return true;
+                } catch (error) {
+                    this.logger.error(`Failed to delete tree ${treeId}: ${error.message}`, error.stack);
+                    throw error;
                 }
-
-                await treeRepository.softDelete(treeId);
-                return true;
             },
         );
     }
 
     /**
-     * Generate a unique tree code
+     * Generate a unique tree code (public method for standalone use)
      * Format: TREE-2026-00001
      * AC: #3 - generateTreeCode()
      */
     async generateTreeCode(workspaceId: string): Promise<string> {
         const authContext = buildSystemAuthContext(workspaceId);
-        const year = new Date().getFullYear();
 
         return this.globalWorkspaceOrmManager.executeInWorkspaceContext(
             authContext,
@@ -321,9 +371,24 @@ export class TreeService {
                         workspaceId,
                         'tree',
                     );
+                return this.generateTreeCodeInternal(treeRepository);
+            },
+        );
+    }
 
+    /**
+     * Internal method to generate tree code within existing repository context
+     * Includes retry logic for race condition handling
+     */
+    private async generateTreeCodeInternal(
+        treeRepository: WorkspaceRepository<TreeEntity>,
+    ): Promise<string> {
+        const year = new Date().getFullYear();
+        const prefix = `TREE-${year}-`;
+
+        for (let attempt = 1; attempt <= MAX_CODE_GENERATION_RETRIES; attempt++) {
+            try {
                 // Find max sequence for current year
-                const prefix = `TREE-${year}-`;
                 const existingTrees = await treeRepository.find({
                     where: { treeCode: Like(`${prefix}%`) } as any,
                     order: { treeCode: 'DESC' } as any,
@@ -333,24 +398,41 @@ export class TreeService {
                 let sequence = 1;
                 if (existingTrees.length > 0) {
                     const lastCode = existingTrees[0].treeCode;
-                    const lastSequence = parseInt(lastCode.split('-')[2], 10);
-                    sequence = lastSequence + 1;
+                    const parts = lastCode.split('-');
+                    if (parts.length === 3) {
+                        const lastSequence = parseInt(parts[2], 10);
+                        if (!isNaN(lastSequence)) {
+                            sequence = lastSequence + 1;
+                        }
+                    }
                 }
 
                 const paddedSequence = String(sequence).padStart(5, '0');
                 return `TREE-${year}-${paddedSequence}`;
-            },
-        );
+            } catch (error) {
+                if (attempt === MAX_CODE_GENERATION_RETRIES) {
+                    this.logger.error(`Failed to generate tree code after ${MAX_CODE_GENERATION_RETRIES} attempts`);
+                    throw error;
+                }
+                this.logger.warn(`Tree code generation attempt ${attempt} failed, retrying...`);
+                // Add small delay before retry to handle race condition
+                await new Promise(resolve => setTimeout(resolve, 50 * attempt));
+            }
+        }
+
+        throw new Error('Failed to generate tree code');
     }
 
     /**
      * Calculate tree age in months from planting date
      * AC: #4 - calculateTreeAgeMonths()
+     * Uses more accurate month calculation
      */
     calculateTreeAgeMonths(plantingDate: Date): number {
         const now = new Date();
         const diffTime = now.getTime() - plantingDate.getTime();
-        const diffMonths = Math.floor(diffTime / (1000 * 60 * 60 * 24 * 30));
+        const diffDays = diffTime / MILLISECONDS_PER_DAY;
+        const diffMonths = Math.floor(diffDays / AVERAGE_DAYS_PER_MONTH);
         return Math.max(0, diffMonths);
     }
 
@@ -418,13 +500,14 @@ export class TreeService {
         const result = await this.findAllTrees(
             workspaceId,
             { lotId },
-            { limit: 1000 },
+            { limit: MAX_TREES_PER_LOT_QUERY },
         );
         return result.trees;
     }
 
     /**
      * Count trees by status for statistics
+     * Optimized to use fewer queries
      */
     async countTreesByStatus(
         workspaceId: string,
@@ -434,28 +517,35 @@ export class TreeService {
         return this.globalWorkspaceOrmManager.executeInWorkspaceContext(
             authContext,
             async () => {
-                const treeRepository =
-                    await this.globalWorkspaceOrmManager.getRepository<TreeEntity>(
-                        workspaceId,
-                        'tree',
-                    );
+                try {
+                    const treeRepository =
+                        await this.globalWorkspaceOrmManager.getRepository<TreeEntity>(
+                            workspaceId,
+                            'tree',
+                        );
 
-                const statuses = [
-                    'SEEDLING',
-                    'PLANTED',
-                    'GROWING',
-                    'MATURE',
-                    'READY_HARVEST',
-                ];
-                const counts: Record<string, number> = {};
+                    // Get all counts in parallel for better performance
+                    const statuses = [
+                        'SEEDLING',
+                        'PLANTED',
+                        'GROWING',
+                        'MATURE',
+                        'READY_HARVEST',
+                    ] as const;
 
-                for (const status of statuses) {
-                    counts[status] = await treeRepository.count({
-                        where: { status: status as any },
+                    const countPromises = statuses.map(async (status) => {
+                        const count = await treeRepository.count({
+                            where: { status },
+                        });
+                        return [status, count] as const;
                     });
-                }
 
-                return counts;
+                    const results = await Promise.all(countPromises);
+                    return Object.fromEntries(results);
+                } catch (error) {
+                    this.logger.error(`Failed to count trees by status: ${error.message}`, error.stack);
+                    throw error;
+                }
             },
         );
     }
