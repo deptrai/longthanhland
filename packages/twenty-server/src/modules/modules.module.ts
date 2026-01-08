@@ -6,6 +6,7 @@ import { FavoriteFolderModule } from 'src/modules/favorite-folder/favorite-folde
 import { FavoriteModule } from 'src/modules/favorite/favorite.module';
 import { MessagingModule } from 'src/modules/messaging/messaging.module';
 import { WorkflowModule } from 'src/modules/workflow/workflow.module';
+import { DainganxanhModule } from 'src/modules/dainganxanh/dainganxanh.module';
 
 @Module({
   imports: [
@@ -15,8 +16,10 @@ import { WorkflowModule } from 'src/modules/workflow/workflow.module';
     WorkflowModule,
     FavoriteFolderModule,
     FavoriteModule,
+    DainganxanhModule, // Đại Ngàn Xanh tree planting platform
   ],
   providers: [],
   exports: [],
 })
-export class ModulesModule {}
+export class ModulesModule { }
+

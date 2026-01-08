@@ -73,18 +73,31 @@ export class BankingWebhookController {
     async handleBankingWebhook(
         @Body() payload: BankingWebhookDto,
         @Headers('x-webhook-signature') signature: string,
+        @Headers('x-request-id') requestId?: string,
     ): Promise<{ success: boolean; message: string }> {
-        // AC #8: Audit logging
+        // Generate correlation ID for request tracking
+        const correlationId = requestId || `wh-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+        // AC #8: Audit logging with correlation ID
         this.logger.log(
-            `[WEBHOOK] Received banking webhook: ${payload.transactionId}, amount: ${payload.amount}, bankCode: ${payload.bankCode}`,
+            `[WEBHOOK:${correlationId}] Received banking webhook: txn=${payload.transactionId}, amount=${payload.amount}, bank=${payload.bankCode}`,
         );
 
         try {
+            // VALIDATION: Check required payload fields
+            if (!payload.transactionId || !payload.amount || !payload.content) {
+                throw new BadRequestException('Missing required fields: transactionId, amount, or content');
+            }
+
+            // VALIDATION: Amount must be positive
+            if (payload.amount <= 0) {
+                throw new BadRequestException(`Invalid amount: ${payload.amount}. Must be positive.`);
+            }
+
             // AC #2: Verify HMAC signature
             const secretKey = process.env.BANKING_WEBHOOK_SECRET;
             if (!secretKey) {
-                this.logger.error('BANKING_WEBHOOK_SECRET not configured');
-                // Throw directly without wrapping to help tests
+                this.logger.error(`[WEBHOOK:${correlationId}] BANKING_WEBHOOK_SECRET not configured`);
                 throw new Error('Webhook secret not configured');
             }
 
@@ -96,7 +109,7 @@ export class BankingWebhookController {
 
             if (!isValid) {
                 this.logger.warn(
-                    `[WEBHOOK] Invalid signature for transaction ${payload.transactionId}`,
+                    `[WEBHOOK:${correlationId}] Invalid signature for transaction ${payload.transactionId}`,
                 );
                 throw new UnauthorizedException('Invalid signature');
             }
@@ -104,7 +117,7 @@ export class BankingWebhookController {
             // AC #7: Idempotency check - Check if transaction already processed
             const workspaceId = process.env.DEFAULT_WORKSPACE_ID;
             if (!workspaceId) {
-                this.logger.error('DEFAULT_WORKSPACE_ID not configured');
+                this.logger.error(`[WEBHOOK:${correlationId}] DEFAULT_WORKSPACE_ID not configured`);
                 throw new Error('Workspace ID not configured');
             }
 
@@ -115,7 +128,7 @@ export class BankingWebhookController {
 
             if (isProcessed) {
                 this.logger.log(
-                    `[WEBHOOK] Transaction ${payload.transactionId} already processed, ignoring duplicate`,
+                    `[WEBHOOK:${correlationId}] Transaction ${payload.transactionId} already processed, ignoring duplicate`,
                 );
                 return { success: true, message: 'Transaction already processed' };
             }
@@ -126,13 +139,13 @@ export class BankingWebhookController {
 
             if (!orderCode) {
                 this.logger.warn(
-                    `[WEBHOOK] Could not extract order code from content: ${payload.content}`,
+                    `[WEBHOOK:${correlationId}] Could not extract order code from content: "${payload.content}"`,
                 );
-                throw new BadRequestException('Order code not found in content');
+                throw new BadRequestException(`Order code not found in content: "${payload.content}"`);
             }
 
             this.logger.log(
-                `[WEBHOOK] Processing payment for order ${orderCode}, amount: ${payload.amount}`,
+                `[WEBHOOK:${correlationId}] Processing payment for order ${orderCode}, txn=${payload.transactionId}`,
             );
 
             // Validate order exists
@@ -142,7 +155,7 @@ export class BankingWebhookController {
             );
 
             if (!order) {
-                this.logger.warn(`[WEBHOOK] Order ${orderCode} not found`);
+                this.logger.warn(`[WEBHOOK:${correlationId}] Order ${orderCode} not found`);
                 throw new NotFoundException(`Order ${orderCode} not found`);
             }
 
@@ -155,7 +168,7 @@ export class BankingWebhookController {
 
             if (!isValidAmount) {
                 this.logger.warn(
-                    `[WEBHOOK] Amount mismatch for order ${orderCode}: paid ${payload.amount}, expected ${order.totalAmount}`,
+                    `[WEBHOOK:${correlationId}] Amount mismatch for order ${orderCode}: paid ${payload.amount}, expected ${order.totalAmount}`,
                 );
                 throw new BadRequestException(
                     `Amount mismatch: paid ${payload.amount}, expected ${order.totalAmount}`,
@@ -176,11 +189,11 @@ export class BankingWebhookController {
             );
 
             this.logger.log(
-                `[WEBHOOK] Order ${orderCode} marked as VERIFIED, transactionId: ${payload.transactionId}`,
+                `[WEBHOOK:${correlationId}] Order ${orderCode} marked as VERIFIED, transactionId: ${payload.transactionId}`,
             );
 
             // AC #6: Trigger post-payment workflow
-            await this.triggerPostPaymentWorkflow(workspaceId, updatedOrder);
+            await this.triggerPostPaymentWorkflow(workspaceId, updatedOrder, correlationId);
 
             return { success: true, message: 'Payment processed successfully' };
         } catch (error) {
@@ -214,15 +227,19 @@ export class BankingWebhookController {
      * - Generate tree codes for order quantity
      * - Send confirmation email (placeholder)
      * - Generate PDF contract (placeholder)
+     * 
+     * NOTE: This is NOT atomic with order update. If tree generation fails,
+     * order is already marked PAID. Recovery: Manual tree generation or retry mechanism.
      */
     private async triggerPostPaymentWorkflow(
         workspaceId: string,
         order: any,
+        correlationId: string,
     ): Promise<void> {
         try {
             // Generate N tree codes for order quantity
             this.logger.log(
-                `[WORKFLOW] Generating ${order.quantity} tree codes for order ${order.orderCode}`,
+                `[WORKFLOW:${correlationId}] Generating ${order.quantity} tree codes for order ${order.orderCode}`,
             );
 
             const generatedCodes: string[] = [];
@@ -230,7 +247,7 @@ export class BankingWebhookController {
                 const treeCode = await this.treeService.generateTreeCode(workspaceId);
                 generatedCodes.push(treeCode);
                 this.logger.log(
-                    `[WORKFLOW] Generated tree code ${i + 1}/${order.quantity}: ${treeCode}`,
+                    `[WORKFLOW:${correlationId}] Generated tree code ${i + 1}/${order.quantity}: ${treeCode}`,
                 );
             }
 
@@ -239,22 +256,22 @@ export class BankingWebhookController {
 
             // [PLACEHOLDER] Send confirmation email
             this.logger.log(
-                `[WORKFLOW] TODO: Send confirmation email for order ${order.orderCode} with ${generatedCodes.length} tree codes`,
+                `[WORKFLOW:${correlationId}] TODO: Send confirmation email for order ${order.orderCode} with ${generatedCodes.length} tree codes`,
             );
 
             // [PLACEHOLDER] Generate PDF contract
             this.logger.log(
-                `[WORKFLOW] TODO: Queue PDF contract generation for order ${order.orderCode}`,
+                `[WORKFLOW:${correlationId}] TODO: Queue PDF contract generation for order ${order.orderCode}`,
             );
 
             this.logger.log(
-                `[WORKFLOW] Post-payment workflow completed for order ${order.orderCode}`,
+                `[WORKFLOW:${correlationId}] Post-payment workflow completed for order ${order.orderCode}`,
             );
         } catch (error) {
             // Log but don't fail webhook if post-payment workflow fails
-            // These can be retried separately
+            // These can be retried separately or recovered manually
             this.logger.error(
-                `[WORKFLOW] Error in post-payment workflow for order ${order.orderCode}: ${error.message}`,
+                `[WORKFLOW:${correlationId}] Error in post-payment workflow for order ${order.orderCode}: ${error.message}`,
                 error.stack,
             );
         }
