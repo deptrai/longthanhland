@@ -9,11 +9,14 @@ import {
     BadRequestException,
     NotFoundException,
     UnauthorizedException,
+    UseGuards,
 } from '@nestjs/common';
 
 import { BankingService } from '../services/banking.service';
 import { OrderService } from '../../order-management/services/order.service';
 import { TreeService } from '../../tree-tracking/services/tree.service';
+import { TreeGenerationRetryService } from '../services/tree-generation-retry.service';
+import { IpWhitelistGuard } from '../guards/ip-whitelist.guard';
 
 export interface BankingWebhookDto {
     transactionId: string;
@@ -33,9 +36,9 @@ export interface BankingWebhookDto {
  * 
  * Security:
  * - HMAC SHA256 signature verification
- * - IP whitelist validation (via middleware) - DEFERRED
+ * - IP whitelist validation (configurable via ENABLE_IP_WHITELIST)
  * - Idempotency check by transactionId
- * - Audit logging
+ * - Audit logging with correlation ID
  * 
  * Flow:
  * 1. Verify signature
@@ -43,8 +46,9 @@ export interface BankingWebhookDto {
  * 3. Extract order code from content
  * 4. Validate order exists and amount matches
  * 5. Update order payment status
- * 6. Trigger post-payment workflow (tree generation, email, PDF)
+ * 6. Trigger post-payment workflow (tree generation with retry)
  */
+@UseGuards(IpWhitelistGuard)
 @Controller('webhooks/banking')
 export class BankingWebhookController {
     private readonly logger = new Logger(BankingWebhookController.name);
@@ -53,6 +57,7 @@ export class BankingWebhookController {
         private readonly bankingService: BankingService,
         private readonly orderService: OrderService,
         private readonly treeService: TreeService,
+        private readonly retryService: TreeGenerationRetryService,
     ) { }
 
     /**
@@ -224,12 +229,14 @@ export class BankingWebhookController {
 
     /**
      * AC #6: Post-payment workflow
-     * - Generate tree codes for order quantity
+     * - Generate tree codes for order quantity (with retry + monitoring)
      * - Send confirmation email (placeholder)
      * - Generate PDF contract (placeholder)
      * 
-     * NOTE: This is NOT atomic with order update. If tree generation fails,
-     * order is already marked PAID. Recovery: Manual tree generation or retry mechanism.
+     * Uses TreeGenerationRetryService for:
+     * - Exponential backoff retry (3 attempts)
+     * - Structured logging for monitoring/alerting
+     * - Partial success handling
      */
     private async triggerPostPaymentWorkflow(
         workspaceId: string,
@@ -237,26 +244,33 @@ export class BankingWebhookController {
         correlationId: string,
     ): Promise<void> {
         try {
-            // Generate N tree codes for order quantity
-            this.logger.log(
-                `[WORKFLOW:${correlationId}] Generating ${order.quantity} tree codes for order ${order.orderCode}`,
+            // Generate tree codes with retry support
+            const result = await this.retryService.generateTreeCodesWithRetry(
+                () => this.treeService.generateTreeCode(workspaceId),
+                order.quantity,
+                order.id,
+                correlationId,
             );
 
-            const generatedCodes: string[] = [];
-            for (let i = 0; i < order.quantity; i++) {
-                const treeCode = await this.treeService.generateTreeCode(workspaceId);
-                generatedCodes.push(treeCode);
-                this.logger.log(
-                    `[WORKFLOW:${correlationId}] Generated tree code ${i + 1}/${order.quantity}: ${treeCode}`,
-                );
+            if (!result.success) {
+                // Log alert-worthy event for monitoring
+                this.logger.error({
+                    event: 'POST_PAYMENT_PARTIAL_FAILURE',
+                    orderId: order.id,
+                    orderCode: order.orderCode,
+                    generatedCount: result.generated.length,
+                    failedCount: result.failed,
+                    correlationId,
+                    alertLevel: 'P1',
+                });
             }
 
             // TODO: Store tree codes association with order
-            // This will be handled in E3.2 or when creating Tree records
+            // This will be handled when creating Tree records
 
             // [PLACEHOLDER] Send confirmation email
             this.logger.log(
-                `[WORKFLOW:${correlationId}] TODO: Send confirmation email for order ${order.orderCode} with ${generatedCodes.length} tree codes`,
+                `[WORKFLOW:${correlationId}] TODO: Send confirmation email for order ${order.orderCode} with ${result.generated.length} tree codes`,
             );
 
             // [PLACEHOLDER] Generate PDF contract
@@ -265,15 +279,18 @@ export class BankingWebhookController {
             );
 
             this.logger.log(
-                `[WORKFLOW:${correlationId}] Post-payment workflow completed for order ${order.orderCode}`,
+                `[WORKFLOW:${correlationId}] Post-payment workflow completed for order ${order.orderCode} (${result.generated.length}/${order.quantity} trees)`,
             );
         } catch (error) {
             // Log but don't fail webhook if post-payment workflow fails
-            // These can be retried separately or recovered manually
-            this.logger.error(
-                `[WORKFLOW:${correlationId}] Error in post-payment workflow for order ${order.orderCode}: ${error.message}`,
-                error.stack,
-            );
+            this.logger.error({
+                event: 'POST_PAYMENT_WORKFLOW_ERROR',
+                orderId: order.id,
+                orderCode: order.orderCode,
+                correlationId,
+                error: error.message,
+                alertLevel: 'P0',
+            });
         }
     }
 }

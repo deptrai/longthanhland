@@ -9,6 +9,7 @@ import { BankingWebhookController, type BankingWebhookDto } from './banking-webh
 import { BankingService } from '../services/banking.service';
 import { OrderService, type OrderEntity } from '../../order-management/services/order.service';
 import { TreeService } from '../../tree-tracking/services/tree.service';
+import { TreeGenerationRetryService } from '../services/tree-generation-retry.service';
 
 describe('BankingWebhookController', () => {
     let controller: BankingWebhookController;
@@ -33,12 +34,25 @@ describe('BankingWebhookController', () => {
             generateTreeCode: jest.fn(),
         };
 
+        const mockRetryService = {
+            generateTreeCodesWithRetry: jest.fn().mockImplementation(
+                async (fn: () => Promise<string>, quantity: number) => {
+                    const generated = [];
+                    for (let i = 0; i < quantity; i++) {
+                        generated.push(await fn());
+                    }
+                    return { generated, failed: 0, success: true };
+                }
+            ),
+        };
+
         const module: TestingModule = await Test.createTestingModule({
             controllers: [BankingWebhookController],
             providers: [
                 { provide: BankingService, useValue: mockBankingService },
                 { provide: OrderService, useValue: mockOrderService },
                 { provide: TreeService, useValue: mockTreeService },
+                { provide: TreeGenerationRetryService, useValue: mockRetryService },
             ],
         }).compile();
 
