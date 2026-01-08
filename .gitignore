@@ -49,3 +49,8 @@ dump.rdb
 mcp.json
 /.junie/
 TRANSLATION_QA_REPORT.md
+
+# Đại Ngàn Xanh - Local development folders
+.local-storage/
+**/migrations/
+**/test/manual/
