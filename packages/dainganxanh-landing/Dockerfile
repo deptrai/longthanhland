@@ -1,3 +1,6 @@
+# Dockerfile for dainganxanh-landing Next.js app
+# Build from within /d/packages/dainganxanh-landing directory
+
 # Stage 1: Dependencies
 FROM node:20-alpine AS deps
 WORKDIR /app
