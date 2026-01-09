@@ -34,6 +34,7 @@ import { SyncEmails } from '~/pages/onboarding/SyncEmails';
 import { AdminOrdersPage } from '~/pages/admin/AdminOrdersPage';
 import { AdminLotsPage } from '~/pages/admin/AdminLotsPage';
 import { PhotoUploadPage } from '~/pages/admin/PhotoUploadPage';
+import { SharePage } from '~/pages/share/SharePage';
 
 export const useCreateAppRouter = (
   isFunctionSettingsEnabled?: boolean,
@@ -74,6 +75,7 @@ export const useCreateAppRouter = (
           <Route path="/trees" element={<Navigate to="/my-garden" replace />} />
           <Route path={AppPath.TreeDetail} element={<TreeDetailPage />} />
           <Route path={AppPath.Orders} element={<OrderHistoryPage />} />
+          <Route path={AppPath.Share} element={<SharePage />} />
           <Route
             path={AppPath.SettingsCatchAll}
             element={
