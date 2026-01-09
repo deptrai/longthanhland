@@ -3,7 +3,7 @@ import { LotController } from './lot.controller';
 import { LotService } from '../services/lot.service';
 
 // Mock JwtAuthGuard
-jest.mock('src/engine/guards/jwt.auth.guard', () => ({
+jest.mock('src/engine/guards/jwt-auth.guard', () => ({
     JwtAuthGuard: jest.fn().mockImplementation(() => ({
         canActivate: () => true,
     })),

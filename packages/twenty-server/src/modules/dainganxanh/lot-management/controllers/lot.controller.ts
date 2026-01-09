@@ -1,5 +1,5 @@
 import { Controller, Get, Patch, Param, Body, Req, UseGuards } from '@nestjs/common';
-import { JwtAuthGuard } from 'src/engine/guards/jwt.auth.guard';
+import { JwtAuthGuard } from 'src/engine/guards/jwt-auth.guard';
 import { LotService } from '../services/lot.service';
 
 @Controller('lots')
