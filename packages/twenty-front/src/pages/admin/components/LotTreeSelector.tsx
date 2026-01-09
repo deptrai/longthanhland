@@ -1,6 +1,7 @@
 import styled from '@emotion/styled';
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useAdminLots } from '../../../modules/dainganxanh/admin/hooks/useAdminLots';
+import { Tree } from '../../../modules/dainganxanh/admin/types/lot-management.types';
 
 const Container = styled.div`
     margin-bottom: 24px;
@@ -83,7 +84,7 @@ export const LotTreeSelector = ({
     onTreesChange,
 }: LotTreeSelectorProps) => {
     const { lots, loading } = useAdminLots();
-    const [trees, setTrees] = useState<any[]>([]);
+    const [trees, setTrees] = useState<Tree[]>([]);
 
     useEffect(() => {
         if (selectedLotId) {

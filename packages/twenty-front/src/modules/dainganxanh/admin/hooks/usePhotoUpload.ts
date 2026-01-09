@@ -18,11 +18,9 @@ export const usePhotoUpload = () => {
         const fileArray = Array.from(files);
         const validFiles = fileArray.filter((file) => {
             if (!isValidImageType(file)) {
-                console.warn(`Invalid file type: ${file.name}`);
                 return false;
             }
             if (!isValidImageSize(file)) {
-                console.warn(`File too large: ${file.name}`);
                 return false;
             }
             return true;
@@ -82,21 +80,55 @@ export const usePhotoUpload = () => {
         setError(null);
 
         try {
-            // TODO: Implement actual upload to backend
-            // For now, just simulate upload
-            for (const photo of photos) {
-                // Simulate progress
-                for (let progress = 0; progress <= 100; progress += 20) {
-                    updatePhoto(photo.id, { uploadProgress: progress });
-                    await new Promise((resolve) => setTimeout(resolve, 100));
-                }
+            const quarter = getQuarterString();
+
+            // Build payload for batch upload
+            const photoPayloads = photos.map((photo) => ({
+                photoUrl: photo.preview, // TODO: Replace with actual S3 URL after upload
+                thumbnailUrl: photo.preview,
+                capturedAt: photo.capturedAt || new Date().toISOString(),
+                gpsLat: photo.gpsLat,
+                gpsLng: photo.gpsLng,
+                quarter,
+                caption: photo.caption,
+                treeId: photo.treeIds?.[0] || '', // Use first tagged tree
+                isPlaceholder: false,
+            }));
+
+            // Update progress for each photo
+            for (let i = 0; i < photos.length; i++) {
+                updatePhoto(photos[i].id, { uploadProgress: 50 });
             }
 
+            // Call batch upload API
+            const response = await fetch('/photos/batch-upload', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ photos: photoPayloads }),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.message || 'Upload failed');
+            }
+
+            const result = await response.json();
+
+            // Mark all as complete
+            photos.forEach((photo) => {
+                updatePhoto(photo.id, { uploadProgress: 100 });
+                URL.revokeObjectURL(photo.preview);
+            });
+
             // Clear photos after successful upload
-            photos.forEach((photo) => URL.revokeObjectURL(photo.preview));
             setPhotos([]);
+
+            return result;
         } catch (err: any) {
             setError(err.message || 'Upload failed');
+            throw err;
         } finally {
             setUploading(false);
         }

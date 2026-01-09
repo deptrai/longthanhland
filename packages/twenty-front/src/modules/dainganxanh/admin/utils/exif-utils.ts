@@ -38,8 +38,7 @@ export async function extractExifData(file: File): Promise<ExifData> {
         }
 
         return result;
-    } catch (error) {
-        console.warn('Failed to extract EXIF data:', error);
+    } catch {
         return {};
     }
 }
