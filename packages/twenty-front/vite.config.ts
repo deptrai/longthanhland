@@ -95,19 +95,6 @@ export default defineConfig(({ command, mode }) => {
     },
 
     plugins: [
-      {
-        name: 'inject-env',
-        transformIndexHtml(html) {
-          const env = loadEnv(mode, process.cwd(), '');
-          const envConfig = JSON.stringify({
-            REACT_APP_SERVER_BASE_URL: env.REACT_APP_SERVER_BASE_URL || "http://localhost:3000",
-          });
-          return html.replace(
-            /window\._env_ = \{[^}]*\};/s,
-            `window._env_ = ${envConfig}; window.process = { env: {} };`
-          );
-        },
-      },
       react({
         jsxImportSource: '@emotion/react',
         tsDecorators: true,
@@ -121,7 +108,7 @@ export default defineConfig(({ command, mode }) => {
       lingui({
         configPath: path.resolve(__dirname, './lingui.config.ts'),
       }),
-      // checker(checkers),
+      checker(checkers),
       {
         ...wyw({
           include: [
@@ -173,16 +160,11 @@ export default defineConfig(({ command, mode }) => {
     ],
 
     optimizeDeps: {
-      include: ['twenty-shared'],
       exclude: [
         '../../node_modules/.vite',
         '../../node_modules/.cache',
         '../../node_modules/twenty-ui',
       ],
-    },
-
-    ssr: {
-      noExternal: ['twenty-shared'],
     },
 
     build: {
@@ -277,7 +259,9 @@ export default defineConfig(({ command, mode }) => {
     envPrefix: 'REACT_APP_',
 
     define: {
-      global: 'globalThis',
+      _env_: {
+        REACT_APP_SERVER_BASE_URL,
+      },
       'process.env': {
         REACT_APP_SERVER_BASE_URL,
         IS_DEBUG_MODE,
@@ -289,15 +273,8 @@ export default defineConfig(({ command, mode }) => {
       },
     },
     resolve: {
-      conditions: ['import', 'module', 'browser', 'default'],
-      mainFields: ['module', 'main'],
-      dedupe: ['twenty-shared'],
       alias: {
         path: 'rollup-plugin-node-polyfills/polyfills/path',
-        stream: 'rollup-plugin-node-polyfills/polyfills/stream',
-        util: 'rollup-plugin-node-polyfills/polyfills/util',
-        events: 'rollup-plugin-node-polyfills/polyfills/events',
-        buffer: 'rollup-plugin-node-polyfills/polyfills/buffer-es6',
         // https://github.com/twentyhq/twenty/pull/10782/files
         // This will likely be migrated to twenty-ui package when built separately
         '@tabler/icons-react': '@tabler/icons-react/dist/esm/icons/index.mjs',
