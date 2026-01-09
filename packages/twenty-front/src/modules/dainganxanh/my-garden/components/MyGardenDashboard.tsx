@@ -5,6 +5,7 @@ import { TreeCard, TreeStatus } from './TreeCard';
 import { TreeCardSkeleton } from './TreeCardSkeleton';
 import { EmptyGardenState } from './EmptyGardenState';
 import { useUserTrees } from '../hooks/useUserTrees';
+import { ReferralWidget } from '../../referral/components/ReferralWidget';
 
 const StyledDashboard = styled.div`
   padding: 24px;
@@ -170,6 +171,9 @@ export const MyGardenDashboard = () => {
           <StyledStatLabel>ngày tuổi TB</StyledStatLabel>
         </StyledStat>
       </StyledSummaryBar>
+
+      {/* Referral Widget */}
+      <ReferralWidget />
 
       <StyledControls>
         <StyledFilterTabs>

@@ -65,17 +65,29 @@ export class ReferralService {
         const maxAttempts = 10;
 
         while (attempts < maxAttempts) {
-            const exists = await this.referralRepository.findOne({
+            const codeExists = await this.referralRepository.findOne({
                 where: { referralCode: code },
             });
 
-            if (!exists) {
+            if (!codeExists) {
                 break;
             }
 
             code = this.generateReferralCode();
             attempts++;
         }
+
+        // CRITICAL FIX: Save the referral code to database
+        const referral = this.referralRepository.create({
+            referralCode: code,
+            referrerId: userId,
+            status: ReferralStatus.PENDING,
+            commission: 0,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+        });
+
+        await this.referralRepository.save(referral);
 
         return code;
     }
@@ -90,9 +102,24 @@ export class ReferralService {
     }
 
     /**
-     * Track new referral
+     * Track new referral (when referee arrives)
+     * Returns existing referral if already tracked
      */
     async trackReferral(data: CreateReferralDto): Promise<any> {
+        // CRITICAL FIX: Prevent self-referral at service level
+        if (data.referrerId === data.refereeId) {
+            throw new Error('Cannot refer yourself');
+        }
+
+        // Check if this referee was already referred
+        const existingReferral = await this.referralRepository.findOne({
+            where: { refereeId: data.refereeId },
+        });
+
+        if (existingReferral) {
+            return existingReferral; // Already tracked
+        }
+
         const referral = this.referralRepository.create({
             ...data,
             status: ReferralStatus.PENDING,
