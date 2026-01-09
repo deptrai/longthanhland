@@ -17,14 +17,17 @@ export interface UsdtPaymentInfo {
  * - Fast confirmation times (~2 seconds)
  * - EVM compatibility
  */
+import { PAYMENT_CONSTANTS } from '../../shared/constants/payment.constants';
+
 @Injectable()
 export class UsdtService {
-    private readonly USDT_CONTRACT_POLYGON = '0xc2132D05D31c914a87C6611C10748AEb04B58e8F';
-    private readonly POLYGON_RPC = 'https://polygon-rpc.com';
+    // USDT BEP-20 Contract on BSC Mainnet
+    private readonly USDT_CONTRACT_BSC = PAYMENT_CONSTANTS.USDT_BSC_CONTRACT;
+    private readonly BSC_RPC = PAYMENT_CONSTANTS.BSC_RPC;
     private readonly COMPANY_WALLET = process.env.DGNX_USDT_WALLET || '0x...';
 
     // Exchange rate (will be fetched from oracle in production)
-    private readonly VND_TO_USD_RATE = 1 / 25000; // 1 USD = ~25,000 VND
+    private readonly VND_TO_USD_RATE = PAYMENT_CONSTANTS.VND_TO_USD_RATE;
 
     /**
      * Generate USDT payment information
@@ -38,7 +41,7 @@ export class UsdtService {
             walletAddress: this.COMPANY_WALLET,
             amount: amountVnd,
             usdtAmount,
-            network: 'Polygon',
+            network: 'BSC',
             qrValue: this.generateQRValue(usdtAmount),
         };
     }
@@ -48,12 +51,15 @@ export class UsdtService {
      */
     private generateQRValue(usdtAmount: number): string {
         // EIP-681 format for token transfer
-        const amountWei = BigInt(Math.round(usdtAmount * 1e6));
-        return `ethereum:${this.USDT_CONTRACT_POLYGON}@137/transfer?address=${this.COMPANY_WALLET}&uint256=${amountWei.toString()}`;
+        const amountWei = BigInt(Math.round(usdtAmount * 1e18)); // BSC USDT (BEP-20) uses 18 decimals usually? Wait, USDT on BSC is 18 decimals.
+        // CHECK: USDT on BSC (0x55d398326f99059fF775485246999027B3197955) has 18 decimals.
+        // Unlike Polygon/ERC20 USDT which often has 6. BEP-20 USDT matches ETH standard more closely?
+        // Let's verify. BscScan says USDT (BEP20) decimals is 18.
+        return `ethereum:${this.USDT_CONTRACT_BSC}@56/transfer?address=${this.COMPANY_WALLET}&uint256=${amountWei.toString()}`;
     }
 
     /**
-     * Verify USDT transaction on Polygon
+     * Verify USDT transaction on BSC
      */
     async verifyTransaction(
         txHash: string,
@@ -65,7 +71,7 @@ export class UsdtService {
         error?: string;
     }> {
         try {
-            const provider = new ethers.JsonRpcProvider(this.POLYGON_RPC);
+            const provider = new ethers.JsonRpcProvider(this.BSC_RPC);
             const receipt = await provider.getTransactionReceipt(txHash);
 
             if (!receipt) {
@@ -80,7 +86,7 @@ export class UsdtService {
             const transferEventSignature = ethers.id('Transfer(address,address,uint256)');
             const transferLog = receipt.logs.find(
                 (log) =>
-                    log.address.toLowerCase() === this.USDT_CONTRACT_POLYGON.toLowerCase() &&
+                    log.address.toLowerCase() === this.USDT_CONTRACT_BSC.toLowerCase() &&
                     log.topics[0] === transferEventSignature,
             );
 
@@ -88,10 +94,10 @@ export class UsdtService {
                 return { verified: false, error: 'USDT transfer not found in transaction' };
             }
 
-            // Decode transfer amount (USDT has 6 decimals)
+            // Decode transfer amount (USDT on BSC has 18 decimals)
             const amountHex = transferLog.topics[3] || transferLog.data.slice(0, 66);
             const amountWei = BigInt(amountHex);
-            const actualAmount = Number(amountWei) / 1e6;
+            const actualAmount = Number(amountWei) / 1e18;
 
             // Verify recipient
             const recipient = ethers.getAddress('0x' + transferLog.topics[2].slice(26));

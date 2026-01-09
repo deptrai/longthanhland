@@ -5,6 +5,7 @@ import { PageContainer } from '@/ui/layout/page/components/PageContainer';
 import { useAdminLots } from '../../modules/dainganxanh/admin/hooks/useAdminLots';
 import { KanbanBoard } from './components/KanbanBoard';
 import { LotDetailsPanel } from './components/LotDetailsPanel';
+import { TreeLot } from '../../modules/dainganxanh/admin/types/lot-management.types';
 
 const Container = styled.div`
     padding: 24px;
@@ -27,7 +28,7 @@ const ErrorMessage = styled.div`
 
 export const AdminLotsPage = () => {
     const { lots, loading, error, reassignTree, assignOperator } = useAdminLots();
-    const [selectedLot, setSelectedLot] = useState<any | null>(null);
+    const [selectedLot, setSelectedLot] = useState<TreeLot | null>(null);
 
     const handleTreeMove = async (treeId: string, newLotId: string) => {
         try {

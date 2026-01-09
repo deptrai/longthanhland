@@ -1,6 +1,24 @@
 import styled from '@emotion/styled';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from 'twenty-ui/input';
+import { useQuery, gql } from '@apollo/client';
+import { TreeLot } from '../../../modules/dainganxanh/admin/types/lot-management.types';
+
+const GET_WORKSPACE_MEMBERS = gql`
+    query GetWorkspaceMembers {
+        workspaceMembers {
+            edges {
+                node {
+                    id
+                    name {
+                        firstName
+                        lastName
+                    }
+                }
+            }
+        }
+    }
+`;
 
 const Overlay = styled.div`
     position: fixed;
@@ -77,7 +95,7 @@ const ButtonGroup = styled.div`
 `;
 
 interface LotDetailsPanelProps {
-    lot: any;
+    lot: TreeLot;
     onClose: () => void;
     onAssignOperator: (lotId: string, operatorId: string) => Promise<void>;
 }
@@ -92,12 +110,13 @@ export const LotDetailsPanel = ({
     );
     const [saving, setSaving] = useState(false);
 
-    // Mock operators - in real implementation, fetch from GraphQL
-    const operators = [
-        { id: 'op1', name: 'Operator 1' },
-        { id: 'op2', name: 'Operator 2' },
-        { id: 'op3', name: 'Operator 3' },
-    ];
+    // Fetch workspace members from GraphQL
+    const { data: membersData, loading: loadingMembers } = useQuery(GET_WORKSPACE_MEMBERS);
+
+    const operators = membersData?.workspaceMembers?.edges?.map((edge: any) => ({
+        id: edge.node.id,
+        name: `${edge.node.name?.firstName || ''} ${edge.node.name?.lastName || ''}`.trim() || 'Unnamed',
+    })) || [];
 
     const handleSave = async () => {
         if (!selectedOperator) {

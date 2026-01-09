@@ -2,6 +2,7 @@ import styled from '@emotion/styled';
 import React from 'react';
 import { DndContext, DragEndEvent, closestCenter } from '@dnd-kit/core';
 import { LotColumn } from './LotColumn';
+import { TreeLot } from '../../../modules/dainganxanh/admin/types/lot-management.types';
 
 const BoardContainer = styled.div`
     display: flex;
@@ -12,9 +13,9 @@ const BoardContainer = styled.div`
 `;
 
 interface KanbanBoardProps {
-    lots: any[];
+    lots: TreeLot[];
     onTreeMove: (treeId: string, newLotId: string) => Promise<void>;
-    onLotClick: (lot: any) => void;
+    onLotClick: (lot: TreeLot) => void;
 }
 
 export const KanbanBoard = ({ lots, onTreeMove, onLotClick }: KanbanBoardProps) => {
@@ -29,7 +30,6 @@ export const KanbanBoard = ({ lots, onTreeMove, onLotClick }: KanbanBoardProps) 
         try {
             await onTreeMove(treeId, newLotId);
         } catch (error) {
-            console.error('Failed to move tree:', error);
             // Error handling is done in parent component
         }
     };

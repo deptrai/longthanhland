@@ -1,5 +1,44 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger, BadRequestException } from '@nestjs/common';
+import { FindOptionsWhere } from 'typeorm';
 import * as ExifReader from 'exifreader';
+
+import { GlobalWorkspaceOrmManager } from 'src/engine/twenty-orm/global-workspace-datasource/global-workspace-orm.manager';
+import { buildSystemAuthContext } from 'src/engine/twenty-orm/utils/build-system-auth-context.util';
+
+/**
+ * TreePhoto entity interface
+ */
+export interface TreePhotoEntity {
+    id: string;
+    photoUrl: string;
+    thumbnailUrl: string | null;
+    capturedAt: string;
+    gpsLat: number | null;
+    gpsLng: number | null;
+    quarter: string;
+    isPlaceholder: boolean;
+    caption: string | null;
+    treeId: string;
+    uploadedById: string | null;
+    createdAt: string;
+    updatedAt: string;
+}
+
+/**
+ * DTO for creating a tree photo
+ */
+export interface CreateTreePhotoDto {
+    photoUrl: string;
+    thumbnailUrl?: string;
+    capturedAt: string;
+    gpsLat?: number;
+    gpsLng?: number;
+    quarter: string;
+    isPlaceholder?: boolean;
+    caption?: string;
+    treeId: string;
+    uploadedById?: string;
+}
 
 /**
  * TreePhotoService handles photo uploads, compression, and GPS extraction
@@ -9,6 +48,11 @@ import * as ExifReader from 'exifreader';
  */
 @Injectable()
 export class TreePhotoService {
+    private readonly logger = new Logger(TreePhotoService.name);
+
+    constructor(
+        private readonly globalWorkspaceOrmManager: GlobalWorkspaceOrmManager,
+    ) { }
     /**
      * Extract GPS coordinates from photo EXIF data
      * Returns null if GPS data is not available
@@ -105,6 +149,14 @@ export class TreePhotoService {
     }
 
     /**
+     * Validate quarter format Q[1-4]-YYYY
+     * AC: #3
+     */
+    isValidQuarter(quarter: string): boolean {
+        return /^Q[1-4]-\d{4}$/.test(quarter);
+    }
+
+    /**
      * Maximum file size in bytes (10MB)
      */
     getMaxFileSizeBytes(): number {
@@ -116,5 +168,93 @@ export class TreePhotoService {
      */
     getTargetCompressedSizeBytes(): number {
         return 2 * 1024 * 1024;
+    }
+    /**
+     * Create a new tree photo record
+     * AC: #1.4 - Create TreePhoto object
+     */
+    async createPhoto(
+        workspaceId: string,
+        data: CreateTreePhotoDto,
+    ): Promise<TreePhotoEntity> {
+        // AC #3: Quarter format validation
+        if (!this.isValidQuarter(data.quarter)) {
+            throw new BadRequestException(`Invalid quarter format: ${data.quarter}. Expected Q[1-4]-YYYY.`);
+        }
+
+        const authContext = buildSystemAuthContext(workspaceId);
+
+        return this.globalWorkspaceOrmManager.executeInWorkspaceContext(
+            authContext,
+            async () => {
+                try {
+                    const photoRepository =
+                        await this.globalWorkspaceOrmManager.getRepository<TreePhotoEntity>(
+                            workspaceId,
+                            'treePhoto',
+                        );
+
+                    const newPhoto = {
+                        photoUrl: data.photoUrl,
+                        thumbnailUrl: data.thumbnailUrl || null,
+                        capturedAt: data.capturedAt,
+                        gpsLat: data.gpsLat || null,
+                        gpsLng: data.gpsLng || null,
+                        quarter: data.quarter,
+                        isPlaceholder: data.isPlaceholder || false,
+                        caption: data.caption || null,
+                        treeId: data.treeId,
+                        uploadedById: data.uploadedById || null,
+                    };
+
+                    const result = await photoRepository.save(newPhoto);
+                    this.logger.log(`Created tree photo for tree ${data.treeId}`);
+                    return result as TreePhotoEntity;
+                } catch (error) {
+                    this.logger.error(`Failed to create tree photo: ${error.message}`, error.stack);
+                    throw error;
+                }
+            },
+        );
+    }
+
+    /**
+     * Find photos by tree ID with optional quarter filter
+     */
+    async findPhotosByTree(
+        workspaceId: string,
+        treeId: string,
+        quarter?: string,
+    ): Promise<TreePhotoEntity[]> {
+        const authContext = buildSystemAuthContext(workspaceId);
+
+        return this.globalWorkspaceOrmManager.executeInWorkspaceContext(
+            authContext,
+            async () => {
+                try {
+                    const photoRepository =
+                        await this.globalWorkspaceOrmManager.getRepository<TreePhotoEntity>(
+                            workspaceId,
+                            'treePhoto',
+                        );
+
+                    const where: FindOptionsWhere<TreePhotoEntity> = {
+                        treeId,
+                    };
+
+                    if (quarter) {
+                        where.quarter = quarter;
+                    }
+
+                    return photoRepository.find({
+                        where,
+                        order: { capturedAt: 'DESC' } as any,
+                    });
+                } catch (error) {
+                    this.logger.error(`Failed to find photos for tree ${treeId}: ${error.message}`, error.stack);
+                    throw error;
+                }
+            },
+        );
     }
 }

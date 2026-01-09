@@ -1,12 +1,27 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
+import { Cron, CronExpression } from '@nestjs/schedule';
+import { GlobalWorkspaceOrmManager } from 'src/engine/twenty-orm/global-workspace-datasource/global-workspace-orm.manager';
+import { buildSystemAuthContext } from 'src/engine/twenty-orm/utils/build-system-auth-context.util';
 
 export interface QuarterlyUpdateNotification {
-    treeOwnerId: string;
-    treeCode: string;
-    photoUrl: string;
-    co2Absorbed: number;
-    healthStatus: string;
-    quarter: string;
+  treeOwnerId: string;
+  treeCode: string;
+  photoUrl: string;
+  co2Absorbed: number;
+  healthStatus: string;
+  quarter: string;
+}
+
+interface TreeData {
+  code: string;
+  status: string;
+  owner?: {
+    email: string;
+    name: {
+      first: string;
+      last: string;
+    };
+  };
 }
 
 /**
@@ -21,73 +36,173 @@ export interface QuarterlyUpdateNotification {
  */
 @Injectable()
 export class QuarterlyUpdateService {
-    /**
-     * Get current quarter info
-     */
-    getCurrentQuarter(): { quarter: number; year: number; label: string } {
-        const now = new Date();
-        const quarter = Math.ceil((now.getMonth() + 1) / 3);
-        const year = now.getFullYear();
-        return {
-            quarter,
-            year,
-            label: `Q${quarter}-${year}`,
+  private readonly logger = new Logger(QuarterlyUpdateService.name);
+  private readonly BATCH_SIZE = 100;
+  private readonly EMAIL_DELAY_MS = 100;
+
+  constructor(
+    private readonly globalWorkspaceOrmManager: GlobalWorkspaceOrmManager,
+  ) { }
+
+  @Cron(CronExpression.EVERY_DAY_AT_9AM)
+  async handleQuarterlyUpdate() {
+    if (!this.isInReportingWindow()) {
+      this.logger.log('Not in reporting window, skipping quarterly update');
+      return;
+    }
+
+    const workspaceId = 'default'; // TODO: iterate over workspaces if needed
+    const authContext = buildSystemAuthContext(workspaceId);
+
+    await this.globalWorkspaceOrmManager.executeInWorkspaceContext(
+      authContext,
+      async () => {
+        const treeRepo = await this.globalWorkspaceOrmManager.getRepository(workspaceId, 'tree');
+        let skip = 0;
+        let hasMore = true;
+
+        while (hasMore) {
+          try {
+            this.logger.log(`Processing batch with skip: ${skip}`);
+            // Using 'any' for repo to bypass strict typing without full Entity defs in this file context
+            const trees = await (treeRepo as any).find({
+              relations: ['owner'],
+              skip: skip,
+              take: this.BATCH_SIZE,
+            }) as TreeData[];
+
+            this.logger.log(`Fetched ${trees?.length} trees`);
+
+            if (!trees || trees.length === 0) {
+              hasMore = false;
+              break;
+            }
+
+            await this.processBatch(trees);
+
+            skip += this.BATCH_SIZE;
+            // Safety break
+            if (skip > 100000) hasMore = false;
+
+          } catch (error) {
+            this.logger.error(`Error processing batch starting at ${skip}`, error);
+            hasMore = false;
+          }
+        }
+      }
+    );
+  }
+
+  private async processBatch(trees: TreeData[]) {
+    // Group by owner
+    const treesByOwner = trees.reduce((acc, tree) => {
+      const ownerEmail = tree.owner?.email;
+      if (!ownerEmail) return acc;
+
+      const ownerName = tree.owner?.name?.first || tree.owner?.name?.last || 'Friend';
+
+      if (!acc[ownerEmail]) {
+        acc[ownerEmail] = {
+          name: ownerName,
+          trees: [],
         };
+      }
+
+      const co2 = 12.5; // Placeholder
+
+      acc[ownerEmail].trees.push({
+        treeCode: tree.code || 'UNKNOWN',
+        status: tree.status || 'HEALTHY',
+        co2Absorbed: co2,
+      });
+
+      return acc;
+    }, {} as Record<string, { name: string, trees: any[] }>);
+
+    // Send emails
+    for (const [email, data] of Object.entries(treesByOwner)) {
+      try {
+        const emailContent = this.generateQuarterlyReportEmail(data.name, data.trees);
+        await this.sendEmail(email, emailContent.subject, emailContent.html);
+        await new Promise(resolve => setTimeout(resolve, this.EMAIL_DELAY_MS));
+      } catch (error) {
+        this.logger.error(`Failed to send email to ${email}`, error);
+      }
     }
+  }
 
-    /**
-     * Get quarter start and end dates
-     */
-    getQuarterDateRange(
-        quarter: number,
-        year: number,
-    ): { start: Date; end: Date } {
-        const startMonth = (quarter - 1) * 3;
-        const endMonth = startMonth + 3;
+  private async sendEmail(to: string, subject: string, html: string) {
+    // Placeholder for real email service integration
+    this.logger.log(`[MOCK EMAIL] Sending to ${to}: ${subject}`);
+    return Promise.resolve();
+  }
+  /**
+   * Get current quarter info
+   */
+  getCurrentQuarter(): { quarter: number; year: number; label: string } {
+    const now = new Date();
+    const quarter = Math.ceil((now.getMonth() + 1) / 3);
+    const year = now.getFullYear();
+    return {
+      quarter,
+      year,
+      label: `Q${quarter}-${year}`,
+    };
+  }
 
-        return {
-            start: new Date(year, startMonth, 1),
-            end: new Date(year, endMonth, 0, 23, 59, 59, 999),
-        };
-    }
+  /**
+   * Get quarter start and end dates
+   */
+  getQuarterDateRange(
+    quarter: number,
+    year: number,
+  ): { start: Date; end: Date } {
+    const startMonth = (quarter - 1) * 3;
+    const endMonth = startMonth + 3;
 
-    /**
-     * Check if we're in the reporting period for a quarter
-     * Reporting window: Last week of each quarter
-     */
-    isInReportingWindow(): boolean {
-        const now = new Date();
-        const { end } = this.getQuarterDateRange(
-            Math.ceil((now.getMonth() + 1) / 3),
-            now.getFullYear(),
-        );
+    return {
+      start: new Date(year, startMonth, 1),
+      end: new Date(year, endMonth, 0, 23, 59, 59, 999),
+    };
+  }
 
-        // Check if within last 7 days of quarter
-        const daysUntilEnd = Math.ceil(
-            (end.getTime() - now.getTime()) / (1000 * 60 * 60 * 24),
-        );
+  /**
+   * Check if we're in the reporting period for a quarter
+   * Reporting window: Last week of each quarter
+   */
+  isInReportingWindow(): boolean {
+    const now = new Date();
+    const { end } = this.getQuarterDateRange(
+      Math.ceil((now.getMonth() + 1) / 3),
+      now.getFullYear(),
+    );
 
-        return daysUntilEnd >= 0 && daysUntilEnd <= 7;
-    }
+    // Check if within last 7 days of quarter
+    const daysUntilEnd = Math.ceil(
+      (end.getTime() - now.getTime()) / (1000 * 60 * 60 * 24),
+    );
 
-    /**
-     * Generate quarterly report email content
-     */
-    generateQuarterlyReportEmail(
-        ownerName: string,
-        trees: Array<{
-            treeCode: string;
-            status: string;
-            co2Absorbed: number;
-            photoUrl?: string;
-        }>,
-    ): { subject: string; body: string; html: string } {
-        const { label } = this.getCurrentQuarter();
-        const totalCO2 = trees.reduce((sum, t) => sum + t.co2Absorbed, 0);
+    return daysUntilEnd >= 0 && daysUntilEnd <= 7;
+  }
 
-        const subject = `🌳 Báo cáo Quý ${label} - Vườn cây của bạn đang lớn!`;
+  /**
+   * Generate quarterly report email content
+   */
+  generateQuarterlyReportEmail(
+    ownerName: string,
+    trees: Array<{
+      treeCode: string;
+      status: string;
+      co2Absorbed: number;
+      photoUrl?: string;
+    }>,
+  ): { subject: string; body: string; html: string } {
+    const { label } = this.getCurrentQuarter();
+    const totalCO2 = trees.reduce((sum, t) => sum + t.co2Absorbed, 0);
 
-        const body = `
+    const subject = `🌳 Báo cáo Quý ${label} - Vườn cây của bạn đang lớn!`;
+
+    const body = `
 Xin chào ${ownerName},
 
 Đây là báo cáo định kỳ ${label} về ${trees.length} cây Dó Đen của bạn.
@@ -106,7 +221,7 @@ Cảm ơn bạn đã đồng hành cùng Đại Ngàn Xanh! 🌱
 Đại Ngàn Xanh - Trồng cây cho tương lai
     `.trim();
 
-        const html = `
+    const html = `
 <!DOCTYPE html>
 <html>
 <head>
@@ -147,21 +262,21 @@ Cảm ơn bạn đã đồng hành cùng Đại Ngàn Xanh! 🌱
 </html>
     `.trim();
 
-        return { subject, body, html };
-    }
+    return { subject, body, html };
+  }
 
-    /**
-     * Generate harvest reminder (year 5)
-     */
-    generateHarvestReminderEmail(
-        ownerName: string,
-        treeCode: string,
-        plantingDate: Date,
-        totalCO2: number,
-    ): { subject: string; body: string } {
-        const subject = `🎉 Cây ${treeCode} đã sẵn sàng thu hoạch!`;
+  /**
+   * Generate harvest reminder (year 5)
+   */
+  generateHarvestReminderEmail(
+    ownerName: string,
+    treeCode: string,
+    plantingDate: Date,
+    totalCO2: number,
+  ): { subject: string; body: string } {
+    const subject = `🎉 Cây ${treeCode} đã sẵn sàng thu hoạch!`;
 
-        const body = `
+    const body = `
 Xin chào ${ownerName},
 
 Tin vui! Cây Dó Đen ${treeCode} của bạn đã đủ 5 năm tuổi và sẵn sàng thu hoạch.
@@ -185,6 +300,6 @@ Cảm ơn bạn! 🌳
 Đại Ngàn Xanh Team
     `.trim();
 
-        return { subject, body };
-    }
+    return { subject, body };
+  }
 }

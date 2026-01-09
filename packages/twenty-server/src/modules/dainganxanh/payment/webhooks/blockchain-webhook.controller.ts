@@ -1,5 +1,8 @@
 import { Controller, Post, Body, HttpCode, HttpStatus, Logger } from '@nestjs/common';
 import { UsdtService } from '../services/usdt.service';
+import { OrderService } from '../../order-management/services/order.service';
+
+import { ContractService } from '../../payment/services/contract.service';
 
 export interface BlockchainWebhookDto {
     txHash: string;
@@ -20,7 +23,11 @@ export interface BlockchainWebhookDto {
 export class BlockchainWebhookController {
     private readonly logger = new Logger(BlockchainWebhookController.name);
 
-    constructor(private readonly usdtService: UsdtService) { }
+    constructor(
+        private readonly usdtService: UsdtService,
+        private readonly orderService: OrderService,
+        private readonly contractService: ContractService,
+    ) { }
 
     /**
      * Handle incoming blockchain transaction notification
@@ -34,32 +41,43 @@ export class BlockchainWebhookController {
         this.logger.log(`Received blockchain webhook: ${payload.txHash}`);
 
         try {
-            // 1. Validate this is a Polygon USDT transaction
-            if (payload.network !== 'polygon' && payload.network !== 'matic') {
-                this.logger.warn(`Ignoring non-Polygon transaction: ${payload.network}`);
+            // 0. Idempotency Check
+            const isProcessed = await this.orderService.isTransactionProcessed(
+                'default', // TODO: Resolve workspaceId dynamically if multi-tenant
+                payload.txHash,
+            );
+            if (isProcessed) {
+                this.logger.log(`Transaction ${payload.txHash} already processed.`);
+                return { success: true, message: 'Already processed' };
+            }
+
+            // 1. Validate this is a BSC USDT transaction
+            if (payload.network !== 'bsc' && payload.network !== 'binance') {
+                this.logger.warn(`Ignoring non-BSC transaction: ${payload.network}`);
                 return { success: false, message: 'Unsupported network' };
             }
 
-            const usdtContractAddress = '0xc2132D05D31c914a87C6611C10748AEb04B58e8F'.toLowerCase();
+            const usdtContractAddress = '0x55d398326f99059fF775485246999027B3197955'.toLowerCase();
             if (payload.tokenAddress.toLowerCase() !== usdtContractAddress) {
                 this.logger.warn(`Ignoring non-USDT token: ${payload.tokenAddress}`);
                 return { success: false, message: 'Unsupported token' };
             }
 
-            // 2. Parse amount (USDT has 6 decimals)
-            const usdtAmount = parseFloat(payload.amount) / 1e6;
+            // 2. Parse amount (USDT on BSC has 18 decimals)
+            const usdtAmount = parseFloat(payload.amount) / 1e18;
             this.logger.log(`USDT payment received: ${usdtAmount} USDT from ${payload.fromAddress}`);
 
-            // 3. TODO: Find pending order by sender wallet address or amount
-            // const pendingOrder = await this.orderService.findPendingByWallet(payload.fromAddress);
-            // if (!pendingOrder) {
-            //   // Try to match by exact amount
-            //   const orderByAmount = await this.orderService.findPendingByUsdtAmount(usdtAmount);
-            //   if (!orderByAmount) {
-            //     this.logger.warn(`No matching order found for ${usdtAmount} USDT`);
-            //     return { success: false, message: 'No matching order' };
-            //   }
-            // }
+            // 3. Find pending order
+            // Try match by amount logic
+            const order = await this.orderService.findPendingByUsdtAmount(
+                'default',
+                usdtAmount,
+            );
+
+            if (!order) {
+                this.logger.warn(`No pending order found for ${usdtAmount} USDT`);
+                return { success: false, message: 'No matching order' };
+            }
 
             // 4. Verify transaction on-chain
             const verification = await this.usdtService.verifyTransaction(
@@ -72,21 +90,72 @@ export class BlockchainWebhookController {
                 return { success: false, message: verification.error || 'Verification failed' };
             }
 
-            this.logger.log(`Transaction verified: ${payload.txHash}`);
+            this.logger.log(`Transaction verified: ${payload.txHash} for Order ${order.orderCode}`);
 
-            // 5. TODO: Update order status
-            // await this.orderService.markAsPaid(order.code, {
-            //   transactionId: payload.txHash,
-            //   amount: usdtAmount,
-            //   paymentMethod: 'USDT',
-            //   walletAddress: payload.fromAddress,
-            //   paidAt: new Date(payload.timestamp * 1000),
-            // });
+            // 5. Update order status
+            await this.orderService.markOrderAsPaid(
+                'default',
+                order.orderCode,
+                {
+                    transactionHash: payload.txHash,
+                    processStatus: 'COMPLETED',
+                    paymentStatus: 'VERIFIED',
+                    paidAt: new Date(payload.timestamp * 1000),
+                    amount: usdtAmount,
+                } as any, // Cast to any or verify UpdateOrderPaymentDto
+            );
 
-            // 6. TODO: Trigger post-payment workflow
-            // - Generate trees
-            // - Send confirmation email
-            // - Generate contract PDF
+            this.logger.log(`Order ${order.orderCode} updated to PAID`);
+
+            // 6. Generate and Send Contract
+            try {
+                this.logger.log(`Generating contract for Order ${order.orderCode}`);
+
+                const fullOrder = await this.orderService.getOrderDetailsForContract('default', order.id);
+
+                if (fullOrder && fullOrder.buyer) {
+                    const contractData = {
+                        orderCode: fullOrder.orderCode,
+                        customerName: fullOrder.buyer.name?.first ? `${fullOrder.buyer.name.first} ${fullOrder.buyer.name.last}` : 'Khách hàng',
+                        customerId: fullOrder.buyer.id,
+                        customerEmail: fullOrder.buyer.email,
+                        treeCount: fullOrder.trees?.length || fullOrder.quantity,
+                        totalAmount: fullOrder.totalAmount,
+                        treeCodes: fullOrder.trees?.map(t => t.code) || [],
+                        lotName: fullOrder.trees?.[0]?.lotName || 'Khu A', // Placeholder if not in tree obj
+                        paymentMethod: 'USDT' as const,
+                        paymentDate: new Date(payload.timestamp * 1000),
+                        contractDate: new Date(),
+                    };
+
+                    // Generate HTML -> PDF
+                    const html = this.contractService.generateContractHtml(contractData);
+                    const pdfBuffer = await this.contractService.generatePdf(html);
+                    const filename = this.contractService.generateFilename(fullOrder.orderCode);
+
+                    // Upload S3
+                    const pdfUrl = await this.contractService.uploadToS3(filename, pdfBuffer);
+
+                    // Update Order
+                    await this.orderService.updateContractUrl('default', fullOrder.orderCode, pdfUrl);
+
+                    // Send Email
+                    await this.contractService.sendContractEmail(
+                        fullOrder.buyer.email,
+                        contractData.customerName,
+                        pdfBuffer,
+                        filename
+                    );
+
+                    this.logger.log(`Contract generated and sent for Order ${order.orderCode}`);
+                } else {
+                    this.logger.warn(`Could not fetch full details for Order ${order.orderCode} to generate contract`);
+                }
+
+            } catch (contractError) {
+                // Non-blocking error
+                this.logger.error(`Failed to generate/send contract: ${contractError.message}`, contractError.stack);
+            }
 
             return { success: true, message: 'Payment processed' };
         } catch (error) {

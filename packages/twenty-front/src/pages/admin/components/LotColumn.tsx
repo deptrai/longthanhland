@@ -2,6 +2,7 @@ import styled from '@emotion/styled';
 import React from 'react';
 import { useDroppable } from '@dnd-kit/core';
 import { TreeCard } from './TreeCard';
+import { TreeLot } from '../../../modules/dainganxanh/admin/types/lot-management.types';
 
 const Column = styled.div<{ isOver: boolean }>`
     min-width: 300px;
@@ -77,7 +78,7 @@ const OperatorBadge = styled.div`
 `;
 
 interface LotColumnProps {
-    lot: any;
+    lot: TreeLot;
     onClick: () => void;
 }
 

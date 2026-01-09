@@ -17,6 +17,7 @@ import { OrderService } from '../../order-management/services/order.service';
 import { TreeService } from '../../tree-tracking/services/tree.service';
 import { TreeGenerationRetryService } from '../services/tree-generation-retry.service';
 import { IpWhitelistGuard } from '../guards/ip-whitelist.guard';
+import { ContractService } from '../../payment/services/contract.service';
 
 export interface BankingWebhookDto {
     transactionId: string;
@@ -58,6 +59,7 @@ export class BankingWebhookController {
         private readonly orderService: OrderService,
         private readonly treeService: TreeService,
         private readonly retryService: TreeGenerationRetryService,
+        private readonly contractService: ContractService,
     ) { }
 
     /**
@@ -273,10 +275,49 @@ export class BankingWebhookController {
                 `[WORKFLOW:${correlationId}] TODO: Send confirmation email for order ${order.orderCode} with ${result.generated.length} tree codes`,
             );
 
-            // [PLACEHOLDER] Generate PDF contract
-            this.logger.log(
-                `[WORKFLOW:${correlationId}] TODO: Queue PDF contract generation for order ${order.orderCode}`,
-            );
+            // Generate PDF contract
+            try {
+                this.logger.log(`[WORKFLOW:${correlationId}] Generating contract for Order ${order.orderCode}`);
+
+                const fullOrder = await this.orderService.getOrderDetailsForContract(workspaceId, order.id);
+
+                if (fullOrder && fullOrder.buyer) {
+                    const contractData = {
+                        orderCode: fullOrder.orderCode,
+                        customerName: fullOrder.buyer.name?.first ? `${fullOrder.buyer.name.first} ${fullOrder.buyer.name.last}` : 'Khách hàng',
+                        customerId: fullOrder.buyer.id,
+                        customerEmail: fullOrder.buyer.email,
+                        treeCount: fullOrder.trees?.length || fullOrder.quantity,
+                        totalAmount: fullOrder.totalAmount,
+                        treeCodes: fullOrder.trees?.map(t => t.code) || [],
+                        lotName: fullOrder.trees?.[0]?.lotName || 'Khu A', // Placeholder if not in tree obj
+                        paymentMethod: 'BANKING' as const,
+                        paymentDate: new Date(),
+                        contractDate: new Date(),
+                    };
+
+                    // Generate and Upload
+                    const html = this.contractService.generateContractHtml(contractData);
+                    const pdfBuffer = await this.contractService.generatePdf(html);
+                    const filename = this.contractService.generateFilename(fullOrder.orderCode);
+                    const pdfUrl = await this.contractService.uploadToS3(filename, pdfBuffer);
+
+                    // Update Order
+                    await this.orderService.updateContractUrl(workspaceId, fullOrder.orderCode, pdfUrl);
+
+                    // Send Email
+                    await this.contractService.sendContractEmail(
+                        fullOrder.buyer.email,
+                        contractData.customerName,
+                        pdfBuffer,
+                        filename
+                    );
+
+                    this.logger.log(`[WORKFLOW:${correlationId}] Contract generated and sent`);
+                }
+            } catch (contractError) {
+                this.logger.error(`[WORKFLOW:${correlationId}] Failed to generate contract: ${contractError.message}`, contractError.stack);
+            }
 
             this.logger.log(
                 `[WORKFLOW:${correlationId}] Post-payment workflow completed for order ${order.orderCode} (${result.generated.length}/${order.quantity} trees)`,

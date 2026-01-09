@@ -1,18 +1,21 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
+import * as puppeteer from 'puppeteer';
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import * as nodemailer from 'nodemailer';
 
 export interface ContractData {
-    orderCode: string;
-    customerName: string;
-    customerId: string;
-    customerEmail: string;
-    customerPhone?: string;
-    treeCount: number;
-    totalAmount: number;
-    treeCodes: string[];
-    lotName: string;
-    paymentMethod: 'BANKING' | 'USDT';
-    paymentDate: Date;
-    contractDate: Date;
+  orderCode: string;
+  customerName: string;
+  customerId: string;
+  customerEmail: string;
+  customerPhone?: string;
+  treeCount: number;
+  totalAmount: number;
+  treeCodes: string[];
+  lotName: string;
+  paymentMethod: 'BANKING' | 'USDT';
+  paymentDate: Date;
+  contractDate: Date;
 }
 
 /**
@@ -21,35 +24,155 @@ export interface ContractData {
  */
 @Injectable()
 export class ContractService {
-    /**
-     * Generate contract metadata for PDF generation
-     */
-    generateContractMetadata(data: ContractData): {
-        contractNumber: string;
-        signingDate: string;
-        expiryDate: string;
-    } {
-        const contractNumber = `HD-${data.orderCode}`;
-        const signingDate = data.contractDate.toLocaleDateString('vi-VN');
+  private readonly logger = new Logger(ContractService.name);
+  private readonly s3Client: S3Client;
+  private readonly S3_BUCKET = process.env.AWS_S3_BUCKET_NAME || 'dainganxanh-contracts';
+  private readonly REGION = process.env.AWS_REGION || 'ap-southeast-1';
+  private readonly transporter: nodemailer.Transporter;
 
-        // Contract expires after 6 years (5 years + 1 year buffer)
-        const expiryDate = new Date(data.contractDate);
-        expiryDate.setFullYear(expiryDate.getFullYear() + 6);
+  constructor() {
+    this.s3Client = new S3Client({
+      region: this.REGION,
+      credentials: {
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '',
+      },
+    });
 
-        return {
-            contractNumber,
-            signingDate,
-            expiryDate: expiryDate.toLocaleDateString('vi-VN'),
-        };
+    // Initialize email transporter (Mock for now or use environment variables)
+    this.transporter = nodemailer.createTransport({
+      host: process.env.EMAIL_HOST || 'smtp.gmail.com',
+      port: Number(process.env.EMAIL_PORT) || 587,
+      secure: false, // true for 465, false for other ports
+      auth: {
+        user: process.env.EMAIL_USER || 'mock_user',
+        pass: process.env.EMAIL_PASS || 'mock_pass',
+      },
+    });
+  }
+
+  /**
+   * Generate PDF from HTML content using Puppeteer
+   */
+  async generatePdf(htmlContent: string): Promise<Buffer> {
+    let browser;
+    try {
+      browser = await puppeteer.launch({
+        headless: true,
+        args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      });
+      const page = await browser.newPage();
+      await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
+
+      // Generate PDF buffer
+      const pdfBuffer = await page.pdf({
+        format: 'A4',
+        printBackground: true,
+        margin: {
+          top: '20px',
+          right: '20px',
+          bottom: '20px',
+          left: '20px',
+        },
+      });
+
+      return Buffer.from(pdfBuffer);
+    } catch (error) {
+      this.logger.error(`Failed to generate PDF: ${error.message}`, error.stack);
+      throw error;
+    } finally {
+      if (browser) {
+        await browser.close();
+      }
+    }
+  }
+
+  /**
+   * Upload PDF to S3
+   */
+  async uploadToS3(filename: string, pdfBuffer: Buffer): Promise<string> {
+    const key = `contracts/${filename}`;
+
+    try {
+      const command = new PutObjectCommand({
+        Bucket: this.S3_BUCKET,
+        Key: key,
+        Body: pdfBuffer,
+        ContentType: 'application/pdf',
+      });
+
+      await this.s3Client.send(command);
+
+      // Construct Public URL (or logic for Signed URL)
+      const url = `https://${this.S3_BUCKET}.s3.${this.REGION}.amazonaws.com/${key}`;
+      this.logger.log(`Uploaded contract to ${url}`);
+      return url;
+    } catch (error) {
+      this.logger.error(`Failed to upload to S3: ${error.message}`, error.stack);
+      throw error;
+    }
+  }
+
+  /**
+   * Send contract via email
+   */
+  async sendContractEmail(
+    to: string,
+    customerName: string,
+    pdfBuffer: Buffer,
+    filename: string
+  ): Promise<void> {
+    if (!process.env.EMAIL_USER) {
+      this.logger.warn('Skipping email send: EMAIL_USER not configured');
+      return;
     }
 
-    /**
-     * Generate contract HTML content for PDF conversion
-     */
-    generateContractHtml(data: ContractData): string {
-        const { contractNumber, signingDate, expiryDate } = this.generateContractMetadata(data);
+    // Let caller handle errors
+    await this.transporter.sendMail({
+      from: '"Đại Ngàn Xanh" <no-reply@dainganxanh.vn>',
+      to,
+      subject: 'Hợp đồng trồng cây Dó Đen của bạn',
+      text: `Xin chào ${customerName},\n\nĐính kèm là hợp đồng trồng cây Dó Đen của bạn.\n\nTrân trọng,\nĐại Ngàn Xanh Team`,
+      html: `<p>Xin chào <strong>${customerName}</strong>,</p><p>Đính kèm là hợp đồng trồng cây Dó Đen của bạn.</p><p>Trân trọng,<br>Đại Ngàn Xanh Team</p>`,
+      attachments: [
+        {
+          filename,
+          content: pdfBuffer,
+          contentType: 'application/pdf',
+        },
+      ],
+    });
+    this.logger.log(`Sent contract email to ${to}`);
+  }
+  /**
+   * Generate contract metadata for PDF generation
+   */
+  generateContractMetadata(data: ContractData): {
+    contractNumber: string;
+    signingDate: string;
+    expiryDate: string;
+  } {
+    const contractNumber = `HD-${data.orderCode}`;
+    const signingDate = data.contractDate.toLocaleDateString('vi-VN');
 
-        return `
+    // Contract expires after 6 years (5 years + 1 year buffer)
+    const expiryDate = new Date(data.contractDate);
+    expiryDate.setFullYear(expiryDate.getFullYear() + 6);
+
+    return {
+      contractNumber,
+      signingDate,
+      expiryDate: expiryDate.toLocaleDateString('vi-VN'),
+    };
+  }
+
+  /**
+   * Generate contract HTML content for PDF conversion
+   */
+  generateContractHtml(data: ContractData): string {
+    const { contractNumber, signingDate, expiryDate } = this.generateContractMetadata(data);
+
+    return `
 <!DOCTYPE html>
 <html>
 <head>
@@ -158,29 +281,29 @@ export class ContractService {
 </body>
 </html>
     `.trim();
-    }
+  }
 
-    /**
-     * Generate contract filename
-     */
-    generateFilename(orderCode: string): string {
-        return `hop-dong-${orderCode.toLowerCase()}.pdf`;
-    }
+  /**
+   * Generate contract filename
+   */
+  generateFilename(orderCode: string): string {
+    return `hop-dong-${orderCode.toLowerCase()}.pdf`;
+  }
 
-    /**
-     * Validate contract data completeness
-     */
-    validateContractData(data: Partial<ContractData>): string[] {
-        const errors: string[] = [];
+  /**
+   * Validate contract data completeness
+   */
+  validateContractData(data: Partial<ContractData>): string[] {
+    const errors: string[] = [];
 
-        if (!data.orderCode) errors.push('Thiếu mã đơn hàng');
-        if (!data.customerName) errors.push('Thiếu tên khách hàng');
-        if (!data.customerId) errors.push('Thiếu mã khách hàng');
-        if (!data.customerEmail) errors.push('Thiếu email');
-        if (!data.treeCount || data.treeCount <= 0) errors.push('Số lượng cây không hợp lệ');
-        if (!data.treeCodes || data.treeCodes.length === 0) errors.push('Thiếu mã cây');
-        if (!data.lotName) errors.push('Thiếu tên lô cây');
+    if (!data.orderCode) errors.push('Thiếu mã đơn hàng');
+    if (!data.customerName) errors.push('Thiếu tên khách hàng');
+    if (!data.customerId) errors.push('Thiếu mã khách hàng');
+    if (!data.customerEmail) errors.push('Thiếu email');
+    if (!data.treeCount || data.treeCount <= 0) errors.push('Số lượng cây không hợp lệ');
+    if (!data.treeCodes || data.treeCodes.length === 0) errors.push('Thiếu mã cây');
+    if (!data.lotName) errors.push('Thiếu tên lô cây');
 
-        return errors;
-    }
+    return errors;
+  }
 }

@@ -12,6 +12,7 @@ import { existsSync } from 'fs';
 import { join } from 'path';
 
 import { YogaDriver, type YogaDriverConfig } from '@graphql-yoga/nestjs';
+import { ScheduleModule } from '@nestjs/schedule';
 import { SentryModule } from '@sentry/nestjs/setup';
 
 import { CoreGraphQLApiModule } from 'src/engine/api/graphql/core-graphql-api.module';
@@ -52,6 +53,7 @@ const MIGRATED_REST_METHODS = [
       isGlobal: true,
       envFilePath: process.env.NODE_ENV === 'test' ? '.env.test' : '.env',
     }),
+    ScheduleModule.forRoot(),
     GraphQLModule.forRootAsync<YogaDriverConfig>({
       driver: YogaDriver,
       imports: [GraphQLConfigModule, MetricsModule, DataloaderModule],

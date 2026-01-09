@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger, BadRequestException } from '@nestjs/common';
+import { FindOptionsWhere } from 'typeorm';
+
+import { GlobalWorkspaceOrmManager } from 'src/engine/twenty-orm/global-workspace-datasource/global-workspace-orm.manager';
+import { buildSystemAuthContext } from 'src/engine/twenty-orm/utils/build-system-auth-context.util';
 
 export enum TreeHealthStatus {
     HEALTHY = 'HEALTHY',
@@ -7,12 +11,25 @@ export enum TreeHealthStatus {
     REPLANTED = 'REPLANTED',
 }
 
-export interface TreeHealthUpdate {
+export interface TreeHealthLogEntity {
+    id: string;
+    status: TreeHealthStatus;
+    notes: string | null;
+    treatment: string | null;
+    treeId: string;
+    loggedById: string | null;
+    loggedAt: string;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export interface TreeHealthUpdateDto {
     treeId: string;
     status: TreeHealthStatus;
     notes?: string;
     treatment?: string;
-    loggedById: string;
+    loggedAt?: string;
+    loggedById?: string;
 }
 
 /**
@@ -21,6 +38,11 @@ export interface TreeHealthUpdate {
  */
 @Injectable()
 export class TreeHealthService {
+    private readonly logger = new Logger(TreeHealthService.name);
+
+    constructor(
+        private readonly globalWorkspaceOrmManager: GlobalWorkspaceOrmManager,
+    ) { }
     /**
      * Validate health status transition
      * Some transitions are not allowed (e.g., DEAD -> HEALTHY)
@@ -141,5 +163,91 @@ export class TreeHealthService {
                     body: `Cây ${treeName} của bạn đang phát triển tốt!`,
                 };
         }
+    }
+
+    /**
+     * Create a new health log record
+     * AC: #1.5 - Create TreeHealthLog object
+     */
+    async createHealthLog(
+        workspaceId: string,
+        data: TreeHealthUpdateDto,
+    ): Promise<TreeHealthLogEntity> {
+        const authContext = buildSystemAuthContext(workspaceId);
+
+        return this.globalWorkspaceOrmManager.executeInWorkspaceContext(
+            authContext,
+            async () => {
+                try {
+                    const repository =
+                        await this.globalWorkspaceOrmManager.getRepository<TreeHealthLogEntity>(
+                            workspaceId,
+                            'treeHealthLog',
+                        );
+
+                    // Get the latest log to check current status
+                    const lastLog = await repository.findOne({
+                        where: { treeId: data.treeId },
+                        order: { createdAt: 'DESC' } as any,
+                    });
+
+                    if (lastLog) {
+                        const isValid = this.isValidStatusTransition(lastLog.status, data.status);
+                        if (!isValid) {
+                            throw new BadRequestException(
+                                `Invalid health status transition from ${lastLog.status} to ${data.status}`,
+                            );
+                        }
+                    }
+
+                    const newLog = {
+                        status: data.status,
+                        notes: data.notes || null,
+                        treatment: data.treatment || null,
+                        loggedAt: data.loggedAt || new Date().toISOString(),
+                        treeId: data.treeId,
+                        loggedById: data.loggedById || null,
+                    };
+
+                    const result = await repository.save(newLog);
+                    this.logger.log(`Created health log for tree ${data.treeId} with status ${data.status}`);
+                    return result as TreeHealthLogEntity;
+                } catch (error) {
+                    this.logger.error(`Failed to create health log: ${error.message}`, error.stack);
+                    throw error;
+                }
+            },
+        );
+    }
+
+    /**
+     * Get health logs for a tree
+     */
+    async findHealthLogsByTree(
+        workspaceId: string,
+        treeId: string,
+    ): Promise<TreeHealthLogEntity[]> {
+        const authContext = buildSystemAuthContext(workspaceId);
+
+        return this.globalWorkspaceOrmManager.executeInWorkspaceContext(
+            authContext,
+            async () => {
+                try {
+                    const repository =
+                        await this.globalWorkspaceOrmManager.getRepository<TreeHealthLogEntity>(
+                            workspaceId,
+                            'treeHealthLog',
+                        );
+
+                    return repository.find({
+                        where: { treeId },
+                        order: { createdAt: 'DESC' } as any,
+                    });
+                } catch (error) {
+                    this.logger.error(`Failed to find health logs: ${error.message}`, error.stack);
+                    throw error;
+                }
+            },
+        );
     }
 }

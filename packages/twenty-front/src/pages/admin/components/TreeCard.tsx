@@ -2,6 +2,7 @@ import styled from '@emotion/styled';
 import React from 'react';
 import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
+import { Tree } from '../../../modules/dainganxanh/admin/types/lot-management.types';
 
 const Card = styled.div<{ isDragging: boolean }>`
     background: white;
@@ -72,7 +73,7 @@ const StatusBadge = styled.span<{ status: string }>`
 `;
 
 interface TreeCardProps {
-    tree: any;
+    tree: Tree;
 }
 
 export const TreeCard = ({ tree }: TreeCardProps) => {

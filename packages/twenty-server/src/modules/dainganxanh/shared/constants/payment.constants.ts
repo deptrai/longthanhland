@@ -1,0 +1,6 @@
+export const PAYMENT_CONSTANTS = {
+    VND_TO_USD_RATE: 1 / 25000,
+    BSC_RPC: 'https://bsc-dataseed.binance.org/',
+    USDT_BSC_CONTRACT: '0x55d398326f99059fF775485246999027B3197955',
+    USDT_DECIMALS: 18,
+};
