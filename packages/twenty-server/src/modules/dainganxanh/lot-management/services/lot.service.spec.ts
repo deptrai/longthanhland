@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { LotService } from './lot.service';
-import { GlobalWorkspaceOrmManager } from 'src/engine/workspace-manager/workspace-orm-manager/global-workspace-orm-manager';
+import { GlobalWorkspaceOrmManager } from 'src/engine/twenty-orm/global-workspace-datasource/global-workspace-orm.manager';
 
 describe('LotService', () => {
     let service: LotService;
@@ -13,13 +13,15 @@ describe('LotService', () => {
         const mockRepository = {
             find: jest.fn(),
             findOne: jest.fn(),
+            save: jest.fn(),
             update: jest.fn(),
+            softDelete: jest.fn(),
             increment: jest.fn(),
             decrement: jest.fn(),
         };
 
         mockOrmManager = {
-            runInWorkspaceTransaction: jest.fn((workspaceId, callback) =>
+            executeInWorkspaceContext: jest.fn((authContext, callback) =>
                 callback(),
             ),
             getRepository: jest.fn().mockResolvedValue(mockRepository),
