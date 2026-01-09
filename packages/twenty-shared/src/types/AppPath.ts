@@ -30,6 +30,7 @@ export enum AppPath {
   Orders = '/orders',
   AdminOrders = '/admin/orders',
   AdminLots = '/admin/lots',
+  AdminPhotoUpload = '/admin/upload',
 
   Settings = `settings`,
   SettingsCatchAll = `/${Settings}/*`,

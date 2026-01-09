@@ -33,6 +33,7 @@ import { PaymentSuccess } from '~/pages/onboarding/PaymentSuccess';
 import { SyncEmails } from '~/pages/onboarding/SyncEmails';
 import { AdminOrdersPage } from '~/pages/admin/AdminOrdersPage';
 import { AdminLotsPage } from '~/pages/admin/AdminLotsPage';
+import { PhotoUploadPage } from '~/pages/admin/PhotoUploadPage';
 
 export const useCreateAppRouter = (
   isFunctionSettingsEnabled?: boolean,
@@ -86,6 +87,7 @@ export const useCreateAppRouter = (
             <>
               <Route path={AppPath.AdminOrders} element={<AdminOrdersPage />} />
               <Route path={AppPath.AdminLots} element={<AdminLotsPage />} />
+              <Route path={AppPath.AdminPhotoUpload} element={<PhotoUploadPage />} />
             </>
           )}
           <Route path={AppPath.NotFoundWildcard} element={<NotFound />} />
