@@ -36,6 +36,7 @@ import { AdminLotsPage } from '~/pages/admin/AdminLotsPage';
 import { PhotoUploadPage } from '~/pages/admin/PhotoUploadPage';
 import { SharePage } from '~/pages/share/SharePage';
 import { OrderSuccessPage } from '~/pages/orders/OrderSuccessPage';
+import { HarvestDecisionPage } from '~/pages/harvest/HarvestDecisionPage';
 
 export const useCreateAppRouter = (
   isFunctionSettingsEnabled?: boolean,
@@ -77,6 +78,7 @@ export const useCreateAppRouter = (
           <Route path={AppPath.TreeDetail} element={<TreeDetailPage />} />
           <Route path={AppPath.Orders} element={<OrderHistoryPage />} />
           <Route path={AppPath.OrderSuccess} element={<OrderSuccessPage />} />
+          <Route path={AppPath.HarvestDecision} element={<HarvestDecisionPage />} />
           <Route path={AppPath.Share} element={<SharePage />} />
           <Route
             path={AppPath.SettingsCatchAll}
