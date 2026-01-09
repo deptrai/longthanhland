@@ -228,6 +228,7 @@
       "packages/twenty-apps",
       "packages/twenty-cli",
       "packages/create-twenty-app",
+      "packages/dainganxanh-landing",
       "tools/eslint-rules"
     ]
   }

@@ -1,4 +1,5 @@
 import styled from '@emotion/styled';
+import { useNavigate } from 'react-router-dom';
 
 import { TreeCard, TreeStatus } from './TreeCard';
 import { TreeCardSkeleton } from './TreeCardSkeleton';
@@ -106,113 +107,114 @@ const StyledError = styled.div`
 `;
 
 const filterOptions: Array<{ value: TreeStatus | 'ALL'; label: string }> = [
-    { value: 'ALL', label: 'Tất cả' },
-    { value: 'SEEDLING', label: '🌱 Cây con' },
-    { value: 'GROWING', label: '🌿 Đang lớn' },
-    { value: 'MATURE', label: '🌳 Trưởng thành' },
-    { value: 'HARVESTED', label: '🍃 Thu hoạch' },
+  { value: 'ALL', label: 'Tất cả' },
+  { value: 'SEEDLING', label: '🌱 Cây con' },
+  { value: 'GROWING', label: '🌿 Đang lớn' },
+  { value: 'MATURE', label: '🌳 Trưởng thành' },
+  { value: 'HARVESTED', label: '🍃 Thu hoạch' },
 ];
 
 export const MyGardenDashboard = () => {
-    const {
-        trees,
-        isLoading,
-        error,
-        filter,
-        setFilter,
-        sortField,
-        sortDirection,
-        setSort,
-        refresh,
-    } = useUserTrees();
+  const navigate = useNavigate();
+  const {
+    trees,
+    isLoading,
+    error,
+    filter,
+    setFilter,
+    sortField,
+    sortDirection,
+    setSort,
+    refresh,
+  } = useUserTrees();
 
-    const totalCO2 = trees.reduce((sum, tree) => sum + tree.co2Absorbed, 0);
-    const avgAge = trees.length > 0
-        ? Math.round(trees.reduce((sum, tree) => {
-            const days = (Date.now() - new Date(tree.plantingDate).getTime()) / (1000 * 60 * 60 * 24);
-            return sum + days;
-        }, 0) / trees.length)
-        : 0;
+  const totalCO2 = trees.reduce((sum, tree) => sum + tree.co2Absorbed, 0);
+  const avgAge = trees.length > 0
+    ? Math.round(trees.reduce((sum, tree) => {
+      const days = (Date.now() - new Date(tree.plantingDate).getTime()) / (1000 * 60 * 60 * 24);
+      return sum + days;
+    }, 0) / trees.length)
+    : 0;
 
-    const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const [field, direction] = e.target.value.split('-');
-        setSort(field, direction as 'asc' | 'desc');
-    };
+  const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const [field, direction] = e.target.value.split('-');
+    setSort(field, direction as 'asc' | 'desc');
+  };
 
-    if (error) {
-        return (
-            <StyledError>
-                <p>Đã xảy ra lỗi: {error.message}</p>
-                <button onClick={refresh}>Thử lại</button>
-            </StyledError>
-        );
-    }
-
+  if (error) {
     return (
-        <StyledDashboard data-testid="my-garden-dashboard">
-            <StyledHeader>
-                <StyledTitle>🌿 Vườn Của Tôi</StyledTitle>
-            </StyledHeader>
-
-            <StyledSummaryBar>
-                <StyledStat>
-                    <StyledStatValue>{trees.length}</StyledStatValue>
-                    <StyledStatLabel>Tổng số cây</StyledStatLabel>
-                </StyledStat>
-                <StyledStat>
-                    <StyledStatValue>{totalCO2.toFixed(1)}</StyledStatValue>
-                    <StyledStatLabel>kg CO₂/năm</StyledStatLabel>
-                </StyledStat>
-                <StyledStat>
-                    <StyledStatValue>{avgAge}</StyledStatValue>
-                    <StyledStatLabel>ngày tuổi TB</StyledStatLabel>
-                </StyledStat>
-            </StyledSummaryBar>
-
-            <StyledControls>
-                <StyledFilterTabs>
-                    {filterOptions.map((option) => (
-                        <StyledFilterTab
-                            key={option.value}
-                            isActive={filter === option.value}
-                            onClick={() => setFilter(option.value)}
-                        >
-                            {option.label}
-                        </StyledFilterTab>
-                    ))}
-                </StyledFilterTabs>
-
-                <StyledSortSelect
-                    value={`${sortField}-${sortDirection}`}
-                    onChange={handleSortChange}
-                >
-                    <option value="plantingDate-desc">Mới nhất</option>
-                    <option value="plantingDate-asc">Cũ nhất</option>
-                    <option value="treeCode-asc">Mã A-Z</option>
-                    <option value="treeCode-desc">Mã Z-A</option>
-                    <option value="status-asc">Trạng thái</option>
-                </StyledSortSelect>
-            </StyledControls>
-
-            {isLoading ? (
-                <StyledGrid>
-                    {Array.from({ length: 8 }).map((_, i) => (
-                        <TreeCardSkeleton key={i} />
-                    ))}
-                </StyledGrid>
-            ) : trees.length === 0 ? (
-                <EmptyGardenState />
-            ) : (
-                <StyledGrid>
-                    {trees.map((tree) => (
-                        <TreeCard
-                            key={tree.id}
-                            tree={tree}
-                            onClick={() => console.log('Navigate to tree:', tree.id)}
-                        />
-                    ))}
-                </StyledGrid>
-            )}
-        </StyledDashboard>
+      <StyledError>
+        <p>Đã xảy ra lỗi: {error.message}</p>
+        <button onClick={refresh}>Thử lại</button>
+      </StyledError>
     );
+  }
+
+  return (
+    <StyledDashboard data-testid="my-garden-dashboard">
+      <StyledHeader>
+        <StyledTitle>🌿 Vườn Của Tôi</StyledTitle>
+      </StyledHeader>
+
+      <StyledSummaryBar>
+        <StyledStat>
+          <StyledStatValue>{trees.length}</StyledStatValue>
+          <StyledStatLabel>Tổng số cây</StyledStatLabel>
+        </StyledStat>
+        <StyledStat>
+          <StyledStatValue>{totalCO2.toFixed(1)}</StyledStatValue>
+          <StyledStatLabel>kg CO₂/năm</StyledStatLabel>
+        </StyledStat>
+        <StyledStat>
+          <StyledStatValue>{avgAge}</StyledStatValue>
+          <StyledStatLabel>ngày tuổi TB</StyledStatLabel>
+        </StyledStat>
+      </StyledSummaryBar>
+
+      <StyledControls>
+        <StyledFilterTabs>
+          {filterOptions.map((option) => (
+            <StyledFilterTab
+              key={option.value}
+              isActive={filter === option.value}
+              onClick={() => setFilter(option.value)}
+            >
+              {option.label}
+            </StyledFilterTab>
+          ))}
+        </StyledFilterTabs>
+
+        <StyledSortSelect
+          value={`${sortField}-${sortDirection}`}
+          onChange={handleSortChange}
+        >
+          <option value="plantingDate-desc">Mới nhất</option>
+          <option value="plantingDate-asc">Cũ nhất</option>
+          <option value="treeCode-asc">Mã A-Z</option>
+          <option value="treeCode-desc">Mã Z-A</option>
+          <option value="status-asc">Trạng thái</option>
+        </StyledSortSelect>
+      </StyledControls>
+
+      {isLoading ? (
+        <StyledGrid>
+          {Array.from({ length: 8 }).map((_, i) => (
+            <TreeCardSkeleton key={i} />
+          ))}
+        </StyledGrid>
+      ) : trees.length === 0 ? (
+        <EmptyGardenState />
+      ) : (
+        <StyledGrid>
+          {trees.map((tree) => (
+            <TreeCard
+              key={tree.id}
+              tree={tree}
+              onClick={() => navigate(`/trees/${tree.id}`)}
+            />
+          ))}
+        </StyledGrid>
+      )}
+    </StyledDashboard>
+  );
 };

@@ -26,6 +26,7 @@ export enum AppPath {
 
   // Đại Ngàn Xanh - Custom Pages
   MyGarden = '/my-garden',
+  TreeDetail = '/trees/:treeCode',
 
   Settings = `settings`,
   SettingsCatchAll = `/${Settings}/*`,
