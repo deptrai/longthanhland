@@ -6,23 +6,27 @@ import { buildSystemAuthContext } from 'src/engine/twenty-orm/utils/build-system
 import { PAYMENT_CONSTANTS } from '../../shared/constants/payment.constants';
 
 /**
- * Order entity interface matching custom object fields in Twenty CRM
- * Corresponds to Order object from Story E1.3
+ * Order entity interface matching E1.3 specification
+ * @see E1.3 Story - Order Object
  */
 export interface OrderEntity {
     id: string;
     orderCode: string;
-    status: 'PENDING' | 'PAID' | 'COMPLETED' | 'CANCELLED';
-    paymentMethod: 'BANK_TRANSFER' | 'USDT';
-    paymentStatus: 'PENDING' | 'VERIFIED' | 'FAILED';
+    // E1.3 AC#2: orderStatus - CREATED, PAID, ASSIGNED, COMPLETED
+    orderStatus: 'CREATED' | 'PAID' | 'ASSIGNED' | 'COMPLETED';
+    // E1.3 AC#2: paymentMethod - BANKING, USDT
+    paymentMethod: 'BANKING' | 'USDT';
+    // E1.3 AC#2: paymentStatus - PENDING, VERIFIED, FAILED, REFUNDED
+    paymentStatus: 'PENDING' | 'VERIFIED' | 'FAILED' | 'REFUNDED';
     totalAmount: number;
     quantity: number;
-    buyerId: string | null;
-    transactionHash: string | null; // Used for storing banking transactionId
-    paidAt: string | null;
+    customerId: string | null; // E1.3 AC#3: customer → Person relation
+    referralCode: string | null; // E1.3 AC#2: Mã giới thiệu
+    transactionHash: string | null; // E1.3 AC#2: Blockchain tx hash (for USDT)
+    contractPdfUrl: string | null; // E1.3 AC#2: S3 URL của PDF hợp đồng
+    paidAt: string | null; // E1.3 AC#2: Thời điểm thanh toán
     verifiedAt: string | null;
-    verifiedById: string | null;
-    contractPdfUrl: string | null;
+    verifiedById: string | null; // E1.3 AC#3: verifiedBy → WorkspaceMember
     createdAt: string;
     updatedAt: string;
     deletedAt: string | null;
@@ -32,7 +36,7 @@ export interface OrderEntity {
  * DTO for updating order payment status
  */
 export interface UpdateOrderPaymentDto {
-    paymentStatus: 'VERIFIED' | 'FAILED';
+    paymentStatus: 'VERIFIED' | 'FAILED' | 'REFUNDED';
     transactionHash: string;
     paidAt: Date;
     amount: number;
@@ -209,7 +213,7 @@ export class OrderService {
                         paymentStatus: paymentData.paymentStatus,
                         transactionHash: paymentData.transactionHash,
                         paidAt: paymentData.paidAt.toISOString(),
-                        status: 'PAID', // Also update main status
+                        orderStatus: 'PAID', // Also update main orderStatus
                     });
 
                     // Fetch updated order
@@ -289,14 +293,14 @@ export class OrderService {
                         'order',
                     );
 
-                await orderRepository.update(orderId, { status: 'PAID' });
+                await orderRepository.update(orderId, { orderStatus: 'PAID' });
             },
         );
     }
 
     async getAllOrders(
         workspaceId: string,
-        filter?: { status?: string; paymentMethod?: string; startDate?: string; endDate?: string },
+        filter?: { orderStatus?: string; paymentMethod?: string; startDate?: string; endDate?: string },
         pagination?: { limit: number; offset: number },
     ): Promise<{ orders: OrderEntity[]; total: number }> {
         const authContext = buildSystemAuthContext(workspaceId);
@@ -312,8 +316,8 @@ export class OrderService {
                     );
 
                 const where: any = {};
-                if (filter?.status && filter.status !== 'ALL') {
-                    where.status = filter.status;
+                if (filter?.orderStatus && filter.orderStatus !== 'ALL') {
+                    where.orderStatus = filter.orderStatus;
                 }
                 if (filter?.paymentMethod && filter.paymentMethod !== 'ALL') {
                     where.paymentMethod = filter.paymentMethod;
@@ -385,8 +389,7 @@ export class OrderService {
                         code,
                         treeLotId: lotId,
                         orderId: orderId,
-                        ownerId: order.buyerId,
-                        status: 'PLANTED',
+                        ownerId: order.customerId,
                     });
                 }
 
@@ -395,15 +398,15 @@ export class OrderService {
                 await treeRepository.save(treesToCreate);
 
                 // Update Order
-                await orderRepository.update(orderId, { status: 'COMPLETED' });
+                await orderRepository.update(orderId, { orderStatus: 'ASSIGNED' }); // Trees assigned to lot
             },
         );
     }
 
-    async getOrdersByBuyer(
+    async getOrdersByCustomer(
         workspaceId: string,
-        buyerId: string,
-        filter?: { status?: string },
+        customerId: string,
+        filter?: { orderStatus?: string },
         pagination?: { limit: number; offset: number },
     ): Promise<{ orders: OrderEntity[]; total: number }> {
         const authContext = buildSystemAuthContext(workspaceId);
@@ -419,15 +422,9 @@ export class OrderService {
                             'order',
                         );
 
-                    const where: any = { buyerId };
-                    if (filter?.status && filter.status !== 'ALL') {
-                        // Map frontend status to backend status if needed, or assume direct match
-                        // For Payment Status vs Order Status, we need to be clear.
-                        // AC says "Filter by status", usually implies Order Status or Payment Status.
-                        // Let's assume Order Status or Payment Status.
-                        // If status is 'PENDING'/'PAID', it might refer to paymentStatus.
-                        // Let's implement generic matching for now.
-                        where.status = filter.status;
+                    const where: any = { customerId };
+                    if (filter?.orderStatus && filter.orderStatus !== 'ALL') {
+                        where.orderStatus = filter.orderStatus;
                     }
 
                     const [orders, total] = await orderRepository.findAndCount({
@@ -441,7 +438,7 @@ export class OrderService {
                     return { orders, total };
                 } catch (error) {
                     this.logger.error(
-                        `Failed to get orders for buyer ${buyerId}: ${error.message}`,
+                        `Failed to get orders for customer ${customerId}: ${error.message}`,
                         error.stack,
                     );
                     throw error;
