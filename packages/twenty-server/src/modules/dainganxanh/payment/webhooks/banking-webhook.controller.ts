@@ -275,7 +275,7 @@ export class BankingWebhookController {
                 `[WORKFLOW:${correlationId}] TODO: Send confirmation email for order ${order.orderCode} with ${result.generated.length} tree codes`,
             );
 
-            // Generate PDF contract
+            // Generate PDF contract using orchestration method
             try {
                 this.logger.log(`[WORKFLOW:${correlationId}] Generating contract for Order ${order.orderCode}`);
 
@@ -289,31 +289,22 @@ export class BankingWebhookController {
                         customerEmail: fullOrder.buyer.email,
                         treeCount: fullOrder.trees?.length || fullOrder.quantity,
                         totalAmount: fullOrder.totalAmount,
-                        treeCodes: fullOrder.trees?.map(t => t.code) || [],
-                        lotName: fullOrder.trees?.[0]?.lotName || 'Khu A', // Placeholder if not in tree obj
+                        treeCodes: fullOrder.trees?.map((t: any) => t.code) || [],
+                        lotName: fullOrder.trees?.[0]?.lotName || 'Khu A',
                         paymentMethod: 'BANKING' as const,
                         paymentDate: new Date(),
                         contractDate: new Date(),
                     };
 
-                    // Generate and Upload
-                    const html = this.contractService.generateContractHtml(contractData);
-                    const pdfBuffer = await this.contractService.generatePdf(html);
-                    const filename = this.contractService.generateFilename(fullOrder.orderCode);
-                    const pdfUrl = await this.contractService.uploadToS3(filename, pdfBuffer);
+                    // Use orchestration method
+                    const contractResult = await this.contractService.generateAndSendContract(contractData);
 
-                    // Update Order
-                    await this.orderService.updateContractUrl(workspaceId, fullOrder.orderCode, pdfUrl);
-
-                    // Send Email
-                    await this.contractService.sendContractEmail(
-                        fullOrder.buyer.email,
-                        contractData.customerName,
-                        pdfBuffer,
-                        filename
-                    );
-
-                    this.logger.log(`[WORKFLOW:${correlationId}] Contract generated and sent`);
+                    if (contractResult.success && contractResult.s3Url) {
+                        await this.orderService.updateContractUrl(workspaceId, fullOrder.orderCode, contractResult.s3Url);
+                        this.logger.log(`[WORKFLOW:${correlationId}] Contract generated: ${contractResult.s3Url}, email: ${contractResult.emailDelivery?.messageId || 'skipped'}`);
+                    } else {
+                        this.logger.warn(`[WORKFLOW:${correlationId}] Contract generation incomplete: ${contractResult.errors?.join(', ')}`);
+                    }
                 }
             } catch (contractError) {
                 this.logger.error(`[WORKFLOW:${correlationId}] Failed to generate contract: ${contractError.message}`, contractError.stack);

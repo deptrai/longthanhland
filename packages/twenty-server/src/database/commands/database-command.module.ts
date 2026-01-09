@@ -4,7 +4,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ComputeTwentyStandardWorkspaceMigrationCommand } from 'src/database/commands/compute-twenty-standard-workspace-migration.command';
 import { CronRegisterAllCommand } from 'src/database/commands/cron-register-all.command';
 import { DataSeedWorkspaceCommand } from 'src/database/commands/data-seed-dev-workspace.command';
+import { SeedEpic1MetadataCommand } from 'src/database/commands/seed-epic1-metadata.command';
 import { ConfirmationQuestion } from 'src/database/commands/questions/confirmation.question';
+import { SeedEpic1MetadataService } from 'src/database/services/seed-epic1-metadata.service';
 import { UpgradeVersionCommandModule } from 'src/database/commands/upgrade-version-command/upgrade-version-command.module';
 import { TypeORMModule } from 'src/database/typeorm/typeorm.module';
 import { ApiKeyModule } from 'src/engine/core-modules/api-key/api-key.module';
@@ -60,8 +62,10 @@ import { AutomatedTriggerModule } from 'src/modules/workflow/workflow-trigger/au
   providers: [
     ComputeTwentyStandardWorkspaceMigrationCommand,
     DataSeedWorkspaceCommand,
+    SeedEpic1MetadataCommand,
+    SeedEpic1MetadataService,
     ConfirmationQuestion,
     CronRegisterAllCommand,
   ],
 })
-export class DatabaseCommandModule {}
+export class DatabaseCommandModule { }

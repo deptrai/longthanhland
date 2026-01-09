@@ -4,10 +4,18 @@ import { TreeTrackingModule } from 'src/modules/dainganxanh/tree-tracking/tree-t
 import { PaymentModule } from 'src/modules/dainganxanh/payment/payment.module';
 import { ShareCardModule } from 'src/modules/dainganxanh/share-card/share-card.module';
 import { LotManagementModule } from 'src/modules/dainganxanh/lot-management/lot-management.module';
+import { OrderManagementModule } from 'src/modules/dainganxanh/order-management/order-management.module';
 import { ReferralModule } from 'src/modules/dainganxanh/referral/referral.module';
 
 @Module({
-    imports: [TreeTrackingModule, PaymentModule, ShareCardModule, LotManagementModule, ReferralModule],
+    imports: [
+        TreeTrackingModule,
+        PaymentModule,
+        ShareCardModule,
+        LotManagementModule,
+        OrderManagementModule,
+        ReferralModule,
+    ],
     providers: [],
     exports: [],
 })

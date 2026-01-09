@@ -11,6 +11,8 @@ export enum FileFolder {
   ServerlessFunctionToDelete = 'serverless-function-to-delete',
   File = 'file',
   AgentChat = 'agent-chat',
+  TreePhoto = 'tree-photo',
+  Contract = 'contract',
 }
 
 registerEnumType(FileFolder, {
@@ -46,6 +48,13 @@ export const fileFolderConfigs: Record<FileFolder, FileFolderConfig> = {
   [FileFolder.AgentChat]: {
     ignoreExpirationToken: false,
   },
+  [FileFolder.TreePhoto]: {
+    ignoreExpirationToken: false,
+  },
+  [FileFolder.Contract]: {
+    ignoreExpirationToken: false,
+  },
 };
 
 export type AllowedFolders = KebabCase<keyof typeof FileFolder>;
+

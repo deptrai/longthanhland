@@ -14,6 +14,7 @@ describe('OrderService', () => {
     let mockOrderRepository: {
         findOne: jest.Mock;
         find: jest.Mock;
+        findAndCount: jest.Mock;
         update: jest.Mock;
     };
 
@@ -23,6 +24,7 @@ describe('OrderService', () => {
         mockOrderRepository = {
             findOne: jest.fn(),
             find: jest.fn(),
+            findAndCount: jest.fn(),
             update: jest.fn(),
         };
 
@@ -179,7 +181,7 @@ describe('OrderService', () => {
                 paymentStatus: 'VERIFIED',
                 transactionHash: 'TXN123456',
                 paidAt: '2026-01-09T06:00:00.000Z',
-                status: 'PAID',
+                orderStatus: 'PAID',
             });
         });
 
@@ -247,22 +249,21 @@ describe('OrderService', () => {
         });
     });
 
-    describe('getOrdersByBuyer', () => {
+    describe('getOrdersByCustomer', () => {
         it('should return orders for specific buyer', async () => {
             const mockOrders: Partial<OrderEntity>[] = [
-                { id: 'order-1', buyerId: 'buyer-1', orderCode: 'DGX-001' },
-                { id: 'order-2', buyerId: 'buyer-1', orderCode: 'DGX-002' },
+                { id: 'order-1', customerId: 'buyer-1', orderCode: 'DGX-001' },
+                { id: 'order-2', customerId: 'buyer-1', orderCode: 'DGX-002' },
             ];
 
-            mockOrderRepository.find.mockResolvedValue(mockOrders);
+            // findAndCount returns [orders, total] tuple
+            mockOrderRepository.findAndCount.mockResolvedValue([mockOrders, 2]);
 
-            const result = await service.getOrdersByBuyer(workspaceId, 'buyer-1');
+            const result = await service.getOrdersByCustomer(workspaceId, 'buyer-1');
 
-            expect(result).toHaveLength(2);
-            expect(mockOrderRepository.find).toHaveBeenCalledWith({
-                where: { buyerId: 'buyer-1' },
-                order: { createdAt: 'DESC' },
-            });
+            expect(result.orders).toHaveLength(2);
+            expect(result.total).toBe(2);
+            expect(mockOrderRepository.findAndCount).toHaveBeenCalled();
         });
     });
     describe('findPendingByUsdtAmount', () => {

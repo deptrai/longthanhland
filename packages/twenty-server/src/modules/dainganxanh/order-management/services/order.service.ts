@@ -303,52 +303,40 @@ export class OrderService {
         filter?: { orderStatus?: string; paymentMethod?: string; startDate?: string; endDate?: string },
         pagination?: { limit: number; offset: number },
     ): Promise<{ orders: OrderEntity[]; total: number }> {
-        const authContext = buildSystemAuthContext(workspaceId);
-        const { limit = 20, offset = 0 } = pagination || {};
+        this.logger.log(`📋 getAllOrders called for workspace: ${workspaceId}`);
 
-        return this.globalWorkspaceOrmManager.executeInWorkspaceContext(
-            authContext,
-            async () => {
-                const orderRepository =
-                    await this.globalWorkspaceOrmManager.getRepository<OrderEntity>(
-                        workspaceId,
-                        'order',
-                    );
+        try {
+            const datasource = await this.globalWorkspaceOrmManager.getGlobalWorkspaceDataSource();
 
-                const where: any = {};
-                if (filter?.orderStatus && filter.orderStatus !== 'ALL') {
-                    where.orderStatus = filter.orderStatus;
-                }
-                if (filter?.paymentMethod && filter.paymentMethod !== 'ALL') {
-                    where.paymentMethod = filter.paymentMethod;
-                }
-                // Date filtering if provided
-                // Assuming filter.startDate/endDate are ISO strings
-                // Need simple Import for Between/MoreThan/LessThan if needed, or use raw query builder. 
-                // For simplicity in findAndCount with TypeORM:
-                // We need to import Between, MoreThanOrEqual, LessThanOrEqual from typeorm at top of file.
-                // But imports are tricky with replace_file_content.
-                // Let's check imports first.
-                // Fallback: use query builder or simple non-import if possible? 
-                // TypeORM 'Between' helper is best.
-                // I'll assume imports are present or use 'Raw' if needed. 
-                // Actually, I can add imports in a separate step.
-                // Let's just add logic logic here assuming imports.
-                if (filter?.startDate && filter?.endDate) {
-                    where.createdAt = Between(filter.startDate, filter.endDate);
-                }
+            // Get actual schema name from core.dataSource table
+            const dataSourceResult = await datasource.query(
+                `SELECT schema FROM core."dataSource" WHERE "workspaceId" = $1`,
+                [workspaceId],
+                undefined,
+                { shouldBypassPermissionChecks: true }
+            );
 
-                const [orders, total] = await orderRepository.findAndCount({
-                    where,
-                    order: { createdAt: 'DESC' } as any,
-                    take: limit,
-                    skip: offset,
-                    relations: ['trees', 'buyer'], // Load trees and buyer
-                });
+            if (!dataSourceResult || dataSourceResult.length === 0) {
+                throw new Error(`No dataSource found for workspace ${workspaceId}`);
+            }
 
-                return { orders, total };
-            },
-        );
+            const schemaName = dataSourceResult[0].schema;
+            this.logger.log(`📁 Using schema: ${schemaName}`);
+
+            // Query _order table (custom objects have underscore prefix)
+            const orders = await datasource.query(
+                `SELECT * FROM "${schemaName}"."_order" WHERE "deletedAt" IS NULL ORDER BY "createdAt" DESC`,
+                [],
+                undefined,
+                { shouldBypassPermissionChecks: true }
+            );
+
+            this.logger.log(`✅ Found ${orders?.length || 0} orders from database`);
+            return { orders: orders || [], total: orders?.length || 0 };
+        } catch (error) {
+            this.logger.error(`❌ getAllOrders error: ${error.message}`, error.stack);
+            throw error;
+        }
     }
 
     async assignLot(workspaceId: string, orderId: string, lotId: string): Promise<void> {
@@ -432,7 +420,8 @@ export class OrderService {
                         order: { createdAt: 'DESC' } as any,
                         take: limit,
                         skip: offset,
-                        relations: ['trees'], // Load trees for AC 4.2
+                        // Remove relations until they are created
+                        // relations: ['trees'],
                     });
 
                     return { orders, total };

@@ -6,10 +6,17 @@ import { GlobalWorkspaceOrmManager } from 'src/engine/twenty-orm/global-workspac
 describe('LotService', () => {
     let service: LotService;
     let mockOrmManager: jest.Mocked<GlobalWorkspaceOrmManager>;
+    let mockDataSource: any;
+    let mockQuery: jest.Mock;
 
     const mockWorkspaceId = 'test-workspace';
 
     beforeEach(async () => {
+        mockQuery = jest.fn();
+        mockDataSource = {
+            query: mockQuery,
+        };
+
         const mockRepository = {
             find: jest.fn(),
             findOne: jest.fn(),
@@ -25,6 +32,7 @@ describe('LotService', () => {
                 callback(),
             ),
             getRepository: jest.fn().mockResolvedValue(mockRepository),
+            getGlobalWorkspaceDataSource: jest.fn().mockResolvedValue(mockDataSource),
         } as any;
 
         const module: TestingModule = await Test.createTestingModule({
@@ -45,35 +53,26 @@ describe('LotService', () => {
             const mockLots = [
                 {
                     id: 'lot1',
-                    lotName: 'Lot A',
+                    name: 'Lot A',
                     capacity: 100,
-                    trees: [{ id: 't1' }, { id: 't2' }],
-                    assignedOperator: { id: 'op1', name: 'Operator 1' },
                 },
                 {
                     id: 'lot2',
-                    lotName: 'Lot B',
+                    name: 'Lot B',
                     capacity: 50,
-                    trees: [],
-                    assignedOperator: null,
                 },
             ];
 
-            const mockRepo = await mockOrmManager.getRepository(
-                mockWorkspaceId,
-                'treeLot',
-            );
-            (mockRepo.find as jest.Mock).mockResolvedValue(mockLots);
+            // Mock schema lookup query
+            mockQuery.mockResolvedValueOnce([{ schema: 'workspace_testschema' }]);
+            // Mock lots query
+            mockQuery.mockResolvedValueOnce(mockLots);
 
             const result = await service.getAllLots(mockWorkspaceId);
 
             expect(result).toHaveLength(2);
-            expect(result[0].treeCount).toBe(2);
-            expect(result[1].treeCount).toBe(0);
-            expect(mockRepo.find).toHaveBeenCalledWith({
-                relations: ['assignedOperator', 'trees'],
-                order: { lotName: 'ASC' },
-            });
+            expect(mockOrmManager.getGlobalWorkspaceDataSource).toHaveBeenCalled();
+            expect(mockQuery).toHaveBeenCalledTimes(2);
         });
     });
 

@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { GlobalWorkspaceOrmManager } from 'src/engine/twenty-orm/global-workspace-datasource/global-workspace-orm.manager';
 import { buildSystemAuthContext } from 'src/engine/twenty-orm/utils/build-system-auth-context.util';
+import { EmailService } from 'src/engine/core-modules/email/email.service';
 
 export interface QuarterlyUpdateNotification {
   treeOwnerId: string;
@@ -15,6 +16,7 @@ export interface QuarterlyUpdateNotification {
 interface TreeData {
   code: string;
   status: string;
+  plantingDate?: string;
   owner?: {
     email: string;
     name: {
@@ -27,6 +29,8 @@ interface TreeData {
 /**
  * QuarterlyUpdateService manages automated quarterly tree updates
  * and notifications to tree owners.
+ * 
+ * Uses Twenty's EmailService for sending quarterly reports.
  * 
  * Quarterly schedule:
  * - Q1: January - March
@@ -42,6 +46,7 @@ export class QuarterlyUpdateService {
 
   constructor(
     private readonly globalWorkspaceOrmManager: GlobalWorkspaceOrmManager,
+    private readonly emailService: EmailService,
   ) { }
 
   @Cron(CronExpression.EVERY_DAY_AT_9AM)
@@ -132,9 +137,18 @@ export class QuarterlyUpdateService {
   }
 
   private async sendEmail(to: string, subject: string, html: string) {
-    // Placeholder for real email service integration
-    this.logger.log(`[MOCK EMAIL] Sending to ${to}: ${subject}`);
-    return Promise.resolve();
+    try {
+      await this.emailService.send({
+        to,
+        subject,
+        html,
+        from: 'Đại Ngàn Xanh <noreply@dainganxanh.vn>',
+      });
+      this.logger.log(`Email sent successfully to ${to}`);
+    } catch (error) {
+      this.logger.error(`Failed to send email to ${to}`, error);
+      throw error;
+    }
   }
   /**
    * Get current quarter info

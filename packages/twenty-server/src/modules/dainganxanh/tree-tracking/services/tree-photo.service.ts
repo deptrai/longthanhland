@@ -4,6 +4,8 @@ import * as ExifReader from 'exifreader';
 
 import { GlobalWorkspaceOrmManager } from 'src/engine/twenty-orm/global-workspace-datasource/global-workspace-orm.manager';
 import { buildSystemAuthContext } from 'src/engine/twenty-orm/utils/build-system-auth-context.util';
+import { FileUploadService, SignedFilesResult } from 'src/engine/core-modules/file/file-upload/services/file-upload.service';
+import { FileFolder } from 'src/engine/core-modules/file/interfaces/file-folder.interface';
 
 /**
  * TreePhoto entity interface
@@ -41,10 +43,24 @@ export interface CreateTreePhotoDto {
 }
 
 /**
+ * DTO for uploading a tree photo
+ */
+export interface UploadTreePhotoDto {
+    file: Buffer;
+    filename: string;
+    mimeType: string;
+    treeCode: string;
+    quarter: string;
+    treeId: string;
+    uploadedById?: string;
+}
+
+/**
  * TreePhotoService handles photo uploads, compression, and GPS extraction
  * for tree progress tracking.
  * 
  * Photos are uploaded quarterly and tagged with GPS from EXIF data.
+ * Uses Twenty's built-in FileUploadService with sharp for image processing.
  */
 @Injectable()
 export class TreePhotoService {
@@ -52,7 +68,54 @@ export class TreePhotoService {
 
     constructor(
         private readonly globalWorkspaceOrmManager: GlobalWorkspaceOrmManager,
+        private readonly fileUploadService: FileUploadService,
     ) { }
+
+    /**
+     * Upload a tree photo using Twenty's FileUploadService
+     * - Extracts GPS from EXIF
+     * - Uploads to storage with automatic resizing
+     * - Creates TreePhoto record
+     */
+    async uploadTreePhoto(
+        workspaceId: string,
+        dto: UploadTreePhotoDto,
+    ): Promise<TreePhotoEntity> {
+        // Validate quarter format
+        if (!this.isValidQuarter(dto.quarter)) {
+            throw new BadRequestException(`Invalid quarter format: ${dto.quarter}. Expected Q[1-4]-YYYY.`);
+        }
+
+        // Extract GPS from EXIF if available
+        const gps = await this.extractGpsFromExif(dto.file);
+
+        // Upload file using Twenty's FileUploadService
+        const uploadResult: SignedFilesResult = await this.fileUploadService.uploadFile({
+            file: dto.file,
+            filename: `${dto.treeCode}-${dto.quarter}-${Date.now()}-${dto.filename}`,
+            mimeType: dto.mimeType,
+            fileFolder: FileFolder.TreePhoto,
+            workspaceId,
+        });
+
+        // Build photo URL from uploaded file
+        const photoUrl = uploadResult.files[0]?.path
+            ? `/files/${uploadResult.files[0].path}?token=${uploadResult.files[0].token}`
+            : '';
+
+        // Create TreePhoto record
+        return this.createPhoto(workspaceId, {
+            photoUrl,
+            thumbnailUrl: null, // FileUploadService handles resizing
+            capturedAt: new Date().toISOString(),
+            gpsLat: gps?.lat,
+            gpsLng: gps?.lng,
+            quarter: dto.quarter,
+            isPlaceholder: false,
+            treeId: dto.treeId,
+            uploadedById: dto.uploadedById,
+        });
+    }
     /**
      * Extract GPS coordinates from photo EXIF data
      * Returns null if GPS data is not available
@@ -69,17 +132,17 @@ export class TreePhotoService {
 
             const lat = this.convertDmsToDecimal(
                 tags.GPSLatitude.description,
-                tags.GPSLatitudeRef?.value?.[0] ?? 'N',
+                String((tags.GPSLatitudeRef?.value as string[] | undefined)?.[0] ?? 'N'),
             );
 
             const lng = this.convertDmsToDecimal(
                 tags.GPSLongitude.description,
-                tags.GPSLongitudeRef?.value?.[0] ?? 'E',
+                String((tags.GPSLongitudeRef?.value as string[] | undefined)?.[0] ?? 'E'),
             );
 
             return { lat, lng };
         } catch (error) {
-            console.error('Failed to extract GPS from EXIF:', error);
+            this.logger.warn('Failed to extract GPS from EXIF', error);
             return null;
         }
     }

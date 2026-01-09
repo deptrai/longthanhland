@@ -8,7 +8,7 @@ describe('OrderController', () => {
     let orderService: OrderService;
 
     const mockOrderService = {
-        getOrdersByBuyer: jest.fn(),
+        getOrdersByCustomer: jest.fn(),
         getAllOrders: jest.fn().mockResolvedValue({ orders: [], total: 0 }),
         verifyPayment: jest.fn(),
         assignLot: jest.fn(),
@@ -54,17 +54,17 @@ describe('OrderController', () => {
                 },
             ];
 
-            mockOrderService.getOrdersByBuyer.mockResolvedValue({
+            mockOrderService.getOrdersByCustomer.mockResolvedValue({
                 orders: mockOrders,
                 total: 1
             });
 
             const result = await controller.getMyOrderHistory(mockReq as any);
 
-            expect(orderService.getOrdersByBuyer).toHaveBeenCalledWith(
+            expect(orderService.getOrdersByCustomer).toHaveBeenCalledWith(
                 'ws-123',
                 'user-123',
-                { status: 'ALL' },
+                { orderStatus: 'ALL' },
                 { limit: 20, offset: 0 }
             );
 
@@ -87,13 +87,13 @@ describe('OrderController', () => {
     describe('getAllOrders', () => {
         it('should get all orders for admin', async () => {
             const result = await controller.getAllOrders({
-                user: { workspaceId: 'default' },
+                user: { workspaceId: '3b8e6458-5fc1-4e63-8563-008ccddaa6db' },
                 query: { page: '1', limit: '10' }
             } as any);
 
             expect(orderService.getAllOrders).toHaveBeenCalledWith(
-                'default',
-                { status: 'ALL', paymentMethod: 'ALL', startDate: undefined, endDate: undefined },
+                '3b8e6458-5fc1-4e63-8563-008ccddaa6db',
+                { orderStatus: 'ALL', paymentMethod: 'ALL', startDate: undefined, endDate: undefined },
                 { limit: 10, offset: 0 }
             );
             expect(result.data).toBeDefined();
@@ -103,9 +103,9 @@ describe('OrderController', () => {
     describe('verifyPayment', () => {
         it('should verify payment', async () => {
             const orderId = 'order-1';
-            await controller.verifyPayment({ user: { workspaceId: 'default' } } as any, orderId);
+            await controller.verifyPayment({ user: { workspaceId: '3b8e6458-5fc1-4e63-8563-008ccddaa6db' } } as any, orderId);
 
-            expect(orderService.verifyPayment).toHaveBeenCalledWith('default', orderId);
+            expect(orderService.verifyPayment).toHaveBeenCalledWith('3b8e6458-5fc1-4e63-8563-008ccddaa6db', orderId);
         });
     });
 
@@ -113,16 +113,16 @@ describe('OrderController', () => {
         it('should assign lot to order', async () => {
             const orderId = 'order-1';
             const lotId = 'lot-1';
-            await controller.assignLot({ user: { workspaceId: 'default' } } as any, orderId, { lotId });
+            await controller.assignLot({ user: { workspaceId: '3b8e6458-5fc1-4e63-8563-008ccddaa6db' } } as any, orderId, { lotId });
 
-            expect(orderService.assignLot).toHaveBeenCalledWith('default', orderId, lotId);
+            expect(orderService.assignLot).toHaveBeenCalledWith('3b8e6458-5fc1-4e63-8563-008ccddaa6db', orderId, lotId);
         });
     });
 
     describe('getLots', () => {
         it('should return list of lots', async () => {
-            const result = await controller.getLots({ user: { workspaceId: 'default' } } as any);
-            expect(orderService.getLots).toHaveBeenCalledWith('default');
+            const result = await controller.getLots({ user: { workspaceId: '3b8e6458-5fc1-4e63-8563-008ccddaa6db' } } as any);
+            expect(orderService.getLots).toHaveBeenCalledWith('3b8e6458-5fc1-4e63-8563-008ccddaa6db');
             expect(result.data).toBeDefined();
         });
     });

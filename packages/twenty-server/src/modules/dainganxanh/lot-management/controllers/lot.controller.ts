@@ -1,16 +1,36 @@
-import { Controller, Get, Patch, Param, Body, Req } from '@nestjs/common';
+import { Controller, Get, Patch, Param, Body, Req, Logger } from '@nestjs/common';
 // import { JwtAuthGuard } from 'src/engine/guards/jwt-auth.guard';
 import { LotService } from '../services/lot.service';
 
-@Controller('lots')
+@Controller('api/dainganxanh/lots')
 // @UseGuards(JwtAuthGuard)
 export class LotController {
+    private readonly logger = new Logger(LotController.name);
+
     constructor(private readonly lotService: LotService) { }
+
+    @Get('health')
+    healthCheck() {
+        return { status: 'ok', controller: 'LotController', time: new Date().toISOString() };
+    }
 
     @Get('admin')
     async getAllLots(@Req() req: any) {
-        const workspaceId = req.user?.workspaceId || 'default';
-        return this.lotService.getAllLots(workspaceId);
+        try {
+            const workspaceId = req.user?.workspaceId || '3b8e6458-5fc1-4e63-8563-008ccddaa6db';
+            this.logger.log(`Getting lots for workspace: ${workspaceId}`);
+            const result = await this.lotService.getAllLots(workspaceId);
+            this.logger.log(`Found ${result?.length || 0} lots`);
+            return result;
+        } catch (error) {
+            this.logger.error(`Failed to get lots: ${error.message}`, error.stack);
+            // Return error in response body for debugging
+            return {
+                error: true,
+                message: error.message,
+                stack: error.stack,
+            };
+        }
     }
 
     @Patch(':id/assign-operator')
@@ -19,7 +39,7 @@ export class LotController {
         @Body('operatorId') operatorId: string,
         @Req() req: any,
     ) {
-        const workspaceId = req.user?.workspaceId || 'default';
+        const workspaceId = req.user?.workspaceId || '3b8e6458-5fc1-4e63-8563-008ccddaa6db';
         return this.lotService.assignOperator(lotId, operatorId, workspaceId);
     }
 
@@ -29,7 +49,7 @@ export class LotController {
         @Body('newLotId') newLotId: string,
         @Req() req: any,
     ) {
-        const workspaceId = req.user?.workspaceId || 'default';
+        const workspaceId = req.user?.workspaceId || '3b8e6458-5fc1-4e63-8563-008ccdaa6db';
         return this.lotService.reassignTree(treeId, newLotId, workspaceId);
     }
 }

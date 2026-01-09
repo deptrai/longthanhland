@@ -59,7 +59,7 @@ describe('LotController', () => {
 
             await controller.getAllLots(reqWithoutWorkspace);
 
-            expect(service.getAllLots).toHaveBeenCalledWith('default');
+            expect(service.getAllLots).toHaveBeenCalledWith('3b8e6458-5fc1-4e63-8563-008ccddaa6db');
         });
     });
 

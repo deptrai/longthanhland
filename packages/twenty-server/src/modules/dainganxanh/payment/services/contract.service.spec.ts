@@ -107,22 +107,132 @@ describe('ContractService', () => {
     });
 
     describe('sendContractEmail', () => {
-        it('should send email with attachment', async () => {
+        it('should send email with attachment and return success', async () => {
             process.env.EMAIL_USER = 'test'; // Enable email
+            mockTransporter.sendMail.mockResolvedValue({ messageId: 'msg-123' });
 
-            await service.sendContractEmail(
+            const result = await service.sendContractEmail(
+                'test@example.com',
+                'Test User',
+                Buffer.from('pdf'),
+                'contract.pdf',
+                'https://s3.example.com/contract.pdf'
+            );
+
+            expect(result.success).toBe(true);
+            expect(result.messageId).toBe('msg-123');
+            expect(mockTransporter.sendMail).toHaveBeenCalledWith(expect.objectContaining({
+                to: 'test@example.com',
+                html: expect.stringContaining('Tải hợp đồng PDF tại đây'),
+                attachments: expect.arrayContaining([
+                    expect.objectContaining({ filename: 'contract.pdf' })
+                ])
+            }));
+        });
+
+        it('should return error when EMAIL_USER not configured', async () => {
+            delete process.env.EMAIL_USER;
+
+            const result = await service.sendContractEmail(
                 'test@example.com',
                 'Test User',
                 Buffer.from('pdf'),
                 'contract.pdf'
             );
 
-            expect(mockTransporter.sendMail).toHaveBeenCalledWith(expect.objectContaining({
-                to: 'test@example.com',
-                attachments: expect.arrayContaining([
-                    expect.objectContaining({ filename: 'contract.pdf' })
-                ])
-            }));
+            expect(result.success).toBe(false);
+            expect(result.error).toBe('EMAIL_USER not configured');
+        });
+
+        it('should handle email send failure', async () => {
+            process.env.EMAIL_USER = 'test';
+            mockTransporter.sendMail.mockRejectedValue(new Error('SMTP Error'));
+
+            const result = await service.sendContractEmail(
+                'test@example.com',
+                'Test User',
+                Buffer.from('pdf'),
+                'contract.pdf'
+            );
+
+            expect(result.success).toBe(false);
+            expect(result.error).toBe('SMTP Error');
+        });
+    });
+
+    describe('validateContractData', () => {
+        it('should return empty array for valid data', () => {
+            const validData = {
+                orderCode: 'ORD-123',
+                customerName: 'Nguyen Van A',
+                customerId: 'NB-123',
+                customerEmail: 'a@example.com',
+                treeCount: 5,
+                treeCodes: ['ABC-1'],
+                lotName: 'Lot A',
+            };
+
+            const errors = service.validateContractData(validData);
+            expect(errors).toHaveLength(0);
+        });
+
+        it('should return errors for missing required fields', () => {
+            const invalidData = {
+                orderCode: '',
+                treeCount: 0,
+            };
+
+            const errors = service.validateContractData(invalidData);
+            expect(errors.length).toBeGreaterThan(0);
+            expect(errors).toContain('Thiếu mã đơn hàng');
+            expect(errors).toContain('Thiếu tên khách hàng');
+        });
+    });
+
+    describe('generateAndSendContract', () => {
+        it('should orchestrate full contract flow', async () => {
+            process.env.EMAIL_USER = 'test';
+
+            // Mock puppeteer
+            const mockPage = {
+                setContent: jest.fn(),
+                pdf: jest.fn().mockResolvedValue(Buffer.from('pdf-content')),
+            };
+            const mockBrowser = {
+                newPage: jest.fn().mockResolvedValue(mockPage),
+                close: jest.fn(),
+            };
+            (puppeteer.launch as jest.Mock).mockResolvedValue(mockBrowser);
+            mockTransporter.sendMail.mockResolvedValue({ messageId: 'msg-456' });
+
+            const data = {
+                orderCode: 'ORD-123',
+                customerName: 'Nguyen Van A',
+                customerId: 'NB-123',
+                customerEmail: 'a@example.com',
+                treeCount: 5,
+                totalAmount: 1250000,
+                treeCodes: ['ABC-1', 'ABC-2'],
+                lotName: 'Lot A',
+                paymentMethod: 'USDT' as const,
+                paymentDate: new Date('2024-01-01'),
+                contractDate: new Date('2024-01-01'),
+            };
+
+            const result = await service.generateAndSendContract(data);
+
+            expect(result.success).toBe(true);
+            expect(result.s3Url).toContain('contracts/');
+            expect(result.emailDelivery?.success).toBe(true);
+        });
+
+        it('should return validation errors for invalid data', async () => {
+            const result = await service.generateAndSendContract({} as any);
+
+            expect(result.success).toBe(false);
+            expect(result.errors).toBeDefined();
+            expect(result.errors!.length).toBeGreaterThan(0);
         });
     });
 });
+

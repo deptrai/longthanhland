@@ -11,7 +11,7 @@ import {
 // import { JwtAuthGuard } from 'src/engine/guards/jwt-auth.guard';
 import { TreePhotoService, CreateTreePhotoDto } from '../services/tree-photo.service';
 
-@Controller('photos')
+@Controller('api/dainganxanh/photos')
 // @UseGuards(JwtAuthGuard)
 export class PhotoUploadController {
     constructor(private readonly treePhotoService: TreePhotoService) { }

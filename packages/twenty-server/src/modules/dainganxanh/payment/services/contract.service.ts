@@ -1,7 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import * as puppeteer from 'puppeteer';
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import * as nodemailer from 'nodemailer';
+
+import { FileStorageService } from 'src/engine/core-modules/file-storage/file-storage.service';
+import { FileService } from 'src/engine/core-modules/file/services/file.service';
+import { FileFolder } from 'src/engine/core-modules/file/interfaces/file-folder.interface';
 
 export interface ContractData {
   orderCode: string;
@@ -25,20 +28,12 @@ export interface ContractData {
 @Injectable()
 export class ContractService {
   private readonly logger = new Logger(ContractService.name);
-  private readonly s3Client: S3Client;
-  private readonly S3_BUCKET = process.env.AWS_S3_BUCKET_NAME || 'dainganxanh-contracts';
-  private readonly REGION = process.env.AWS_REGION || 'ap-southeast-1';
   private readonly transporter: nodemailer.Transporter;
 
-  constructor() {
-    this.s3Client = new S3Client({
-      region: this.REGION,
-      credentials: {
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '',
-      },
-    });
-
+  constructor(
+    private readonly fileStorageService: FileStorageService,
+    private readonly fileService: FileService,
+  ) {
     // Initialize email transporter (Mock for now or use environment variables)
     this.transporter = nodemailer.createTransport({
       host: process.env.EMAIL_HOST || 'smtp.gmail.com',
@@ -88,61 +83,88 @@ export class ContractService {
   }
 
   /**
-   * Upload PDF to S3
+   * Upload PDF contract using Twenty's unified file storage
+   * Respects STORAGE_TYPE env variable (LOCAL or S3)
    */
-  async uploadToS3(filename: string, pdfBuffer: Buffer): Promise<string> {
-    const key = `contracts/${filename}`;
+  async uploadContract(
+    filename: string,
+    pdfBuffer: Buffer,
+    workspaceId: string,
+  ): Promise<string> {
+    const folder = `workspace-${workspaceId}/${FileFolder.Contract}`;
 
     try {
-      const command = new PutObjectCommand({
-        Bucket: this.S3_BUCKET,
-        Key: key,
-        Body: pdfBuffer,
-        ContentType: 'application/pdf',
+      await this.fileStorageService.write({
+        file: pdfBuffer,
+        name: filename,
+        mimeType: 'application/pdf',
+        folder,
       });
 
-      await this.s3Client.send(command);
+      // Generate signed URL for file access
+      const signedToken = this.fileService.encodeFileToken({
+        filename,
+        workspaceId,
+      });
 
-      // Construct Public URL (or logic for Signed URL)
-      const url = `https://${this.S3_BUCKET}.s3.${this.REGION}.amazonaws.com/${key}`;
-      this.logger.log(`Uploaded contract to ${url}`);
-      return url;
+      // Return path that can be accessed via /files endpoint
+      const filePath = `${FileFolder.Contract}/${filename}`;
+      this.logger.log(`Uploaded contract to ${filePath}`);
+
+      return `/files/${filePath}?token=${signedToken}`;
     } catch (error) {
-      this.logger.error(`Failed to upload to S3: ${error.message}`, error.stack);
+      this.logger.error(`Failed to upload contract: ${error.message}`, error.stack);
       throw error;
     }
   }
 
   /**
-   * Send contract via email
+   * @deprecated Use uploadContract instead - kept for backward compatibility
+   */
+  async uploadToS3(filename: string, pdfBuffer: Buffer): Promise<string> {
+    const workspaceId = process.env.DEFAULT_WORKSPACE_ID || 'default';
+    return this.uploadContract(filename, pdfBuffer, workspaceId);
+  }
+
+  /**
+   * Send contract via email with delivery tracking
    */
   async sendContractEmail(
     to: string,
     customerName: string,
     pdfBuffer: Buffer,
-    filename: string
-  ): Promise<void> {
+    filename: string,
+    s3Url?: string
+  ): Promise<{ success: boolean; messageId?: string; error?: string }> {
     if (!process.env.EMAIL_USER) {
       this.logger.warn('Skipping email send: EMAIL_USER not configured');
-      return;
+      return { success: false, error: 'EMAIL_USER not configured' };
     }
 
-    // Let caller handle errors
-    await this.transporter.sendMail({
-      from: '"Đại Ngàn Xanh" <no-reply@dainganxanh.vn>',
-      to,
-      subject: 'Hợp đồng trồng cây Dó Đen của bạn',
-      text: `Xin chào ${customerName},\n\nĐính kèm là hợp đồng trồng cây Dó Đen của bạn.\n\nTrân trọng,\nĐại Ngàn Xanh Team`,
-      html: `<p>Xin chào <strong>${customerName}</strong>,</p><p>Đính kèm là hợp đồng trồng cây Dó Đen của bạn.</p><p>Trân trọng,<br>Đại Ngàn Xanh Team</p>`,
-      attachments: [
-        {
-          filename,
-          content: pdfBuffer,
-          contentType: 'application/pdf',
-        },
-      ],
-    });
-    this.logger.log(`Sent contract email to ${to}`);
+    try {
+      const downloadLink = s3Url ? `<p><a href="${s3Url}">Tải hợp đồng PDF tại đây</a></p>` : '';
+
+      const info = await this.transporter.sendMail({
+        from: '"Đại Ngàn Xanh" <no-reply@dainganxanh.vn>',
+        to,
+        subject: 'Hợp đồng trồng cây Dó Đen của bạn',
+        text: `Xin chào ${customerName},\n\nĐính kèm là hợp đồng trồng cây Dó Đen của bạn.${s3Url ? `\n\nTải hợp đồng tại: ${s3Url}` : ''}\n\nTrân trọng,\nĐại Ngàn Xanh Team`,
+        html: `<p>Xin chào <strong>${customerName}</strong>,</p><p>Đính kèm là hợp đồng trồng cây Dó Đen của bạn.</p>${downloadLink}<p>Trân trọng,<br>Đại Ngàn Xanh Team</p>`,
+        attachments: [
+          {
+            filename,
+            content: pdfBuffer,
+            contentType: 'application/pdf',
+          },
+        ],
+      });
+
+      this.logger.log(`Sent contract email to ${to}, messageId: ${info.messageId}`);
+      return { success: true, messageId: info.messageId };
+    } catch (error) {
+      this.logger.error(`Failed to send email to ${to}: ${error.message}`);
+      return { success: false, error: error.message };
+    }
   }
   /**
    * Generate contract metadata for PDF generation
@@ -305,5 +327,53 @@ export class ContractService {
     if (!data.lotName) errors.push('Thiếu tên lô cây');
 
     return errors;
+  }
+
+  /**
+   * Main orchestration method: Generate contract, upload to S3, send email
+   * This method combines all steps for complete contract delivery
+   */
+  async generateAndSendContract(data: ContractData): Promise<{
+    success: boolean;
+    s3Url?: string;
+    emailDelivery?: { success: boolean; messageId?: string; error?: string };
+    errors?: string[];
+  }> {
+    // Step 1: Validate contract data
+    const validationErrors = this.validateContractData(data);
+    if (validationErrors.length > 0) {
+      this.logger.error(`Contract validation failed: ${validationErrors.join(', ')}`);
+      return { success: false, errors: validationErrors };
+    }
+
+    try {
+      // Step 2: Generate HTML and PDF
+      const html = this.generateContractHtml(data);
+      const pdfBuffer = await this.generatePdf(html);
+      const filename = this.generateFilename(data.orderCode);
+
+      // Step 3: Upload to S3
+      const s3Url = await this.uploadToS3(filename, pdfBuffer);
+
+      // Step 4: Send email with PDF attachment and S3 link
+      const emailResult = await this.sendContractEmail(
+        data.customerEmail,
+        data.customerName,
+        pdfBuffer,
+        filename,
+        s3Url
+      );
+
+      this.logger.log(`Contract generated for order ${data.orderCode}: ${s3Url}`);
+
+      return {
+        success: true,
+        s3Url,
+        emailDelivery: emailResult,
+      };
+    } catch (error) {
+      this.logger.error(`Failed to generate contract for ${data.orderCode}: ${error.message}`, error.stack);
+      return { success: false, errors: [error.message] };
+    }
   }
 }

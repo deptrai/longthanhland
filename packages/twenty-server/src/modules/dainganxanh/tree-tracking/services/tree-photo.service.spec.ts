@@ -7,6 +7,7 @@ import {
     type CreateTreePhotoDto,
 } from './tree-photo.service';
 import { GlobalWorkspaceOrmManager } from 'src/engine/twenty-orm/global-workspace-datasource/global-workspace-orm.manager';
+import { FileUploadService } from 'src/engine/core-modules/file/file-upload/services/file-upload.service';
 
 // Mock ExifReader
 jest.mock('exifreader', () => ({
@@ -16,6 +17,7 @@ jest.mock('exifreader', () => ({
 describe('TreePhotoService', () => {
     let service: TreePhotoService;
     let mockGlobalWorkspaceOrmManager: jest.Mocked<GlobalWorkspaceOrmManager>;
+    let mockFileUploadService: jest.Mocked<FileUploadService>;
     let mockPhotoRepository: {
         save: jest.Mock;
         find: jest.Mock;
@@ -38,12 +40,26 @@ describe('TreePhotoService', () => {
                 .mockImplementation((_authContext, fn) => fn()),
         } as unknown as jest.Mocked<GlobalWorkspaceOrmManager>;
 
+        mockFileUploadService = {
+            uploadFile: jest.fn().mockResolvedValue({
+                name: 'test-file',
+                mimeType: 'image/jpeg',
+                files: [{ path: 'tree-photo/test.jpg', token: 'test-token' }],
+            }),
+            uploadImage: jest.fn(),
+            uploadImageFromUrl: jest.fn(),
+        } as unknown as jest.Mocked<FileUploadService>;
+
         const module: TestingModule = await Test.createTestingModule({
             providers: [
                 TreePhotoService,
                 {
                     provide: GlobalWorkspaceOrmManager,
                     useValue: mockGlobalWorkspaceOrmManager,
+                },
+                {
+                    provide: FileUploadService,
+                    useValue: mockFileUploadService,
                 },
             ],
         }).compile();

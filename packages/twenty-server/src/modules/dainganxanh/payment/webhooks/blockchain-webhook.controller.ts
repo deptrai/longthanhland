@@ -1,8 +1,10 @@
-import { Controller, Post, Body, HttpCode, HttpStatus, Logger } from '@nestjs/common';
+import { Controller, Post, Get, Body, HttpCode, HttpStatus, Logger, UseGuards } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { UsdtService } from '../services/usdt.service';
 import { OrderService } from '../../order-management/services/order.service';
 
 import { ContractService } from '../../payment/services/contract.service';
+import { WebhookSignatureGuard } from '../guards/webhook-signature.guard';
 
 export interface BlockchainWebhookDto {
     txHash: string;
@@ -32,18 +34,26 @@ export class BlockchainWebhookController {
     /**
      * Handle incoming blockchain transaction notification
      * POST /webhooks/blockchain
+     * 
+     * Rate limit: 60 requests/minute per IP
+     * Requires valid HMAC signature from webhook provider
      */
     @Post()
     @HttpCode(HttpStatus.OK)
+    @Throttle({ default: { limit: 60, ttl: 60000 } }) // 60 requests per minute
+    @UseGuards(WebhookSignatureGuard)
     async handleBlockchainWebhook(
         @Body() payload: BlockchainWebhookDto,
     ): Promise<{ success: boolean; message: string }> {
         this.logger.log(`Received blockchain webhook: ${payload.txHash}`);
 
         try {
+            // Get workspace ID from environment
+            const workspaceId = process.env.DEFAULT_WORKSPACE_ID || '3b8e6458-5fc1-4e63-8563-008ccddaa6db';
+
             // 0. Idempotency Check
             const isProcessed = await this.orderService.isTransactionProcessed(
-                'default', // TODO: Resolve workspaceId dynamically if multi-tenant
+                workspaceId,
                 payload.txHash,
             );
             if (isProcessed) {
@@ -51,26 +61,35 @@ export class BlockchainWebhookController {
                 return { success: true, message: 'Already processed' };
             }
 
-            // 1. Validate this is a BSC USDT transaction
-            if (payload.network !== 'bsc' && payload.network !== 'binance') {
-                this.logger.warn(`Ignoring non-BSC transaction: ${payload.network}`);
+            // 1. Validate this is a supported USDT transaction (BSC or Polygon)
+            const supportedNetworks = ['bsc', 'binance', 'polygon', 'matic'];
+            if (!supportedNetworks.includes(payload.network.toLowerCase())) {
+                this.logger.warn(`Ignoring unsupported network: ${payload.network}`);
                 return { success: false, message: 'Unsupported network' };
             }
 
-            const usdtContractAddress = '0x55d398326f99059fF775485246999027B3197955'.toLowerCase();
-            if (payload.tokenAddress.toLowerCase() !== usdtContractAddress) {
+            // USDT contract addresses by network
+            const usdtContracts: Record<string, string> = {
+                bsc: '0x55d398326f99059ff775485246999027b3197955',
+                binance: '0x55d398326f99059ff775485246999027b3197955',
+                polygon: '0xc2132d05d31c914a87c6611c10748aeb04b58e8f', // USDT on Polygon
+                matic: '0xc2132d05d31c914a87c6611c10748aeb04b58e8f',
+            };
+            const expectedUsdtAddress = usdtContracts[payload.network.toLowerCase()];
+            if (payload.tokenAddress.toLowerCase() !== expectedUsdtAddress) {
                 this.logger.warn(`Ignoring non-USDT token: ${payload.tokenAddress}`);
                 return { success: false, message: 'Unsupported token' };
             }
 
-            // 2. Parse amount (USDT on BSC has 18 decimals)
-            const usdtAmount = parseFloat(payload.amount) / 1e18;
+            // USDT decimals: 18 on BSC, 6 on Polygon
+            const decimals = payload.network.toLowerCase().includes('polygon') || payload.network.toLowerCase() === 'matic' ? 6 : 18;
+            const usdtAmount = parseFloat(payload.amount) / Math.pow(10, decimals);
             this.logger.log(`USDT payment received: ${usdtAmount} USDT from ${payload.fromAddress}`);
 
             // 3. Find pending order
             // Try match by amount logic
             const order = await this.orderService.findPendingByUsdtAmount(
-                'default',
+                workspaceId,
                 usdtAmount,
             );
 
@@ -94,24 +113,23 @@ export class BlockchainWebhookController {
 
             // 5. Update order status
             await this.orderService.markOrderAsPaid(
-                'default',
+                workspaceId,
                 order.orderCode,
                 {
                     transactionHash: payload.txHash,
-                    processStatus: 'COMPLETED',
                     paymentStatus: 'VERIFIED',
                     paidAt: new Date(payload.timestamp * 1000),
                     amount: usdtAmount,
-                } as any, // Cast to any or verify UpdateOrderPaymentDto
+                },
             );
 
             this.logger.log(`Order ${order.orderCode} updated to PAID`);
 
-            // 6. Generate and Send Contract
+            // 6. Generate and Send Contract using orchestration method
             try {
                 this.logger.log(`Generating contract for Order ${order.orderCode}`);
 
-                const fullOrder = await this.orderService.getOrderDetailsForContract('default', order.id);
+                const fullOrder = await this.orderService.getOrderDetailsForContract(workspaceId, order.id);
 
                 if (fullOrder && fullOrder.buyer) {
                     const contractData = {
@@ -121,33 +139,22 @@ export class BlockchainWebhookController {
                         customerEmail: fullOrder.buyer.email,
                         treeCount: fullOrder.trees?.length || fullOrder.quantity,
                         totalAmount: fullOrder.totalAmount,
-                        treeCodes: fullOrder.trees?.map(t => t.code) || [],
-                        lotName: fullOrder.trees?.[0]?.lotName || 'Khu A', // Placeholder if not in tree obj
+                        treeCodes: fullOrder.trees?.map((t: any) => t.code) || [],
+                        lotName: fullOrder.trees?.[0]?.lotName || 'Khu A',
                         paymentMethod: 'USDT' as const,
                         paymentDate: new Date(payload.timestamp * 1000),
                         contractDate: new Date(),
                     };
 
-                    // Generate HTML -> PDF
-                    const html = this.contractService.generateContractHtml(contractData);
-                    const pdfBuffer = await this.contractService.generatePdf(html);
-                    const filename = this.contractService.generateFilename(fullOrder.orderCode);
+                    // Use orchestration method for cleaner code
+                    const result = await this.contractService.generateAndSendContract(contractData);
 
-                    // Upload S3
-                    const pdfUrl = await this.contractService.uploadToS3(filename, pdfBuffer);
-
-                    // Update Order
-                    await this.orderService.updateContractUrl('default', fullOrder.orderCode, pdfUrl);
-
-                    // Send Email
-                    await this.contractService.sendContractEmail(
-                        fullOrder.buyer.email,
-                        contractData.customerName,
-                        pdfBuffer,
-                        filename
-                    );
-
-                    this.logger.log(`Contract generated and sent for Order ${order.orderCode}`);
+                    if (result.success && result.s3Url) {
+                        await this.orderService.updateContractUrl(workspaceId, fullOrder.orderCode, result.s3Url);
+                        this.logger.log(`Contract generated for Order ${order.orderCode}: ${result.s3Url}, email: ${result.emailDelivery?.messageId || 'skipped'}`);
+                    } else {
+                        this.logger.warn(`Contract generation incomplete for Order ${order.orderCode}: ${result.errors?.join(', ')}`);
+                    }
                 } else {
                     this.logger.warn(`Could not fetch full details for Order ${order.orderCode} to generate contract`);
                 }
@@ -168,7 +175,8 @@ export class BlockchainWebhookController {
      * Health check endpoint for blockchain monitoring service
      * GET /webhooks/blockchain/health
      */
-    async healthCheck(): Promise<{ status: string }> {
-        return { status: 'ok' };
+    @Get('health')
+    async healthCheck(): Promise<{ status: string; service: string }> {
+        return { status: 'ok', service: 'blockchain-webhook' };
     }
 }

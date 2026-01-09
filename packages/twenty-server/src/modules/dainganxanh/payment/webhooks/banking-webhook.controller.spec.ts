@@ -10,6 +10,7 @@ import { BankingService } from '../services/banking.service';
 import { OrderService, type OrderEntity } from '../../order-management/services/order.service';
 import { TreeService } from '../../tree-tracking/services/tree.service';
 import { TreeGenerationRetryService } from '../services/tree-generation-retry.service';
+import { ContractService } from '../services/contract.service';
 
 describe('BankingWebhookController', () => {
     let controller: BankingWebhookController;
@@ -46,6 +47,14 @@ describe('BankingWebhookController', () => {
             ),
         };
 
+        const mockContractService = {
+            generateContractHtml: jest.fn().mockReturnValue('<html></html>'),
+            generatePdf: jest.fn().mockResolvedValue(Buffer.from('pdf')),
+            generateFilename: jest.fn().mockReturnValue('contract.pdf'),
+            uploadToS3: jest.fn().mockResolvedValue('https://s3.example.com/contract.pdf'),
+            sendContractEmail: jest.fn().mockResolvedValue(undefined),
+        };
+
         const module: TestingModule = await Test.createTestingModule({
             controllers: [BankingWebhookController],
             providers: [
@@ -53,6 +62,7 @@ describe('BankingWebhookController', () => {
                 { provide: OrderService, useValue: mockOrderService },
                 { provide: TreeService, useValue: mockTreeService },
                 { provide: TreeGenerationRetryService, useValue: mockRetryService },
+                { provide: ContractService, useValue: mockContractService },
             ],
         }).compile();
 
@@ -90,7 +100,7 @@ describe('BankingWebhookController', () => {
             const mockOrder: Partial<OrderEntity> = {
                 id: 'order-1',
                 orderCode: 'DGX-20260109-ABC12',
-                status: 'PENDING',
+                orderStatus: 'CREATED',
                 paymentStatus: 'PENDING',
                 totalAmount: 260000,
                 quantity: 1,
@@ -98,7 +108,7 @@ describe('BankingWebhookController', () => {
 
             const updatedOrder: Partial<OrderEntity> = {
                 ...mockOrder,
-                status: 'PAID',
+                orderStatus: 'PAID',
                 paymentStatus: 'VERIFIED',
             };
 
@@ -208,7 +218,7 @@ describe('BankingWebhookController', () => {
             const mockOrder: Partial<OrderEntity> = {
                 id: 'order-1',
                 orderCode: 'DGX-20260109-ABC12',
-                status: 'PENDING',
+                orderStatus: 'CREATED',
                 paymentStatus: 'PENDING',
                 totalAmount: 780000, // 3 trees
                 quantity: 3,
@@ -216,7 +226,7 @@ describe('BankingWebhookController', () => {
 
             const updatedOrder: Partial<OrderEntity> = {
                 ...mockOrder,
-                status: 'PAID',
+                orderStatus: 'PAID',
                 paymentStatus: 'VERIFIED',
             };
 

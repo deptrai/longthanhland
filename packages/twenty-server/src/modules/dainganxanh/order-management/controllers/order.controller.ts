@@ -3,7 +3,7 @@ import { OrderService } from '../services/order.service';
 // import { JwtAuthGuard } from 'src/engine/guards/jwt-auth.guard';
 import { Request } from 'express';
 
-@Controller('orders')
+@Controller('api/dainganxanh/orders')
 // @UseGuards(JwtAuthGuard)
 export class OrderController {
     private readonly logger = new Logger(OrderController.name);
@@ -12,7 +12,7 @@ export class OrderController {
 
     @Get('admin')
     async getAllOrders(@Req() req: Request) {
-        const workspaceId = req.user?.workspaceId || 'default';
+        const workspaceId = req.user?.workspaceId || '3b8e6458-5fc1-4e63-8563-008ccddaa6db';
         const page = parseInt(req.query.page as string) || 1;
         const limit = parseInt(req.query.limit as string) || 20;
         const status = req.query.status as string || 'ALL';
@@ -24,12 +24,12 @@ export class OrderController {
 
         const { orders, total } = await this.orderService.getAllOrders(
             workspaceId,
-            { status, paymentMethod, startDate, endDate },
+            { orderStatus: status, paymentMethod, startDate, endDate },
             { limit, offset }
         );
 
         return {
-            data: orders.map(order => ({
+            data: orders.map((order: any) => ({
                 ...order,
                 contractUrl: order.contractPdfUrl,
                 trees: order.trees || [],
@@ -59,14 +59,14 @@ export class OrderController {
         @Param('id') id: string,
         @Body() body: { lotId: string },
     ) {
-        const workspaceId = req.user?.workspaceId || 'default';
+        const workspaceId = req.user?.workspaceId || '3b8e6458-5fc1-4e63-8563-008ccddaa6db';
         await this.orderService.assignLot(workspaceId, id, body.lotId);
         return { success: true };
     }
 
     @Get('lots')
     async getLots(@Req() req: Request) {
-        const workspaceId = req.user?.workspaceId || 'default';
+        const workspaceId = req.user?.workspaceId || '3b8e6458-5fc1-4e63-8563-008ccddaa6db';
         const lots = await this.orderService.getLots(workspaceId);
         return { data: lots };
     }
@@ -74,7 +74,7 @@ export class OrderController {
     @Get('my-history')
     async getMyOrderHistory(@Req() req: Request) {
         const userId = req.user?.id;
-        const workspaceId = req.user?.workspaceId || 'default';
+        const workspaceId = req.user?.workspaceId || '3b8e6458-5fc1-4e63-8563-008ccddaa6db';
 
         const page = parseInt(req.query.page as string) || 1;
         const limit = parseInt(req.query.limit as string) || 20;
@@ -88,15 +88,15 @@ export class OrderController {
 
         const offset = (page - 1) * limit;
 
-        const { orders, total } = await this.orderService.getOrdersByBuyer(
+        const { orders, total } = await this.orderService.getOrdersByCustomer(
             workspaceId,
             userId,
-            { status },
+            { orderStatus: status },
             { limit, offset }
         );
 
         return {
-            data: orders.map(order => ({
+            data: orders.map((order: any) => ({
                 ...order,
                 contractUrl: order.contractPdfUrl,
                 trees: order.trees || [], // Ensure trees are included

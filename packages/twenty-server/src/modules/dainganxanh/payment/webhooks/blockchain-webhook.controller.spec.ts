@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { BlockchainWebhookController, BlockchainWebhookDto } from './blockchain-webhook.controller';
 import { UsdtService } from '../services/usdt.service';
 import { OrderService } from '../../order-management/services/order.service';
+import { ContractService } from '../services/contract.service';
 
 describe('BlockchainWebhookController', () => {
     let controller: BlockchainWebhookController;
@@ -16,6 +17,16 @@ describe('BlockchainWebhookController', () => {
         isTransactionProcessed: jest.fn(),
         findPendingByUsdtAmount: jest.fn(),
         markOrderAsPaid: jest.fn(),
+        getOrderDetailsForContract: jest.fn(),
+        updateContractUrl: jest.fn(),
+    };
+
+    const mockContractService = {
+        generateContractHtml: jest.fn().mockReturnValue('<html></html>'),
+        generatePdf: jest.fn().mockResolvedValue(Buffer.from('pdf')),
+        generateFilename: jest.fn().mockReturnValue('contract.pdf'),
+        uploadToS3: jest.fn().mockResolvedValue('https://s3.example.com/contract.pdf'),
+        sendContractEmail: jest.fn().mockResolvedValue(undefined),
     };
 
     beforeEach(async () => {
@@ -24,6 +35,7 @@ describe('BlockchainWebhookController', () => {
             providers: [
                 { provide: UsdtService, useValue: mockUsdtService },
                 { provide: OrderService, useValue: mockOrderService },
+                { provide: ContractService, useValue: mockContractService },
             ],
         }).compile();
 
@@ -50,7 +62,8 @@ describe('BlockchainWebhookController', () => {
 
         const result = await controller.handleBlockchainWebhook(validPayload);
         expect(result).toEqual({ success: true, message: 'Already processed' });
-        expect(mockOrderService.isTransactionProcessed).toHaveBeenCalledWith('default', '0x123');
+        expect(mockOrderService.isTransactionProcessed).toHaveBeenCalledWith(
+            expect.any(String), '0x123');
     });
 
     it('should fail for unsupported network', async () => {
@@ -71,7 +84,8 @@ describe('BlockchainWebhookController', () => {
 
         const result = await controller.handleBlockchainWebhook(validPayload);
         expect(result).toEqual({ success: false, message: 'No matching order' });
-        expect(mockOrderService.findPendingByUsdtAmount).toHaveBeenCalledWith('default', 10);
+        expect(mockOrderService.findPendingByUsdtAmount).toHaveBeenCalledWith(
+            expect.any(String), 10);
     });
 
     it('should fail if transaction verification fails', async () => {
@@ -93,10 +107,11 @@ describe('BlockchainWebhookController', () => {
 
         const result = await controller.handleBlockchainWebhook(validPayload);
         expect(result).toEqual({ success: true, message: 'Payment processed' });
-        expect(mockOrderService.markOrderAsPaid).toHaveBeenCalledWith('default', 'ORD-01', expect.objectContaining({
-            transactionHash: '0x123',
-            amount: 10,
-            paymentStatus: 'VERIFIED',
-        }));
+        expect(mockOrderService.markOrderAsPaid).toHaveBeenCalledWith(
+            expect.any(String), 'ORD-01', expect.objectContaining({
+                transactionHash: '0x123',
+                amount: 10,
+                paymentStatus: 'VERIFIED',
+            }));
     });
 });

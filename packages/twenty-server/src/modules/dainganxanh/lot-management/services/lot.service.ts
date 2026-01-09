@@ -167,30 +167,43 @@ export class LotService {
 
     /**
      * Get all lots with tree counts
+     * Using direct datasource with correct schema lookup
      */
     async getAllLots(workspaceId: string): Promise<any[]> {
-        const authContext = buildSystemAuthContext(workspaceId);
+        this.logger.log(`📋 getAllLots called for workspace: ${workspaceId}`);
 
-        return this.globalWorkspaceOrmManager.executeInWorkspaceContext(
-            authContext,
-            async () => {
-                const treeLotRepository = await this.globalWorkspaceOrmManager.getRepository<any>(
-                    workspaceId,
-                    'treeLot',
-                );
+        try {
+            const datasource = await this.globalWorkspaceOrmManager.getGlobalWorkspaceDataSource();
 
-                const lots = await treeLotRepository.find({
-                    relations: ['assignedOperator', 'trees'],
-                    order: { lotName: 'ASC' } as any,
-                });
+            // Get actual schema name from core.dataSource table
+            const dataSourceResult = await datasource.query(
+                `SELECT schema FROM core."dataSource" WHERE "workspaceId" = $1`,
+                [workspaceId],
+                undefined,
+                { shouldBypassPermissionChecks: true }
+            );
 
-                // Enrich with tree count
-                return lots.map((lot: any) => ({
-                    ...lot,
-                    treeCount: lot.trees?.length || 0,
-                }));
-            },
-        );
+            if (!dataSourceResult || dataSourceResult.length === 0) {
+                throw new Error(`No dataSource found for workspace ${workspaceId}`);
+            }
+
+            const schemaName = dataSourceResult[0].schema;
+            this.logger.log(`📁 Using schema: ${schemaName}`);
+
+            // Query _treeLot table (custom objects have underscore prefix)
+            const lots = await datasource.query(
+                `SELECT * FROM "${schemaName}"."_treeLot" WHERE "deletedAt" IS NULL ORDER BY "name" ASC`,
+                [],
+                undefined,
+                { shouldBypassPermissionChecks: true }
+            );
+
+            this.logger.log(`✅ Found ${lots?.length || 0} lots from database`);
+            return lots || [];
+        } catch (error) {
+            this.logger.error(`❌ getAllLots error: ${error.message}`, error.stack);
+            throw error;
+        }
     }
 
     /**
