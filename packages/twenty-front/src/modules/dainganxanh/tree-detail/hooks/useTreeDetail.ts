@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-import { useFindOneRecord } from '@/object-record/hooks/useFindOneRecord';
+import { useFindManyRecords } from '@/object-record/hooks/useFindManyRecords';
 
 import type { Tree } from '@/dainganxanh/my-garden/types/Tree';
 import type { TimelineEvent } from '../components/TreeTimelineSection';
@@ -23,16 +23,29 @@ interface UseTreeDetailResult {
 }
 
 export const useTreeDetail = ({ treeCode }: UseTreeDetailOptions): UseTreeDetailResult => {
-    // Use Twenty's findOneRecord to fetch tree by code
+    // Build filter to find tree by treeCode
+    const filter = useMemo(() => {
+        if (!treeCode) return undefined;
+        return {
+            treeCode: {
+                eq: treeCode,
+            },
+        };
+    }, [treeCode]);
+
+    // Use useFindManyRecords with filter to find tree by code
     const {
-        record: tree,
+        records,
         loading,
         error,
-    } = useFindOneRecord<Tree>({
+    } = useFindManyRecords<Tree>({
         objectNameSingular: 'tree',
-        objectRecordId: treeCode, // This should be the ID, but we're using code
-        // TODO: Need to implement filter by treeCode instead of ID
+        filter,
+        limit: 1,
     });
+
+    // Get the first (and only) record
+    const tree = records?.[0] || null;
 
     // Calculate derived data
     const treeDetailData = useMemo(() => {
@@ -53,7 +66,7 @@ export const useTreeDetail = ({ treeCode }: UseTreeDetailOptions): UseTreeDetail
             });
         }
 
-        // Add status changes (mock for now)
+        // Add status changes based on tree status
         if (tree.status === 'GROWING' || tree.status === 'MATURE' || tree.status === 'HARVESTED') {
             const growingDate = new Date(tree.plantingDate);
             growingDate.setMonth(growingDate.getMonth() + 3);
@@ -62,6 +75,17 @@ export const useTreeDetail = ({ treeCode }: UseTreeDetailOptions): UseTreeDetail
                 title: 'Chuyển sang giai đoạn phát triển',
                 description: 'Cây đã vượt qua giai đoạn non yếu',
                 type: 'status',
+            });
+        }
+
+        if (tree.status === 'MATURE' || tree.status === 'HARVESTED') {
+            const matureDate = new Date(tree.plantingDate);
+            matureDate.setFullYear(matureDate.getFullYear() + 3);
+            timelineEvents.push({
+                date: matureDate.toISOString(),
+                title: 'Cây trưởng thành',
+                description: 'Cây đạt giai đoạn trưởng thành, hấp thụ CO₂ tối đa',
+                type: 'milestone',
             });
         }
 
@@ -82,3 +106,4 @@ export const useTreeDetail = ({ treeCode }: UseTreeDetailOptions): UseTreeDetail
         notFound: !loading && !tree && !error,
     };
 };
+
