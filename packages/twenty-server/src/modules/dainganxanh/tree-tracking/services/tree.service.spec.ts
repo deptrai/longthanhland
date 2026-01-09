@@ -110,10 +110,10 @@ describe('TreeService', () => {
             expect(service.determineTreeStatus(59)).toBe('MATURE');
         });
 
-        it('should return READY_HARVEST for 60+ months', () => {
-            expect(service.determineTreeStatus(60)).toBe('READY_HARVEST');
-            expect(service.determineTreeStatus(72)).toBe('READY_HARVEST');
-            expect(service.determineTreeStatus(100)).toBe('READY_HARVEST');
+        it('should return HARVESTED for 60+ months (E1.1 spec)', () => {
+            expect(service.determineTreeStatus(60)).toBe('HARVESTED');
+            expect(service.determineTreeStatus(72)).toBe('HARVESTED');
+            expect(service.determineTreeStatus(100)).toBe('HARVESTED');
         });
     });
 
@@ -162,7 +162,7 @@ describe('TreeService', () => {
             const createDto: CreateTreeDto = {
                 gpsLocation: '10.123,106.456',
                 plantingDate: new Date().toISOString(),
-                height: 50,
+                heightCm: 50,
                 lotId: 'lot-1',
                 ownerId: 'owner-1',
             };
@@ -315,11 +315,11 @@ describe('TreeService', () => {
                 id: 'tree-1',
                 treeCode: 'TREE-2026-00001',
                 status: 'GROWING',
-                height: 100,
+                heightCm: 100,
             };
 
             const updateDto: UpdateTreeDto = {
-                height: 150,
+                heightCm: 150,
                 co2Absorbed: 25,
             };
 
@@ -330,7 +330,7 @@ describe('TreeService', () => {
 
             const result = await service.updateTree(workspaceId, 'tree-1', updateDto);
 
-            expect(result?.height).toBe(150);
+            expect(result?.heightCm).toBe(150);
             expect(mockTreeRepository.update).toHaveBeenCalledWith(
                 'tree-1',
                 updateDto,
@@ -341,7 +341,7 @@ describe('TreeService', () => {
             mockTreeRepository.findOne.mockResolvedValue(null);
 
             await expect(
-                service.updateTree(workspaceId, 'non-existent', { height: 150 }),
+                service.updateTree(workspaceId, 'non-existent', { heightCm: 150 }),
             ).rejects.toThrow(NotFoundException);
 
             expect(mockTreeRepository.update).not.toHaveBeenCalled();
@@ -414,7 +414,8 @@ describe('TreeService', () => {
                     PLANTED: 20,
                     GROWING: 50,
                     MATURE: 15,
-                    READY_HARVEST: 5,
+                    HARVESTED: 5,
+                    DEAD: 0,
                 };
                 return Promise.resolve(counts[where.status] || 0);
             });
@@ -426,11 +427,12 @@ describe('TreeService', () => {
                 PLANTED: 20,
                 GROWING: 50,
                 MATURE: 15,
-                READY_HARVEST: 5,
+                HARVESTED: 5,
+                DEAD: 0,
             });
 
-            // Should have called count 5 times (once per status)
-            expect(mockTreeRepository.count).toHaveBeenCalledTimes(5);
+            // Should have called count 6 times (once per status including DEAD)
+            expect(mockTreeRepository.count).toHaveBeenCalledTimes(6);
         });
     });
 
