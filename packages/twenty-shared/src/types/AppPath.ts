@@ -28,6 +28,7 @@ export enum AppPath {
   MyGarden = '/my-garden',
   TreeDetail = '/trees/:treeCode',
   Orders = '/orders',
+  OrderSuccess = '/order-success',
   AdminOrders = '/admin/orders',
   AdminLots = '/admin/lots',
   AdminPhotoUpload = '/admin/upload',

@@ -83,7 +83,11 @@ export const useShareCard = (
         }
     }, [shareData]);
 
-    const handleDownloadSvg = useCallback(async () => {
+    /**
+     * Download share card as SVG
+     * Note: Backend returns SVG format. For PNG, would need server-side conversion.
+     */
+    const handleDownload = useCallback(async () => {
         if (!shareData) return;
 
         try {
@@ -98,8 +102,10 @@ export const useShareCard = (
             link.click();
             document.body.removeChild(link);
             URL.revokeObjectURL(url);
+            return true;
         } catch {
             setError('Failed to download');
+            return false;
         }
     }, [shareData]);
 
@@ -110,6 +116,6 @@ export const useShareCard = (
         fetchShareData,
         handleWebShare,
         handleCopyLink,
-        handleDownloadSvg,
+        handleDownload,
     };
 };
