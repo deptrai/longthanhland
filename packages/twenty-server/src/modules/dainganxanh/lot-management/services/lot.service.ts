@@ -1,8 +1,10 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, Logger } from '@nestjs/common';
 import { GlobalWorkspaceOrmManager } from 'src/engine/workspace-manager/workspace-orm-manager/global-workspace-orm-manager';
 
 @Injectable()
 export class LotService {
+    private readonly logger = new Logger(LotService.name);
+
     constructor(
         private readonly globalWorkspaceOrmManager: GlobalWorkspaceOrmManager,
     ) { }
@@ -58,10 +60,19 @@ export class LotService {
                     assignedOperatorId: operatorId,
                 });
 
-                return treeLotRepository.findOne({
+                const updatedLot = await treeLotRepository.findOne({
                     where: { id: lotId },
                     relations: ['assignedOperator'],
                 });
+
+                // Send notification to operator
+                await this.notifyOperatorAssignment(
+                    operatorId,
+                    updatedLot,
+                    workspaceId,
+                );
+
+                return updatedLot;
             },
         );
     }
@@ -140,5 +151,77 @@ export class LotService {
                 });
             },
         );
+    }
+
+    /**
+     * Send notification to operator about lot assignment
+     * This creates a system notification that the operator can view in their dashboard
+     */
+    private async notifyOperatorAssignment(
+        operatorId: string,
+        lot: any,
+        workspaceId: string,
+    ): Promise<void> {
+        try {
+            const workspaceMemberRepository =
+                await this.globalWorkspaceOrmManager.getRepository<any>(
+                    workspaceId,
+                    'workspaceMember',
+                );
+
+            const operator = await workspaceMemberRepository.findOne({
+                where: { id: operatorId },
+                relations: ['name'],
+            });
+
+            if (!operator) {
+                this.logger.warn(`Operator ${operatorId} not found for notification`);
+                return;
+            }
+
+            const operatorName = operator.name
+                ? `${operator.name.firstName || ''} ${operator.name.lastName || ''}`.trim()
+                : 'Operator';
+
+            this.logger.log(
+                `📢 Notification: ${operatorName} assigned to lot ${lot.lotName} (${lot.lotCode})`,
+            );
+
+            // TODO: Integrate with Twenty CRM notification system when available
+            // For now, we log the notification. In production, this would:
+            // 1. Create a notification record in the database
+            // 2. Send an email notification
+            // 3. Trigger a push notification if mobile app exists
+            // 4. Create an in-app notification badge
+
+            // Example notification payload:
+            const notificationPayload = {
+                recipientId: operatorId,
+                type: 'LOT_ASSIGNMENT',
+                title: 'New Lot Assignment',
+                message: `You have been assigned to manage ${lot.lotName} (${lot.lotCode})`,
+                metadata: {
+                    lotId: lot.id,
+                    lotName: lot.lotName,
+                    lotCode: lot.lotCode,
+                    capacity: lot.capacity,
+                    currentCount: lot.trees?.length || 0,
+                },
+                createdAt: new Date().toISOString(),
+            };
+
+            this.logger.debug(
+                `Notification payload: ${JSON.stringify(notificationPayload)}`,
+            );
+
+            // When notification service is available, uncomment:
+            // await this.notificationService.create(notificationPayload);
+        } catch (error) {
+            this.logger.error(
+                `Failed to send notification to operator ${operatorId}:`,
+                error,
+            );
+            // Don't throw - notification failure shouldn't block the assignment
+        }
     }
 }

@@ -1,8 +1,14 @@
 import styled from '@emotion/styled';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { Button } from 'twenty-ui/input';
 import { useQuery, gql } from '@apollo/client';
 import { TreeLot } from '../../../modules/dainganxanh/admin/types/lot-management.types';
+
+const TreeLocationMap = lazy(() =>
+    import('../../../modules/dainganxanh/tree-detail/components/TreeLocationMap').then(module => ({
+        default: module.TreeLocationMap
+    }))
+);
 
 const GET_WORKSPACE_MEMBERS = gql`
     query GetWorkspaceMembers {
@@ -66,16 +72,12 @@ const Value = styled.div`
     color: #1e293b;
 `;
 
-const MapPlaceholder = styled.div`
+const MapContainer = styled.div`
     width: 100%;
     height: 200px;
-    background: #f1f5f9;
     border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #64748b;
     margin-top: 8px;
+    overflow: hidden;
 `;
 
 const Select = styled.select`
@@ -136,6 +138,16 @@ export const LotDetailsPanel = ({
         ? (lot.treeCount / lot.capacity) * 100
         : 0;
 
+    // Parse GPS coordinates from gpsCenter (format: "lat,lng")
+    const parseGpsCenter = (gpsCenter?: string) => {
+        if (!gpsCenter) return null;
+        const [lat, lng] = gpsCenter.split(',').map(coord => parseFloat(coord.trim()));
+        if (isNaN(lat) || isNaN(lng)) return null;
+        return { lat, lng };
+    };
+
+    const coordinates = parseGpsCenter(lot.gpsCenter);
+
     return (
         <Overlay onClick={onClose}>
             <Panel onClick={(e) => e.stopPropagation()}>
@@ -162,12 +174,16 @@ export const LotDetailsPanel = ({
                 <Section>
                     <Label>GPS Center</Label>
                     <Value>{lot.gpsCenter || 'N/A'}</Value>
-                    {lot.gpsCenter && (
-                        <MapPlaceholder>
-                            Map: {lot.gpsCenter}
-                            <br />
-                            (TreeLocationMap integration pending)
-                        </MapPlaceholder>
+                    {coordinates && (
+                        <MapContainer>
+                            <Suspense fallback={<div style={{ padding: '20px', textAlign: 'center' }}>Loading map...</div>}>
+                                <TreeLocationMap
+                                    latitude={coordinates.lat}
+                                    longitude={coordinates.lng}
+                                    treeCode={lot.lotCode}
+                                />
+                            </Suspense>
+                        </MapContainer>
                     )}
                 </Section>
 

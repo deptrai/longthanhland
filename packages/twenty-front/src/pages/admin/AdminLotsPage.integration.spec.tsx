@@ -4,6 +4,15 @@ import { AdminLotsPage } from './AdminLotsPage';
 import * as useAdminLotsModule from '../../modules/dainganxanh/admin/hooks/useAdminLots';
 import { MockedProvider } from '@apollo/client/testing';
 
+// Mock TreeLocationMap to avoid theme dependency
+jest.mock('../../modules/dainganxanh/tree-detail/components/TreeLocationMap', () => ({
+    TreeLocationMap: ({ latitude, longitude, treeCode }: any) => (
+        <div data-testid="tree-location-map">
+            Map: {latitude}, {longitude} - {treeCode}
+        </div>
+    ),
+}));
+
 // Mock UI components
 jest.mock('@/ui/layout/page/components/PageContainer', () => ({
     PageContainer: ({ children, className }: any) => <div className={className} data-testid="page-container">{children}</div>
