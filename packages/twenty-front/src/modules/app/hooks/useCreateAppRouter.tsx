@@ -22,6 +22,7 @@ import { RecordIndexPage } from '~/pages/object-record/RecordIndexPage';
 import { RecordShowPage } from '~/pages/object-record/RecordShowPage';
 import { MyGardenPage } from '~/pages/my-garden/MyGardenPage';
 import { TreeDetailPage } from '~/pages/trees/TreeDetailPage';
+import { OrderHistoryPage } from '~/pages/orders/OrderHistoryPage';
 import { BookCall } from '~/pages/onboarding/BookCall';
 import { BookCallDecision } from '~/pages/onboarding/BookCallDecision';
 import { ChooseYourPlan } from '~/pages/onboarding/ChooseYourPlan';
@@ -30,6 +31,8 @@ import { CreateWorkspace } from '~/pages/onboarding/CreateWorkspace';
 import { InviteTeam } from '~/pages/onboarding/InviteTeam';
 import { PaymentSuccess } from '~/pages/onboarding/PaymentSuccess';
 import { SyncEmails } from '~/pages/onboarding/SyncEmails';
+import { AdminOrdersPage } from '~/pages/admin/AdminOrdersPage';
+import { AdminLotsPage } from '~/pages/admin/AdminLotsPage';
 
 export const useCreateAppRouter = (
   isFunctionSettingsEnabled?: boolean,
@@ -69,6 +72,7 @@ export const useCreateAppRouter = (
           <Route path={AppPath.MyGarden} element={<MyGardenPage />} />
           <Route path="/trees" element={<Navigate to="/my-garden" replace />} />
           <Route path={AppPath.TreeDetail} element={<TreeDetailPage />} />
+          <Route path={AppPath.Orders} element={<OrderHistoryPage />} />
           <Route
             path={AppPath.SettingsCatchAll}
             element={
@@ -78,6 +82,12 @@ export const useCreateAppRouter = (
               />
             }
           />
+          {isAdminPageEnabled && (
+            <>
+              <Route path={AppPath.AdminOrders} element={<AdminOrdersPage />} />
+              <Route path={AppPath.AdminLots} element={<AdminLotsPage />} />
+            </>
+          )}
           <Route path={AppPath.NotFoundWildcard} element={<NotFound />} />
         </Route>
         <Route element={<BlankLayout />}>
