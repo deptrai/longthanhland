@@ -1,11 +1,27 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "types": ["jest", "node"],
+    "types": [
+      "jest",
+      "node"
+    ],
     "baseUrl": "../..",
     "paths": {
-      "@/*": ["./packages/twenty-front/src/modules/*"],
-      "~/*": ["./packages/twenty-front/src/*"]
+      "@/utils/*": [
+        "./packages/twenty-front/src/utils/*"
+      ],
+      "@/*": [
+        "./packages/twenty-front/src/modules/*"
+      ],
+      "~/*": [
+        "./packages/twenty-front/src/*"
+      ],
+      "twenty-shared": [
+        "./packages/twenty-shared/src"
+      ],
+      "twenty-shared/*": [
+        "./packages/twenty-shared/src/*"
+      ]
     }
   },
   "include": [

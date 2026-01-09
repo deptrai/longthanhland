@@ -4,8 +4,11 @@ import { GlobalWorkspaceDataSourceModule } from 'src/engine/twenty-orm/global-wo
 
 import { OrderService } from './services/order.service';
 
+import { OrderController } from './controllers/order.controller';
+
 @Module({
     imports: [GlobalWorkspaceDataSourceModule],
+    controllers: [OrderController],
     providers: [OrderService],
     exports: [OrderService],
 })

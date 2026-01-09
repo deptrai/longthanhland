@@ -265,4 +265,66 @@ describe('OrderService', () => {
             });
         });
     });
+    describe('findPendingByUsdtAmount', () => {
+        it('should return order matching approximate USDT amount', async () => {
+            const mockOrders: Partial<OrderEntity>[] = [
+                {
+                    id: 'order-1',
+                    totalAmount: 250000, // ~10 USDT
+                    paymentStatus: 'PENDING',
+                    paymentMethod: 'USDT',
+                },
+                {
+                    id: 'order-2',
+                    totalAmount: 500000, // ~20 USDT
+                    paymentStatus: 'PENDING',
+                    paymentMethod: 'USDT',
+                },
+            ];
+
+            mockOrderRepository.find.mockResolvedValue(mockOrders);
+
+            // Rate is 1/25000. 10 USDT = 250,000 VND.
+            const result = await service.findPendingByUsdtAmount(workspaceId, 10);
+
+            expect(result?.id).toBe('order-1');
+            expect(mockOrderRepository.find).toHaveBeenCalled();
+        });
+
+        it('should return null if no order matches within tolerance', async () => {
+            const mockOrders: Partial<OrderEntity>[] = [
+                {
+                    id: 'order-1',
+                    totalAmount: 250000, // ~10 USD
+                },
+            ];
+            mockOrderRepository.find.mockResolvedValue(mockOrders);
+
+            // Searching for 50 USDT (1,250,000 VND), should not match 10 USDT
+            const result = await service.findPendingByUsdtAmount(workspaceId, 50);
+
+            expect(result).toBeNull();
+        });
+
+        it('should respects tolerance', async () => {
+            const mockOrders: Partial<OrderEntity>[] = [
+                {
+                    id: 'order-1',
+                    totalAmount: 250000, // Exactly 10 USD
+                },
+            ];
+            mockOrderRepository.find.mockResolvedValue(mockOrders);
+
+            // 10.05 is within 1% of 10?
+            // Expected: 10. Diff: 0.05. Tolerance: 10 * 0.01 = 0.1.
+            // 0.05 <= 0.1 -> Match.
+            const resultInside = await service.findPendingByUsdtAmount(workspaceId, 10.05, 0.01);
+            expect(resultInside?.id).toBe('order-1');
+
+            // 10.2 is diff 0.2. Tolerance 0.1.
+            // 0.2 > 0.1 -> No match.
+            const resultOutside = await service.findPendingByUsdtAmount(workspaceId, 10.2, 0.01);
+            expect(resultOutside).toBeNull();
+        });
+    });
 });
