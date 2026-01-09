@@ -8,8 +8,10 @@ import {
     CO2ImpactSection,
     TreeTimelineSection,
     TreeActionButtons,
+    TreeLocationMap,
 } from '@/dainganxanh/tree-detail/components';
 import { useTreeDetail } from '@/dainganxanh/tree-detail/hooks/useTreeDetail';
+import { useTreeReport } from '@/dainganxanh/tree-detail/utils/treeReportGenerator';
 
 const StyledPageContainer = styled.div`
   max-width: 800px;
@@ -83,8 +85,16 @@ export const TreeDetailPage = () => {
         treeCode: treeCode,
     });
 
+    const { downloadReport } = useTreeReport();
+
     const handleBack = () => {
         navigate('/my-garden');
+    };
+
+    const handleDownloadReport = () => {
+        if (tree) {
+            downloadReport(tree, tree.calculatedCO2);
+        }
     };
 
     if (isLoading) {
@@ -141,9 +151,18 @@ export const TreeDetailPage = () => {
                     co2Absorbed={tree.calculatedCO2}
                 />
 
+                <TreeLocationMap
+                    latitude={tree.latitude || 0}
+                    longitude={tree.longitude || 0}
+                    treeCode={tree.treeCode}
+                />
+
                 <TreeTimelineSection events={tree.timelineEvents} />
 
-                <TreeActionButtons treeCode={tree.treeCode} />
+                <TreeActionButtons
+                    treeCode={tree.treeCode}
+                    onDownloadReport={handleDownloadReport}
+                />
             </StyledPageContainer>
         </PageContainer>
     );
