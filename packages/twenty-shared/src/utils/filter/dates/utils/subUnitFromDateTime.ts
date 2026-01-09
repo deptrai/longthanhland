@@ -1,4 +1,4 @@
-import { type RelativeDateFilterUnit } from '@/utils/filter/dates/utils/relativeDateFilterUnitSchema';
+import { type RelativeDateFilterUnit } from './relativeDateFilterUnitSchema';
 import {
   subDays,
   subHours,

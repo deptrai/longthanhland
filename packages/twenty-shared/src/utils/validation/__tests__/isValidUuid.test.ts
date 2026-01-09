@@ -1,4 +1,4 @@
-import { isValidUuid } from '@/utils/validation/isValidUuid';
+import { isValidUuid } from '../isValidUuid';
 
 describe('isValidUuid', () => {
   it('should return true for a valid UUID', () => {

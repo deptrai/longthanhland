@@ -1,4 +1,4 @@
-import { APP_LOCALES } from '@/translations';
+import { APP_LOCALES } from '../../translations';
 
 export const isValidLocale = (
   value: string | null,

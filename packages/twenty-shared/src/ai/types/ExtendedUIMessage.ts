@@ -1,4 +1,4 @@
-import { type DataMessagePart } from '@/ai/types/DataMessagePart';
+import { type DataMessagePart } from './DataMessagePart';
 import { type UIMessage } from 'ai';
 
 export type AIChatUsageMetadata = {

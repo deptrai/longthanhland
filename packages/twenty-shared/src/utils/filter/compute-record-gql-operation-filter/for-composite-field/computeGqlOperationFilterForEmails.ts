@@ -4,10 +4,10 @@ import {
   type PartialFieldMetadataItem,
   ViewFilterOperand as RecordFilterOperand,
   type RecordGqlOperationFilter,
-} from '@/types';
-import { CustomError } from '@/utils/errors';
+} from '../../../../types';
+import { CustomError } from '../../../errors';
 
-import { type RecordFilter } from '@/utils/filter/turnRecordFilterGroupIntoGqlOperationFilter';
+import { type RecordFilter } from '../../turnRecordFilterGroupIntoGqlOperationFilter';
 import { isNonEmptyString } from '@sniptt/guards';
 
 export const computeGqlOperationFilterForEmails = ({

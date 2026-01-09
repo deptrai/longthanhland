@@ -1,4 +1,4 @@
-import { findById } from '@/utils/array/findById';
+import { findById } from './findById';
 
 export const upsertIntoArrayOfObjectsComparingId = <T extends { id: string }>(
   arrayToUpsertInto: T[],

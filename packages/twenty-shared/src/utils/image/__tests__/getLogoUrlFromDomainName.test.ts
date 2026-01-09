@@ -1,7 +1,7 @@
 import {
   getLogoUrlFromDomainName,
   sanitizeURL,
-} from '@/utils/image/getLogoUrlFromDomainName';
+} from '../getLogoUrlFromDomainName';
 
 describe('sanitizeURL', () => {
   test('should sanitize the URL correctly', () => {

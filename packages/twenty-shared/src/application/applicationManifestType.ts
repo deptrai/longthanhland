@@ -2,9 +2,9 @@ import {
   type ObjectManifest,
   type ServerlessFunctionManifest,
   type Application,
-} from '@/application';
-import { type Sources } from '@/types';
-import { type RoleManifest } from '@/application/roleManifestType';
+} from './';
+import { type Sources } from '../types';
+import { type RoleManifest } from './roleManifestType';
 
 export type ApplicationManifest = {
   application: Application;

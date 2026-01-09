@@ -15,13 +15,13 @@ import {
   type RelationFilter,
   type SelectFilter,
   type StringFilter,
-} from '@/types';
-import { CustomError } from '@/utils/errors';
-import { computeEmptyGqlOperationFilterForEmails } from '@/utils/filter/computeEmptyGqlOperationFilterForEmails';
-import { computeEmptyGqlOperationFilterForLinks } from '@/utils/filter/computeEmptyGqlOperationFilterForLinks';
-import { type RecordFilter } from '@/utils/filter/turnRecordFilterGroupIntoGqlOperationFilter';
-import { generateILikeFiltersForCompositeFields } from '@/utils/filter/utils/generateILikeFiltersForCompositeFields';
-import { getFilterTypeFromFieldType } from '@/utils/filter/utils/getFilterTypeFromFieldType';
+} from '../../../types';
+import { CustomError } from '../../errors';
+import { computeEmptyGqlOperationFilterForEmails } from '../computeEmptyGqlOperationFilterForEmails';
+import { computeEmptyGqlOperationFilterForLinks } from '../computeEmptyGqlOperationFilterForLinks';
+import { type RecordFilter } from '../turnRecordFilterGroupIntoGqlOperationFilter';
+import { generateILikeFiltersForCompositeFields } from './generateILikeFiltersForCompositeFields';
+import { getFilterTypeFromFieldType } from './getFilterTypeFromFieldType';
 import { isNonEmptyString } from '@sniptt/guards';
 
 type GetEmptyRecordGqlOperationFilterParams = {

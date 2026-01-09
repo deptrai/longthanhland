@@ -1,11 +1,19 @@
 import styled from '@emotion/styled';
 import React, { useState } from 'react';
-import { SubMenuTopBarContainer } from '@/ui/layout/page/components/SubMenuTopBarContainer';
-import { PageContainer } from '@/ui/layout/page/components/PageContainer';
 import { useAdminLots } from '../../modules/dainganxanh/admin/hooks/useAdminLots';
 import { KanbanBoard } from './components/KanbanBoard';
 import { LotDetailsPanel } from './components/LotDetailsPanel';
 import { TreeLot } from '../../modules/dainganxanh/admin/types/lot-management.types';
+
+const PageWrapper = styled.div`
+    min-height: 100vh;
+    background: #f8fafc;
+`;
+
+const PageContainer = styled.div`
+    max-width: 1600px;
+    margin: 0 auto;
+`;
 
 const Container = styled.div`
     padding: 24px;
@@ -30,63 +38,53 @@ export const AdminLotsPage = () => {
     const { lots, loading, error, reassignTree, assignOperator } = useAdminLots();
     const [selectedLot, setSelectedLot] = useState<TreeLot | null>(null);
 
-    const handleTreeMove = async (treeId: string, newLotId: string) => {
-        try {
-            await reassignTree(treeId, newLotId);
-        } catch (err) {
-            // Error is already logged in hook
-            alert('Failed to move tree. Please check capacity and try again.');
-        }
+    const handleLotClick = (lot: TreeLot) => {
+        setSelectedLot(lot);
     };
 
-    const handleOperatorAssign = async (lotId: string, operatorId: string) => {
-        try {
-            await assignOperator(lotId, operatorId);
-            setSelectedLot(null);
-        } catch (err) {
-            alert('Failed to assign operator');
-        }
+    const handleClosePanel = () => {
+        setSelectedLot(null);
     };
 
     if (loading) {
         return (
-            <SubMenuTopBarContainer title="Lot Management">
+            <PageWrapper>
                 <PageContainer>
                     <LoadingMessage>Loading lots...</LoadingMessage>
                 </PageContainer>
-            </SubMenuTopBarContainer>
+            </PageWrapper>
         );
     }
 
     if (error) {
         return (
-            <SubMenuTopBarContainer title="Lot Management">
+            <PageWrapper>
                 <PageContainer>
                     <ErrorMessage>Error: {error}</ErrorMessage>
                 </PageContainer>
-            </SubMenuTopBarContainer>
+            </PageWrapper>
         );
     }
 
     return (
-        <SubMenuTopBarContainer title="Lot Management">
+        <PageWrapper>
             <PageContainer>
                 <Container>
                     <KanbanBoard
                         lots={lots}
-                        onTreeMove={handleTreeMove}
-                        onLotClick={setSelectedLot}
+                        onLotClick={handleLotClick}
+                        onTreeMove={reassignTree}
                     />
                 </Container>
 
                 {selectedLot && (
                     <LotDetailsPanel
                         lot={selectedLot}
-                        onClose={() => setSelectedLot(null)}
-                        onAssignOperator={handleOperatorAssign}
+                        onClose={handleClosePanel}
+                        onAssignOperator={assignOperator}
                     />
                 )}
             </PageContainer>
-        </SubMenuTopBarContainer>
+        </PageWrapper>
     );
 };

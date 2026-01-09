@@ -1,6 +1,6 @@
-import { ViewFilterOperand as RecordFilterOperand } from '@/types';
-import { isDefined } from '@/utils';
-import { isEmptinessOperand, type RecordFilter } from '@/utils/filter';
+import { ViewFilterOperand as RecordFilterOperand } from '../../types';
+import { isDefined } from '..';
+import { isEmptinessOperand, type RecordFilter } from './';
 
 type CheckIfShouldSkipFilteringParams = {
   recordFilter: Pick<RecordFilter, 'operand' | 'value'>;

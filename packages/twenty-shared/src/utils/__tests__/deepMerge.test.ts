@@ -1,5 +1,5 @@
-import { type EachTestingContext } from '@/testing/types/EachTestingContext.type';
-import { deepMerge } from '@/utils';
+import { type EachTestingContext } from '../../testing/types/EachTestingContext.type';
+import { deepMerge } from '..';
 
 type DeepMergeTestCase<T extends object> = {
   source: Required<T>;

@@ -1,4 +1,4 @@
-import { type FieldMetadataType } from '@/types/FieldMetadataType';
+import { type FieldMetadataType } from './FieldMetadataType';
 
 type PickLiteral<T, U extends T> = U;
 

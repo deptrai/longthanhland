@@ -1,4 +1,4 @@
-import { ObjectRecordCreateEvent } from '@/database-events/object-record-create.event';
+import { ObjectRecordCreateEvent } from './object-record-create.event';
 
 export class ObjectRecordRestoreEvent<
   T = object,

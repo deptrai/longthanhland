@@ -18,8 +18,8 @@ export async function extractExifData(file: File): Promise<ExifData> {
 
         // Extract GPS coordinates
         if (tags.GPSLatitude && tags.GPSLongitude) {
-            const latRef = tags.GPSLatitudeRef?.value?.[0] ?? 'N';
-            const lngRef = tags.GPSLongitudeRef?.value?.[0] ?? 'E';
+            const latRef = (tags.GPSLatitudeRef?.value as any)?.[0] ?? 'N';
+            const lngRef = (tags.GPSLongitudeRef?.value as any)?.[0] ?? 'E';
 
             result.gpsLat = convertDmsToDecimal(
                 tags.GPSLatitude.description,
@@ -34,7 +34,7 @@ export async function extractExifData(file: File): Promise<ExifData> {
         // Extract capture date
         if (tags.DateTimeOriginal || tags.DateTime) {
             const dateTag = tags.DateTimeOriginal || tags.DateTime;
-            result.capturedAt = parseDateTimeOriginal(dateTag.description);
+            result.capturedAt = parseDateTimeOriginal(dateTag?.description || '');
         }
 
         return result;

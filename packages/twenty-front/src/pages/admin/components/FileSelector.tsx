@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 import React, { useRef } from 'react';
-import { Button } from 'twenty-ui/input';
+import { Button } from './ui/Button';
 
 const Container = styled.div`
     border: 2px dashed #cbd5e1;

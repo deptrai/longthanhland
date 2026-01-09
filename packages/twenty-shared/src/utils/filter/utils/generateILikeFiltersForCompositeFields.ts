@@ -1,4 +1,4 @@
-import { type RecordGqlOperationFilter } from '@/types';
+import { type RecordGqlOperationFilter } from '../../../types';
 
 export const generateILikeFiltersForCompositeFields = (
   filterString: string,

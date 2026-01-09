@@ -1,4 +1,4 @@
-import { lowercaseUrlOriginAndRemoveTrailingSlash } from '@/utils/url/lowercaseUrlOriginAndRemoveTrailingSlash';
+import { lowercaseUrlOriginAndRemoveTrailingSlash } from '../lowercaseUrlOriginAndRemoveTrailingSlash';
 
 interface TestContext {
   title: string;

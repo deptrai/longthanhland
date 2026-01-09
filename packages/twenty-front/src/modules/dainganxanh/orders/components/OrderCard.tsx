@@ -1,27 +1,63 @@
 import styled from '@emotion/styled';
 import React, { useState } from 'react';
-import { Card, CardContent } from '@/ui/layout/card/components/Card';
 import { IconDownload, IconFileDescription, IconTree, IconChevronDown, IconChevronUp } from '@tabler/icons-react';
-import { Button } from '@/ui/input/button/components/Button';
 import { useTheme } from '@emotion/react';
 
-const StyledCard = styled(Card)`
+const StyledCard = styled.div`
   margin-bottom: 24px;
   border-radius: 12px;
   overflow: hidden;
-  border: 1px solid ${({ theme }) => theme.border.color.medium};
+  border: 1px solid #e2e8f0;
   transition: all 0.2s ease;
   background: white;
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: ${({ theme }) => theme.boxShadow.light};
-    border-color: ${({ theme }) => theme.border.color.strong};
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-color: #cbd5e1;
   }
 `;
 
-const StyledContent = styled(CardContent)`
+const StyledContent = styled.div`
   padding: 24px;
+`;
+
+const StyledButton = styled.button<{ variant?: 'primary' | 'secondary' | 'tertiary' }>`
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: 500;
+    font-size: 14px;
+    cursor: pointer;
+    border: 1px solid;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    
+    ${({ variant }) => {
+    if (variant === 'primary') {
+      return `
+                background: #10b981;
+                color: white;
+                border-color: #10b981;
+                &:hover { background: #059669; border-color: #059669; }
+            `;
+    } else if (variant === 'tertiary') {
+      return `
+                background: transparent;
+                color: #64748b;
+                border-color: #e2e8f0;
+                &:hover { background: #f8fafc; border-color: #cbd5e1; }
+            `;
+    } else {
+      return `
+                background: white;
+                color: #475569;
+                border-color: #e2e8f0;
+                &:hover { background: #f8fafc; border-color: #cbd5e1; }
+            `;
+    }
+  }}
 `;
 
 const HeaderRow = styled.div`
@@ -157,9 +193,9 @@ const TreeTag = styled.a`
     border: 1px solid transparent;
 
     &:hover {
-        border-color: ${({ theme }) => theme.color.green50};
-        color: ${({ theme }) => theme.color.green100};
-        background: ${({ theme }) => theme.color.green10};
+        border-color: #10b981;
+        color: #10b981;
+        background: #f0fdf4;
     }
 `;
 
@@ -233,26 +269,24 @@ export const OrderCard: React.FC<{ order: any }> = ({ order }) => {
         <ActionRow>
           <div>
             {hasTrees && (
-              <Button
+              <StyledButton
                 variant="tertiary"
-                size="small"
-                LeftIcon={expanded ? IconChevronUp : IconChevronDown}
                 onClick={() => setExpanded(!expanded)}
               >
+                {expanded ? <IconChevronUp size={16} /> : <IconChevronDown size={16} />}
                 {expanded ? 'Ẩn danh sách cây' : `Xem ${order.trees.length} cây`}
-              </Button>
+              </StyledButton>
             )}
           </div>
 
           {order.contractPdfUrl && (
-            <Button
+            <StyledButton
               variant="secondary"
-              size="small"
-              LeftIcon={IconDownload}
               onClick={() => window.open(order.contractPdfUrl, '_blank')}
             >
+              <IconDownload size={16} />
               Tải Hợp Đồng
-            </Button>
+            </StyledButton>
           )}
         </ActionRow>
 

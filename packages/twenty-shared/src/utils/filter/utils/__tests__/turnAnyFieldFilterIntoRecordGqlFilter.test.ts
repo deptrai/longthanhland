@@ -1,6 +1,6 @@
-import { FieldMetadataType, type PartialFieldMetadataItem } from '@/types';
-import { turnAnyFieldFilterIntoRecordGqlFilter } from '@/utils/filter/turnAnyFieldFilterIntoRecordGqlFilter';
-import { filterSelectOptionsOfFieldMetadataItem } from '@/utils/filter/utils/filterSelectOptionsOfFieldMetadataItem';
+import { FieldMetadataType, type PartialFieldMetadataItem } from '../../../../types';
+import { turnAnyFieldFilterIntoRecordGqlFilter } from '../../turnAnyFieldFilterIntoRecordGqlFilter';
+import { filterSelectOptionsOfFieldMetadataItem } from '../filterSelectOptionsOfFieldMetadataItem';
 
 const baseFieldMetadataItem: PartialFieldMetadataItem = {
   id: 'base-field-metadata-item-id',

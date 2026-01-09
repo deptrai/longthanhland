@@ -4,13 +4,18 @@ import { AdminOrderTable } from './components/AdminOrderTable';
 import { AssignLotModal } from './components/AssignLotModal';
 import { ViewOrderModal } from './components/ViewOrderModal';
 import { useAdminOrders } from '../../modules/dainganxanh/admin/hooks/useAdminOrders';
-import { PageContainer as BasePageContainer } from '@/ui/layout/page/components/PageContainer';
 import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
-import { Button } from 'twenty-ui/input';
-import { SubMenuTopBarContainer } from '@/ui/layout/page/components/SubMenuTopBarContainer';
+import { Button } from './components/ui/Button';
 
-const PageContainer = styled(BasePageContainer)`
+const PageWrapper = styled.div`
+    min-height: 100vh;
+    background: #f8fafc;
+`;
+
+const PageContainer = styled.div`
   padding: 32px 24px;
+  max-width: 1400px;
+  margin: 0 auto;
 `;
 
 const Header = styled.div`
@@ -116,7 +121,7 @@ export const AdminOrdersPage = () => {
     };
 
     return (
-        <SubMenuTopBarContainer title="Admin Orders">
+        <PageWrapper>
             <PageContainer>
                 <Header>
                     <Title>Admin Order Management</Title>
@@ -174,24 +179,20 @@ export const AdminOrdersPage = () => {
                     <PaginationContainer>
                         <Button
                             variant="secondary"
-                            size="small"
-                            LeftIcon={IconChevronLeft}
                             onClick={() => setPage(page - 1)}
                             disabled={page <= 1}
                         >
-                            Previous
+                            ← Previous
                         </Button>
                         <PageInfo>
                             Page {meta.page} / {meta.totalPages} (Total: {meta.total})
                         </PageInfo>
                         <Button
                             variant="secondary"
-                            size="small"
-                            RightIcon={IconChevronRight}
                             onClick={() => setPage(page + 1)}
                             disabled={page >= meta.totalPages}
                         >
-                            Next
+                            Next →
                         </Button>
                     </PaginationContainer>
                 )}
@@ -207,6 +208,6 @@ export const AdminOrdersPage = () => {
                     onClose={() => setViewOrder(null)}
                 />
             </PageContainer>
-        </SubMenuTopBarContainer>
+        </PageWrapper>
     );
 };

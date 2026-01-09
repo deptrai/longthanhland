@@ -1,4 +1,4 @@
-import { isDefined } from '@/utils';
+import { isDefined } from '..';
 
 // https://github.com/microsoft/TypeScript/issues/34523
 // eslint-disable-next-line prefer-arrow/prefer-arrow-functions

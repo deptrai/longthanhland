@@ -1,5 +1,5 @@
-import { COMPOSITE_FIELD_TYPE_SUB_FIELDS_NAMES } from '@/constants/CompositeFieldTypeSubFieldsNames';
-import { type CompositeFieldSubFieldName } from '@/types';
+import { COMPOSITE_FIELD_TYPE_SUB_FIELDS_NAMES } from '../../../constants/CompositeFieldTypeSubFieldsNames';
+import { type CompositeFieldSubFieldName } from '../../../types';
 
 type CompositeMap = typeof COMPOSITE_FIELD_TYPE_SUB_FIELDS_NAMES;
 

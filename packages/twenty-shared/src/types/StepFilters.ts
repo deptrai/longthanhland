@@ -1,4 +1,4 @@
-import { type ViewFilterOperandDeprecated } from '@/types/ViewFilterOperandDeprecated';
+import { type ViewFilterOperandDeprecated } from './ViewFilterOperandDeprecated';
 import { type ViewFilterOperand } from './ViewFilterOperand';
 
 export enum StepLogicalOperator {

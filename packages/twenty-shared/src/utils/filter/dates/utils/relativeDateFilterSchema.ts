@@ -1,7 +1,7 @@
-import { firstDayOfWeekSchema } from '@/utils/filter/dates/utils/firstDayOfWeekSchema';
-import { relativeDateFilterAmountSchema } from '@/utils/filter/dates/utils/relativeDateFilterAmountSchema';
-import { relativeDateFilterDirectionSchema } from '@/utils/filter/dates/utils/relativeDateFilterDirectionSchema';
-import { relativeDateFilterUnitSchema } from '@/utils/filter/dates/utils/relativeDateFilterUnitSchema';
+import { firstDayOfWeekSchema } from './firstDayOfWeekSchema';
+import { relativeDateFilterAmountSchema } from './relativeDateFilterAmountSchema';
+import { relativeDateFilterDirectionSchema } from './relativeDateFilterDirectionSchema';
+import { relativeDateFilterUnitSchema } from './relativeDateFilterUnitSchema';
 
 import z from 'zod';
 

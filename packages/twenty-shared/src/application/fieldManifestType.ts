@@ -3,8 +3,8 @@ import {
   type FieldMetadataSettings,
   type FieldMetadataOptions,
   type FieldMetadataDefaultValue,
-} from '@/types';
-import { type SyncableEntityOptions } from '@/application/syncableEntityOptionsType';
+} from '../types';
+import { type SyncableEntityOptions } from './syncableEntityOptionsType';
 
 export type FieldManifest<
   T extends FieldMetadataType = Exclude<

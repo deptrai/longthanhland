@@ -1,5 +1,5 @@
-import { FirstDayOfTheWeek } from '@/types';
-import { getNextPeriodStart } from '@/utils/filter/dates/utils/getNextPeriodStart';
+import { FirstDayOfTheWeek } from '../../../../../types';
+import { getNextPeriodStart } from '../getNextPeriodStart';
 
 import { Temporal } from 'temporal-polyfill';
 

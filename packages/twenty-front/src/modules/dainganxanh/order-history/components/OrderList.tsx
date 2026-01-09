@@ -3,10 +3,6 @@ import { useRecoilValue } from 'recoil';
 import { currentUserState } from '@/auth/states/currentUserState';
 import { useQuery } from '@apollo/client'; // Or use custom hook for REST
 import { useEffect, useState } from 'react';
-import { Button } from '@/ui/input/button/components/Button';
-import { Card } from '@/ui/layout/card/components/Card';
-import { CardContent } from '@/ui/layout/card/components/CardContent';
-import { CardHeader } from '@/ui/layout/card/components/CardHeader';
 import { IconDownload, IconFileDescription } from '@tabler/icons-react';
 
 // Define Order Interface matching Backend DTO
@@ -27,13 +23,19 @@ const StyledContainer = styled.div`
   gap: 16px;
 `;
 
-const StyledOrderCard = styled(Card)`
-  border: 1px solid ${({ theme }) => theme.border.color.medium};
+const StyledOrderCard = styled.div`
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: white;
   transition: all 0.2s;
   
   &:hover {
-      box-shadow: ${({ theme }) => theme.boxShadow.light};
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   }
+`;
+
+const CardContent = styled.div`
+  padding: 24px;
 `;
 
 const StyledOrderHeader = styled.div`
@@ -114,7 +116,27 @@ const StyledActions = styled.div`
     justify-content: flex-end;
     margin-top: 16px;
     padding-top: 12px;
-    border-top: 1px dashed ${({ theme }) => theme.border.color.light};
+    border-top: 1px dashed #e2e8f0;
+`;
+
+const StyledButton = styled.button`
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: 500;
+    font-size: 14px;
+    cursor: pointer;
+    border: 1px solid #e2e8f0;
+    background: white;
+    color: #475569;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    
+    &:hover {
+        background: #f8fafc;
+        border-color: #cbd5e1;
+    }
 `;
 
 export const OrderList = () => {
@@ -208,13 +230,12 @@ export const OrderList = () => {
 
                         {order.contractPdfUrl && (
                             <StyledActions>
-                                <Button
+                                <StyledButton
                                     onClick={() => window.open(order.contractPdfUrl, '_blank')}
-                                    variant="secondary"
-                                    LeftIcon={IconDownload}
                                 >
+                                    <IconDownload size={16} />
                                     Tải Hợp Đồng
-                                </Button>
+                                </StyledButton>
                             </StyledActions>
                         )}
                     </CardContent>

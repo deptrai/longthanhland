@@ -1,5 +1,5 @@
-import { type SyncableEntityOptions } from '@/application/syncableEntityOptionsType';
-import { type HTTPMethod } from '@/types';
+import { type SyncableEntityOptions } from './syncableEntityOptionsType';
+import { type HTTPMethod } from '../types';
 
 // Standard JSON Schema type for tool input/output definitions
 export type InputJsonSchema = {

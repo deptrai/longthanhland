@@ -1,4 +1,4 @@
-import { type RelationType } from '@/types/RelationType';
+import { type RelationType } from './RelationType';
 
 export type RelationCreationPayload = {
   type: RelationType;

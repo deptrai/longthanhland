@@ -1,4 +1,4 @@
-import { type SyncableEntityOptions } from '@/application/syncableEntityOptionsType';
+import { type SyncableEntityOptions } from './syncableEntityOptionsType';
 
 type ApplicationVariable = SyncableEntityOptions & {
   value?: string;

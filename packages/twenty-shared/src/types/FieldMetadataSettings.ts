@@ -1,9 +1,9 @@
-import { type AllowedAddressSubField } from '@/types/AddressFieldsType';
-import { type FieldMetadataMultiItemSettings } from '@/types/FieldMetadataMultiItemSettings';
-import { type RelationType } from '@/types/RelationType';
-import { type FieldMetadataType } from '@/types/FieldMetadataType';
-import { type IsExactly } from '@/types/IsExactly';
-import { type RelationOnDeleteAction } from '@/types/RelationOnDeleteAction.type';
+import { type AllowedAddressSubField } from './AddressFieldsType';
+import { type FieldMetadataMultiItemSettings } from './FieldMetadataMultiItemSettings';
+import { type RelationType } from './RelationType';
+import { type FieldMetadataType } from './FieldMetadataType';
+import { type IsExactly } from './IsExactly';
+import { type RelationOnDeleteAction } from './RelationOnDeleteAction.type';
 
 export enum NumberDataType {
   FLOAT = 'float',

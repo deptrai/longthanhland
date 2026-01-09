@@ -1,4 +1,4 @@
-import { assertIsDefinedOrThrow } from '@/utils';
+import { assertIsDefinedOrThrow } from '..';
 
 export const findOrThrow = <T>(
   array: T[],

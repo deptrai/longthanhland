@@ -1,4 +1,4 @@
-import { type ObjectRecordEvent } from '@/database-events/object-record-event.event';
+import { type ObjectRecordEvent } from './object-record-event.event';
 
 type SimplifiedFlatObjectMetadata = {
   id: string;

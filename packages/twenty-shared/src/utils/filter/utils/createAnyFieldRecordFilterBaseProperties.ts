@@ -1,5 +1,5 @@
-import { type PartialFieldMetadataItem } from '@/types';
-import { type RecordFilter } from '@/utils/filter';
+import { type PartialFieldMetadataItem } from '../../../types';
+import { type RecordFilter } from '..';
 import { v4 } from 'uuid';
 
 export const createAnyFieldRecordFilterBaseProperties = ({

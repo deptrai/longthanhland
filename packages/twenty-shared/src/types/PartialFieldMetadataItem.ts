@@ -1,5 +1,5 @@
-import { type FieldMetadataType } from '@/types/FieldMetadataType';
-import { type PartialFieldMetadataItemOption } from '@/types/PartialFieldMetadataOption';
+import { type FieldMetadataType } from './FieldMetadataType';
+import { type PartialFieldMetadataItemOption } from './PartialFieldMetadataOption';
 
 export type PartialFieldMetadataItem = {
   id: string;

@@ -1,4 +1,4 @@
-import { FirstDayOfTheWeek as FirstDayOfTheWeekEnum } from '@/types/FirstDayOfTheWeek';
+import { FirstDayOfTheWeek as FirstDayOfTheWeekEnum } from '../../../../types/FirstDayOfTheWeek';
 import z from 'zod';
 
 export const firstDayOfWeekSchema = z.enum([

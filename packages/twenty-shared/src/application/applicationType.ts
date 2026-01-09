@@ -1,5 +1,5 @@
-import { type ApplicationVariables } from '@/application';
-import { type SyncableEntityOptions } from '@/application/syncableEntityOptionsType';
+import { type ApplicationVariables } from './';
+import { type SyncableEntityOptions } from './syncableEntityOptionsType';
 
 export type Application = SyncableEntityOptions & {
   displayName?: string;

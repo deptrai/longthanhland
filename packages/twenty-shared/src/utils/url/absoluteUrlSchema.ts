@@ -1,5 +1,5 @@
-import { getAbsoluteUrl } from '@/utils/url/getAbsoluteUrl';
-import { isValidHostname } from '@/utils/url/isValidHostname';
+import { getAbsoluteUrl } from './getAbsoluteUrl';
+import { isValidHostname } from './isValidHostname';
 import { z } from 'zod';
 
 export const absoluteUrlSchema = z.string().transform((value, ctx) => {

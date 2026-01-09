@@ -1,4 +1,4 @@
-import { assertIsDefinedOrThrow } from '@/utils';
+import { assertIsDefinedOrThrow } from '../..';
 
 describe('assertIsDefinedOrThrow', () => {
   it('does not throw when value is defined (number)', () => {

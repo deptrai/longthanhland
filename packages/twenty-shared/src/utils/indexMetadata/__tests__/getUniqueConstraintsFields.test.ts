@@ -1,5 +1,5 @@
-import { FieldMetadataType } from '@/types';
-import { getUniqueConstraintsFields } from '@/utils/indexMetadata/getUniqueConstraintsFields';
+import { FieldMetadataType } from '../../../types';
+import { getUniqueConstraintsFields } from '../getUniqueConstraintsFields';
 
 describe('getUniqueConstraintsFields', () => {
   const mockIdField = {

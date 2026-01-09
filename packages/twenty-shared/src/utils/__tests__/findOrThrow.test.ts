@@ -1,4 +1,4 @@
-import { findOrThrow } from '@/utils';
+import { findOrThrow } from '..';
 
 describe('findOrThrow', () => {
   it('returns the element when predicate matches', () => {

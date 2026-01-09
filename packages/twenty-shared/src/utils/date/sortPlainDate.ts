@@ -1,4 +1,4 @@
-import { type ArraySortDirection } from '@/types/ArraySortDirection';
+import { type ArraySortDirection } from '../../types/ArraySortDirection';
 import { Temporal } from 'temporal-polyfill';
 
 export const sortPlainDate =

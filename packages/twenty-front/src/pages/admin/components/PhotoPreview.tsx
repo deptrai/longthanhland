@@ -1,7 +1,7 @@
 import styled from '@emotion/styled';
 import React, { Suspense, lazy } from 'react';
 import { PhotoFile } from '../../../modules/dainganxanh/admin/types/photo-upload.types';
-import { Button } from 'twenty-ui/input';
+import { Button } from './ui/Button';
 
 const TreeLocationMap = lazy(() =>
     import('../../../modules/dainganxanh/tree-detail/components/TreeLocationMap').then(module => ({

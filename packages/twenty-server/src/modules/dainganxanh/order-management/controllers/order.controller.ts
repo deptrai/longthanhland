@@ -1,10 +1,10 @@
-import { Controller, Get, Post, UseGuards, Req, Logger, Param, Body } from '@nestjs/common';
+import { Controller, Get, Post, Req, Logger, Param, Body } from '@nestjs/common';
 import { OrderService } from '../services/order.service';
-import { JwtAuthGuard } from 'src/engine/guards/jwt-auth.guard';
+// import { JwtAuthGuard } from 'src/engine/guards/jwt-auth.guard';
 import { Request } from 'express';
 
 @Controller('orders')
-@UseGuards(JwtAuthGuard)
+// @UseGuards(JwtAuthGuard)
 export class OrderController {
     private readonly logger = new Logger(OrderController.name);
 

@@ -1,4 +1,4 @@
-import { isDefined } from '@/utils/validation';
+import { isDefined } from './validation';
 import { evalFromContext } from './evalFromContext';
 
 const VARIABLE_TAG_PATTERN =

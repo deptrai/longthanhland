@@ -1,4 +1,4 @@
-import { isValidUuid, isValidVariable } from '@/utils';
+import { isValidUuid, isValidVariable } from '../../..';
 import { z } from 'zod';
 
 export const arrayOfUuidOrVariableSchema = z

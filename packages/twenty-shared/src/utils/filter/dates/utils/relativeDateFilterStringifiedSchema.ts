@@ -1,4 +1,4 @@
-import { relativeDateFilterSchema } from '@/utils/filter/dates/utils/relativeDateFilterSchema';
+import { relativeDateFilterSchema } from './relativeDateFilterSchema';
 import { isNonEmptyArray } from '@sniptt/guards';
 import z from 'zod';
 

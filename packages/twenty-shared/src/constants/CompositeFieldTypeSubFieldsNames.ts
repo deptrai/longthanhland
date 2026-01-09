@@ -1,4 +1,4 @@
-import { FieldMetadataType } from '@/types';
+import { FieldMetadataType } from '../types';
 
 export const COMPOSITE_FIELD_TYPE_SUB_FIELDS_NAMES = {
   [FieldMetadataType.CURRENCY]: {

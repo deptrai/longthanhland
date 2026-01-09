@@ -1,4 +1,4 @@
-import { absoluteUrlSchema } from '@/utils/url/absoluteUrlSchema';
+import { absoluteUrlSchema } from '../absoluteUrlSchema';
 
 describe('absoluteUrlSchema', () => {
   it('validates an absolute url', () => {

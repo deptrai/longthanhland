@@ -1,6 +1,6 @@
 import { type Difference } from 'microdiff';
 
-import { applyDiff } from '@/utils/applyDiff';
+import { applyDiff } from '../applyDiff';
 
 describe('applyDiff', () => {
   describe('input validation', () => {

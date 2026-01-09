@@ -1,17 +1,20 @@
 import styled from '@emotion/styled';
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { PageContainer } from '@/ui/layout/page/components/PageContainer';
-import { SubMenuTopBarContainer } from '@/ui/layout/page/components/SubMenuTopBarContainer';
 import { ShareCardPreview } from '../../modules/dainganxanh/share/components/ShareCardPreview';
 import { ShareButtons } from '../../modules/dainganxanh/share/components/ShareButtons';
 import { useShareCard } from '../../modules/dainganxanh/share/hooks/useShareCard';
+
+const PageWrapper = styled.div`
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+`;
 
 const Container = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 24px;
+    padding: 48px 24px;
     max-width: 800px;
     margin: 0 auto;
 `;
@@ -61,8 +64,6 @@ const ShareTitle = styled.h2`
 export const OrderSuccessPage = () => {
     const [searchParams] = useSearchParams();
 
-    // Get order details from URL params
-    const orderId = searchParams.get('orderId') || '';
     const userName = searchParams.get('name') || 'Người gieo hạt';
     const treeCount = parseInt(searchParams.get('trees') || '1', 10);
     const co2Absorbed = parseFloat(searchParams.get('co2') || String(treeCount * 10));
@@ -82,8 +83,7 @@ export const OrderSuccessPage = () => {
     }, [fetchShareData]);
 
     return (
-        <PageContainer>
-            <SubMenuTopBarContainer title="Đặt hàng thành công" />
+        <PageWrapper>
             <Container>
                 <SuccessIcon>🎉</SuccessIcon>
                 <Title>Cảm ơn bạn đã đặt hàng!</Title>
@@ -115,6 +115,6 @@ export const OrderSuccessPage = () => {
                     <Subtitle>Đang tải share card...</Subtitle>
                 )}
             </Container>
-        </PageContainer>
+        </PageWrapper>
     );
 };

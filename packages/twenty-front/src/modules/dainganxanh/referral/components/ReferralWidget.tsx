@@ -1,8 +1,28 @@
 import styled from '@emotion/styled';
 import { useEffect, useRef, useState } from 'react';
 import QRCode from 'qrcode';
-import { Button } from 'twenty-ui/input';
 import { useReferral } from '../hooks/useReferral';
+
+const StyledButton = styled.button<{ variant?: 'primary' | 'secondary'; fullWidth?: boolean }>`
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 14px;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    width: ${({ fullWidth }) => fullWidth ? '100%' : 'auto'};
+    
+    ${({ variant }) => variant === 'primary' ? `
+        background: #10b981;
+        color: white;
+        &:hover { background: #059669; }
+    ` : `
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        &:hover { background: rgba(255, 255, 255, 0.3); }
+    `}
+`;
 
 const Container = styled.div`
     padding: 24px;
@@ -159,12 +179,12 @@ export const ReferralWidget = () => {
                         <LinkBox>{referralCode.url}</LinkBox>
 
                         <ButtonRow>
-                            <Button variant="secondary" onClick={handleCopy} fullWidth>
+                            <StyledButton variant="secondary" onClick={handleCopy} fullWidth>
                                 📋 Copy Link
-                            </Button>
-                            <Button variant="secondary" onClick={shareLink} fullWidth>
+                            </StyledButton>
+                            <StyledButton variant="secondary" onClick={shareLink} fullWidth>
                                 📱 Chia sẻ
-                            </Button>
+                            </StyledButton>
                         </ButtonRow>
 
                         {stats && (

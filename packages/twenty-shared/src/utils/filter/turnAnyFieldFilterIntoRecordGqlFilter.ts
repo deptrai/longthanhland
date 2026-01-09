@@ -1,19 +1,19 @@
-import { CURRENCY_CODE_LABELS } from '@/constants';
-import { type CurrencyCode } from '@/constants/CurrencyCode';
+import { CURRENCY_CODE_LABELS } from '../../constants';
+import { type CurrencyCode } from '../../constants/CurrencyCode';
 import {
   FieldMetadataType,
   ViewFilterOperand,
   type PartialFieldMetadataItem,
   type RecordGqlOperationFilter,
-} from '@/types';
+} from '../../types';
 import {
   filterSelectOptionsOfFieldMetadataItem,
   type RecordFilter,
-} from '@/utils';
-import { isNonEmptyArray } from '@/utils/array/isNonEmptyArray';
-import { turnRecordFilterIntoRecordGqlOperationFilter } from '@/utils/filter/turnRecordFilterIntoGqlOperationFilter';
-import { createAnyFieldRecordFilterBaseProperties } from '@/utils/filter/utils/createAnyFieldRecordFilterBaseProperties';
-import { isDefined } from '@/utils/validation';
+} from '..';
+import { isNonEmptyArray } from '../array/isNonEmptyArray';
+import { turnRecordFilterIntoRecordGqlOperationFilter } from './turnRecordFilterIntoGqlOperationFilter';
+import { createAnyFieldRecordFilterBaseProperties } from './utils/createAnyFieldRecordFilterBaseProperties';
+import { isDefined } from '../validation';
 import { isNonEmptyString } from '@sniptt/guards';
 
 import { z } from 'zod';

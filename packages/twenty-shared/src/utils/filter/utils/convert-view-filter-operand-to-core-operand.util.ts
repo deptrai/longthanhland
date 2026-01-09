@@ -1,4 +1,4 @@
-import { ViewFilterOperand, ViewFilterOperandDeprecated } from '@/types';
+import { ViewFilterOperand, ViewFilterOperandDeprecated } from '../../../types';
 
 const operandMapping: Record<string, ViewFilterOperand> = {
   [ViewFilterOperandDeprecated.Is]: ViewFilterOperand.IS,

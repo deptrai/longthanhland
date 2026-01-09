@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 import React, { useEffect, useState } from 'react';
-import { Button } from 'twenty-ui/input';
+import { Button } from './ui/Button';
 
 const Overlay = styled.div`
     position: fixed;

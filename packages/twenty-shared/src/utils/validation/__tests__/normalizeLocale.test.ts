@@ -1,4 +1,4 @@
-import { SOURCE_LOCALE } from '@/translations';
+import { SOURCE_LOCALE } from '../../../translations';
 import { normalizeLocale } from '../normalizeLocale';
 
 describe('normalizeLocale', () => {

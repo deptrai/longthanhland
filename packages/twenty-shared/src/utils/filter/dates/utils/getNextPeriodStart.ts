@@ -1,8 +1,8 @@
-import { type Nullable } from '@/types';
-import { assertUnreachable } from '@/utils/assertUnreachable';
-import { type DateTimePeriod } from '@/utils/filter/dates/types/DateTimePeriod';
-import { type FirstDayOfTheWeek } from '@/utils/filter/dates/utils/firstDayOfWeekSchema';
-import { getPeriodStart } from '@/utils/filter/dates/utils/getPeriodStart';
+import { type Nullable } from '../../../../types';
+import { assertUnreachable } from '../../../assertUnreachable';
+import { type DateTimePeriod } from '../types/DateTimePeriod';
+import { type FirstDayOfTheWeek } from './firstDayOfWeekSchema';
+import { getPeriodStart } from './getPeriodStart';
 import { type Temporal } from 'temporal-polyfill';
 
 export const FIRST_DAY_OF_WEEK_ISO_8601_MONDAY = 1;

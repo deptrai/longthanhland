@@ -3,9 +3,9 @@ import {
   type CompositeFieldSubFieldName,
   type LinksFilter,
   type PartialFieldMetadataItem,
-} from '@/types';
-import { CustomError } from '@/utils/errors';
-import { type RecordFilter } from '@/utils/filter/turnRecordFilterGroupIntoGqlOperationFilter';
+} from '../../../../types';
+import { CustomError } from '../../../errors';
+import { type RecordFilter } from '../../turnRecordFilterGroupIntoGqlOperationFilter';
 import { isNonEmptyString } from '@sniptt/guards';
 
 export const computeGqlOperationFilterForLinks = ({

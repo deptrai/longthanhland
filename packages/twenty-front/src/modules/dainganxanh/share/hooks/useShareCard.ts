@@ -71,8 +71,8 @@ export const useShareCard = (
         }
     }, [shareData]);
 
-    const handleCopyLink = useCallback(async () => {
-        if (!shareData) return;
+    const handleCopyLink = useCallback(async (): Promise<boolean> => {
+        if (!shareData) return false;
 
         try {
             await navigator.clipboard.writeText(shareData.shareUrl);

@@ -1,4 +1,4 @@
-import { appendCopySuffix } from '@/utils/strings/appendCopySuffix';
+import { appendCopySuffix } from '../appendCopySuffix';
 
 describe('appendCopySuffix', () => {
   it('should add (Copy) suffix to a string', () => {

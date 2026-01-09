@@ -1,4 +1,4 @@
-import { uncapitalize } from '@/utils/strings/uncapitalize';
+import { uncapitalize } from '../uncapitalize';
 describe('uncapitalize', () => {
   it('should uncapitalize a string', () => {
     expect(uncapitalize('Test')).toBe('test');

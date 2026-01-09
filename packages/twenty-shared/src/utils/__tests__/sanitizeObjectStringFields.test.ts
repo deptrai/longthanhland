@@ -1,5 +1,5 @@
-import { eachTestingContextFilter } from '@/testing';
-import { type EachTestingContext } from '@/testing/types/EachTestingContext.type';
+import { eachTestingContextFilter } from '../../testing';
+import { type EachTestingContext } from '../../testing/types/EachTestingContext.type';
 import { extractAndSanitizeObjectStringFields } from '../extractAndSanitizeObjectStringFields';
 
 type TestObject = {

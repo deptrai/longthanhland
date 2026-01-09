@@ -1,4 +1,4 @@
-import { getAbsoluteUrlOrThrow } from '@/utils/url/getAbsoluteUrlOrThrow';
+import { getAbsoluteUrlOrThrow } from '../getAbsoluteUrlOrThrow';
 
 describe('getAbsoluteUrlOrThrow', () => {
   it("returns the URL's hostname", () => {

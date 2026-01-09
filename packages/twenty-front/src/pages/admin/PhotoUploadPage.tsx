@@ -1,12 +1,23 @@
 import styled from '@emotion/styled';
 import React, { useState } from 'react';
-import { SubMenuTopBarContainer } from '@/ui/layout/page/components/SubMenuTopBarContainer';
-import { PageContainer } from '@/ui/layout/page/components/PageContainer';
-import { Button } from 'twenty-ui/input';
 import { usePhotoUpload } from '../../modules/dainganxanh/admin/hooks/usePhotoUpload';
 import { FileSelector } from './components/FileSelector';
 import { PhotoPreview } from './components/PhotoPreview';
 import { LotTreeSelector } from './components/LotTreeSelector';
+
+const PageWrapper = styled.div`
+    min-height: 100vh;
+    background: #f8fafc;
+`;
+
+const Header = styled.div`
+    background: white;
+    padding: 16px 24px;
+    border-bottom: 1px solid #e2e8f0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #1e293b;
+`;
 
 const Container = styled.div`
     padding: 24px;
@@ -18,8 +29,8 @@ const Section = styled.div`
     margin-bottom: 32px;
 `;
 
-const Title = styled.h2`
-    font-size: 18px;
+const SectionTitle = styled.h3`
+    font-size: 16px;
     font-weight: 600;
     margin: 0 0 16px;
     color: #1e293b;
@@ -32,6 +43,26 @@ const Actions = styled.div`
     margin-top: 24px;
     padding-top: 24px;
     border-top: 1px solid #e2e8f0;
+`;
+
+const Button = styled.button<{ variant?: 'primary' | 'secondary'; disabled?: boolean }>`
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: ${({ disabled }) => disabled ? 'not-allowed' : 'pointer'};
+    opacity: ${({ disabled }) => disabled ? 0.5 : 1};
+    border: none;
+    transition: all 0.2s;
+    
+    ${({ variant }) => variant === 'primary' ? `
+        background: #10b981;
+        color: white;
+        &:hover:not(:disabled) { background: #059669; }
+    ` : `
+        background: #e2e8f0;
+        color: #475569;
+        &:hover:not(:disabled) { background: #cbd5e1; }
+    `}
 `;
 
 const ErrorMessage = styled.div`
@@ -53,31 +84,31 @@ const Summary = styled.div`
 const SummaryItem = styled.div`
     font-size: 14px;
     color: #64748b;
-    margin-bottom: 4px;
-
+    margin-bottom: 8px;
+    
     strong {
         color: #1e293b;
     }
 `;
 
 export const PhotoUploadPage = () => {
+    const [globalLotId, setGlobalLotId] = useState<string>('');
+    const [selectedTreeIds, setSelectedTreeIds] = useState<string[]>([]);
+
     const {
         photos,
-        uploading,
-        error,
         addPhotos,
         removePhoto,
         updatePhoto,
         uploadPhotos,
         clearAll,
+        uploading,
+        error,
         getQuarterString,
     } = usePhotoUpload();
 
-    const [globalLotId, setGlobalLotId] = useState<string>('');
-    const [globalTreeIds, setGlobalTreeIds] = useState<string[]>([]);
-
-    const handleFilesSelected = async (files: FileList) => {
-        await addPhotos(files);
+    const handleFilesSelected = (files: FileList) => {
+        addPhotos(Array.from(files));
     };
 
     const handleUpdateCaption = (id: string, caption: string) => {
@@ -85,14 +116,9 @@ export const PhotoUploadPage = () => {
     };
 
     const handleUpload = async () => {
-        // Update all photos with global lot/tree selection
-        photos.forEach((photo) => {
-            updatePhoto(photo.id, {
-                lotId: globalLotId,
-                treeIds: globalTreeIds,
-            });
-        });
-
+        if (!globalLotId) {
+            return;
+        }
         await uploadPhotos();
     };
 
@@ -100,54 +126,36 @@ export const PhotoUploadPage = () => {
     const currentQuarter = getQuarterString();
 
     return (
-        <PageContainer>
-            <SubMenuTopBarContainer title="Photo Upload" />
+        <PageWrapper>
+            <Header>Photo Upload</Header>
             <Container>
                 {error && <ErrorMessage>{error}</ErrorMessage>}
 
                 <Section>
-                    <Title>1. Select Photos</Title>
+                    <SectionTitle>Select Lot</SectionTitle>
+                    <LotTreeSelector
+                        onLotChange={(lotId: string) => setGlobalLotId(lotId)}
+                        onTreesChange={(treeIds: string[]) => setSelectedTreeIds(treeIds)}
+                        selectedLotId={globalLotId}
+                        selectedTreeIds={selectedTreeIds}
+                    />
+                </Section>
+
+                <Summary>
+                    <SummaryItem><strong>Quarter:</strong> {currentQuarter}</SummaryItem>
+                    <SummaryItem><strong>Photos:</strong> {photos.length} selected</SummaryItem>
+                    <SummaryItem><strong>Lot:</strong> {globalLotId || 'Not selected'}</SummaryItem>
+                </Summary>
+
+                <Section>
+                    <SectionTitle>Select Photos</SectionTitle>
                     <FileSelector onFilesSelected={handleFilesSelected} />
                 </Section>
 
                 {photos.length > 0 && (
                     <>
                         <Section>
-                            <Title>2. Assign to Lot & Trees</Title>
-                            <LotTreeSelector
-                                selectedLotId={globalLotId}
-                                selectedTreeIds={globalTreeIds}
-                                photoGPS={
-                                    photos[0]?.gpsLat && photos[0]?.gpsLng
-                                        ? { lat: photos[0].gpsLat, lng: photos[0].gpsLng }
-                                        : undefined
-                                }
-                                onLotChange={setGlobalLotId}
-                                onTreesChange={setGlobalTreeIds}
-                            />
-                        </Section>
-
-                        <Section>
-                            <Title>3. Review & Edit</Title>
-                            <Summary>
-                                <SummaryItem>
-                                    <strong>Photos:</strong> {photos.length}
-                                </SummaryItem>
-                                <SummaryItem>
-                                    <strong>Quarter:</strong> {currentQuarter}
-                                </SummaryItem>
-                                {globalLotId && (
-                                    <SummaryItem>
-                                        <strong>Lot:</strong> Selected
-                                    </SummaryItem>
-                                )}
-                                {globalTreeIds.length > 0 && (
-                                    <SummaryItem>
-                                        <strong>Tagged Trees:</strong> {globalTreeIds.length}
-                                    </SummaryItem>
-                                )}
-                            </Summary>
-
+                            <SectionTitle>Preview ({photos.length} photos)</SectionTitle>
                             <PhotoPreview
                                 photos={photos}
                                 onRemove={removePhoto}
@@ -170,6 +178,6 @@ export const PhotoUploadPage = () => {
                     </>
                 )}
             </Container>
-        </PageContainer>
+        </PageWrapper>
     );
 };

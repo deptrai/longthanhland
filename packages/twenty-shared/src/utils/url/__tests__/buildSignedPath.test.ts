@@ -1,4 +1,4 @@
-import { buildSignedPath } from '@/utils';
+import { buildSignedPath } from '../..';
 
 describe('buildSignedPath', () => {
   it('should build a signed path', () => {

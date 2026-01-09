@@ -1,6 +1,26 @@
 import styled from '@emotion/styled';
 import { useState } from 'react';
-import { Button } from 'twenty-ui/input';
+
+const StyledButton = styled.button<{ variant?: 'primary' | 'secondary'; fullWidth?: boolean }>`
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 14px;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    width: ${({ fullWidth }) => fullWidth ? '100%' : 'auto'};
+    
+    ${({ variant }) => variant === 'primary' ? `
+        background: #10b981;
+        color: white;
+        &:hover { background: #059669; }
+    ` : `
+        background: #e2e8f0;
+        color: #475569;
+        &:hover { background: #cbd5e1; }
+    `}
+`;
 
 const Container = styled.div`
     display: flex;
@@ -55,16 +75,16 @@ export const ShareButtons = ({
     return (
         <>
             <Container>
-                <Button variant="primary" onClick={onShare} fullWidth>
+                <StyledButton variant="primary" onClick={onShare} fullWidth>
                     📱 Chia sẻ
-                </Button>
+                </StyledButton>
                 <ButtonRow>
-                    <Button variant="secondary" onClick={handleCopy} fullWidth>
+                    <StyledButton variant="secondary" onClick={handleCopy} fullWidth>
                         🔗 Copy Link
-                    </Button>
-                    <Button variant="secondary" onClick={onDownload} fullWidth>
+                    </StyledButton>
+                    <StyledButton variant="secondary" onClick={onDownload} fullWidth>
                         ⬇️ Tải về
-                    </Button>
+                    </StyledButton>
                 </ButtonRow>
             </Container>
             <Toast show={showToast}>✅ Đã copy link!</Toast>

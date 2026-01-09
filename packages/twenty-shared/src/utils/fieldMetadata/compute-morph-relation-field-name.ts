@@ -1,5 +1,5 @@
-import { CustomError } from '@/utils/errors';
-import { capitalize } from '@/utils/strings';
+import { CustomError } from '../errors';
+import { capitalize } from '../strings';
 
 enum RelationType {
   MANY_TO_ONE = 'MANY_TO_ONE',

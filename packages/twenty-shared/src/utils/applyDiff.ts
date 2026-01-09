@@ -1,4 +1,4 @@
-import { isDefined } from '@/utils/validation';
+import { isDefined } from './validation';
 import { isNumber, isObject, isString } from '@sniptt/guards';
 import { type Difference } from 'microdiff';
 

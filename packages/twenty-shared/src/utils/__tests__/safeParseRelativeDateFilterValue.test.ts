@@ -1,4 +1,4 @@
-import { safeParseRelativeDateFilterJSONStringified } from '@/utils/safeParseRelativeDateFilterJSONStringified';
+import { safeParseRelativeDateFilterJSONStringified } from '../safeParseRelativeDateFilterJSONStringified';
 
 describe('safeParseRelativeDateFilterJSONStringified', () => {
   describe('valid inputs', () => {

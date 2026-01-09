@@ -1,5 +1,5 @@
-import { ObjectRecordBaseEvent } from '@/database-events/object-record.base.event';
-import { type ObjectRecordDiff } from '@/database-events/object-record-diff';
+import { ObjectRecordBaseEvent } from './object-record.base.event';
+import { type ObjectRecordDiff } from './object-record-diff';
 
 export class ObjectRecordUpsertEvent<
   T = object,

@@ -1,6 +1,6 @@
-import { FirstDayOfTheWeek as FirstDayOfTheWeekEnum } from '@/types/FirstDayOfTheWeek';
-import { assertUnreachable } from '@/utils/assertUnreachable';
-import { type FirstDayOfTheWeek } from '@/utils/filter/dates/utils/firstDayOfWeekSchema';
+import { FirstDayOfTheWeek as FirstDayOfTheWeekEnum } from '../../../../types/FirstDayOfTheWeek';
+import { assertUnreachable } from '../../../assertUnreachable';
+import { type FirstDayOfTheWeek } from './firstDayOfWeekSchema';
 
 export const getFirstDayOfTheWeekAsISONumber = (
   firstDayOfTheWeek: FirstDayOfTheWeek,

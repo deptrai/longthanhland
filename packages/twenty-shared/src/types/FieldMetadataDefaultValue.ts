@@ -1,5 +1,5 @@
-import { type FieldMetadataType } from '@/types/FieldMetadataType';
-import { type IsExactly } from '@/types/IsExactly';
+import { type FieldMetadataType } from './FieldMetadataType';
+import { type IsExactly } from './IsExactly';
 
 import {
   IsArray,

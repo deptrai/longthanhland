@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 import React, { useState, Suspense, lazy } from 'react';
-import { Button } from 'twenty-ui/input';
+import { Button } from './ui/Button';
 import { useQuery, gql } from '@apollo/client';
 import { TreeLot } from '../../../modules/dainganxanh/admin/types/lot-management.types';
 
@@ -151,7 +151,7 @@ export const LotDetailsPanel = ({
     return (
         <Overlay onClick={onClose}>
             <Panel onClick={(e) => e.stopPropagation()}>
-                <Title>Lot Details: {lot.lotName || lot.name}</Title>
+                <Title>Lot Details: {lot.lotName}</Title>
 
                 <Section>
                     <Label>Lot Code</Label>
@@ -194,7 +194,7 @@ export const LotDetailsPanel = ({
                         onChange={(e) => setSelectedOperator(e.target.value)}
                     >
                         <option value="">Select operator...</option>
-                        {operators.map((op) => (
+                        {operators.map((op: any) => (
                             <option key={op.id} value={op.id}>
                                 {op.name}
                             </option>

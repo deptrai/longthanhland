@@ -1,5 +1,5 @@
-import { type PermissionFlagType } from '@/constants';
-import { type SyncableEntityOptions } from '@/application/syncableEntityOptionsType';
+import { type PermissionFlagType } from '../constants';
+import { type SyncableEntityOptions } from './syncableEntityOptionsType';
 
 type WithObjectIdentifier = {
   objectUniversalIdentifier: string;

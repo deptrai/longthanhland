@@ -1,4 +1,4 @@
-import { FieldMetadataType } from '@/types';
+import { FieldMetadataType } from '../../types';
 
 export const isFieldMetadataDateKind = (
   fieldMetadataType?: FieldMetadataType,

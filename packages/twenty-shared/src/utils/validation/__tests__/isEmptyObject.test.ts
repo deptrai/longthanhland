@@ -1,4 +1,4 @@
-import { isEmptyObject } from '@/utils/validation/isEmptyObject';
+import { isEmptyObject } from '../isEmptyObject';
 
 describe('isEmptyObject', () => {
   it('should return true for empty object', () => {

@@ -1,9 +1,9 @@
 import { computeRecordGqlOperationFilter } from '../computeRecordGqlOperationFilter';
 import type { RecordFilter } from '../turnRecordFilterGroupIntoGqlOperationFilter';
 
-import { FieldMetadataType } from '@/types/FieldMetadataType';
-import type { PartialFieldMetadataItem } from '@/types/PartialFieldMetadataItem';
-import { ViewFilterOperand } from '@/types/ViewFilterOperand';
+import { FieldMetadataType } from '../../../types/FieldMetadataType';
+import type { PartialFieldMetadataItem } from '../../../types/PartialFieldMetadataItem';
+import { ViewFilterOperand } from '../../../types/ViewFilterOperand';
 
 describe('computeRecordGqlOperationFilter', () => {
   it('should match Is UUID', () => {

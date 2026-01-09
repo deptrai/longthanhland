@@ -95,7 +95,7 @@ export const LotColumn = ({ lot, onClick }: LotColumnProps) => {
         <Column ref={setNodeRef} isOver={isOver}>
             <Header onClick={onClick}>
                 <div>
-                    <LotName>{lot.lotName || lot.name}</LotName>
+                    <LotName>{lot.lotName}</LotName>
                     <div style={{ fontSize: '12px', color: '#64748b', marginTop: '4px' }}>
                         {lot.lotCode}
                     </div>

@@ -44,10 +44,10 @@ describe('OrderList', () => {
 
     it('should render orders', () => {
         const orders = [
-            { id: '1', orderCode: 'ORD-001', totalAmount: 500000, status: 'COMPLETED', createdAt: '2024-01-01' },
-            { id: '2', orderCode: 'ORD-002', totalAmount: 1200000, status: 'PENDING', createdAt: '2024-02-01' }
+            { id: '1', orderCode: 'ORD-001', totalAmount: 500000, status: 'COMPLETED', paymentStatus: 'VERIFIED', quantity: 10, createdAt: '2024-01-01' },
+            { id: '2', orderCode: 'ORD-002', totalAmount: 1200000, status: 'PENDING', paymentStatus: 'PENDING', quantity: 20, createdAt: '2024-02-01' }
         ];
-        renderWithTheme(<OrderList orders={orders} loading={false} />);
+        renderWithTheme(<OrderList orders={orders as any} loading={false} />);
 
         expect(screen.getByText('ORD-001')).toBeInTheDocument();
         expect(screen.getByText('ORD-002')).toBeInTheDocument();

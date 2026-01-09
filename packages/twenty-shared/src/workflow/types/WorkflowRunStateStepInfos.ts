@@ -1,5 +1,5 @@
-import { type workflowRunStateStepInfoSchema } from '@/workflow/schemas/workflow-run-state-step-info-schema';
-import { type workflowRunStateStepInfosSchema } from '@/workflow/schemas/workflow-run-state-step-infos-schema';
+import { type workflowRunStateStepInfoSchema } from '../schemas/workflow-run-state-step-info-schema';
+import { type workflowRunStateStepInfosSchema } from '../schemas/workflow-run-state-step-infos-schema';
 import type z from 'zod';
 
 export enum StepStatus {

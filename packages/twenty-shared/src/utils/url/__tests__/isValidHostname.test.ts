@@ -1,4 +1,4 @@
-import { isValidHostname } from '@/utils/url/isValidHostname';
+import { isValidHostname } from '../isValidHostname';
 
 describe('isValidHostname', () => {
   it(`should return true if string google`, () => {

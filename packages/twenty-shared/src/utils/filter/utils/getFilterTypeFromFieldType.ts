@@ -1,7 +1,7 @@
 import {
   FieldMetadataType,
   type FilterableAndTSVectorFieldType,
-} from '@/types';
+} from '../../../types';
 
 export const getFilterTypeFromFieldType = (
   fieldType: FieldMetadataType,

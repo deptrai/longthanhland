@@ -1,5 +1,5 @@
-import { WorkspaceActivationStatus } from '@/workspace/types/WorkspaceActivationStatus';
-import { isWorkspaceActiveOrSuspended } from '@/workspace/utils/isWorkspaceActiveOrSuspended';
+import { WorkspaceActivationStatus } from '../../types/WorkspaceActivationStatus';
+import { isWorkspaceActiveOrSuspended } from '../isWorkspaceActiveOrSuspended';
 
 describe('isWorkspaceActiveOrSuspended', () => {
   it('should return true for Active workspace', () => {

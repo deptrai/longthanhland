@@ -1,5 +1,5 @@
-import { type ObjectRecord } from '@/types/ObjectRecord';
-import { type ObjectRecordGroupByDateGranularity } from '@/types/ObjectRecordGroupByDateGranularity';
+import { type ObjectRecord } from './ObjectRecord';
+import { type ObjectRecordGroupByDateGranularity } from './ObjectRecordGroupByDateGranularity';
 
 export enum OrderByDirection {
   AscNullsFirst = 'AscNullsFirst',

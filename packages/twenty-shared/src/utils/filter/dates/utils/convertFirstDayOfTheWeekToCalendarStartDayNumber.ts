@@ -1,5 +1,5 @@
-import { CalendarStartDay } from '@/constants';
-import { FirstDayOfTheWeek } from '@/types';
+import { CalendarStartDay } from '../../../../constants';
+import { FirstDayOfTheWeek } from '../../../../types';
 
 export const convertFirstDayOfTheWeekToCalendarStartDayNumber = (
   firstDayOfTheWeek: FirstDayOfTheWeek,
