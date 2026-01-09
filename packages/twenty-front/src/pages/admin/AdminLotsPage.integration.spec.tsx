@@ -2,6 +2,7 @@ import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { AdminLotsPage } from './AdminLotsPage';
 import * as useAdminLotsModule from '../../modules/dainganxanh/admin/hooks/useAdminLots';
+import { MockedProvider } from '@apollo/client/testing';
 
 // Mock UI components
 jest.mock('@/ui/layout/page/components/PageContainer', () => ({
@@ -73,9 +74,11 @@ describe('AdminLotsPage Integration', () => {
 
     it('renders Kanban board with lots', async () => {
         render(
-            <MemoryRouter>
-                <AdminLotsPage />
-            </MemoryRouter>
+            <MockedProvider mocks={[]} addTypename={false}>
+                <MemoryRouter>
+                    <AdminLotsPage />
+                </MemoryRouter>
+            </MockedProvider>
         );
 
         expect(screen.getByText('Lot Management')).toBeInTheDocument();
@@ -92,9 +95,11 @@ describe('AdminLotsPage Integration', () => {
 
     it('displays tree cards in columns', async () => {
         render(
-            <MemoryRouter>
-                <AdminLotsPage />
-            </MemoryRouter>
+            <MockedProvider mocks={[]} addTypename={false}>
+                <MemoryRouter>
+                    <AdminLotsPage />
+                </MemoryRouter>
+            </MockedProvider>
         );
 
         await waitFor(() => {
@@ -106,9 +111,11 @@ describe('AdminLotsPage Integration', () => {
 
     it('opens lot details panel on click', async () => {
         render(
-            <MemoryRouter>
-                <AdminLotsPage />
-            </MemoryRouter>
+            <MockedProvider mocks={[]} addTypename={false}>
+                <MemoryRouter>
+                    <AdminLotsPage />
+                </MemoryRouter>
+            </MockedProvider>
         );
 
         await waitFor(() => screen.getByText('Lot A'));
@@ -123,9 +130,11 @@ describe('AdminLotsPage Integration', () => {
 
     it('handles tree reassignment', async () => {
         render(
-            <MemoryRouter>
-                <AdminLotsPage />
-            </MemoryRouter>
+            <MockedProvider mocks={[]} addTypename={false}>
+                <MemoryRouter>
+                    <AdminLotsPage />
+                </MemoryRouter>
+            </MockedProvider>
         );
 
         await waitFor(() => screen.getByText('TREE-001'));
@@ -139,9 +148,11 @@ describe('AdminLotsPage Integration', () => {
         global.fetch = jest.fn(() => new Promise(() => { })) as jest.Mock;
 
         render(
-            <MemoryRouter>
-                <AdminLotsPage />
-            </MemoryRouter>
+            <MockedProvider mocks={[]} addTypename={false}>
+                <MemoryRouter>
+                    <AdminLotsPage />
+                </MemoryRouter>
+            </MockedProvider>
         );
 
         expect(screen.getByText('Loading lots...')).toBeInTheDocument();
@@ -157,9 +168,11 @@ describe('AdminLotsPage Integration', () => {
         ) as jest.Mock;
 
         render(
-            <MemoryRouter>
-                <AdminLotsPage />
-            </MemoryRouter>
+            <MockedProvider mocks={[]} addTypename={false}>
+                <MemoryRouter>
+                    <AdminLotsPage />
+                </MemoryRouter>
+            </MockedProvider>
         );
 
         await waitFor(() => {
