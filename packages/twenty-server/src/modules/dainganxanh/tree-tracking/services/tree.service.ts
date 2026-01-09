@@ -16,16 +16,20 @@ const MAX_TREES_PER_LOT_QUERY = 1000;
 
 /**
  * Tree entity interface matching custom object fields in Twenty CRM
+ * @see E1.1 Story - Tree Object specification
  */
 export interface TreeEntity {
     id: string;
     treeCode: string;
-    status: 'SEEDLING' | 'PLANTED' | 'GROWING' | 'MATURE' | 'READY_HARVEST';
+    // E1.1 AC#2: Status options - SEEDLING, PLANTED, GROWING, MATURE, HARVESTED, DEAD
+    status: 'SEEDLING' | 'PLANTED' | 'GROWING' | 'MATURE' | 'HARVESTED' | 'DEAD';
     gpsLocation: string | null;
     plantingDate: string | null;
     estimatedHarvestDate: string | null;
-    height: number | null;
+    heightCm: number | null; // E1.1 AC#2: heightCm field
     co2Absorbed: number | null;
+    healthScore: number | null; // E1.1 AC#2: 0-100 health score
+    latestPhoto: string | null; // E1.1 AC#2: S3 URL
     lotId: string | null;
     ownerId: string | null;
     createdAt: string;
@@ -40,8 +44,10 @@ export interface CreateTreeDto {
     gpsLocation?: string;
     plantingDate?: string;
     estimatedHarvestDate?: string;
-    height?: number;
+    heightCm?: number;
     co2Absorbed?: number;
+    healthScore?: number;
+    latestPhoto?: string;
     lotId?: string;
     ownerId?: string;
 }
@@ -54,8 +60,10 @@ export interface UpdateTreeDto {
     gpsLocation?: string;
     plantingDate?: string;
     estimatedHarvestDate?: string;
-    height?: number;
+    heightCm?: number;
     co2Absorbed?: number;
+    healthScore?: number;
+    latestPhoto?: string;
     lotId?: string;
     ownerId?: string;
 }
@@ -138,8 +146,10 @@ export class TreeService {
                         gpsLocation: data.gpsLocation || null,
                         plantingDate: data.plantingDate || null,
                         estimatedHarvestDate: estimatedHarvestDate || null,
-                        height: data.height ?? null,
+                        heightCm: data.heightCm ?? null,
                         co2Absorbed: data.co2Absorbed ?? 0,
+                        healthScore: data.healthScore ?? null,
+                        latestPhoto: data.latestPhoto ?? null,
                         lotId: data.lotId || null,
                         ownerId: data.ownerId || null,
                     };
@@ -443,16 +453,16 @@ export class TreeService {
      * - PLANTED: 3-9 months
      * - GROWING: 9-48 months
      * - MATURE: 48-60 months
-     * - READY_HARVEST: 60+ months
+     * - HARVESTED: 60+ months (E1.1 spec)
      */
     determineTreeStatus(
         ageMonths: number,
-    ): 'SEEDLING' | 'PLANTED' | 'GROWING' | 'MATURE' | 'READY_HARVEST' {
+    ): 'SEEDLING' | 'PLANTED' | 'GROWING' | 'MATURE' | 'HARVESTED' | 'DEAD' {
         if (ageMonths < 3) return 'SEEDLING';
         if (ageMonths < 9) return 'PLANTED';
         if (ageMonths < 48) return 'GROWING';
         if (ageMonths < 60) return 'MATURE';
-        return 'READY_HARVEST';
+        return 'HARVESTED';
     }
 
     /**
@@ -530,7 +540,8 @@ export class TreeService {
                         'PLANTED',
                         'GROWING',
                         'MATURE',
-                        'READY_HARVEST',
+                        'HARVESTED',
+                        'DEAD',
                     ] as const;
 
                     const countPromises = statuses.map(async (status) => {
