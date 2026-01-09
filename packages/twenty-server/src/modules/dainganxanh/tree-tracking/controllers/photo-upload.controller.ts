@@ -8,7 +8,7 @@ import {
     Param,
     Query,
 } from '@nestjs/common';
-import { JwtAuthGuard } from 'src/engine/core-modules/auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from 'src/engine/guards/jwt-auth.guard';
 import { TreePhotoService, CreateTreePhotoDto } from '../services/tree-photo.service';
 
 @Controller('photos')
