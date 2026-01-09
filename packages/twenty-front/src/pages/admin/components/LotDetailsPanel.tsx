@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import React, { useState, useEffect, Suspense, lazy } from 'react';
+import React, { useState, Suspense, lazy } from 'react';
 import { Button } from 'twenty-ui/input';
 import { useQuery, gql } from '@apollo/client';
 import { TreeLot } from '../../../modules/dainganxanh/admin/types/lot-management.types';

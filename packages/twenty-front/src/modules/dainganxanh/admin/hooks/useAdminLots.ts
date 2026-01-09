@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
+import { TreeLot } from '../types/lot-management.types';
 
 export const useAdminLots = () => {
-    const [lots, setLots] = useState<any[]>([]);
+    const [lots, setLots] = useState<TreeLot[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -23,7 +24,6 @@ export const useAdminLots = () => {
             const data = await response.json();
             setLots(data);
         } catch (err: any) {
-            console.error('Error fetching lots:', err);
             setError(err.message);
         } finally {
             setLoading(false);
@@ -53,7 +53,6 @@ export const useAdminLots = () => {
             await fetchLots();
             return await response.json();
         } catch (err: any) {
-            console.error('Error reassigning tree:', err);
             setError(err.message);
             throw err;
         }
@@ -76,7 +75,6 @@ export const useAdminLots = () => {
             await fetchLots();
             return await response.json();
         } catch (err: any) {
-            console.error('Error assigning operator:', err);
             setError(err.message);
             throw err;
         }
