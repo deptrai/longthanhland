@@ -1,9 +1,10 @@
+import type { ObjectRecord } from '@/object-record/types/ObjectRecord';
+
 /**
  * Tree type for Đại Ngàn Xanh
  * Maps to the Tree custom object in Twenty CRM
  */
-export interface Tree {
-    id: string;
+export interface Tree extends ObjectRecord {
     treeCode: string;
     status: 'SEEDLING' | 'GROWING' | 'MATURE' | 'HARVESTED';
     co2Absorbed: number;

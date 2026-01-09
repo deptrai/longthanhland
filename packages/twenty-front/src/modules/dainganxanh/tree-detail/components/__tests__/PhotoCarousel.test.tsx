@@ -33,7 +33,7 @@ describe('PhotoCarousel', () => {
         };
 
         return render(
-            <ThemeProvider theme={mockTheme}>
+            <ThemeProvider theme={mockTheme as any}>
                 <PhotoCarousel {...defaultProps} {...props} />
             </ThemeProvider>
         );

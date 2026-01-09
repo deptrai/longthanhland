@@ -30,7 +30,7 @@ describe('TreeActionButtons', () => {
 
     const renderComponent = (props = {}) => {
         return render(
-            <ThemeProvider theme={mockTheme}>
+            <ThemeProvider theme={mockTheme as any}>
                 <TreeActionButtons {...defaultProps} {...props} />
             </ThemeProvider>
         );

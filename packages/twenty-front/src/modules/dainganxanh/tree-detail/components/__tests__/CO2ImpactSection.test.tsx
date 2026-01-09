@@ -34,7 +34,7 @@ describe('CO2ImpactSection', () => {
         };
 
         return render(
-            <ThemeProvider theme={mockTheme}>
+            <ThemeProvider theme={mockTheme as any}>
                 <CO2ImpactSection {...defaultProps} {...props} />
             </ThemeProvider>
         );
