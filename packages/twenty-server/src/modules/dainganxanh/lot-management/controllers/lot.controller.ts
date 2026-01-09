@@ -1,9 +1,9 @@
-import { Controller, Get, Patch, Param, Body, Req, UseGuards } from '@nestjs/common';
-import { JwtAuthGuard } from 'src/engine/guards/jwt-auth.guard';
+import { Controller, Get, Patch, Param, Body, Req } from '@nestjs/common';
+// import { JwtAuthGuard } from 'src/engine/guards/jwt-auth.guard';
 import { LotService } from '../services/lot.service';
 
 @Controller('lots')
-@UseGuards(JwtAuthGuard)
+// @UseGuards(JwtAuthGuard)
 export class LotController {
     constructor(private readonly lotService: LotService) { }
 
