@@ -1,5 +1,49 @@
 import { Injectable, NotFoundException, BadRequestException, Logger } from '@nestjs/common';
-import { GlobalWorkspaceOrmManager } from 'src/engine/workspace-manager/workspace-orm-manager/global-workspace-orm-manager';
+import { GlobalWorkspaceOrmManager } from 'src/engine/twenty-orm/global-workspace-datasource/global-workspace-orm.manager';
+import { buildSystemAuthContext } from 'src/engine/twenty-orm/utils/build-system-auth-context.util';
+
+/**
+ * TreeLot entity interface matching E1.2 specification
+ * @see E1.2 Story - TreeLot Object
+ */
+export interface LotEntity {
+    id: string;
+    lotCode: string;
+    lotName: string; // Changed from 'name' due to reserved field
+    location: string | null;
+    capacity: number;
+    plantedCount: number;
+    gpsCenter: string | null; // Format: "lat,lng"
+    assignedOperatorId: string | null;
+    createdAt: string;
+    updatedAt: string;
+    deletedAt: string | null;
+}
+
+/**
+ * DTO for creating a lot
+ */
+export interface CreateLotDto {
+    lotCode?: string; // Auto-generated if not provided
+    lotName: string;
+    location?: string;
+    capacity: number;
+    plantedCount?: number;
+    gpsCenter?: string;
+    assignedOperatorId?: string;
+}
+
+/**
+ * DTO for updating a lot
+ */
+export interface UpdateLotDto {
+    lotName?: string;
+    location?: string;
+    capacity?: number;
+    plantedCount?: number;
+    gpsCenter?: string;
+    assignedOperatorId?: string;
+}
 
 @Injectable()
 export class LotService {
@@ -9,15 +53,131 @@ export class LotService {
         private readonly globalWorkspaceOrmManager: GlobalWorkspaceOrmManager,
     ) { }
 
-    async getAllLots(workspaceId: string) {
-        return this.globalWorkspaceOrmManager.runInWorkspaceTransaction(
-            workspaceId,
+    /**
+     * Generate unique lot code in format LOT-XXX
+     */
+    async generateLotCode(workspaceId: string): Promise<string> {
+        const authContext = buildSystemAuthContext(workspaceId);
+
+        return this.globalWorkspaceOrmManager.executeInWorkspaceContext(
+            authContext,
             async () => {
-                const treeLotRepository =
-                    await this.globalWorkspaceOrmManager.getRepository<any>(
-                        workspaceId,
-                        'treeLot',
-                    );
+                const lotRepository = await this.globalWorkspaceOrmManager.getRepository<LotEntity>(
+                    workspaceId,
+                    'treeLot',
+                );
+
+                const lots = await lotRepository.find({
+                    order: { lotCode: 'DESC' } as any,
+                    take: 1,
+                });
+
+                if (lots.length === 0) {
+                    return 'LOT-001';
+                }
+
+                const lastCode = lots[0].lotCode;
+                const match = lastCode.match(/LOT-(\d+)/);
+
+                if (!match) {
+                    return 'LOT-001';
+                }
+
+                const nextNumber = parseInt(match[1], 10) + 1;
+                return `LOT-${String(nextNumber).padStart(3, '0')}`;
+            },
+        );
+    }
+
+    /**
+     * Create a new lot
+     */
+    async createLot(workspaceId: string, data: CreateLotDto): Promise<LotEntity> {
+        const authContext = buildSystemAuthContext(workspaceId);
+
+        return this.globalWorkspaceOrmManager.executeInWorkspaceContext(
+            authContext,
+            async () => {
+                const lotRepository = await this.globalWorkspaceOrmManager.getRepository<LotEntity>(
+                    workspaceId,
+                    'treeLot',
+                );
+
+                const lotCode = data.lotCode || await this.generateLotCode(workspaceId);
+
+                const newLot = {
+                    lotCode,
+                    lotName: data.lotName,
+                    location: data.location || null,
+                    capacity: data.capacity,
+                    plantedCount: data.plantedCount || 0,
+                    gpsCenter: data.gpsCenter || null,
+                    assignedOperatorId: data.assignedOperatorId || null,
+                };
+
+                const result = await lotRepository.save(newLot);
+                this.logger.log(`Created lot with code: ${lotCode}`);
+
+                return result as LotEntity;
+            },
+        );
+    }
+
+    /**
+     * Find lot by ID
+     */
+    async findLotById(workspaceId: string, lotId: string): Promise<LotEntity | null> {
+        const authContext = buildSystemAuthContext(workspaceId);
+
+        return this.globalWorkspaceOrmManager.executeInWorkspaceContext(
+            authContext,
+            async () => {
+                const lotRepository = await this.globalWorkspaceOrmManager.getRepository<LotEntity>(
+                    workspaceId,
+                    'treeLot',
+                );
+
+                return lotRepository.findOne({
+                    where: { id: lotId },
+                });
+            },
+        );
+    }
+
+    /**
+     * Find lot by code
+     */
+    async findLotByCode(workspaceId: string, lotCode: string): Promise<LotEntity | null> {
+        const authContext = buildSystemAuthContext(workspaceId);
+
+        return this.globalWorkspaceOrmManager.executeInWorkspaceContext(
+            authContext,
+            async () => {
+                const lotRepository = await this.globalWorkspaceOrmManager.getRepository<LotEntity>(
+                    workspaceId,
+                    'treeLot',
+                );
+
+                return lotRepository.findOne({
+                    where: { lotCode },
+                });
+            },
+        );
+    }
+
+    /**
+     * Get all lots with tree counts
+     */
+    async getAllLots(workspaceId: string): Promise<any[]> {
+        const authContext = buildSystemAuthContext(workspaceId);
+
+        return this.globalWorkspaceOrmManager.executeInWorkspaceContext(
+            authContext,
+            async () => {
+                const treeLotRepository = await this.globalWorkspaceOrmManager.getRepository<any>(
+                    workspaceId,
+                    'treeLot',
+                );
 
                 const lots = await treeLotRepository.find({
                     relations: ['assignedOperator', 'trees'],
@@ -33,19 +193,88 @@ export class LotService {
         );
     }
 
+    /**
+     * Update lot
+     */
+    async updateLot(
+        workspaceId: string,
+        lotId: string,
+        data: UpdateLotDto,
+    ): Promise<LotEntity | null> {
+        const authContext = buildSystemAuthContext(workspaceId);
+
+        return this.globalWorkspaceOrmManager.executeInWorkspaceContext(
+            authContext,
+            async () => {
+                const lotRepository = await this.globalWorkspaceOrmManager.getRepository<LotEntity>(
+                    workspaceId,
+                    'treeLot',
+                );
+
+                const lot = await lotRepository.findOne({
+                    where: { id: lotId },
+                });
+
+                if (!lot) {
+                    throw new NotFoundException('TreeLot not found');
+                }
+
+                await lotRepository.update(lotId, data);
+
+                return lotRepository.findOne({
+                    where: { id: lotId },
+                });
+            },
+        );
+    }
+
+    /**
+     * Delete lot (soft delete)
+     */
+    async deleteLot(workspaceId: string, lotId: string): Promise<boolean> {
+        const authContext = buildSystemAuthContext(workspaceId);
+
+        return this.globalWorkspaceOrmManager.executeInWorkspaceContext(
+            authContext,
+            async () => {
+                const lotRepository = await this.globalWorkspaceOrmManager.getRepository<LotEntity>(
+                    workspaceId,
+                    'treeLot',
+                );
+
+                const lot = await lotRepository.findOne({
+                    where: { id: lotId },
+                });
+
+                if (!lot) {
+                    return false;
+                }
+
+                await lotRepository.softDelete(lotId);
+                this.logger.log(`Deleted lot: ${lotId}`);
+
+                return true;
+            },
+        );
+    }
+
+    /**
+     * Assign operator to lot
+     */
     async assignOperator(
         lotId: string,
         operatorId: string,
         workspaceId: string,
-    ) {
-        return this.globalWorkspaceOrmManager.runInWorkspaceTransaction(
-            workspaceId,
+    ): Promise<any> {
+        const authContext = buildSystemAuthContext(workspaceId);
+
+        return this.globalWorkspaceOrmManager.executeInWorkspaceContext(
+            authContext,
             async () => {
-                const treeLotRepository =
-                    await this.globalWorkspaceOrmManager.getRepository<any>(
-                        workspaceId,
-                        'treeLot',
-                    );
+                const treeLotRepository = await this.globalWorkspaceOrmManager.getRepository<any>(
+                    workspaceId,
+                    'treeLot',
+                );
 
                 const lot = await treeLotRepository.findOne({
                     where: { id: lotId },
@@ -77,25 +306,28 @@ export class LotService {
         );
     }
 
+    /**
+     * Reassign tree to different lot
+     */
     async reassignTree(
         treeId: string,
         newLotId: string,
         workspaceId: string,
-    ) {
-        return this.globalWorkspaceOrmManager.runInWorkspaceTransaction(
-            workspaceId,
-            async () => {
-                const treeRepository =
-                    await this.globalWorkspaceOrmManager.getRepository<any>(
-                        workspaceId,
-                        'tree',
-                    );
+    ): Promise<any> {
+        const authContext = buildSystemAuthContext(workspaceId);
 
-                const treeLotRepository =
-                    await this.globalWorkspaceOrmManager.getRepository<any>(
-                        workspaceId,
-                        'treeLot',
-                    );
+        return this.globalWorkspaceOrmManager.executeInWorkspaceContext(
+            authContext,
+            async () => {
+                const treeRepository = await this.globalWorkspaceOrmManager.getRepository<any>(
+                    workspaceId,
+                    'tree',
+                );
+
+                const treeLotRepository = await this.globalWorkspaceOrmManager.getRepository<any>(
+                    workspaceId,
+                    'treeLot',
+                );
 
                 // Fetch tree and lots
                 const tree = await treeRepository.findOne({
@@ -163,59 +395,56 @@ export class LotService {
         workspaceId: string,
     ): Promise<void> {
         try {
-            const workspaceMemberRepository =
-                await this.globalWorkspaceOrmManager.getRepository<any>(
-                    workspaceId,
-                    'workspaceMember',
-                );
+            const authContext = buildSystemAuthContext(workspaceId);
 
-            const operator = await workspaceMemberRepository.findOne({
-                where: { id: operatorId },
-                relations: ['name'],
-            });
+            await this.globalWorkspaceOrmManager.executeInWorkspaceContext(
+                authContext,
+                async () => {
+                    const workspaceMemberRepository =
+                        await this.globalWorkspaceOrmManager.getRepository<any>(
+                            workspaceId,
+                            'workspaceMember',
+                        );
 
-            if (!operator) {
-                this.logger.warn(`Operator ${operatorId} not found for notification`);
-                return;
-            }
+                    const operator = await workspaceMemberRepository.findOne({
+                        where: { id: operatorId },
+                        relations: ['name'],
+                    });
 
-            const operatorName = operator.name
-                ? `${operator.name.firstName || ''} ${operator.name.lastName || ''}`.trim()
-                : 'Operator';
+                    if (!operator) {
+                        this.logger.warn(`Operator ${operatorId} not found for notification`);
+                        return;
+                    }
 
-            this.logger.log(
-                `📢 Notification: ${operatorName} assigned to lot ${lot.lotName} (${lot.lotCode})`,
-            );
+                    const operatorName = operator.name
+                        ? `${operator.name.firstName || ''} ${operator.name.lastName || ''}`.trim()
+                        : 'Operator';
 
-            // TODO: Integrate with Twenty CRM notification system when available
-            // For now, we log the notification. In production, this would:
-            // 1. Create a notification record in the database
-            // 2. Send an email notification
-            // 3. Trigger a push notification if mobile app exists
-            // 4. Create an in-app notification badge
+                    this.logger.log(
+                        `📢 Notification: ${operatorName} assigned to lot ${lot.lotName} (${lot.lotCode})`,
+                    );
 
-            // Example notification payload:
-            const notificationPayload = {
-                recipientId: operatorId,
-                type: 'LOT_ASSIGNMENT',
-                title: 'New Lot Assignment',
-                message: `You have been assigned to manage ${lot.lotName} (${lot.lotCode})`,
-                metadata: {
-                    lotId: lot.id,
-                    lotName: lot.lotName,
-                    lotCode: lot.lotCode,
-                    capacity: lot.capacity,
-                    currentCount: lot.trees?.length || 0,
+                    // TODO: Integrate with Twenty CRM notification system when available
+                    const notificationPayload = {
+                        recipientId: operatorId,
+                        type: 'LOT_ASSIGNMENT',
+                        title: 'New Lot Assignment',
+                        message: `You have been assigned to manage ${lot.lotName} (${lot.lotCode})`,
+                        metadata: {
+                            lotId: lot.id,
+                            lotName: lot.lotName,
+                            lotCode: lot.lotCode,
+                            capacity: lot.capacity,
+                            currentCount: lot.trees?.length || 0,
+                        },
+                        createdAt: new Date().toISOString(),
+                    };
+
+                    this.logger.debug(
+                        `Notification payload: ${JSON.stringify(notificationPayload)}`,
+                    );
                 },
-                createdAt: new Date().toISOString(),
-            };
-
-            this.logger.debug(
-                `Notification payload: ${JSON.stringify(notificationPayload)}`,
             );
-
-            // When notification service is available, uncomment:
-            // await this.notificationService.create(notificationPayload);
         } catch (error) {
             this.logger.error(
                 `Failed to send notification to operator ${operatorId}:`,
