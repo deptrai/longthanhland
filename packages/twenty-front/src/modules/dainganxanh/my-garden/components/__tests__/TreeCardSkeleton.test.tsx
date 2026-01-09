@@ -18,7 +18,7 @@ const mockTheme = {
 describe('TreeCardSkeleton', () => {
     it('should render skeleton card', () => {
         render(
-            <ThemeProvider theme={mockTheme}>
+            <ThemeProvider theme={mockTheme as any}>
                 <TreeCardSkeleton />
             </ThemeProvider>
         );

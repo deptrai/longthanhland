@@ -78,7 +78,7 @@ export const useUserTrees = (options: UseUserTreesOptions = {}): UseUserTreesRes
     } = useFindManyRecords<Tree>({
         objectNameSingular: 'tree',
         filter: graphqlFilter,
-        orderBy,
+        orderBy: orderBy as any,
         limit: pageSize,
     });
 

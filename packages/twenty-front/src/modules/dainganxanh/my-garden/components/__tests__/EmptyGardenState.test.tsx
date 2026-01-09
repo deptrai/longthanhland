@@ -16,7 +16,7 @@ const mockTheme = {
 
 const renderWithTheme = (component: React.ReactElement) => {
     return render(
-        <ThemeProvider theme={mockTheme}>{component}</ThemeProvider>
+        <ThemeProvider theme={mockTheme as any}>{component}</ThemeProvider>
     );
 };
 
