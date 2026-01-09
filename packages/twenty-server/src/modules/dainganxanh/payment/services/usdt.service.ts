@@ -10,11 +10,12 @@ export interface UsdtPaymentInfo {
 }
 
 /**
- * UsdtService handles USDT (Tether) payments on Polygon network.
+ * UsdtService handles USDT (Tether) payments on BSC (Binance Smart Chain).
  * 
- * Polygon is chosen for:
- * - Low gas fees (~$0.01 per transaction)
- * - Fast confirmation times (~2 seconds)
+ * BSC is chosen for:
+ * - Low gas fees (~$0.10 per transaction)
+ * - Fast confirmation times (~3 seconds)
+ * - Wide adoption in Vietnam market
  * - EVM compatibility
  */
 import { PAYMENT_CONSTANTS } from '../../shared/constants/payment.constants';
