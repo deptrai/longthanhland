@@ -2,14 +2,19 @@ import styled from '@emotion/styled';
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { PageContainer } from '@/ui/layout/page/components/PageContainer';
-import { SubMenuTopBarContainer } from '@/ui/layout/page/components/SubMenuTopBarContainer';
-import { Button } from 'twenty-ui/input';
 import { useHarvestDecision, HarvestDecision, HarvestOption } from './hooks/useHarvestDecision';
 
 const Container = styled.div`
     padding: 24px;
     max-width: 1200px;
     margin: 0 auto;
+`;
+
+const Header = styled.h1`
+    font-size: 24px;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 24px;
 `;
 
 const TreeInfo = styled.div`
@@ -107,6 +112,22 @@ const ButtonRow = styled.div`
     gap: 16px;
 `;
 
+const SubmitButton = styled.button<{ disabled: boolean }>`
+    padding: 16px 32px;
+    background: ${({ disabled }) => (disabled ? '#94a3b8' : '#10b981')};
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: ${({ disabled }) => (disabled ? 'not-allowed' : 'pointer')};
+    transition: all 0.2s;
+
+    &:hover:not(:disabled) {
+        background: #059669;
+    }
+`;
+
 const DecisionBadge = styled.div`
     display: inline-block;
     padding: 8px 16px;
@@ -116,6 +137,12 @@ const DecisionBadge = styled.div`
     font-size: 14px;
     font-weight: 500;
     margin-top: 16px;
+`;
+
+const LoadingText = styled.p`
+    text-align: center;
+    color: #64748b;
+    padding: 48px;
 `;
 
 export const HarvestDecisionPage = () => {
@@ -129,23 +156,18 @@ export const HarvestDecisionPage = () => {
         submitDecision,
     } = useHarvestDecision(treeCode || '');
 
-    const [showConfirmation, setShowConfirmation] = useState(false);
-
     const handleSubmit = async () => {
         if (!selectedOption) return;
 
-        const success = await submitDecision(selectedOption);
-        if (success) {
-            setShowConfirmation(false);
-        }
+        await submitDecision(selectedOption);
     };
 
     if (loading || !harvestInfo) {
         return (
             <PageContainer>
-                <SubMenuTopBarContainer title="Quyết định thu hoạch" />
                 <Container>
-                    <p>Đang tải...</p>
+                    <Header>🌳 Quyết định thu hoạch</Header>
+                    <LoadingText>Đang tải thông tin cây...</LoadingText>
                 </Container>
             </PageContainer>
         );
@@ -157,8 +179,8 @@ export const HarvestDecisionPage = () => {
     if (harvest.decision) {
         return (
             <PageContainer>
-                <SubMenuTopBarContainer title="Quyết định thu hoạch" />
                 <Container>
+                    <Header>🌳 Quyết định thu hoạch</Header>
                     <TreeInfo>
                         <TreeTitle>🌳 Cây {tree.treeCode}</TreeTitle>
                         <DecisionBadge>
@@ -172,18 +194,19 @@ export const HarvestDecisionPage = () => {
 
     return (
         <PageContainer>
-            <SubMenuTopBarContainer title="Quyết định thu hoạch" />
             <Container>
+                <Header>🌳 Quyết định thu hoạch</Header>
+
                 <TreeInfo>
-                    <TreeTitle>🌳 Cây {tree.treeCode}</TreeTitle>
+                    <TreeTitle>Cây {tree.treeCode}</TreeTitle>
                     <TreeStats>
                         <Stat>
                             <StatValue>{tree.ageMonths}</StatValue>
                             <StatLabel>tháng tuổi</StatLabel>
                         </Stat>
                         <Stat>
-                            <StatValue>{tree.lotName || 'N/A'}</StatValue>
-                            <StatLabel>Lô</StatLabel>
+                            <StatValue>{tree.status}</StatValue>
+                            <StatLabel>Trạng thái</StatLabel>
                         </Stat>
                         <Stat>
                             <StatValue>{tree.location || 'N/A'}</StatValue>
@@ -215,13 +238,12 @@ export const HarvestDecisionPage = () => {
                 </OptionsGrid>
 
                 <ButtonRow>
-                    <Button
-                        variant="primary"
-                        onClick={handleSubmit}
+                    <SubmitButton
                         disabled={!selectedOption || submitting}
+                        onClick={handleSubmit}
                     >
                         {submitting ? 'Đang gửi...' : 'Xác nhận quyết định'}
-                    </Button>
+                    </SubmitButton>
                 </ButtonRow>
             </Container>
         </PageContainer>

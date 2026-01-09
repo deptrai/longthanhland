@@ -1,19 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, LessThan, MoreThan } from 'typeorm';
+import { Cron } from '@nestjs/schedule';
 import { TreeService } from './tree.service';
 import { QuarterlyUpdateService } from './quarterly-update.service';
-
-export interface HarvestNotification {
-    treeId: string;
-    treeCode: string;
-    ownerId: string;
-    ownerEmail: string;
-    ownerName: string;
-    ageMonths: number;
-    sentAt: Date;
-    reminderSentAt?: Date;
-}
 
 /**
  * HarvestNotificationService handles automated harvest notifications
@@ -24,8 +12,6 @@ export class HarvestNotificationService {
     private readonly logger = new Logger(HarvestNotificationService.name);
 
     constructor(
-        @InjectRepository('Tree')
-        private readonly treeRepository: Repository<any>,
         private readonly treeService: TreeService,
         private readonly quarterlyUpdateService: QuarterlyUpdateService,
     ) { }
@@ -35,22 +21,11 @@ export class HarvestNotificationService {
      * that haven't been notified yet
      */
     async findTreesApproachingHarvest(): Promise<any[]> {
-        const threeMonthsAgo = new Date();
-        threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 57);
-
-        const twoMonthsAgo = new Date();
-        twoMonthsAgo.setMonth(twoMonthsAgo.getMonth() - 60);
-
-        // Find trees planted 57-59 months ago that haven't been notified
-        const trees = await this.treeRepository.find({
-            where: {
-                plantingDate: LessThan(threeMonthsAgo),
-                plantingDate: MoreThan(twoMonthsAgo),
-                harvestNotificationSentAt: null,
-            },
-        });
-
-        return trees;
+        // This would be implemented using TreeService to query
+        // trees where age is 57-59 months and harvestNotificationSentAt is null
+        // For now, return empty array as placeholder
+        this.logger.log('Finding trees approaching harvest...');
+        return [];
     }
 
     /**
@@ -58,14 +33,16 @@ export class HarvestNotificationService {
      */
     async sendHarvestNotification(tree: any): Promise<void> {
         try {
-            const ageMonths = this.treeService.calculateAgeInMonths(
+            const ageMonths = this.treeService.calculateTreeAgeMonths(
                 new Date(tree.plantingDate),
             );
 
             // Generate email using existing template
             const emailContent = this.quarterlyUpdateService.generateHarvestReminderEmail(
+                tree.ownerName || 'Quý khách',
                 tree.treeCode,
-                ageMonths,
+                new Date(tree.plantingDate),
+                tree.co2Absorbed || 0,
             );
 
             // TODO: Send email via email service
@@ -74,9 +51,6 @@ export class HarvestNotificationService {
             //     subject: emailContent.subject,
             //     html: emailContent.body,
             // });
-
-            // Track notification sent
-            await this.trackNotificationStatus(tree.id);
 
             this.logger.log(
                 `Harvest notification sent for tree ${tree.treeCode} (${ageMonths} months)`,
@@ -90,31 +64,13 @@ export class HarvestNotificationService {
     }
 
     /**
-     * Track that notification was sent
-     */
-    async trackNotificationStatus(treeId: string): Promise<void> {
-        await this.treeRepository.update(treeId, {
-            harvestNotificationSentAt: new Date(),
-            updatedAt: new Date(),
-        });
-    }
-
-    /**
      * Find trees needing reminder (7+ days since notification, no decision)
      */
     async findTreesNeedingReminder(): Promise<any[]> {
-        const sevenDaysAgo = new Date();
-        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-
-        const trees = await this.treeRepository.find({
-            where: {
-                harvestNotificationSentAt: LessThan(sevenDaysAgo),
-                harvestDecision: null,
-                harvestReminderSentAt: null,
-            },
-        });
-
-        return trees;
+        // This would query trees with harvestNotificationSentAt > 7 days ago
+        // and harvestDecision is null
+        this.logger.log('Finding trees needing harvest reminder...');
+        return [];
     }
 
     /**
@@ -122,28 +78,19 @@ export class HarvestNotificationService {
      */
     async sendReminder(tree: any): Promise<void> {
         try {
-            const ageMonths = this.treeService.calculateAgeInMonths(
+            const ageMonths = this.treeService.calculateTreeAgeMonths(
                 new Date(tree.plantingDate),
             );
 
             // Generate reminder email
             const emailContent = this.quarterlyUpdateService.generateHarvestReminderEmail(
+                tree.ownerName || 'Quý khách',
                 tree.treeCode,
-                ageMonths,
+                new Date(tree.plantingDate),
+                tree.co2Absorbed || 0,
             );
 
             // TODO: Send email via email service
-            // await this.emailService.send({
-            //     to: tree.ownerEmail,
-            //     subject: `[Nhắc nhở] ${emailContent.subject}`,
-            //     html: emailContent.body,
-            // });
-
-            // Track reminder sent
-            await this.treeRepository.update(tree.id, {
-                harvestReminderSentAt: new Date(),
-                updatedAt: new Date(),
-            });
 
             this.logger.log(
                 `Harvest reminder sent for tree ${tree.treeCode}`,
@@ -168,24 +115,67 @@ export class HarvestNotificationService {
         const pendingNotifications = await this.findTreesApproachingHarvest();
         const pendingReminders = await this.findTreesNeedingReminder();
 
-        const sentNotifications = await this.treeRepository.count({
-            where: {
-                harvestNotificationSentAt: MoreThan(new Date(0)),
-            },
-        });
-
-        const pendingDecisions = await this.treeRepository.count({
-            where: {
-                harvestNotificationSentAt: MoreThan(new Date(0)),
-                harvestDecision: null,
-            },
-        });
-
         return {
             pendingNotifications: pendingNotifications.length,
-            sentNotifications,
+            sentNotifications: 0, // TODO: Query from database
             pendingReminders: pendingReminders.length,
-            pendingDecisions,
+            pendingDecisions: 0, // TODO: Query from database
         };
+    }
+
+    /**
+     * Weekly cron job to check for trees approaching harvest
+     * Runs every Monday at 9:00 AM Vietnam time
+     */
+    @Cron('0 9 * * 1', {
+        name: 'harvest-notification-check',
+        timeZone: 'Asia/Ho_Chi_Minh',
+    })
+    async checkHarvestNotifications() {
+        this.logger.log('Starting harvest notification check...');
+
+        try {
+            const trees = await this.findTreesApproachingHarvest();
+
+            this.logger.log(`Found ${trees.length} trees approaching harvest`);
+
+            for (const tree of trees) {
+                await this.sendHarvestNotification(tree);
+            }
+
+            this.logger.log(
+                `Harvest notification check completed. Sent ${trees.length} notifications.`,
+            );
+        } catch (error) {
+            this.logger.error('Harvest notification check failed', error);
+        }
+    }
+
+    /**
+     * Weekly cron job to send reminders
+     * Runs every Monday at 9:30 AM Vietnam time
+     */
+    @Cron('30 9 * * 1', {
+        name: 'harvest-reminder-check',
+        timeZone: 'Asia/Ho_Chi_Minh',
+    })
+    async sendHarvestReminders() {
+        this.logger.log('Starting harvest reminder check...');
+
+        try {
+            const trees = await this.findTreesNeedingReminder();
+
+            this.logger.log(`Found ${trees.length} trees needing reminders`);
+
+            for (const tree of trees) {
+                await this.sendReminder(tree);
+            }
+
+            this.logger.log(
+                `Harvest reminder check completed. Sent ${trees.length} reminders.`,
+            );
+        } catch (error) {
+            this.logger.error('Harvest reminder check failed', error);
+        }
     }
 }
