@@ -1,4 +1,6 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { ThemeProvider } from '@emotion/react';
+import { lightTheme } from 'twenty-ui';
 import { ShareButtons } from './ShareButtons';
 
 describe('ShareButtons', () => {
@@ -10,8 +12,16 @@ describe('ShareButtons', () => {
         jest.clearAllMocks();
     });
 
+    const renderWithTheme = (component: React.ReactElement) => {
+        return render(
+            <ThemeProvider theme={lightTheme}>
+                {component}
+            </ThemeProvider>
+        );
+    };
+
     it('renders all buttons', () => {
-        render(
+        renderWithTheme(
             <ShareButtons
                 onShare={mockOnShare}
                 onCopyLink={mockOnCopyLink}
@@ -25,7 +35,7 @@ describe('ShareButtons', () => {
     });
 
     it('calls onShare when share button clicked', () => {
-        render(
+        renderWithTheme(
             <ShareButtons
                 onShare={mockOnShare}
                 onCopyLink={mockOnCopyLink}
@@ -40,7 +50,7 @@ describe('ShareButtons', () => {
     it('shows toast when copy link succeeds', async () => {
         mockOnCopyLink.mockResolvedValue(true);
 
-        render(
+        renderWithTheme(
             <ShareButtons
                 onShare={mockOnShare}
                 onCopyLink={mockOnCopyLink}
@@ -56,7 +66,7 @@ describe('ShareButtons', () => {
     });
 
     it('calls onDownload when download button clicked', () => {
-        render(
+        renderWithTheme(
             <ShareButtons
                 onShare={mockOnShare}
                 onCopyLink={mockOnCopyLink}
