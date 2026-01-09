@@ -11,6 +11,7 @@ import { AppPath } from 'twenty-shared/types';
 import {
   createBrowserRouter,
   createRoutesFromElements,
+  Navigate,
   Route,
 } from 'react-router-dom';
 import { Authorize } from '~/pages/auth/Authorize';
@@ -66,6 +67,7 @@ export const useCreateAppRouter = (
           <Route path={AppPath.RecordIndexPage} element={<RecordIndexPage />} />
           <Route path={AppPath.RecordShowPage} element={<RecordShowPage />} />
           <Route path={AppPath.MyGarden} element={<MyGardenPage />} />
+          <Route path="/trees" element={<Navigate to="/my-garden" replace />} />
           <Route path={AppPath.TreeDetail} element={<TreeDetailPage />} />
           <Route
             path={AppPath.SettingsCatchAll}

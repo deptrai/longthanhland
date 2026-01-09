@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Navigate } from 'react-router-dom';
 
 import { PageContainer } from '@/ui/layout/page/components/PageContainer';
 
@@ -74,8 +74,13 @@ export const TreeDetailPage = () => {
     const { treeCode } = useParams<{ treeCode: string }>();
     const navigate = useNavigate();
 
+    // If no treeCode provided, redirect to my-garden
+    if (!treeCode) {
+        return <Navigate to="/my-garden" replace />;
+    }
+
     const { tree, isLoading, notFound } = useTreeDetail({
-        treeCode: treeCode || '',
+        treeCode: treeCode,
     });
 
     const handleBack = () => {
