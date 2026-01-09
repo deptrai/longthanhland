@@ -24,6 +24,9 @@ export enum AppPath {
   RecordIndexPage = '/objects/:objectNamePlural',
   RecordShowPage = '/object/:objectNameSingular/:objectRecordId',
 
+  // Đại Ngàn Xanh - Custom Pages
+  MyGarden = '/my-garden',
+
   Settings = `settings`,
   SettingsCatchAll = `/${Settings}/*`,
   Developers = `developers`,

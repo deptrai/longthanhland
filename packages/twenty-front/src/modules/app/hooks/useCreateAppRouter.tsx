@@ -19,6 +19,7 @@ import { SignInUp } from '~/pages/auth/SignInUp';
 import { NotFound } from '~/pages/not-found/NotFound';
 import { RecordIndexPage } from '~/pages/object-record/RecordIndexPage';
 import { RecordShowPage } from '~/pages/object-record/RecordShowPage';
+import { MyGardenPage } from '~/pages/my-garden/MyGardenPage';
 import { BookCall } from '~/pages/onboarding/BookCall';
 import { BookCallDecision } from '~/pages/onboarding/BookCallDecision';
 import { ChooseYourPlan } from '~/pages/onboarding/ChooseYourPlan';
@@ -63,6 +64,7 @@ export const useCreateAppRouter = (
           <Route path={indexAppPath.getIndexAppPath()} element={<></>} />
           <Route path={AppPath.RecordIndexPage} element={<RecordIndexPage />} />
           <Route path={AppPath.RecordShowPage} element={<RecordShowPage />} />
+          <Route path={AppPath.MyGarden} element={<MyGardenPage />} />
           <Route
             path={AppPath.SettingsCatchAll}
             element={

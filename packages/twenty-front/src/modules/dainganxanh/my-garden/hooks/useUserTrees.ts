@@ -1,8 +1,11 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useRecoilState } from 'recoil';
 
+import { useFindManyRecords } from '@/object-record/hooks/useFindManyRecords';
+
 import type { TreeCardData, TreeStatus } from '../components/TreeCard';
-import { myGardenFilterState, myGardenSortState, myGardenPageCursorState } from '../states/myGardenState';
+import type { Tree } from '../types/Tree';
+import { myGardenFilterState, myGardenSortState } from '../states/myGardenState';
 
 interface UseUserTreesOptions {
     pageSize?: number;
@@ -15,6 +18,7 @@ interface UseUserTreesResult {
     hasNextPage: boolean;
     loadMore: () => void;
     refresh: () => void;
+    totalCount: number;
     filter: TreeStatus | 'ALL';
     setFilter: (filter: TreeStatus | 'ALL') => void;
     sortField: string;
@@ -22,98 +26,79 @@ interface UseUserTreesResult {
     setSort: (field: string, direction: 'asc' | 'desc') => void;
 }
 
-// [MOCK] In production, this would use Twenty's GraphQL API
-const mockTrees: TreeCardData[] = [
-    {
-        id: '1',
-        treeCode: 'DGX-2026-001',
-        status: 'SEEDLING',
-        co2Absorbed: 2.5,
-        plantingDate: '2026-01-01',
-        nextMilestoneDate: '2026-02-01',
-    },
-    {
-        id: '2',
-        treeCode: 'DGX-2026-002',
-        status: 'GROWING',
-        co2Absorbed: 12.3,
-        plantingDate: '2025-06-15',
-        nextMilestoneDate: '2026-03-15',
-    },
-    {
-        id: '3',
-        treeCode: 'DGX-2026-003',
-        status: 'MATURE',
-        co2Absorbed: 45.8,
-        plantingDate: '2024-01-01',
-    },
-];
+// Map Twenty sort direction to GraphQL format
+const mapSortDirection = (direction: 'asc' | 'desc') =>
+    direction === 'asc' ? 'AscNullsLast' : 'DescNullsFirst';
+
+// Map Tree record to TreeCardData
+const mapTreeToCardData = (tree: Tree): TreeCardData => ({
+    id: tree.id,
+    treeCode: tree.treeCode || `TREE-${tree.id.slice(0, 6)}`,
+    status: (tree.status as TreeStatus) || 'SEEDLING',
+    co2Absorbed: tree.co2Absorbed || 0,
+    plantingDate: tree.plantingDate || tree.createdAt,
+    photoUrl: tree.lastPhotoUrl,
+    nextMilestoneDate: tree.nextMilestoneDate,
+});
 
 export const useUserTrees = (options: UseUserTreesOptions = {}): UseUserTreesResult => {
-    const { pageSize = 20 } = options;
-
-    const [trees, setTrees] = useState<TreeCardData[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState<Error | null>(null);
-    const [hasNextPage, setHasNextPage] = useState(false);
+    const { pageSize = 50 } = options;
 
     const [filter, setFilter] = useRecoilState(myGardenFilterState);
     const [sort, setSort] = useRecoilState(myGardenSortState);
-    const [cursor, setCursor] = useRecoilState(myGardenPageCursorState);
 
-    const fetchTrees = useCallback(async () => {
-        setIsLoading(true);
-        setError(null);
-
-        try {
-            // [MOCK] Simulate API call - replace with Twenty GraphQL query
-            await new Promise(resolve => setTimeout(resolve, 500));
-
-            let filteredTrees = [...mockTrees];
-
-            // Apply filter
-            if (filter !== 'ALL') {
-                filteredTrees = filteredTrees.filter(tree => tree.status === filter);
-            }
-
-            // Apply sort
-            filteredTrees.sort((a, b) => {
-                const aValue = a[sort.field as keyof TreeCardData];
-                const bValue = b[sort.field as keyof TreeCardData];
-
-                if (typeof aValue === 'string' && typeof bValue === 'string') {
-                    return sort.direction === 'asc'
-                        ? aValue.localeCompare(bValue)
-                        : bValue.localeCompare(aValue);
-                }
-                if (typeof aValue === 'number' && typeof bValue === 'number') {
-                    return sort.direction === 'asc' ? aValue - bValue : bValue - aValue;
-                }
-                return 0;
-            });
-
-            setTrees(filteredTrees);
-            setHasNextPage(filteredTrees.length >= pageSize);
-        } catch (err) {
-            setError(err instanceof Error ? err : new Error('Failed to fetch trees'));
-        } finally {
-            setIsLoading(false);
+    // Build filter object for GraphQL
+    const graphqlFilter = useMemo(() => {
+        if (filter === 'ALL') {
+            return undefined;
         }
-    }, [filter, sort.field, sort.direction, pageSize]);
+        return {
+            status: { eq: filter },
+        };
+    }, [filter]);
 
-    useEffect(() => {
-        fetchTrees();
-    }, [fetchTrees]);
+    // Build orderBy for GraphQL
+    const orderBy = useMemo(() => {
+        const fieldMap: Record<string, string> = {
+            plantingDate: 'plantingDate',
+            treeCode: 'treeCode',
+            status: 'status',
+        };
+        const field = fieldMap[sort.field] || 'createdAt';
+        return [{ [field]: mapSortDirection(sort.direction) }];
+    }, [sort.field, sort.direction]);
+
+    // Use Twenty's useFindManyRecords hook
+    const {
+        records,
+        loading,
+        error,
+        totalCount,
+        fetchMoreRecords,
+    } = useFindManyRecords<Tree>({
+        objectNameSingular: 'tree',
+        filter: graphqlFilter,
+        orderBy,
+        limit: pageSize,
+    });
+
+    // Map Tree records to TreeCardData
+    const trees = useMemo(() =>
+        (records || []).map(mapTreeToCardData),
+        [records]
+    );
 
     const loadMore = useCallback(() => {
-        // [TODO] Implement cursor-based pagination
-        console.log('Load more trees...');
-    }, []);
+        if (fetchMoreRecords) {
+            fetchMoreRecords();
+        }
+    }, [fetchMoreRecords]);
 
     const refresh = useCallback(() => {
-        setCursor(null);
-        fetchTrees();
-    }, [fetchTrees, setCursor]);
+        // The hook auto-refetches when filter/sort changes
+        // For manual refresh, we could invalidate Apollo cache
+        console.log('[useUserTrees] Refresh requested');
+    }, []);
 
     const handleSetSort = useCallback((field: string, direction: 'asc' | 'desc') => {
         setSort({ field: field as any, direction });
@@ -121,11 +106,12 @@ export const useUserTrees = (options: UseUserTreesOptions = {}): UseUserTreesRes
 
     return {
         trees,
-        isLoading,
-        error,
-        hasNextPage,
+        isLoading: loading,
+        error: error || null,
+        hasNextPage: (records?.length || 0) < (totalCount || 0),
         loadMore,
         refresh,
+        totalCount: totalCount || 0,
         filter,
         setFilter,
         sortField: sort.field,
