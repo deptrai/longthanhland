@@ -3,6 +3,9 @@ import { useState } from 'react';
 import { IconMap, IconSearch } from 'twenty-ui/display';
 import { NewsSection } from '..';
 import { mockPublicListings } from '../data/mock-data';
+import { useLanguage } from '../i18n/LanguageContext';
+
+
 
 const Container = styled.div`
   min-height: 100vh;
@@ -327,6 +330,7 @@ const PropertyMeta = styled.div`
 `;
 
 export const BrowsePage = () => {
+  const { t } = useLanguage();
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
 
@@ -351,12 +355,12 @@ export const BrowsePage = () => {
         <Header>
           <Title>
             <IconMap size={28} />
-            Public Marketplace
+            {t('browse.title')}
           </Title>
           <PostButton
             onClick={() => (window.location.href = '/marketplace/post')}
           >
-            + Post Listing
+            {t('browse.postButton')}
           </PostButton>
         </Header>
 
@@ -367,7 +371,7 @@ export const BrowsePage = () => {
             </SearchIcon>
             <Input
               type="text"
-              placeholder="Search location, property type..."
+              placeholder={t('browse.searchPlaceholder')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -376,19 +380,19 @@ export const BrowsePage = () => {
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
           >
-            <option value="all">All Categories</option>
-            <option value="APARTMENT">Apartment</option>
-            <option value="HOUSE">House</option>
-            <option value="LAND">Land</option>
-            <option value="VILLA">Villa</option>
+            <option value="all">{t('categories.all')}</option>
+            <option value="APARTMENT">{t('categories.apartment')}</option>
+            <option value="HOUSE">{t('categories.house')}</option>
+            <option value="LAND">{t('categories.land')}</option>
+            <option value="VILLA">{t('categories.villa')}</option>
           </Select>
         </SearchBar>
 
         {featuredListings.length > 0 && (
           <Section>
             <SectionHeader>
-              <SectionTitle>Featured Listings</SectionTitle>
-              <FeaturedBadge>⭐ FEATURED</FeaturedBadge>
+              <SectionTitle>{t('browse.featuredListings')}</SectionTitle>
+              <FeaturedBadge>{t('browse.featured')}</FeaturedBadge>
             </SectionHeader>
             <Grid>
               {featuredListings.map((listing) => (
@@ -401,7 +405,7 @@ export const BrowsePage = () => {
                     {listing.images[0] && (
                       <Image src={listing.images[0]} alt={listing.title} />
                     )}
-                    <FeaturedTag>⭐ Featured</FeaturedTag>
+                    <FeaturedTag>⭐ {t('common.featured')}</FeaturedTag>
                   </ImageContainer>
                   <CardContent>
                     <ListingTitle>{listing.title}</ListingTitle>
@@ -413,9 +417,9 @@ export const BrowsePage = () => {
                       <Price>{formatPrice(listing.price)}</Price>
                     </PriceRow>
                     <Features>
-                      <Feature>{listing.bedrooms} BR</Feature>
-                      <Feature>{listing.bathrooms} BA</Feature>
-                      <Feature>{listing.area} m²</Feature>
+                      <Feature>{listing.bedrooms} {t('common.bedrooms')}</Feature>
+                      <Feature>{listing.bathrooms} {t('common.bathrooms')}</Feature>
+                      <Feature>{listing.area} {t('common.area')}</Feature>
                     </Features>
                     <TrustScore>
                       <ProgressBar>
@@ -431,13 +435,13 @@ export const BrowsePage = () => {
         )}
 
         <Section>
-          <SectionTitle>All Listings</SectionTitle>
+          <SectionTitle>{t('browse.allListings')}</SectionTitle>
           <Table>
             <TableHeader>
-              <div>Property</div>
-              <div>Location</div>
-              <div>Price</div>
-              <div>Trust</div>
+              <div>{t('table.property')}</div>
+              <div>{t('table.location')}</div>
+              <div>{t('table.price')}</div>
+              <div>{t('table.trust')}</div>
             </TableHeader>
             {regularListings.map((listing) => (
               <TableRow
@@ -453,8 +457,8 @@ export const BrowsePage = () => {
                   <PropertyDetails>
                     <PropertyTitle>{listing.title}</PropertyTitle>
                     <PropertyMeta>
-                      {listing.bedrooms}BR • {listing.bathrooms}BA •{' '}
-                      {listing.area}m²
+                      {listing.bedrooms}{t('common.bedrooms')} • {listing.bathrooms}{t('common.bathrooms')} •{' '}
+                      {listing.area}{t('common.area')}
                     </PropertyMeta>
                   </PropertyDetails>
                 </PropertyInfo>

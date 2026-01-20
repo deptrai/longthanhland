@@ -9,22 +9,17 @@ description: "Craft compelling narratives using proven story frameworks and tech
 author: "BMad"
 
 # Critical variables load from config_source
-config_source: "{project-root}/bmad/cis/config.yaml"
+config_source: "{project-root}/_bmad/cis/config.yaml"
 output_folder: "{config_source}:output_folder"
 user_name: "{config_source}:user_name"
 communication_language: "{config_source}:communication_language"
 date: system-generated
 
-# Optional inputs for context
-recommended_inputs:
-  - story_context: "Context document passed via data attribute"
-  - previous_stories: "{output_folder}/story-*.md"
-
 # Context can be provided via data attribute when invoking
 # Example: data="{path}/brand-info.md" provides brand context
 
 # Module path and component files
-installed_path: "{project-root}/bmad/cis/workflows/storytelling"
+installed_path: "{project-root}/_bmad/cis/workflows/storytelling"
 template: "{installed_path}/template.md"
 instructions: "{installed_path}/instructions.md"
 

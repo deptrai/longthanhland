@@ -8,41 +8,56 @@ name: "correct-course"
 description: "Navigate significant changes during sprint execution by analyzing impact, proposing solutions, and routing for implementation"
 author: "BMad Method"
 
-config_source: "{project-root}/bmad/bmm/config.yaml"
-output_folder: "{config_source}:output_folder"
+config_source: "{project-root}/_bmad/bmm/config.yaml"
 user_name: "{config_source}:user_name"
 communication_language: "{config_source}:communication_language"
 user_skill_level: "{config_source}:user_skill_level"
 document_output_language: "{config_source}:document_output_language"
 date: system-generated
+implementation_artifacts: "{config_source}:implementation_artifacts"
+planning_artifacts: "{config_source}:planning_artifacts"
+project_knowledge: "{config_source}:project_knowledge"
+output_folder: "{implementation_artifacts}"
+sprint_status: "{implementation_artifacts}/sprint-status.yaml"
 
-installed_path: "{project-root}/bmad/bmm/workflows/4-implementation/correct-course"
+# Smart input file references - handles both whole docs and sharded docs
+# Priority: Whole document first, then sharded version
+# Strategy: Load project context for impact analysis
+input_file_patterns:
+  prd:
+    description: "Product requirements for impact analysis"
+    whole: "{planning_artifacts}/*prd*.md"
+    sharded: "{planning_artifacts}/*prd*/*.md"
+    load_strategy: "FULL_LOAD"
+  epics:
+    description: "All epics to analyze change impact"
+    whole: "{planning_artifacts}/*epic*.md"
+    sharded: "{planning_artifacts}/*epic*/*.md"
+    load_strategy: "FULL_LOAD"
+  architecture:
+    description: "System architecture and decisions"
+    whole: "{planning_artifacts}/*architecture*.md"
+    sharded: "{planning_artifacts}/*architecture*/*.md"
+    load_strategy: "FULL_LOAD"
+  ux_design:
+    description: "UX design specification (if UI impacts)"
+    whole: "{planning_artifacts}/*ux*.md"
+    sharded: "{planning_artifacts}/*ux*/*.md"
+    load_strategy: "FULL_LOAD"
+  tech_spec:
+    description: "Technical specification"
+    whole: "{planning_artifacts}/*tech-spec*.md"
+    load_strategy: "FULL_LOAD"
+  document_project:
+    description: "Brownfield project documentation (optional)"
+    sharded: "{project_knowledge}/index.md"
+    load_strategy: "INDEX_GUIDED"
+
+installed_path: "{project-root}/_bmad/bmm/workflows/4-implementation/correct-course"
 template: false
 instructions: "{installed_path}/instructions.md"
 validation: "{installed_path}/checklist.md"
 checklist: "{installed_path}/checklist.md"
-default_output_file: "{output_folder}/sprint-change-proposal-{date}.md"
-
-# Workflow execution mode (interactive: step-by-step with user, non-interactive: automated)
-mode: interactive
-
-required_inputs:
-  - change_trigger: "Description of the issue or change that triggered this workflow"
-  - project_documents: "Access to PRD, Epics/Stories, Architecture, UI/UX specs"
-
-output_artifacts:
-  - sprint_change_proposal: "Comprehensive proposal documenting issue, impact, and recommended changes"
-  - artifact_edits: "Specific before/after edits for affected documents"
-  - handoff_plan: "Clear routing for implementation based on change scope"
-
-halt_conditions:
-  - "Change trigger unclear or undefined"
-  - "Core project documents unavailable"
-  - "Impact analysis incomplete"
-  - "User approval not obtained"
-
-execution_modes:
-  - incremental: "Recommended - Refine each edit with user collaboration"
-  - batch: "Present all changes at once for review"
+default_output_file: "{planning_artifacts}/sprint-change-proposal-{date}.md"
 
 standalone: true

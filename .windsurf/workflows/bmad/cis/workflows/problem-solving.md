@@ -9,22 +9,17 @@ description: "Apply systematic problem-solving methodologies to crack complex ch
 author: "BMad"
 
 # Critical variables load from config_source
-config_source: "{project-root}/bmad/cis/config.yaml"
+config_source: "{project-root}/_bmad/cis/config.yaml"
 output_folder: "{config_source}:output_folder"
 user_name: "{config_source}:user_name"
 communication_language: "{config_source}:communication_language"
 date: system-generated
 
-# Optional inputs for context
-recommended_inputs:
-  - problem_context: "Context document passed via data attribute"
-  - previous_attempts: "{output_folder}/problem-*.md"
-
 # Context can be provided via data attribute when invoking
 # Example: data="{path}/problem-brief.md" provides context
 
 # Module path and component files
-installed_path: "{project-root}/bmad/cis/workflows/problem-solving"
+installed_path: "{project-root}/_bmad/cis/workflows/problem-solving"
 template: "{installed_path}/template.md"
 instructions: "{installed_path}/instructions.md"
 

@@ -1,11 +1,12 @@
 import styled from '@emotion/styled';
 import {
-  IconEye,
-  IconHome,
-  IconMessage,
-  IconTrendingUp,
+    IconEye,
+    IconHome,
+    IconMessage,
+    IconTrendingUp,
 } from 'twenty-ui/display';
 import { mockPublicListings, mockSellerStats } from '../data/mock-data';
+import { useLanguage } from '../i18n/LanguageContext';
 
 const Container = styled.div`
   min-height: 100vh;
@@ -174,18 +175,19 @@ const StatusBadge = styled.span<{ status: string }>`
 `;
 
 export const DashboardPage = () => {
+  const { t } = useLanguage();
   const stats = mockSellerStats;
   const myListings = mockPublicListings.slice(0, 3); // Show first 3 listings
 
   return (
     <Container>
       <MaxWidth>
-        <Title>Seller Dashboard</Title>
+        <Title>{t('dashboard.title')}</Title>
 
         <StatsGrid>
           <StatCard>
             <StatHeader>
-              <StatLabel>Total Views</StatLabel>
+              <StatLabel>{t('dashboard.totalViews')}</StatLabel>
               <StatIcon color="#3B82F6">
                 <IconEye size={20} />
               </StatIcon>
@@ -199,7 +201,7 @@ export const DashboardPage = () => {
 
           <StatCard>
             <StatHeader>
-              <StatLabel>Inquiries</StatLabel>
+              <StatLabel>{t('dashboard.inquiries')}</StatLabel>
               <StatIcon color="#8B5CF6">
                 <IconMessage size={20} />
               </StatIcon>
@@ -213,7 +215,7 @@ export const DashboardPage = () => {
 
           <StatCard>
             <StatHeader>
-              <StatLabel>Active Listings</StatLabel>
+              <StatLabel>{t('dashboard.activeListings')}</StatLabel>
               <StatIcon color="#22C55E">
                 <IconHome size={20} />
               </StatIcon>
@@ -224,7 +226,7 @@ export const DashboardPage = () => {
 
           <StatCard>
             <StatHeader>
-              <StatLabel>Conversion</StatLabel>
+              <StatLabel>{t('dashboard.conversion')}</StatLabel>
               <StatIcon color="#EAB308">
                 <IconTrendingUp size={20} />
               </StatIcon>
@@ -236,14 +238,14 @@ export const DashboardPage = () => {
 
         <Card>
           <CardHeader>
-            <CardTitle>My Listings</CardTitle>
+            <CardTitle>{t('dashboard.myListings')}</CardTitle>
           </CardHeader>
           <Table>
             <TableHeader>
-              <div>Title</div>
-              <div>Status</div>
-              <div>Views</div>
-              <div>Inquiries</div>
+              <div>{t('dashboard.tableTitle')}</div>
+              <div>{t('dashboard.tableStatus')}</div>
+              <div>{t('dashboard.tableViews')}</div>
+              <div>{t('dashboard.tableInquiries')}</div>
             </TableHeader>
             {myListings.map((listing) => (
               <TableRow
@@ -258,9 +260,9 @@ export const DashboardPage = () => {
                 </ListingInfo>
                 <div>
                   <StatusBadge status={listing.status}>
-                    {listing.status === 'AVAILABLE' && 'Live'}
-                    {listing.status === 'RESERVED' && 'Reserved'}
-                    {listing.status === 'SOLD' && 'Sold'}
+                    {listing.status === 'AVAILABLE' && t('dashboard.statusLive')}
+                    {listing.status === 'RESERVED' && t('dashboard.statusReserved')}
+                    {listing.status === 'SOLD' && t('dashboard.statusSold')}
                   </StatusBadge>
                 </div>
                 <div>{listing.views}</div>

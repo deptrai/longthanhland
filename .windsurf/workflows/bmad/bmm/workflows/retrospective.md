@@ -8,69 +8,55 @@ name: "retrospective"
 description: "Run after epic completion to review overall success, extract lessons learned, and explore if new information emerged that might impact the next epic"
 author: "BMad"
 
-config_source: "{project-root}/bmad/bmm/config.yaml"
-output_folder: "{config_source}:output_folder"
+config_source: "{project-root}/_bmad/bmm/config.yaml"
+output_folder: "{config_source}:implementation_artifacts}"
 user_name: "{config_source}:user_name"
 communication_language: "{config_source}:communication_language"
 user_skill_level: "{config_source}:user_skill_level"
 document_output_language: "{config_source}:document_output_language"
 date: system-generated
+planning_artifacts: "{config_source}:planning_artifacts"
+implementation_artifacts: "{config_source}:implementation_artifacts"
 
-installed_path: "{project-root}/bmad/bmm/workflows/4-implementation/retrospective"
+installed_path: "{project-root}/_bmad/bmm/workflows/4-implementation/retrospective"
 template: false
 instructions: "{installed_path}/instructions.md"
 
-mode: interactive
-trigger: "Run AFTER completing an epic"
-
 required_inputs:
-  - agent_manifest: "{project-root}/bmad/_cfg/agent-manifest.csv"
+  - agent_manifest: "{project-root}/_bmad/_config/agent-manifest.csv"
 
 # Smart input file references - handles both whole docs and sharded docs
 # Priority: Whole document first, then sharded version
 # Strategy: SELECTIVE LOAD - only load the completed epic and relevant retrospectives
 input_file_patterns:
   epics:
-    whole: "{output_folder}/*epic*.md"
-    sharded_index: "{output_folder}/*epic*/index.md"
-    sharded_single: "{output_folder}/*epic*/epic-{{epic_num}}.md"
-
+    description: "The completed epic for retrospective"
+    whole: "{planning_artifacts}/*epic*.md"
+    sharded_index: "{planning_artifacts}/*epic*/index.md"
+    sharded_single: "{planning_artifacts}/*epic*/epic-{{epic_num}}.md"
+    load_strategy: "SELECTIVE_LOAD"
   previous_retrospective:
-    pattern: "{output_folder}/retrospectives/epic-{{prev_epic_num}}-retro-*.md"
-
+    description: "Previous epic's retrospective (optional)"
+    pattern: "{implementation_artifacts}/**/epic-{{prev_epic_num}}-retro-*.md"
+    load_strategy: "SELECTIVE_LOAD"
   architecture:
-    whole: "{output_folder}/*architecture*.md"
-    sharded: "{output_folder}/*architecture*/index.md"
-
+    description: "System architecture for context"
+    whole: "{planning_artifacts}/*architecture*.md"
+    sharded: "{planning_artifacts}/*architecture*/*.md"
+    load_strategy: "FULL_LOAD"
   prd:
-    whole: "{output_folder}/*prd*.md"
-    sharded: "{output_folder}/*prd*/index.md"
-
+    description: "Product requirements for context"
+    whole: "{planning_artifacts}/*prd*.md"
+    sharded: "{planning_artifacts}/*prd*/*.md"
+    load_strategy: "FULL_LOAD"
   document_project:
-    sharded: "{output_folder}/docs/index.md"
+    description: "Brownfield project documentation (optional)"
+    sharded: "{planning_artifacts}/*.md"
+    load_strategy: "INDEX_GUIDED"
 
 # Required files
-sprint_status_file: "{output_folder}/sprint-status.yaml"
-story_directory: "{config_source}:dev_story_location"
-retrospectives_folder: "{output_folder}/retrospectives"
-
-output_artifacts:
-  - retrospective_summary: "Comprehensive review of what went well and what could improve"
-  - lessons_learned: "Key insights for future epics"
-  - action_items: "Specific improvements with ownership"
-  - next_epic_preparation: "Dependencies, gaps, and preparation tasks for next epic"
-  - critical_path: "Blockers or prerequisites that must be addressed"
-
-facilitation:
-  facilitator: "Bob (Scrum Master)"
-  tone: "Psychological safety - no blame, focus on systems and processes"
-  format: "Two-part: (1) Review completed epic + (2) Preview next epic preparation"
-
-validation_required:
-  - testing_complete: "Has full regression testing been completed?"
-  - deployment_status: "Has epic been deployed to production?"
-  - business_validation: "Have stakeholders reviewed and accepted deliverables?"
-  - technical_health: "Is codebase in stable, maintainable state?"
-  - blocker_resolution: "Any unresolved blockers that will impact next epic?"
+sprint_status_file: "{implementation_artifacts}/sprint-status.yaml"
+story_directory: "{implementation_artifacts}"
+retrospectives_folder: "{implementation_artifacts}"
 
 standalone: true

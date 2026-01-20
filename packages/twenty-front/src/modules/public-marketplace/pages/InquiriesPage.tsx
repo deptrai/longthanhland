@@ -1,5 +1,6 @@
 import styled from '@emotion/styled';
 import { mockInquiries } from '../data/mock-data';
+import { useLanguage } from '../i18n/LanguageContext';
 
 const Container = styled.div`
   min-height: 100vh;
@@ -113,26 +114,31 @@ const StatusBadge = styled.span<{ status: string }>`
 `;
 
 export const InquiriesPage = () => {
+  const { t, language } = useLanguage();
+
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    });
+    return new Date(dateString).toLocaleDateString(
+      language === 'vi' ? 'vi-VN' : 'en-US',
+      {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+      },
+    );
   };
 
   return (
     <Container>
       <MaxWidth>
-        <Title>Inquiry Management</Title>
+        <Title>{t('inquiries.title')}</Title>
 
         <Card>
           <Table>
             <TableHeader>
-              <div>Buyer</div>
-              <div>Listing</div>
-              <div>Date</div>
-              <div>Status</div>
+              <div>{t('inquiries.buyer')}</div>
+              <div>{t('inquiries.listing')}</div>
+              <div>{t('inquiries.date')}</div>
+              <div>{t('inquiries.status')}</div>
             </TableHeader>
             {mockInquiries.map((inquiry) => (
               <TableRow key={inquiry.id}>
@@ -144,9 +150,9 @@ export const InquiriesPage = () => {
                 <StyledDate>{formatDate(inquiry.createdAt)}</StyledDate>
                 <div>
                   <StatusBadge status={inquiry.status}>
-                    {inquiry.status === 'NEW' && 'New'}
-                    {inquiry.status === 'REPLIED' && 'Replied'}
-                    {inquiry.status === 'CLOSED' && 'Closed'}
+                    {inquiry.status === 'NEW' && t('inquiries.statusNew')}
+                    {inquiry.status === 'REPLIED' && t('inquiries.statusReplied')}
+                    {inquiry.status === 'CLOSED' && t('inquiries.statusClosed')}
                   </StatusBadge>
                 </div>
               </TableRow>

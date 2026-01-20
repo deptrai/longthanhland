@@ -1,6 +1,7 @@
 import styled from '@emotion/styled';
 import { useState } from 'react';
 import { mockPublicUsers } from '../data/mock-data';
+import { useLanguage } from '../i18n/LanguageContext';
 
 const Container = styled.div`
   min-height: 100vh;
@@ -154,6 +155,7 @@ const Divider = styled.div`
 `;
 
 export const ProfilePage = () => {
+  const { t, language } = useLanguage();
   // Mock current user - in real implementation, this would come from auth context
   const currentUser = mockPublicUsers[0];
 
@@ -210,42 +212,45 @@ export const ProfilePage = () => {
 
   const formatExpiryDate = (dateString?: string) => {
     if (!dateString) return '';
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
+    return new Date(dateString).toLocaleDateString(
+      language === 'vi' ? 'vi-VN' : 'en-US',
+      {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      },
+    );
   };
 
   return (
     <Container>
       <MaxWidth>
-        <Title>My Profile</Title>
+        <Title>{t('profile.title')}</Title>
 
         <SubscriptionCard>
           <SubscriptionHeader>
             <div>
               <div style={{ fontSize: '0.875rem', opacity: 0.9 }}>
-                Current Plan
+                {t('profile.currentPlan')}
               </div>
               <SubscriptionTitle>
-                {currentUser.subscriptionTier} Subscription
+                {t('profile.subscription')} {currentUser.subscriptionTier}
               </SubscriptionTitle>
               {currentUser.subscriptionExpiry && (
                 <SubscriptionExpiry>
-                  Expires: {formatExpiryDate(currentUser.subscriptionExpiry)}
+                  {t('profile.expires')}: {formatExpiryDate(currentUser.subscriptionExpiry)}
                 </SubscriptionExpiry>
               )}
             </div>
-            <UpgradeButton>Upgrade Plan</UpgradeButton>
+            <UpgradeButton>{t('profile.upgradePlan')}</UpgradeButton>
           </SubscriptionHeader>
         </SubscriptionCard>
 
         <Card>
-          <SectionTitle>Profile Information</SectionTitle>
+          <SectionTitle>{t('profile.profileInfo')}</SectionTitle>
           <Form onSubmit={handleProfileSubmit}>
             <FormGroup>
-              <Label htmlFor="fullName">Full Name</Label>
+              <Label htmlFor="fullName">{t('profile.fullName')}</Label>
               <Input
                 id="fullName"
                 type="text"
@@ -255,7 +260,7 @@ export const ProfilePage = () => {
             </FormGroup>
 
             <FormGroup>
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t('profile.email')}</Label>
               <Input
                 id="email"
                 type="email"
@@ -265,7 +270,7 @@ export const ProfilePage = () => {
             </FormGroup>
 
             <FormGroup>
-              <Label htmlFor="phone">Phone</Label>
+              <Label htmlFor="phone">{t('profile.phone')}</Label>
               <Input
                 id="phone"
                 type="tel"
@@ -276,20 +281,20 @@ export const ProfilePage = () => {
 
             <ButtonGroup>
               <Button type="button" variant="secondary">
-                Cancel
+                {t('profile.cancel')}
               </Button>
               <Button type="submit" disabled={isSaving}>
-                {isSaving ? 'Saving...' : 'Save Changes'}
+                {isSaving ? t('profile.saving') : t('profile.saveChanges')}
               </Button>
             </ButtonGroup>
           </Form>
 
           <Divider />
 
-          <SectionTitle>Change Password</SectionTitle>
+          <SectionTitle>{t('profile.changePassword')}</SectionTitle>
           <Form onSubmit={handlePasswordSubmit}>
             <FormGroup style={{ gridColumn: '1 / -1' }}>
-              <Label htmlFor="currentPassword">Current Password</Label>
+              <Label htmlFor="currentPassword">{t('profile.currentPassword')}</Label>
               <Input
                 id="currentPassword"
                 type="password"
@@ -300,7 +305,7 @@ export const ProfilePage = () => {
             </FormGroup>
 
             <FormGroup>
-              <Label htmlFor="newPassword">New Password</Label>
+              <Label htmlFor="newPassword">{t('profile.newPassword')}</Label>
               <Input
                 id="newPassword"
                 type="password"
@@ -311,7 +316,7 @@ export const ProfilePage = () => {
             </FormGroup>
 
             <FormGroup>
-              <Label htmlFor="confirmPassword">Confirm New Password</Label>
+              <Label htmlFor="confirmPassword">{t('profile.confirmPassword')}</Label>
               <Input
                 id="confirmPassword"
                 type="password"
@@ -323,10 +328,10 @@ export const ProfilePage = () => {
 
             <ButtonGroup>
               <Button type="button" variant="secondary">
-                Cancel
+                {t('profile.cancel')}
               </Button>
               <Button type="submit" disabled={isSaving}>
-                {isSaving ? 'Updating...' : 'Update Password'}
+                {isSaving ? t('profile.updating') : t('profile.updatePassword')}
               </Button>
             </ButtonGroup>
           </Form>

@@ -9,22 +9,17 @@ description: "Guide human-centered design processes using empathy-driven methodo
 author: "BMad"
 
 # Critical variables load from config_source
-config_source: "{project-root}/bmad/cis/config.yaml"
+config_source: "{project-root}/_bmad/cis/config.yaml"
 output_folder: "{config_source}:output_folder"
 user_name: "{config_source}:user_name"
 communication_language: "{config_source}:communication_language"
 date: system-generated
 
-# Optional inputs for context
-recommended_inputs:
-  - design_context: "Context document passed via data attribute"
-  - user_research: "{output_folder}/research-*.md"
-
 # Context can be provided via data attribute when invoking
 # Example: data="{path}/product-context.md" provides project context
 
 # Module path and component files
-installed_path: "{project-root}/bmad/cis/workflows/design-thinking"
+installed_path: "{project-root}/_bmad/cis/workflows/design-thinking"
 template: "{installed_path}/template.md"
 instructions: "{installed_path}/instructions.md"
 

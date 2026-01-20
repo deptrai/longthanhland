@@ -1,6 +1,7 @@
 import styled from '@emotion/styled';
 import { useState } from 'react';
 import { IconRobot, IconSend } from 'twenty-ui/display';
+import { useLanguage } from '../i18n/LanguageContext';
 
 const Sidebar = styled.aside`
   background-color: ${({ theme }) => theme.background.secondary};
@@ -164,6 +165,7 @@ interface ChatMessage {
 }
 
 export const AIAssistantSidebar = () => {
+  const { t } = useLanguage();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -286,16 +288,16 @@ Hãy thử các câu hỏi gợi ý bên dưới để khám phá cơ hội đ�
       <Header>
         <HeaderTitle>
           <IconRobot size={20} />
-          <Title>AI Assistant</Title>
+          <Title>{t('aiAssistant.title')}</Title>
         </HeaderTitle>
-        <Status>Online</Status>
+        <Status>{t('aiAssistant.status')}</Status>
       </Header>
 
       <MessagesContainer>
         {messages.length === 0 ? (
           <WelcomeMessage>
             <WelcomeText>
-              Xin chào! Tôi có thể giúp gì cho bạn về bất động sản?
+              {t('aiAssistant.welcome')}
             </WelcomeText>
             <SuggestedQuestions>
               {suggestedQuestions.map((question, index) => (
@@ -320,7 +322,7 @@ Hãy thử các câu hỏi gợi ý bên dưới để khám phá cơ hội đ�
             {loading && (
               <LoadingIndicator>
                 <IconRobot size={16} />
-                Đang suy nghĩ...
+                {t('aiAssistant.thinking')}
               </LoadingIndicator>
             )}
           </>
@@ -332,7 +334,7 @@ Hãy thử các câu hỏi gợi ý bên dưới để khám phá cơ hội đ�
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyPress={handleKeyPress}
-          placeholder="Nhập câu hỏi của bạn..."
+          placeholder={t('aiAssistant.placeholder')}
           disabled={loading}
         />
         <SendButton onClick={handleSend} disabled={loading || !input.trim()}>

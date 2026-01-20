@@ -4,76 +4,61 @@ auto_execution_mode: 1
 ---
 
 name: create-story
-description: "Create the next user story markdown from epics/PRD and architecture, using a standard template and saving to the stories folder"
+description: "Create the next user story from epics+stories with enhanced context analysis and direct ready-for-dev marking"
 author: "BMad"
 
 # Critical variables from config
-config_source: "{project-root}/bmad/bmm/config.yaml"
-output_folder: "{config_source}:output_folder"
+config_source: "{project-root}/_bmad/bmm/config.yaml"
 user_name: "{config_source}:user_name"
 communication_language: "{config_source}:communication_language"
 date: system-generated
+planning_artifacts: "{config_source}:planning_artifacts"
+implementation_artifacts: "{config_source}:implementation_artifacts"
+output_folder: "{implementation_artifacts}"
+story_dir: "{implementation_artifacts}"
 
 # Workflow components
-installed_path: "{project-root}/bmad/bmm/workflows/4-implementation/create-story"
+installed_path: "{project-root}/_bmad/bmm/workflows/4-implementation/create-story"
 template: "{installed_path}/template.md"
-instructions: "{installed_path}/instructions.md"
+instructions: "{installed_path}/instructions.xml"
 validation: "{installed_path}/checklist.md"
 
 # Variables and inputs
 variables:
-  story_dir: "{config_source}:dev_story_location" # Directory where stories are stored
-  epics_file: "{output_folder}/epics.md" # Preferred source for epic/story breakdown
-  prd_file: "{output_folder}/PRD.md" # Fallback for requirements
-  architecture_file: "{output_folder}/architecture.md" # Optional architecture context
-  tech_spec_file: "" # Will be auto-discovered from docs as tech-spec-epic-{{epic_num}}-*.md
-  tech_spec_search_dir: "{project-root}/docs"
-  tech_spec_glob_template: "tech-spec-epic-{{epic_num}}*.md"
-  arch_docs_search_dirs: |
-    - "{project-root}/docs"
-    - "{output_folder}"
-  arch_docs_file_names: |
-    - architecture.md
-    - infrastructure-architecture.md
+  sprint_status: "{implementation_artifacts}/sprint-status.yaml" # Primary source for story tracking
+  epics_file: "{planning_artifacts}/epics.md" # Enhanced epics+stories with BDD and source hints
+  prd_file: "{planning_artifacts}/prd.md" # Fallback for requirements (if not in epics file)
+  architecture_file: "{planning_artifacts}/architecture.md" # Fallback for constraints (if not in epics file)
+  ux_file: "{planning_artifacts}/*ux*.md" # Fallback for UX requirements (if not in epics file)
   story_title: "" # Will be elicited if not derivable
-  epic_num: 1
-  story_num: 1
-  non_interactive: true # Generate without elicitation; avoid interactive prompts
 
-# Output configuration
-# Uses story_key from sprint-status.yaml (e.g., "1-2-user-authentication")
+# Project context
+project_context: "**/project-context.md"
+
 default_output_file: "{story_dir}/{{story_key}}.md"
 
-recommended_inputs:
-  - epics: "Epic breakdown (epics.md)"
-  - prd: "PRD document"
-  - architecture: "Architecture (optional)"
-
-# Smart input file references - handles both whole docs and sharded docs
-# Priority: Whole document first, then sharded version
-# Strategy: SELECTIVE LOAD - only load the specific epic needed for this story
+# Smart input file references - Simplified for enhanced approach
+# The epics+stories file should contain everything needed with source hints
 input_file_patterns:
   prd:
-    whole: "{output_folder}/*prd*.md"
-    sharded: "{output_folder}/*prd*/index.md"
-
-  tech_spec:
-    whole: "{output_folder}/tech-spec.md"
-
+    description: "PRD (fallback - epics file should have most content)"
+    whole: "{planning_artifacts}/*prd*.md"
+    sharded: "{planning_artifacts}/*prd*/*.md"
+    load_strategy: "SELECTIVE_LOAD" # Only load if needed
   architecture:
-    whole: "{output_folder}/*architecture*.md"
-    sharded: "{output_folder}/*architecture*/index.md"
-
-  ux_design:
-    whole: "{output_folder}/*ux*.md"
-    sharded: "{output_folder}/*ux*/index.md"
-
+    description: "Architecture (fallback - epics file should have relevant sections)"
+    whole: "{planning_artifacts}/*architecture*.md"
+    sharded: "{planning_artifacts}/*architecture*/*.md"
+    load_strategy: "SELECTIVE_LOAD" # Only load if needed
+  ux:
+    description: "UX design (fallback - epics file should have relevant sections)"
+    whole: "{planning_artifacts}/*ux*.md"
+    sharded: "{planning_artifacts}/*ux*/*.md"
+    load_strategy: "SELECTIVE_LOAD" # Only load if needed
   epics:
-    whole: "{output_folder}/*epic*.md"
-    sharded_index: "{output_folder}/*epic*/index.md"
-    sharded_single: "{output_folder}/*epic*/epic-{{epic_num}}.md"
-
-  document_project:
-    sharded: "{output_folder}/docs/index.md"
+    description: "Enhanced epics+stories file with BDD and source hints"
+    whole: "{planning_artifacts}/*epic*.md"
+    sharded: "{planning_artifacts}/*epic*/*.md"
+    load_strategy: "SELECTIVE_LOAD" # Only load needed epic
 
 standalone: true

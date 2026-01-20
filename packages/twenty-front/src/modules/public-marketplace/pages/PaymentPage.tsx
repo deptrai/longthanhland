@@ -1,6 +1,8 @@
 import styled from '@emotion/styled';
+
 import { IconCheck } from 'twenty-ui/display';
 import { mockSubscriptionPlans } from '../data/mock-data';
+import { useLanguage } from '../i18n/LanguageContext';
 
 const Container = styled.div`
   min-height: 100vh;
@@ -152,11 +154,39 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
 `;
 
 export const PaymentPage = () => {
+  const { t } = useLanguage();
+
   const formatPrice = (price: number) => {
-    if (price === 0) return 'Free';
+    if (price === 0) return t('subscription.free');
     return new Intl.NumberFormat('vi-VN', {
       maximumFractionDigits: 0,
     }).format(price);
+  };
+
+  const translateFeature = (feature: string) => {
+    if (feature.includes('active listings')) {
+      const count = feature.split(' ')[0];
+      return `${count} ${t('subscription.activeListings')}`;
+    }
+    if (feature.includes('featured listings')) {
+      const count = feature.split(' ')[0];
+      return `${count} ${t('subscription.featuredListings')}`;
+    }
+
+    const mapping: Record<string, string> = {
+      'Basic support': t('subscription.basicSupport'),
+      'Priority support': t('subscription.prioritySupport'),
+      'Standard listing visibility': t('subscription.standardVisibility'),
+      'Analytics dashboard': t('subscription.analyticsDashboard'),
+      'Email notifications': t('subscription.emailNotifications'),
+      'Advanced analytics': t('subscription.advancedAnalytics'),
+      'Dedicated account manager': t('subscription.dedicatedManager'),
+      'Custom branding': t('subscription.customBranding'),
+      'API access': t('subscription.apiAccess'),
+      'Unlimited listings': t('subscription.unlimitedListings'),
+      '24/7 dedicated support': t('subscription.dedicatedSupport'),
+    };
+    return mapping[feature] || feature;
   };
 
   const handleUpgrade = (planId: string) => {
@@ -168,21 +198,25 @@ export const PaymentPage = () => {
     <Container>
       <MaxWidth>
         <Header>
-          <Title>Upgrade Subscription</Title>
-          <Subtitle>Choose your plan</Subtitle>
+          <Title>{t('subscription.title')}</Title>
+          <Subtitle>{t('subscription.choosePlan')}</Subtitle>
         </Header>
 
         <PlansGrid>
           {mockSubscriptionPlans.map((plan, index) => (
             <PlanCard key={plan.id} featured={index === 1}>
-              {index === 1 && <FeaturedBadge>Most Popular</FeaturedBadge>}
+              {index === 1 && <FeaturedBadge>{t('subscription.mostPopular')}</FeaturedBadge>}
               <PlanHeader>
-                <PlanName>{plan.name}</PlanName>
+                <PlanName>
+                  {plan.id === 'FREE' && t('subscription.free')}
+                  {plan.id === 'PRO' && t('subscription.pro')}
+                  {plan.id === 'ENTERPRISE' && t('subscription.enterprise')}
+                </PlanName>
                 <PlanPrice>
                   <Price>{formatPrice(plan.price)}</Price>
                   {plan.price > 0 && <PriceUnit>VND</PriceUnit>}
                 </PlanPrice>
-                {plan.price > 0 && <PricePeriod>per month</PricePeriod>}
+                {plan.price > 0 && <PricePeriod>/ {t('common.month')}</PricePeriod>}
               </PlanHeader>
 
               <FeaturesList>
@@ -191,7 +225,7 @@ export const PaymentPage = () => {
                     <CheckIcon>
                       <IconCheck size={16} />
                     </CheckIcon>
-                    {feature}
+                    {translateFeature(feature)}
                   </Feature>
                 ))}
               </FeaturesList>
@@ -201,7 +235,7 @@ export const PaymentPage = () => {
                 onClick={() => handleUpgrade(plan.id)}
                 disabled={index === 0}
               >
-                {index === 0 ? 'Current Plan' : 'Upgrade'}
+                {index === 0 ? t('subscription.currentPlan') : t('subscription.upgrade')}
               </Button>
             </PlanCard>
           ))}

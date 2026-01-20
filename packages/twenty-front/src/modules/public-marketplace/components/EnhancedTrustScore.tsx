@@ -1,6 +1,8 @@
 import styled from '@emotion/styled';
 import { useState } from 'react';
 import { IconChevronDown, IconChevronUp, IconShield } from 'twenty-ui/display';
+import { useLanguage } from '../i18n/LanguageContext';
+import { translateTrustDetail, translateTrustFactor } from '../utils/translateTrustScore';
 
 const Container = styled.div`
   background-color: ${({ theme }) => theme.background.secondary};
@@ -114,7 +116,7 @@ const Progress = styled.div<{ percentage: number }>`
   background: linear-gradient(
     90deg,
     ${({ theme }) => theme.color.blue},
-    ${({ theme }) => theme.color.blue70}
+    ${({ theme }) => theme.color.blue}
   );
   height: 100%;
   transition: width 0.3s ease;
@@ -167,14 +169,15 @@ export const EnhancedTrustScore = ({
   score,
   breakdown,
 }: EnhancedTrustScoreProps) => {
+  const { t, language } = useLanguage();
   const [expanded, setExpanded] = useState(false);
 
   const getScoreLabel = (score: number): string => {
-    if (score >= 90) return 'Excellent Trust';
-    if (score >= 80) return 'High Trust';
-    if (score >= 70) return 'Good Trust';
-    if (score >= 50) return 'Medium Trust';
-    return 'Low Trust';
+    if (score >= 90) return t('trustScore.excellentTrust');
+    if (score >= 80) return t('trustScore.highTrust');
+    if (score >= 70) return t('trustScore.goodTrust');
+    if (score >= 50) return t('trustScore.mediumTrust');
+    return t('trustScore.lowTrust');
   };
 
   return (
@@ -182,7 +185,7 @@ export const EnhancedTrustScore = ({
       <Header>
         <Title>
           <IconShield size={24} />
-          Enhanced Trust Score
+          {t('trustScore.title')}
         </Title>
         <ScoreBadge score={score}>
           <ScoreNumber>{score}</ScoreNumber>
@@ -191,7 +194,7 @@ export const EnhancedTrustScore = ({
       </Header>
 
       <ExpandButton onClick={() => setExpanded(!expanded)}>
-        {expanded ? 'Hide Details' : 'View Detailed Breakdown'}
+        {expanded ? t('trustScore.hideDetails') : t('trustScore.viewBreakdown')}
         {expanded ? <IconChevronUp size={16} /> : <IconChevronDown size={16} />}
       </ExpandButton>
 
@@ -203,7 +206,7 @@ export const EnhancedTrustScore = ({
               <FactorCard key={key}>
                 <FactorHeader>
                   <FactorName>
-                    {factor.name}
+                    {translateTrustFactor(factor.name, language)}
                     {factor.aiPowered && <AIBadge>AI</AIBadge>}
                   </FactorName>
                   <FactorScore>
@@ -215,7 +218,7 @@ export const EnhancedTrustScore = ({
                 </ProgressBar>
                 <FactorDetails>
                   {factor.details.map((detail, index) => (
-                    <div key={index}>• {detail}</div>
+                    <div key={index}>• {translateTrustDetail(detail, language)}</div>
                   ))}
                 </FactorDetails>
               </FactorCard>

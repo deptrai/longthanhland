@@ -1,5 +1,6 @@
 import styled from '@emotion/styled';
 import { useState } from 'react';
+import { useLanguage } from '../i18n/LanguageContext';
 
 const Container = styled.div`
   min-height: 100vh;
@@ -186,6 +187,7 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
 `;
 
 export const PostListingPage = () => {
+  const { t } = useLanguage();
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
     title: '',
@@ -232,7 +234,7 @@ export const PostListingPage = () => {
   return (
     <Container>
       <MaxWidth>
-        <Title>Post New Listing</Title>
+        <Title>{t('postListing.title')}</Title>
 
         <Stepper>
           <StepperContent>
@@ -243,7 +245,7 @@ export const PostListingPage = () => {
               >
                 1
               </StepNumber>
-              <StepLabel active={currentStep === 1}>Basic</StepLabel>
+              <StepLabel active={currentStep === 1}>{t('postListing.stepBasic')}</StepLabel>
             </Step>
             <StepDivider completed={currentStep > 1} />
             <Step active={currentStep === 2} completed={currentStep > 2}>
@@ -253,49 +255,49 @@ export const PostListingPage = () => {
               >
                 2
               </StepNumber>
-              <StepLabel active={currentStep === 2}>Details</StepLabel>
+              <StepLabel active={currentStep === 2}>{t('postListing.stepDetails')}</StepLabel>
             </Step>
             <StepDivider completed={currentStep > 2} />
             <Step active={currentStep === 3}>
               <StepNumber active={currentStep === 3}>3</StepNumber>
-              <StepLabel active={currentStep === 3}>Images</StepLabel>
+              <StepLabel active={currentStep === 3}>{t('postListing.stepImages')}</StepLabel>
             </Step>
           </StepperContent>
         </Stepper>
 
         <Card>
           <SectionTitle>
-            {currentStep === 1 && 'Basic Information'}
-            {currentStep === 2 && 'Property Details'}
-            {currentStep === 3 && 'Upload Images'}
+            {currentStep === 1 && t('postListing.basicInfo')}
+            {currentStep === 2 && t('postListing.stepDetails')}
+            {currentStep === 3 && t('postListing.stepImages')}
           </SectionTitle>
 
           <Form onSubmit={handleSubmit}>
             {currentStep === 1 && (
               <>
                 <FormGroup fullWidth>
-                  <Label htmlFor="title">Property Title *</Label>
+                  <Label htmlFor="title">{t('postListing.propertyTitle')} *</Label>
                   <Input
                     id="title"
                     type="text"
-                    placeholder="e.g., Modern 3BR Apartment in District 7"
+                    placeholder={t('postListing.propertyTitlePlaceholder')}
                     value={formData.title}
                     onChange={handleChange('title')}
                     required
                   />
                 </FormGroup>
                 <FormGroup fullWidth>
-                  <Label htmlFor="description">Description *</Label>
+                  <Label htmlFor="description">{t('postListing.description')} *</Label>
                   <TextArea
                     id="description"
-                    placeholder="Describe your property..."
+                    placeholder={t('postListing.descriptionPlaceholder')}
                     value={formData.description}
                     onChange={handleChange('description')}
                     required
                   />
                 </FormGroup>
                 <FormGroup>
-                  <Label htmlFor="price">Price (VND) *</Label>
+                  <Label htmlFor="price">{t('postListing.price')} *</Label>
                   <Input
                     id="price"
                     type="number"
@@ -306,16 +308,16 @@ export const PostListingPage = () => {
                   />
                 </FormGroup>
                 <FormGroup>
-                  <Label htmlFor="propertyType">Property Type *</Label>
+                  <Label htmlFor="propertyType">{t('postListing.propertyType')} *</Label>
                   <Select
                     id="propertyType"
                     value={formData.propertyType}
                     onChange={handleChange('propertyType')}
                   >
-                    <option value="APARTMENT">Apartment</option>
-                    <option value="HOUSE">House</option>
-                    <option value="LAND">Land</option>
-                    <option value="VILLA">Villa</option>
+                    <option value="APARTMENT">{t('categories.apartment')}</option>
+                    <option value="HOUSE">{t('categories.house')}</option>
+                    <option value="LAND">{t('categories.land')}</option>
+                    <option value="VILLA">{t('categories.villa')}</option>
                   </Select>
                 </FormGroup>
               </>
@@ -324,14 +326,14 @@ export const PostListingPage = () => {
             {currentStep === 2 && (
               <>
                 <FormGroup>
-                  <Label htmlFor="bedrooms">Bedrooms *</Label>
+                  <Label htmlFor="bedrooms">{t('detail.bedrooms')} *</Label>
                   <Select
                     id="bedrooms"
                     value={formData.bedrooms}
                     onChange={handleChange('bedrooms')}
                     required
                   >
-                    <option value="">Select...</option>
+                    <option value="">{t('common.select')}...</option>
                     <option value="1">1</option>
                     <option value="2">2</option>
                     <option value="3">3</option>
@@ -340,14 +342,14 @@ export const PostListingPage = () => {
                   </Select>
                 </FormGroup>
                 <FormGroup>
-                  <Label htmlFor="bathrooms">Bathrooms *</Label>
+                  <Label htmlFor="bathrooms">{t('detail.bathrooms')} *</Label>
                   <Select
                     id="bathrooms"
                     value={formData.bathrooms}
                     onChange={handleChange('bathrooms')}
                     required
                   >
-                    <option value="">Select...</option>
+                    <option value="">{t('common.select')}...</option>
                     <option value="1">1</option>
                     <option value="2">2</option>
                     <option value="3">3</option>
@@ -355,7 +357,7 @@ export const PostListingPage = () => {
                   </Select>
                 </FormGroup>
                 <FormGroup>
-                  <Label htmlFor="area">Area (m²) *</Label>
+                  <Label htmlFor="area">{t('detail.area')} (m²) *</Label>
                   <Input
                     id="area"
                     type="number"
@@ -366,7 +368,7 @@ export const PostListingPage = () => {
                   />
                 </FormGroup>
                 <FormGroup>
-                  <Label htmlFor="city">City *</Label>
+                  <Label htmlFor="city">{t('detail.location')} (Thành phố) *</Label>
                   <Select
                     id="city"
                     value={formData.city}
@@ -378,7 +380,7 @@ export const PostListingPage = () => {
                   </Select>
                 </FormGroup>
                 <FormGroup>
-                  <Label htmlFor="district">District *</Label>
+                  <Label htmlFor="district">{t('detail.location')} (Quận) *</Label>
                   <Input
                     id="district"
                     type="text"
@@ -389,7 +391,7 @@ export const PostListingPage = () => {
                   />
                 </FormGroup>
                 <FormGroup>
-                  <Label htmlFor="location">Street Address *</Label>
+                  <Label htmlFor="location">{t('detail.location')} (Địa chỉ) *</Label>
                   <Input
                     id="location"
                     type="text"
@@ -404,7 +406,7 @@ export const PostListingPage = () => {
 
             {currentStep === 3 && (
               <FormGroup fullWidth>
-                <Label>Upload Images</Label>
+                <Label>{t('postListing.stepImages')}</Label>
                 <div
                   style={{
                     border: '2px dashed #333333',
@@ -414,9 +416,9 @@ export const PostListingPage = () => {
                     color: '#888888',
                   }}
                 >
-                  <p>Drag and drop images here or click to browse</p>
+                  <p>Kéo thả hình ảnh vào đây hoặc click để chọn</p>
                   <p style={{ fontSize: '0.875rem', marginTop: '0.5rem' }}>
-                    (Image upload will be implemented in future stories)
+                    (Tính năng tải ảnh sẽ được cập nhật trong phiên bản sau)
                   </p>
                 </div>
               </FormGroup>
@@ -425,15 +427,15 @@ export const PostListingPage = () => {
             <ButtonGroup>
               {currentStep > 1 && (
                 <Button type="button" variant="secondary" onClick={handleBack}>
-                  Back
+                  {t('postListing.previous')}
                 </Button>
               )}
               {currentStep < 3 ? (
                 <Button type="button" onClick={handleNext}>
-                  Next
+                  {t('postListing.next')}
                 </Button>
               ) : (
-                <Button type="submit">Submit Listing</Button>
+                <Button type="submit">{t('postListing.submit')}</Button>
               )}
             </ButtonGroup>
           </Form>
