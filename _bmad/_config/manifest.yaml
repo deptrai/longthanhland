@@ -1,7 +1,7 @@
 installation:
   version: 6.0.0-alpha.23
-  installDate: 2026-01-18T17:16:05.960Z
-  lastUpdated: 2026-01-18T17:16:05.960Z
+  installDate: 2026-02-08T19:36:03.764Z
+  lastUpdated: 2026-02-08T19:36:03.764Z
 modules:
   - core
   - bmb
@@ -10,3 +10,4 @@ modules:
 ides:
   - antigravity
   - windsurf
+  - auggie
