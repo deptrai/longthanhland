@@ -10,11 +10,14 @@ export interface PublicUser {
   createdAt: string;
 }
 
+export type VipTier = 'DIAMOND' | 'GOLD' | 'SILVER' | 'NONE';
+
 export interface PublicListing {
   id: string;
   title: string;
   description: string;
   price: number;
+  pricePerM2?: number;
   location: string;
   district: string;
   city: string;
@@ -25,12 +28,20 @@ export interface PublicListing {
   status: 'AVAILABLE' | 'RESERVED' | 'SOLD';
   isFeatured: boolean;
   featuredUntil?: string;
+  vipTier: VipTier;
   trustScore: number;
   images: string[];
+  imageCount: number;
+  hasVideo: boolean;
   sellerId: string;
   sellerName: string;
+  sellerAvatar: string;
+  sellerVerified: boolean;
+  sellerPhone: string;
   views: number;
   inquiries: number;
+  isSaved: boolean;
+  publishDate: string;
   createdAt: string;
   updatedAt: string;
 }
