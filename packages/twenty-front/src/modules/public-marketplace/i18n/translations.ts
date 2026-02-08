@@ -67,11 +67,12 @@ export const translations = {
       southwest: 'Southwest',
     },
     // AI Assistant
-    ai: {
+    aiAssistant: {
       title: 'AI Assistant',
       status: 'Online',
       welcome: 'Hello! How can I help you with real estate?',
       placeholder: 'Enter your question...',
+      thinking: 'Thinking...',
       send: 'Send',
     },
     // News Section

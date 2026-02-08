@@ -1,11 +1,11 @@
 import type {
-  Inquiry,
-  PublicListing,
-  PublicUser,
-  RevenueStats,
-  SellerStats,
-  SubscriptionPlan,
-  Transaction,
+    Inquiry,
+    PublicListing,
+    PublicUser,
+    RevenueStats,
+    SellerStats,
+    SubscriptionPlan,
+    Transaction,
 } from '../types';
 
 export const mockPublicUsers: PublicUser[] = [
@@ -494,3 +494,344 @@ export const mockSellerStats: SellerStats = {
   activeListings: 5,
   conversionRate: 12,
 };
+
+// Sidebar: Agent Profile
+export interface AgentProfile {
+  id: string;
+  fullName: string;
+  avatar: string;
+  badge: string;
+  memberSince: string;
+  totalListings: number;
+  isVerified: boolean;
+  phone: string;
+  zaloLink: string;
+  profileLink: string;
+}
+
+export const mockAgentProfile: AgentProfile = {
+  id: 'agent-1',
+  fullName: 'Trần Tín',
+  avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&crop=face',
+  badge: 'Môi giới chuyên nghiệp',
+  memberSince: '2 năm',
+  totalListings: 435,
+  isVerified: true,
+  phone: '0568 436 ***',
+  zaloLink: '#',
+  profileLink: '/marketplace/agent/agent-1',
+};
+
+// Sidebar: Area Links
+export interface AreaLink {
+  name: string;
+  count: number;
+  href: string;
+}
+
+export interface DistrictArea {
+  districtName: string;
+  areas: AreaLink[];
+}
+
+export const mockDistrictAreas: DistrictArea[] = [
+  {
+    districtName: 'Long Thành',
+    areas: [
+      { name: 'Bàu Cạn', count: 43, href: '#' },
+      { name: 'An Phước', count: 31, href: '#' },
+      { name: 'Long An', count: 16, href: '#' },
+      { name: 'Phước Bình', count: 14, href: '#' },
+      { name: 'Tam An', count: 7, href: '#' },
+      { name: 'Lộc An', count: 5, href: '#' },
+      { name: 'Phước Thái', count: 3, href: '#' },
+      { name: 'Tân Hiệp', count: 3, href: '#' },
+      { name: 'Bình Sơn', count: 2, href: '#' },
+    ],
+  },
+];
+
+// Sidebar: Featured Listings
+export interface FeaturedListingLink {
+  title: string;
+  href: string;
+}
+
+export const mockFeaturedListingLinks: FeaturedListingLink[] = [
+  { title: 'Nhà đất Bình Dương', href: '#' },
+  { title: 'Bán nhà Núi Thành', href: '#' },
+  { title: 'Bán nhà Đường 41679', href: '#' },
+  { title: 'Bán nhà Tiểu La', href: '#' },
+  { title: 'Bán nhà Thôi Tam Thôn', href: '#' },
+  { title: 'Bán nhà Hoàng Thúc Trâm', href: '#' },
+  { title: 'Chung cư Mường Thanh Đà Nẵng', href: '#' },
+  { title: 'Chung cư The Monarchy', href: '#' },
+  { title: 'Bán biệt thự Cityland Garden Hills', href: '#' },
+  { title: 'Bán nhà mặt tiền Tiểu La', href: '#' },
+  { title: 'Bán nhà mặt tiền Lê Duẩn Hải Châu', href: '#' },
+  { title: 'Bán nhà Quận 5', href: '#' },
+  { title: 'Căn hộ Vinpearl Condotel Đà Nẵng', href: '#' },
+  { title: 'Căn hộ Moonlight Garden', href: '#' },
+  { title: 'Chung cư TMS Luxury Đà Nẵng', href: '#' },
+  { title: 'Đất nền Long Thành gần sân bay', href: '#' },
+];
+
+// Agent Profile Page Data
+export interface AgentListing {
+  id: string;
+  title: string;
+  price: number;
+  area: number;
+  location: string;
+  images: string[];
+  photoCount: number;
+  isExpired: boolean;
+  postedDateLabel: string;
+  propertyType: 'APARTMENT' | 'HOUSE' | 'LAND' | 'VILLA';
+}
+
+export interface AgentProfilePageData {
+  coverImage: string;
+  viewCount: number;
+  certificateNumber: string;
+  agentLocation: string;
+  saleCount: number;
+  rentCount: number;
+  saleListings: AgentListing[];
+  rentListings: AgentListing[];
+}
+
+export const mockAgentProfilePageData: AgentProfilePageData = {
+  coverImage: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1400&h=400&fit=crop',
+  viewCount: 4941,
+  certificateNumber: 'DN-003389',
+  agentLocation: 'Đất tại xã Bàu Cạn, huyện Long Thành',
+  saleCount: 11,
+  rentCount: 0,
+  saleListings: [
+    {
+      id: 'agent-listing-1',
+      title: 'Bán đất nền Long Thành gần sân bay, SHR, thổ cư 100%',
+      price: 2800000000,
+      area: 150,
+      location: 'Bàu Cạn, Long Thành, Đồng Nai',
+      images: [
+        'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800',
+        'https://images.unsplash.com/photo-1464146072230-91cabc968266?w=800',
+        'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800',
+      ],
+      photoCount: 3,
+      isExpired: false,
+      postedDateLabel: 'Đăng hôm nay',
+      propertyType: 'LAND',
+    },
+    {
+      id: 'agent-listing-2',
+      title: 'Đất nền KDC Bàu Cạn, MT đường 25m, giá F0 chủ đầu tư',
+      price: 3200000000,
+      area: 120,
+      location: 'Bàu Cạn, Long Thành, Đồng Nai',
+      images: [
+        'https://images.unsplash.com/photo-1464146072230-91cabc968266?w=800',
+        'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800',
+      ],
+      photoCount: 2,
+      isExpired: false,
+      postedDateLabel: 'Đăng hôm nay',
+      propertyType: 'LAND',
+    },
+    {
+      id: 'agent-listing-3',
+      title: 'Bán đất mặt tiền QL51 Long Thành, DT 300m², kinh doanh tốt',
+      price: 8500000000,
+      area: 300,
+      location: 'Long Thành, Đồng Nai',
+      images: [
+        'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800',
+      ],
+      photoCount: 1,
+      isExpired: false,
+      postedDateLabel: 'Đăng 2 ngày trước',
+      propertyType: 'LAND',
+    },
+    {
+      id: 'agent-listing-4',
+      title: 'Đất nền An Phước Long Thành, gần KCN Amata, giá rẻ',
+      price: 2200000000,
+      area: 100,
+      location: 'An Phước, Long Thành, Đồng Nai',
+      images: [
+        'https://images.unsplash.com/photo-1464146072230-91cabc968266?w=800',
+        'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800',
+        'https://images.unsplash.com/photo-1464146072230-91cabc968266?w=800',
+        'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800',
+      ],
+      photoCount: 4,
+      isExpired: true,
+      postedDateLabel: 'Đăng 13 ngày trước',
+      propertyType: 'LAND',
+    },
+    {
+      id: 'agent-listing-5',
+      title: 'Bán đất Phước Bình Long Thành, cách sân bay 3km, SHR',
+      price: 1800000000,
+      area: 80,
+      location: 'Phước Bình, Long Thành, Đồng Nai',
+      images: [
+        'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800',
+        'https://images.unsplash.com/photo-1464146072230-91cabc968266?w=800',
+      ],
+      photoCount: 2,
+      isExpired: true,
+      postedDateLabel: 'Đăng 15 ngày trước',
+      propertyType: 'LAND',
+    },
+    {
+      id: 'agent-listing-6',
+      title: 'Đất nền Tam An Long Thành, hạ tầng hoàn thiện, giá đầu tư',
+      price: 2500000000,
+      area: 110,
+      location: 'Tam An, Long Thành, Đồng Nai',
+      images: [
+        'https://images.unsplash.com/photo-1464146072230-91cabc968266?w=800',
+        'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800',
+        'https://images.unsplash.com/photo-1464146072230-91cabc968266?w=800',
+      ],
+      photoCount: 3,
+      isExpired: false,
+      postedDateLabel: 'Đăng 5 ngày trước',
+      propertyType: 'LAND',
+    },
+    {
+      id: 'agent-listing-7',
+      title: 'Bán đất Lộc An Long Thành, view hồ đẹp, thổ cư 100%',
+      price: 3500000000,
+      area: 200,
+      location: 'Lộc An, Long Thành, Đồng Nai',
+      images: [
+        'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800',
+      ],
+      photoCount: 1,
+      isExpired: false,
+      postedDateLabel: 'Đăng 7 ngày trước',
+      propertyType: 'LAND',
+    },
+    {
+      id: 'agent-listing-8',
+      title: 'Đất nền Tân Hiệp Long Thành, gần chợ, trường học',
+      price: 1950000000,
+      area: 90,
+      location: 'Tân Hiệp, Long Thành, Đồng Nai',
+      images: [
+        'https://images.unsplash.com/photo-1464146072230-91cabc968266?w=800',
+        'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800',
+      ],
+      photoCount: 2,
+      isExpired: false,
+      postedDateLabel: 'Đăng 10 ngày trước',
+      propertyType: 'LAND',
+    },
+    {
+      id: 'agent-listing-9',
+      title: 'Bán đất Bình Sơn Long Thành, cạnh KCN, giá gốc CĐT',
+      price: 2100000000,
+      area: 105,
+      location: 'Bình Sơn, Long Thành, Đồng Nai',
+      images: [
+        'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800',
+        'https://images.unsplash.com/photo-1464146072230-91cabc968266?w=800',
+        'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800',
+      ],
+      photoCount: 3,
+      isExpired: true,
+      postedDateLabel: 'Đăng 20 ngày trước',
+      propertyType: 'LAND',
+    },
+    {
+      id: 'agent-listing-10',
+      title: 'Đất nền Long An, Long Thành, DT 160m², đường 12m',
+      price: 2600000000,
+      area: 160,
+      location: 'Long An, Long Thành, Đồng Nai',
+      images: [
+        'https://images.unsplash.com/photo-1464146072230-91cabc968266?w=800',
+      ],
+      photoCount: 1,
+      isExpired: false,
+      postedDateLabel: 'Đăng 3 ngày trước',
+      propertyType: 'LAND',
+    },
+    {
+      id: 'agent-listing-11',
+      title: 'Bán đất Phước Thái Long Thành, gần trung tâm hành chính',
+      price: 3100000000,
+      area: 140,
+      location: 'Phước Thái, Long Thành, Đồng Nai',
+      images: [
+        'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800',
+        'https://images.unsplash.com/photo-1464146072230-91cabc968266?w=800',
+      ],
+      photoCount: 2,
+      isExpired: false,
+      postedDateLabel: 'Đăng 8 ngày trước',
+      propertyType: 'LAND',
+    },
+  ],
+  rentListings: [],
+};
+
+// === Browse Sidebar Data ===
+
+export const mockPriceRanges = [
+  { label: 'Thỏa thuận', value: 'negotiable', href: '#' },
+  { label: 'Dưới 1 triệu', value: 'under-1m', href: '#' },
+  { label: '1 - 3 triệu', value: '1-3m', href: '#' },
+  { label: '3 - 5 triệu', value: '3-5m', href: '#' },
+  { label: '5 - 10 triệu', value: '5-10m', href: '#' },
+  { label: '10 - 40 triệu', value: '10-40m', href: '#' },
+  { label: '40 - 70 triệu', value: '40-70m', href: '#' },
+  { label: '70 - 100 triệu', value: '70-100m', href: '#' },
+  { label: 'Trên 100 triệu', value: 'over-100m', href: '#' },
+];
+
+export const mockAreaRanges = [
+  { label: 'Dưới 30 m²', value: 'under-30', href: '#' },
+  { label: '30 - 50 m²', value: '30-50', href: '#' },
+  { label: '50 - 80 m²', value: '50-80', href: '#' },
+  { label: '80 - 100 m²', value: '80-100', href: '#' },
+  { label: '100 - 150 m²', value: '100-150', href: '#' },
+  { label: '150 - 200 m²', value: '150-200', href: '#' },
+  { label: '200 - 250 m²', value: '200-250', href: '#' },
+  { label: '250 - 300 m²', value: '250-300', href: '#' },
+  { label: '300 - 500 m²', value: '300-500', href: '#' },
+  { label: 'Trên 500 m²', value: 'over-500', href: '#' },
+];
+
+export const mockCityListings = [
+  { name: 'Hồ Chí Minh', count: 15755, href: '#' },
+  { name: 'Hà Nội', count: 6536, href: '#' },
+  { name: 'Bình Dương', count: 731, href: '#' },
+  { name: 'Đà Nẵng', count: 546, href: '#' },
+  { name: 'Hải Phòng', count: 250, href: '#' },
+  { name: 'Khánh Hòa', count: 201, href: '#' },
+  { name: 'Đồng Nai', count: 173, href: '#' },
+  { name: 'Hưng Yên', count: 164, href: '#' },
+  { name: 'Long An', count: 162, href: '#' },
+  { name: 'Bà Rịa Vũng Tàu', count: 149, href: '#' },
+  { name: 'Bắc Ninh', count: 132, href: '#' },
+  { name: 'Thanh Hóa', count: 118, href: '#' },
+  { name: 'Nghệ An', count: 95, href: '#' },
+  { name: 'Thừa Thiên Huế', count: 87, href: '#' },
+  { name: 'Cần Thơ', count: 76, href: '#' },
+];
+
+export const mockPopularArticles = [
+  { title: 'Giá nhà đất Long Thành tăng mạnh sau tin sân bay khởi công', href: '#' },
+  { title: 'Top 10 khu vực đầu tư BĐS tiềm năng nhất 2026', href: '#' },
+  { title: 'Hướng dẫn kiểm tra pháp lý đất nền trước khi mua', href: '#' },
+  { title: 'So sánh giá thuê căn hộ TP.HCM vs Hà Nội 2026', href: '#' },
+  { title: 'Xu hướng thị trường BĐS quý 1/2026: Phân tích chi tiết', href: '#' },
+  { title: '5 sai lầm phổ biến khi mua nhà lần đầu', href: '#' },
+  { title: 'Đất nền vùng ven: Cơ hội hay rủi ro?', href: '#' },
+  { title: 'Chính sách tín dụng BĐS mới nhất từ ngân hàng nhà nước', href: '#' },
+];

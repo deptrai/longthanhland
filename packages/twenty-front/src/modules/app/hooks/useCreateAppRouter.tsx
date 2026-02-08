@@ -9,9 +9,9 @@ import { DefaultLayout } from '@/ui/layout/page/components/DefaultLayout';
 import { AppPath } from 'twenty-shared/types';
 
 import {
-  createBrowserRouter,
-  createRoutesFromElements,
-  Route,
+    createBrowserRouter,
+    createRoutesFromElements,
+    Route,
 } from 'react-router-dom';
 import { Authorize } from '~/pages/auth/Authorize';
 import { PasswordReset } from '~/pages/auth/PasswordReset';
@@ -46,16 +46,17 @@ import { PropertyFilterPage } from '~/pages/real-estate/PropertyFilterPage';
 import { SalesDashboardPage } from '~/pages/real-estate/SalesDashboardPage';
 
 import {
-  BrowsePage,
-  InquiriesPage,
-  ListingDetailPage,
-  LoginPage,
-  DashboardPage as MarketplaceDashboardPage,
-  MarketplaceLayout,
-  PaymentPage,
-  PostListingPage,
-  ProfilePage,
-  RegisterPage,
+    AgentProfilePage,
+    BrowsePage,
+    InquiriesPage,
+    ListingDetailPage,
+    LoginPage,
+    DashboardPage as MarketplaceDashboardPage,
+    MarketplaceLayout,
+    PaymentPage,
+    PostListingPage,
+    ProfilePage,
+    RegisterPage
 } from '@/public-marketplace';
 
 export const useCreateAppRouter = (
@@ -175,6 +176,10 @@ export const useCreateAppRouter = (
           <Route path="/marketplace/post" element={<PostListingPage />} />
           <Route path="/marketplace/inquiries" element={<InquiriesPage />} />
           <Route path="/marketplace/payment" element={<PaymentPage />} />
+          <Route
+            path="/marketplace/agent/:id"
+            element={<AgentProfilePage />}
+          />
         </Route>
         <Route element={<BlankLayout />}>
           <Route path={AppPath.Authorize} element={<Authorize />} />

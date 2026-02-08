@@ -2,6 +2,8 @@ import styled from '@emotion/styled';
 import { useState } from 'react';
 import { IconMap, IconSearch } from 'twenty-ui/display';
 import { NewsSection } from '..';
+import { BrowseSidebar } from '../components/BrowseSidebar';
+import { CompactTrustScore } from '../components/CompactTrustScore';
 import { mockPublicListings } from '../data/mock-data';
 import { useLanguage } from '../i18n/LanguageContext';
 
@@ -10,12 +12,25 @@ import { useLanguage } from '../i18n/LanguageContext';
 const Container = styled.div`
   min-height: 100vh;
   background-color: ${({ theme }) => theme.background.primary};
+`;
+
+const ContentArea = styled.div`
+  display: flex;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
   padding: 2rem;
+  gap: 1.5rem;
+`;
+
+const MainContent = styled.div`
+  flex: 1;
+  min-width: 0;
 `;
 
 const MaxWidth = styled.div`
   margin: 0 auto;
-  max-width: 1400px;
+  max-width: 100%;
 `;
 
 const Header = styled.div`
@@ -231,35 +246,6 @@ const Feature = styled.div`
   gap: 0.25rem;
 `;
 
-const TrustScore = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-top: 1rem;
-`;
-
-const ProgressBar = styled.div`
-  flex: 1;
-  height: 8px;
-  background-color: ${({ theme }) => theme.background.primary};
-  border-radius: 4px;
-  overflow: hidden;
-`;
-
-const Progress = styled.div<{ value: number }>`
-  background-color: ${({ theme }) => theme.color.green};
-  border-radius: 4px;
-  height: 100%;
-  transition: width 0.3s;
-  width: ${({ value }) => value}%;
-`;
-
-const TrustValue = styled.span`
-  color: ${({ theme }) => theme.color.green};
-  font-size: 0.875rem;
-  font-weight: 600;
-`;
-
 const Table = styled.div`
   background-color: ${({ theme }) => theme.background.secondary};
   border: 1px solid ${({ theme }) => theme.border.color.medium};
@@ -275,13 +261,13 @@ const TableHeader = styled.div`
   font-size: 0.875rem;
   font-weight: 600;
   gap: 1rem;
-  grid-template-columns: 2fr 1fr 1fr 100px;
+  grid-template-columns: 2fr 1fr 1fr 140px;
   padding: 1rem 1.5rem;
 `;
 
 const TableRow = styled.div`
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr 100px;
+  grid-template-columns: 2fr 1fr 1fr 140px;
   gap: 1rem;
   padding: 1rem 1.5rem;
   border-bottom: 1px solid ${({ theme }) => theme.border.color.medium};
@@ -351,7 +337,10 @@ export const BrowsePage = () => {
 
   return (
     <Container>
-      <MaxWidth>
+      <ContentArea>
+        <BrowseSidebar />
+        <MainContent>
+          <MaxWidth>
         <Header>
           <Title>
             <IconMap size={28} />
@@ -421,12 +410,7 @@ export const BrowsePage = () => {
                       <Feature>{listing.bathrooms} {t('common.bathrooms')}</Feature>
                       <Feature>{listing.area} {t('common.area')}</Feature>
                     </Features>
-                    <TrustScore>
-                      <ProgressBar>
-                        <Progress value={listing.trustScore} />
-                      </ProgressBar>
-                      <TrustValue>{listing.trustScore}%</TrustValue>
-                    </TrustScore>
+                    <CompactTrustScore listing={listing} />
                   </CardContent>
                 </ListingCard>
               ))}
@@ -466,19 +450,16 @@ export const BrowsePage = () => {
                 <div style={{ fontWeight: 600, color: '#3B82F6' }}>
                   {formatPrice(listing.price)}
                 </div>
-                <TrustScore>
-                  <ProgressBar style={{ flex: 1 }}>
-                    <Progress value={listing.trustScore} />
-                  </ProgressBar>
-                  <TrustValue>{listing.trustScore}%</TrustValue>
-                </TrustScore>
+                <CompactTrustScore listing={listing} showFactors={false} />
               </TableRow>
             ))}
           </Table>
         </Section>
 
         <NewsSection />
-      </MaxWidth>
+          </MaxWidth>
+        </MainContent>
+      </ContentArea>
     </Container>
   );
 };

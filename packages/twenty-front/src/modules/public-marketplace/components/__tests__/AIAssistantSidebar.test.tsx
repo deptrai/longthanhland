@@ -21,30 +21,41 @@ describe('AIAssistantSidebar', () => {
     ).toBeInTheDocument();
   });
 
-  it('should render 3 suggested questions', () => {
+  it('should render 6 suggested questions', () => {
     render(<AIAssistantSidebar />, { wrapper: Wrapper });
 
     expect(
-      screen.getByText('Tìm căn hộ dưới 3 tỷ ở Quận 7'),
+      screen.getByText('Tìm hidden gem đất nền Long Thành dưới 3 tỷ'),
     ).toBeInTheDocument();
     expect(
-      screen.getByText('Giá nhà ở Thủ Đức hiện nay như thế nào?'),
+      screen.getByText('So sánh giá căn hộ Quận 2 vs Quận 7'),
     ).toBeInTheDocument();
     expect(
-      screen.getByText('Quy trình mua nhà cần những gì?'),
+      screen.getByText('Phân tích tiềm năng tăng giá khu vực sân bay'),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('Tư vấn pháp lý mua đất nền'),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('Tính toán vay ngân hàng mua nhà 5 tỷ'),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('Quy trình mua nhà từ A-Z'),
     ).toBeInTheDocument();
   });
 
   it('should populate input when suggested question is clicked', () => {
     render(<AIAssistantSidebar />, { wrapper: Wrapper });
 
-    const suggestedButton = screen.getByText('Tìm căn hộ dưới 3 tỷ ở Quận 7');
+    const suggestedButton = screen.getByText(
+      'Tìm hidden gem đất nền Long Thành dưới 3 tỷ',
+    );
     fireEvent.click(suggestedButton);
 
     const input = screen.getByPlaceholderText(
       'Nhập câu hỏi của bạn...',
     ) as HTMLInputElement;
-    expect(input.value).toBe('Tìm căn hộ dưới 3 tỷ ở Quận 7');
+    expect(input.value).toBe('Tìm hidden gem đất nền Long Thành dưới 3 tỷ');
   });
 
   it('should send message when send button is clicked', async () => {
@@ -92,7 +103,7 @@ describe('AIAssistantSidebar', () => {
     await waitFor(
       () => {
         expect(
-          screen.getByText(/Xin chào! Tôi là trợ lý AI/),
+          screen.getByText(/Trợ lý AI/),
         ).toBeInTheDocument();
       },
       { timeout: 2000 },
@@ -165,5 +176,77 @@ describe('AIAssistantSidebar', () => {
         'Xin chào! Tôi có thể giúp gì cho bạn về bất động sản?',
       ),
     ).not.toBeInTheDocument();
+  });
+
+  it('should display hidden gem response for Long Thành query', async () => {
+    render(<AIAssistantSidebar />, { wrapper: Wrapper });
+
+    const input = screen.getByPlaceholderText('Nhập câu hỏi của bạn...');
+    const sendButton = screen.getByRole('button', { name: '' });
+
+    fireEvent.change(input, {
+      target: { value: 'Tìm hidden gem đất nền Long Thành' },
+    });
+
+    await act(async () => {
+      fireEvent.click(sendButton);
+    });
+
+    await waitFor(
+      () => {
+        expect(
+          screen.getByText('Phân tích Hidden Gems Long Thành'),
+        ).toBeInTheDocument();
+      },
+      { timeout: 2000 },
+    );
+  });
+
+  it('should display legal advice response for pháp lý query', async () => {
+    render(<AIAssistantSidebar />, { wrapper: Wrapper });
+
+    const input = screen.getByPlaceholderText('Nhập câu hỏi của bạn...');
+    const sendButton = screen.getByRole('button', { name: '' });
+
+    fireEvent.change(input, {
+      target: { value: 'Tư vấn pháp lý mua đất nền' },
+    });
+
+    await act(async () => {
+      fireEvent.click(sendButton);
+    });
+
+    await waitFor(
+      () => {
+        expect(
+          screen.getByText('Tư vấn Pháp lý Mua Bất động sản'),
+        ).toBeInTheDocument();
+      },
+      { timeout: 2000 },
+    );
+  });
+
+  it('should display mortgage response for vay ngân hàng query', async () => {
+    render(<AIAssistantSidebar />, { wrapper: Wrapper });
+
+    const input = screen.getByPlaceholderText('Nhập câu hỏi của bạn...');
+    const sendButton = screen.getByRole('button', { name: '' });
+
+    fireEvent.change(input, {
+      target: { value: 'Tính toán vay ngân hàng mua nhà 5 tỷ' },
+    });
+
+    await act(async () => {
+      fireEvent.click(sendButton);
+    });
+
+    await waitFor(
+      () => {
+        expect(
+          screen.getByText('Tính toán Vay Ngân hàng Mua nhà'),
+        ).toBeInTheDocument();
+      },
+      { timeout: 2000 },
+    );
   });
 });

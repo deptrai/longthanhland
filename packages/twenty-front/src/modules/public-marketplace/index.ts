@@ -6,12 +6,16 @@ export * from './types';
 // Pages
 export { AIAssistantSidebar } from './components/AIAssistantSidebar';
 export { Breadcrumb } from './components/Breadcrumb';
+export { BrowseSidebar } from './components/BrowseSidebar';
+export { CompactTrustScore } from './components/CompactTrustScore';
 export { EnhancedTrustScore } from './components/EnhancedTrustScore';
 export { ImageSlider } from './components/ImageSlider';
 export { LocationMap } from './components/LocationMap';
 export { MarketplaceFooter } from './components/MarketplaceFooter';
 export { MarketplaceLayout } from './components/MarketplaceLayout';
+export { MarketplaceSidebar } from './components/MarketplaceSidebar';
 export { NewsSection } from './components/NewsSection';
+export { AgentProfilePage } from './pages/AgentProfilePage';
 export { BrowsePage } from './pages/BrowsePage';
 export { DashboardPage } from './pages/DashboardPage';
 export { InquiriesPage } from './pages/InquiriesPage';
@@ -22,3 +26,4 @@ export { PostListingPage } from './pages/PostListingPage';
 export { ProfilePage } from './pages/ProfilePage';
 export { RegisterPage } from './pages/RegisterPage';
 export { TrustScoreDemoPage } from './pages/TrustScoreDemoPage';
+

@@ -7,6 +7,7 @@ import { EnhancedTrustScore } from '../components/EnhancedTrustScore';
 import { ImageSlider } from '../components/ImageSlider';
 import { LocationMap } from '../components/LocationMap';
 import { MarketplaceFooter } from '../components/MarketplaceFooter';
+import { MarketplaceSidebar } from '../components/MarketplaceSidebar';
 import { mockPublicListings } from '../data/mock-data';
 import { useLanguage } from '../i18n/LanguageContext';
 import { calculateTrustScore } from '../utils/calculateTrustScore';
@@ -14,12 +15,23 @@ import { calculateTrustScore } from '../utils/calculateTrustScore';
 const StyledContainer = styled.div`
   min-height: 100vh;
   background-color: ${({ theme }) => theme.background.primary};
+`;
+
+const StyledContentArea = styled.div`
+  display: flex;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+`;
+
+const StyledMainContent = styled.div`
+  flex: 1;
+  min-width: 0;
   padding: 2rem;
 `;
 
 const StyledMaxWidth = styled.div`
-  margin: 0 auto;
-  max-width: 1400px;
+  max-width: 100%;
 `;
 
 const StyledTitle = styled.h1`
@@ -319,9 +331,12 @@ export const ListingDetailPage = () => {
 
   return (
     <StyledContainer>
-      <StyledMaxWidth>
-        {/* Breadcrumb Navigation */}
-        <Breadcrumb
+      <StyledContentArea>
+        <MarketplaceSidebar />
+        <StyledMainContent>
+          <StyledMaxWidth>
+            {/* Breadcrumb Navigation */}
+            <Breadcrumb
           type="Cho thuê"
           city={listing.city}
           district={listing.district}
@@ -530,6 +545,8 @@ export const ListingDetailPage = () => {
           </StyledCard>
         )}
       </StyledMaxWidth>
+        </StyledMainContent>
+      </StyledContentArea>
 
       {/* Footer */}
       <MarketplaceFooter />
