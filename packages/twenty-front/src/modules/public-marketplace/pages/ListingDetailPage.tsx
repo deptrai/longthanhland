@@ -146,7 +146,7 @@ const StyledContactCard = styled.div`
 const StyledContactButton = styled.button`
   width: 100%;
   background-color: ${({ theme }) => theme.color.blue};
-  color: white;
+  color: ${({ theme }) => theme.font.color.inverted};
   border: none;
   border-radius: 8px;
   padding: 1rem;
@@ -252,7 +252,7 @@ const StyledSellerAvatar = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: ${({ theme }) => theme.font.color.inverted};
   font-weight: 700;
   font-size: 1.25rem;
 `;

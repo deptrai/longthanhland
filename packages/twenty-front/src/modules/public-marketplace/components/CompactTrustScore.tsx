@@ -1,8 +1,8 @@
 import styled from '@emotion/styled';
 import { IconShield } from 'twenty-ui/display';
 import {
-  calculateTrustScore,
-  type TrustScoreListing,
+    calculateTrustScore,
+    type TrustScoreListing,
 } from '../utils/calculateTrustScore';
 
 const Container = styled.div`
@@ -19,22 +19,22 @@ const ShieldWrapper = styled.div<{ score: number }>`
   width: 28px;
   height: 28px;
   border-radius: 6px;
-  background: ${({ score }) => {
-    if (score >= 80) return 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
-    if (score >= 50) return 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)';
-    return 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
+  background: ${({ theme, score }) => {
+    if (score >= 80) return `linear-gradient(135deg, ${theme.color.green} 0%, ${theme.color.green} 100%)`;
+    if (score >= 50) return `linear-gradient(135deg, ${theme.color.orange} 0%, ${theme.color.orange} 100%)`;
+    return `linear-gradient(135deg, ${theme.color.red} 0%, ${theme.color.red} 100%)`;
   }};
-  color: white;
+  color: ${({ theme }) => theme.font.color.inverted};
   flex-shrink: 0;
 `;
 
 const ScoreText = styled.span<{ score: number }>`
   font-size: 1rem;
   font-weight: 700;
-  color: ${({ score }) => {
-    if (score >= 80) return '#10b981';
-    if (score >= 50) return '#f59e0b';
-    return '#ef4444';
+  color: ${({ theme, score }) => {
+    if (score >= 80) return theme.color.green;
+    if (score >= 50) return theme.color.orange;
+    return theme.color.red;
   }};
 `;
 
@@ -43,15 +43,15 @@ const ScoreLabel = styled.span<{ score: number }>`
   font-weight: 600;
   padding: 0.125rem 0.375rem;
   border-radius: 4px;
-  background-color: ${({ score }) => {
-    if (score >= 80) return '#ecfdf5';
-    if (score >= 50) return '#fffbeb';
-    return '#fef2f2';
+  background-color: ${({ theme, score }) => {
+    if (score >= 80) return theme.tag.background.green;
+    if (score >= 50) return theme.tag.background.orange;
+    return theme.tag.background.red;
   }};
-  color: ${({ score }) => {
-    if (score >= 80) return '#065f46';
-    if (score >= 50) return '#92400e';
-    return '#991b1b';
+  color: ${({ theme, score }) => {
+    if (score >= 80) return theme.tag.text.green;
+    if (score >= 50) return theme.tag.text.orange;
+    return theme.tag.text.red;
   }};
 `;
 
@@ -59,8 +59,8 @@ const AIBadge = styled.span`
   display: inline-flex;
   align-items: center;
   padding: 0.125rem 0.375rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background: ${({ theme }) => `linear-gradient(135deg, ${theme.color.blue} 0%, ${theme.color.purple} 100%)`};
+  color: ${({ theme }) => theme.font.color.inverted};
   font-size: 0.625rem;
   font-weight: 700;
   border-radius: 3px;
@@ -81,15 +81,15 @@ const FactorTag = styled.span<{ percentage: number }>`
   padding: 0.125rem 0.375rem;
   font-size: 0.6875rem;
   border-radius: 3px;
-  background-color: ${({ percentage }) => {
-    if (percentage >= 80) return '#ecfdf5';
-    if (percentage >= 50) return '#fffbeb';
-    return '#fef2f2';
+  background-color: ${({ theme, percentage }) => {
+    if (percentage >= 80) return theme.tag.background.green;
+    if (percentage >= 50) return theme.tag.background.orange;
+    return theme.tag.background.red;
   }};
-  color: ${({ percentage }) => {
-    if (percentage >= 80) return '#065f46';
-    if (percentage >= 50) return '#92400e';
-    return '#991b1b';
+  color: ${({ theme, percentage }) => {
+    if (percentage >= 80) return theme.tag.text.green;
+    if (percentage >= 50) return theme.tag.text.orange;
+    return theme.tag.text.red;
   }};
   font-weight: 500;
 `;
@@ -98,10 +98,10 @@ const FactorDot = styled.span<{ percentage: number }>`
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background-color: ${({ percentage }) => {
-    if (percentage >= 80) return '#10b981';
-    if (percentage >= 50) return '#f59e0b';
-    return '#ef4444';
+  background-color: ${({ theme, percentage }) => {
+    if (percentage >= 80) return theme.color.green;
+    if (percentage >= 50) return theme.color.orange;
+    return theme.color.red;
   }};
 `;
 

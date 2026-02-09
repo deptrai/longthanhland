@@ -1,2 +1,3 @@
+// TODO: Replace with hosted logo URL for production emails
 export const DEFAULT_WORKSPACE_LOGO =
-  'https://twentyhq.github.io/placeholder-images/workspaces/twenty-logo.png';
+  '/images/longthanhland-logo.png';

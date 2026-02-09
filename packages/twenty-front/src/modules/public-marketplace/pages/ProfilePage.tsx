@@ -22,11 +22,11 @@ const Title = styled.h1`
 `;
 
 const SubscriptionCard = styled.div`
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  background: ${({ theme }) => `linear-gradient(135deg, ${theme.color.blue} 0%, ${theme.color.blue} 100%)`};
   border-radius: 12px;
   padding: 2rem;
   margin-bottom: 1.5rem;
-  color: white;
+  color: ${({ theme }) => theme.font.color.inverted};
 `;
 
 const SubscriptionHeader = styled.div`
@@ -43,7 +43,7 @@ const SubscriptionTitle = styled.div`
 
 const UpgradeButton = styled.button`
   background-color: rgba(255, 255, 255, 0.2);
-  color: white;
+  color: ${({ theme }) => theme.font.color.inverted};
   border: none;
   border-radius: 8px;
   padding: 0.5rem 1rem;

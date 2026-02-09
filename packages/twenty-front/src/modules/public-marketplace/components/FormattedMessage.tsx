@@ -41,19 +41,19 @@ const ListBullet = styled.span`
 `;
 
 const HighlightBox = styled.div<{ $variant: 'info' | 'success' | 'warning' }>`
-  background-color: ${({ $variant }) =>
+  background-color: ${({ theme, $variant }) =>
     $variant === 'info'
-      ? 'rgba(59, 130, 246, 0.08)'
+      ? theme.tag.background.blue
       : $variant === 'success'
-        ? 'rgba(34, 197, 94, 0.08)'
-        : 'rgba(245, 158, 11, 0.08)'};
+        ? theme.tag.background.green
+        : theme.tag.background.orange};
   border-left: 3px solid
-    ${({ $variant }) =>
+    ${({ theme, $variant }) =>
       $variant === 'info'
-        ? '#3b82f6'
+        ? theme.color.blue
         : $variant === 'success'
-          ? '#22c55e'
-          : '#f59e0b'};
+          ? theme.color.green
+          : theme.color.orange};
   border-radius: 0 6px 6px 0;
   padding: 0.5rem 0.625rem;
   margin: 0.25rem 0;
@@ -68,13 +68,13 @@ const TagRow = styled.div`
 `;
 
 const Tag = styled.span<{ $color?: string }>`
-  background-color: ${({ $color }) => $color || 'rgba(99, 102, 241, 0.1)'};
-  color: ${({ $color }) =>
+  background-color: ${({ theme, $color }) => $color || theme.tag.background.blue};
+  color: ${({ theme, $color }) =>
     $color === 'rgba(34, 197, 94, 0.12)'
-      ? '#16a34a'
+      ? theme.color.green
       : $color === 'rgba(245, 158, 11, 0.12)'
-        ? '#d97706'
-        : '#4f46e5'};
+        ? theme.color.orange
+        : theme.color.blue};
   border-radius: 999px;
   font-size: 0.75rem;
   font-weight: 500;
@@ -91,7 +91,7 @@ const ProgressBar = styled.div`
 `;
 
 const ProgressFill = styled.div<{ $percent: number; $color?: string }>`
-  background-color: ${({ $color }) => $color || '#3b82f6'};
+  background-color: ${({ theme, $color }) => $color || theme.color.blue};
   border-radius: 999px;
   height: 100%;
   transition: width 0.6s ease;
@@ -280,13 +280,8 @@ export const FormattedMessage = ({ content }: { content: string }) => {
 
 // Re-export styled components for use in tests if needed
 export {
-  HighlightBox,
-  Tag,
-  TagRow,
-  ProgressBar,
-  ProgressFill,
-  CompactTable,
-  TableRow,
-  TableCell,
+    CompactTable, HighlightBox, ProgressBar,
+    ProgressFill, TableCell, TableRow, Tag,
+    TagRow
 };
 

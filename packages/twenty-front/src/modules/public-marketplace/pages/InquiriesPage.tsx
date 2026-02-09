@@ -81,29 +81,29 @@ const StyledDate = styled.div`
 `;
 
 const StatusBadge = styled.span<{ status: string }>`
-  background-color: ${({ status }) => {
+  background-color: ${({ theme, status }) => {
     switch (status) {
       case 'NEW':
-        return '#3B82F620';
+        return theme.tag.background.blue;
       case 'REPLIED':
-        return '#22C55E20';
+        return theme.tag.background.green;
       case 'CLOSED':
-        return '#88888820';
+        return theme.tag.background.gray;
       default:
-        return '#88888820';
+        return theme.tag.background.gray;
     }
   }};
   border-radius: 9999px;
-  color: ${({ status }) => {
+  color: ${({ theme, status }) => {
     switch (status) {
       case 'NEW':
-        return '#3B82F6';
+        return theme.tag.text.blue;
       case 'REPLIED':
-        return '#22C55E';
+        return theme.tag.text.green;
       case 'CLOSED':
-        return '#888888';
+        return theme.tag.text.gray;
       default:
-        return '#888888';
+        return theme.tag.text.gray;
     }
   }};
   display: inline-block;

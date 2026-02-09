@@ -1,3 +1,4 @@
+import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import {
     IconEye,
@@ -59,8 +60,8 @@ const StatIcon = styled.div<{ color?: string }>`
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: ${({ color }) => color || '#3B82F6'}20;
-  color: ${({ color }) => color || '#3B82F6'};
+  background-color: ${({ theme, color }) => color ? `${color}20` : `${theme.color.blue}20`};
+  color: ${({ theme, color }) => color || theme.color.blue};
 `;
 
 const StatValue = styled.div`
@@ -72,7 +73,7 @@ const StatValue = styled.div`
 
 const StatChange = styled.div<{ positive?: boolean }>`
   font-size: 0.875rem;
-  color: ${({ positive }) => (positive ? '#22C55E' : '#EF4444')};
+  color: ${({ theme, positive }) => (positive ? theme.color.green : theme.color.red)};
   display: flex;
   align-items: center;
   gap: 0.25rem;
@@ -148,34 +149,35 @@ const StatusBadge = styled.span<{ status: string }>`
   border-radius: 9999px;
   font-size: 0.875rem;
   font-weight: 500;
-  background-color: ${({ status }) => {
+  background-color: ${({ theme, status }) => {
     switch (status) {
       case 'AVAILABLE':
-        return '#22C55E20';
+        return theme.tag.background.green;
       case 'RESERVED':
-        return '#EAB30820';
+        return theme.tag.background.orange;
       case 'SOLD':
-        return '#8B5CF620';
+        return theme.tag.background.purple;
       default:
-        return '#88888820';
+        return theme.tag.background.gray;
     }
   }};
-  color: ${({ status }) => {
+  color: ${({ theme, status }) => {
     switch (status) {
       case 'AVAILABLE':
-        return '#22C55E';
+        return theme.tag.text.green;
       case 'RESERVED':
-        return '#EAB308';
+        return theme.tag.text.orange;
       case 'SOLD':
-        return '#8B5CF6';
+        return theme.tag.text.purple;
       default:
-        return '#888888';
+        return theme.tag.text.gray;
     }
   }};
 `;
 
 export const DashboardPage = () => {
   const { t } = useLanguage();
+  const theme = useTheme();
   const stats = mockSellerStats;
   const myListings = mockPublicListings.slice(0, 3); // Show first 3 listings
 
@@ -188,7 +190,7 @@ export const DashboardPage = () => {
           <StatCard>
             <StatHeader>
               <StatLabel>{t('dashboard.totalViews')}</StatLabel>
-              <StatIcon color="#3B82F6">
+              <StatIcon color={theme.color.blue}>
                 <IconEye size={20} />
               </StatIcon>
             </StatHeader>
@@ -202,7 +204,7 @@ export const DashboardPage = () => {
           <StatCard>
             <StatHeader>
               <StatLabel>{t('dashboard.inquiries')}</StatLabel>
-              <StatIcon color="#8B5CF6">
+              <StatIcon color={theme.color.purple}>
                 <IconMessage size={20} />
               </StatIcon>
             </StatHeader>
@@ -216,7 +218,7 @@ export const DashboardPage = () => {
           <StatCard>
             <StatHeader>
               <StatLabel>{t('dashboard.activeListings')}</StatLabel>
-              <StatIcon color="#22C55E">
+              <StatIcon color={theme.color.green}>
                 <IconHome size={20} />
               </StatIcon>
             </StatHeader>
@@ -227,7 +229,7 @@ export const DashboardPage = () => {
           <StatCard>
             <StatHeader>
               <StatLabel>{t('dashboard.conversion')}</StatLabel>
-              <StatIcon color="#EAB308">
+              <StatIcon color={theme.color.orange}>
                 <IconTrendingUp size={20} />
               </StatIcon>
             </StatHeader>

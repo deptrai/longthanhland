@@ -1,18 +1,65 @@
 import styled from '@emotion/styled';
-import { useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { IconRobot, IconSend } from 'twenty-ui/display';
 import { useLanguage } from '../i18n/LanguageContext';
 import { FormattedMessage } from './FormattedMessage';
+
+const MIN_WIDTH = 280;
+const MAX_WIDTH = 600;
+const DEFAULT_WIDTH = 320;
+
+const SidebarWrapper = styled.div<{ $width: number }>`
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  flex-shrink: 0;
+  width: ${({ $width }) => $width}px;
+`;
+
+const ResizeHandle = styled.div<{ $isDragging: boolean }>`
+  width: 6px;
+  cursor: col-resize;
+  background-color: ${({ $isDragging, theme }) =>
+    $isDragging ? theme.color.blue : 'transparent'};
+  transition: background-color 0.15s ease;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 10;
+
+  &:hover {
+    background-color: ${({ theme }) => theme.color.blue};
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 2px;
+    height: 32px;
+    border-radius: 1px;
+    background-color: ${({ $isDragging, theme }) =>
+      $isDragging
+        ? 'rgba(255, 255, 255, 0.6)'
+        : theme.font.color.extraLight};
+    transition: background-color 0.15s ease;
+  }
+
+  &:hover::after {
+    background-color: rgba(255, 255, 255, 0.6);
+  }
+`;
 
 const Sidebar = styled.aside`
   background-color: ${({ theme }) => theme.background.secondary};
   border-left: 1px solid ${({ theme }) => theme.border.color.medium};
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  position: sticky;
-  top: 0;
-  width: 320px;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
 `;
 
 const Header = styled.div`
@@ -94,7 +141,7 @@ const MessageBubble = styled.div<{ $isUser: boolean }>`
   background-color: ${({ theme, $isUser }) =>
     $isUser ? theme.color.blue : theme.background.tertiary};
   color: ${({ theme, $isUser }) =>
-    $isUser ? '#ffffff' : theme.font.color.primary};
+    $isUser ? theme.font.color.inverted : theme.font.color.primary};
   padding: 0.75rem 1rem;
   border-radius: 12px;
   max-width: 80%;
@@ -143,7 +190,7 @@ const SendButton = styled.button`
   border: none;
   border-radius: 8px;
   padding: 0.75rem;
-  color: #ffffff;
+  color: ${({ theme }) => theme.font.color.inverted};
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -497,6 +544,53 @@ export const AIAssistantSidebar = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [width, setWidth] = useState(DEFAULT_WIDTH);
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStartXRef = useRef(0);
+  const dragStartWidthRef = useRef(DEFAULT_WIDTH);
+
+  const handleMouseDown = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      setIsDragging(true);
+      dragStartXRef.current = e.clientX;
+      dragStartWidthRef.current = width;
+    },
+    [width],
+  );
+
+  const handleMouseMove = useCallback(
+    (e: MouseEvent) => {
+      if (!isDragging) return;
+      // Dragging left edge: moving mouse left = wider, moving right = narrower
+      const delta = dragStartXRef.current - e.clientX;
+      const newWidth = Math.min(
+        MAX_WIDTH,
+        Math.max(MIN_WIDTH, dragStartWidthRef.current + delta),
+      );
+      setWidth(newWidth);
+    },
+    [isDragging],
+  );
+
+  const handleMouseUp = useCallback(() => {
+    setIsDragging(false);
+  }, []);
+
+  useEffect(() => {
+    if (isDragging) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = 'col-resize';
+      document.body.style.userSelect = 'none';
+    }
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    };
+  }, [isDragging, handleMouseMove, handleMouseUp]);
 
   const suggestedQuestions = [
     'Tìm hidden gem đất nền Long Thành dưới 3 tỷ',
@@ -540,67 +634,70 @@ export const AIAssistantSidebar = () => {
   };
 
   return (
-    <Sidebar>
-      <Header>
-        <HeaderTitle>
-          <IconRobot size={20} />
-          <Title>{t('aiAssistant.title')}</Title>
-        </HeaderTitle>
-        <Status>{t('aiAssistant.status')}</Status>
-      </Header>
+    <SidebarWrapper $width={width}>
+      <ResizeHandle $isDragging={isDragging} onMouseDown={handleMouseDown} />
+      <Sidebar>
+        <Header>
+          <HeaderTitle>
+            <IconRobot size={20} />
+            <Title>{t('aiAssistant.title')}</Title>
+          </HeaderTitle>
+          <Status>{t('aiAssistant.status')}</Status>
+        </Header>
 
-      <MessagesContainer>
-        {messages.length === 0 ? (
-          <WelcomeMessage>
-            <WelcomeText>
-              {t('aiAssistant.welcome')}
-            </WelcomeText>
-            <SuggestedQuestions>
-              {suggestedQuestions.map((question, index) => (
-                <SuggestedButton
-                  key={index}
-                  onClick={() => handleSuggestedQuestion(question)}
-                >
-                  {question}
-                </SuggestedButton>
+        <MessagesContainer>
+          {messages.length === 0 ? (
+            <WelcomeMessage>
+              <WelcomeText>
+                {t('aiAssistant.welcome')}
+              </WelcomeText>
+              <SuggestedQuestions>
+                {suggestedQuestions.map((question, index) => (
+                  <SuggestedButton
+                    key={index}
+                    onClick={() => handleSuggestedQuestion(question)}
+                  >
+                    {question}
+                  </SuggestedButton>
+                ))}
+              </SuggestedQuestions>
+            </WelcomeMessage>
+          ) : (
+            <>
+              {messages.map((message, index) => (
+                <Message key={index} $isUser={message.role === 'user'}>
+                  <MessageBubble $isUser={message.role === 'user'}>
+                    {message.role === 'assistant' ? (
+                      <FormattedMessage content={message.content} />
+                    ) : (
+                      message.content
+                    )}
+                  </MessageBubble>
+                </Message>
               ))}
-            </SuggestedQuestions>
-          </WelcomeMessage>
-        ) : (
-          <>
-            {messages.map((message, index) => (
-              <Message key={index} $isUser={message.role === 'user'}>
-                <MessageBubble $isUser={message.role === 'user'}>
-                  {message.role === 'assistant' ? (
-                    <FormattedMessage content={message.content} />
-                  ) : (
-                    message.content
-                  )}
-                </MessageBubble>
-              </Message>
-            ))}
-            {loading && (
-              <LoadingIndicator>
-                <IconRobot size={16} />
-                {t('aiAssistant.thinking')}
-              </LoadingIndicator>
-            )}
-          </>
-        )}
-      </MessagesContainer>
+              {loading && (
+                <LoadingIndicator>
+                  <IconRobot size={16} />
+                  {t('aiAssistant.thinking')}
+                </LoadingIndicator>
+              )}
+            </>
+          )}
+        </MessagesContainer>
 
-      <InputContainer>
-        <Input
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyPress={handleKeyPress}
-          placeholder={t('aiAssistant.placeholder')}
-          disabled={loading}
-        />
-        <SendButton onClick={handleSend} disabled={loading || !input.trim()}>
-          <IconSend size={20} />
-        </SendButton>
-      </InputContainer>
-    </Sidebar>
+        <InputContainer>
+          <Input
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyPress={handleKeyPress}
+            placeholder={t('aiAssistant.placeholder')}
+            disabled={loading}
+          />
+          <SendButton onClick={handleSend} disabled={loading || !input.trim()}>
+            <IconSend size={20} />
+          </SendButton>
+        </InputContainer>
+      </Sidebar>
+    </SidebarWrapper>
   );
 };

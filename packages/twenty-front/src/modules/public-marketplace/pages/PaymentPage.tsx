@@ -58,9 +58,9 @@ const PlanCard = styled.div<{ featured?: boolean }>`
 `;
 
 const FeaturedBadge = styled.div`
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  background: ${({ theme }) => `linear-gradient(135deg, ${theme.color.blue} 0%, ${theme.color.blue} 100%)`};
   border-radius: 9999px;
-  color: white;
+  color: ${({ theme }) => theme.font.color.inverted};
   font-size: 0.75rem;
   font-weight: 700;
   left: 50%;

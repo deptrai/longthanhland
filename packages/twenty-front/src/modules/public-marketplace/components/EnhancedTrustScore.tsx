@@ -30,13 +30,13 @@ const Title = styled.h3`
 
 const ScoreBadge = styled.div<{ score: number }>`
   align-items: center;
-  background-color: ${({ score }) => {
-    if (score >= 80) return '#10b981';
-    if (score >= 50) return '#f59e0b';
-    return '#ef4444';
+  background-color: ${({ theme, score }) => {
+    if (score >= 80) return theme.color.green;
+    if (score >= 50) return theme.color.orange;
+    return theme.color.red;
   }};
   border-radius: 8px;
-  color: white;
+  color: ${({ theme }) => theme.font.color.inverted};
   display: flex;
   gap: 0.75rem;
   padding: 0.75rem 1.5rem;
@@ -133,8 +133,8 @@ const AIBadge = styled.span`
   display: inline-flex;
   align-items: center;
   padding: 0.125rem 0.5rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background: ${({ theme }) => `linear-gradient(135deg, ${theme.color.blue} 0%, ${theme.color.purple} 100%)`};
+  color: ${({ theme }) => theme.font.color.inverted};
   font-size: 0.6875rem;
   font-weight: 600;
   border-radius: 4px;

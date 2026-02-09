@@ -77,6 +77,38 @@ export interface Transaction {
   createdAt: string;
 }
 
+export type ProjectStatus = 'UPCOMING' | 'SELLING' | 'HANDED_OVER';
+export type ProjectType = 'APARTMENT' | 'OFFICE' | 'COMMERCIAL' | 'URBAN' | 'MIXED' | 'SOCIAL_HOUSING' | 'RESORT' | 'INDUSTRIAL' | 'VILLA' | 'SHOPHOUSE' | 'TOWNHOUSE' | 'OTHER';
+export type ListingMode = 'SALE' | 'RENT';
+
+export interface Project {
+  id: string;
+  name: string;
+  developer: string;
+  developerLogo: string;
+  location: string;
+  district: string;
+  city: string;
+  projectType: ProjectType;
+  status: ProjectStatus;
+  totalUnits: number;
+  priceRange: string;
+  areaRange: string;
+  image: string;
+  description: string;
+  amenities: string[];
+  completionDate: string;
+  trustScore: number;
+}
+
+export interface PropertySubcategory {
+  id: string;
+  name: string;
+  slug: string;
+  count: number;
+  icon: string;
+}
+
 export interface RevenueStats {
   totalRevenue: number;
   mrr: number;
@@ -92,4 +124,19 @@ export interface SellerStats {
   totalInquiries: number;
   activeListings: number;
   conversionRate: number;
+}
+
+export interface NewsArticle {
+  id: string;
+  title: string;
+  excerpt: string;
+  content: string[];
+  category: string;
+  image: string;
+  date: string;
+  readTime: string;
+  author: string;
+  authorAvatar: string;
+  views: number;
+  tags: string[];
 }

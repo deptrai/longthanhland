@@ -1,3 +1,4 @@
+import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import { useState } from 'react';
 import { useLanguage } from '../i18n/LanguageContext';
@@ -55,8 +56,8 @@ const StepNumber = styled.div<{ active?: boolean; completed?: boolean }>`
       : active
         ? theme.color.blue
         : theme.background.tertiary};
-  color: ${({ active, completed }) =>
-    active || completed ? 'white' : '#888888'};
+  color: ${({ theme, active, completed }) =>
+    active || completed ? theme.font.color.inverted : theme.font.color.tertiary};
 `;
 
 const StepLabel = styled.span<{ active?: boolean }>`
@@ -188,6 +189,7 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
 
 export const PostListingPage = () => {
   const { t } = useLanguage();
+  const theme = useTheme();
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
     title: '',
@@ -409,11 +411,11 @@ export const PostListingPage = () => {
                 <Label>{t('postListing.stepImages')}</Label>
                 <div
                   style={{
-                    border: '2px dashed #333333',
+                    border: `2px dashed ${theme.border.color.strong}`,
                     borderRadius: '8px',
                     padding: '3rem',
-                    textAlign: 'center',
-                    color: '#888888',
+                    textAlign: 'center' as const,
+                    color: theme.font.color.tertiary,
                   }}
                 >
                   <p>Kéo thả hình ảnh vào đây hoặc click để chọn</p>

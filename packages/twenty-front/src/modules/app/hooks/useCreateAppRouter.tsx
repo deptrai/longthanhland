@@ -46,17 +46,26 @@ import { PropertyFilterPage } from '~/pages/real-estate/PropertyFilterPage';
 import { SalesDashboardPage } from '~/pages/real-estate/SalesDashboardPage';
 
 import {
+    AgentDirectoryPage,
     AgentProfilePage,
     BrowsePage,
+    ForRentPage,
+    ForSalePage,
+    HomePage,
     InquiriesPage,
     ListingDetailPage,
     LoginPage,
     DashboardPage as MarketplaceDashboardPage,
     MarketplaceLayout,
+    MarketplaceProjectDetailPage,
+    NewsDetailPage,
+    NewsPage,
     PaymentPage,
     PostListingPage,
     ProfilePage,
-    RegisterPage
+    ProjectsPage,
+    RegisterPage,
+    SavedListingsPage,
 } from '@/public-marketplace';
 
 export const useCreateAppRouter = (
@@ -160,8 +169,13 @@ export const useCreateAppRouter = (
           <Route path={AppPath.NotFoundWildcard} element={<NotFound />} />
         </Route>
         <Route element={<MarketplaceLayout />}>
-          <Route path="/marketplace" element={<BrowsePage />} />
+          <Route path="/marketplace" element={<HomePage />} />
+          <Route path="/marketplace/home" element={<HomePage />} />
           <Route path="/marketplace/browse" element={<BrowsePage />} />
+          <Route path="/marketplace/for-sale" element={<ForSalePage />} />
+          <Route path="/marketplace/for-rent" element={<ForRentPage />} />
+          <Route path="/marketplace/projects" element={<ProjectsPage />} />
+          <Route path="/marketplace/projects/:id" element={<MarketplaceProjectDetailPage />} />
           <Route
             path="/marketplace/listings/:id"
             element={<ListingDetailPage />}
@@ -180,6 +194,10 @@ export const useCreateAppRouter = (
             path="/marketplace/agent/:id"
             element={<AgentProfilePage />}
           />
+          <Route path="/marketplace/saved" element={<SavedListingsPage />} />
+          <Route path="/marketplace/news" element={<NewsPage />} />
+          <Route path="/marketplace/news/:id" element={<NewsDetailPage />} />
+          <Route path="/marketplace/agents" element={<AgentDirectoryPage />} />
         </Route>
         <Route element={<BlankLayout />}>
           <Route path={AppPath.Authorize} element={<Authorize />} />

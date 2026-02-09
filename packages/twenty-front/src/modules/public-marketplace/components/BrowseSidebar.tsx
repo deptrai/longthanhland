@@ -139,7 +139,7 @@ const ArticleLink = styled.a`
     height: 22px;
     border-radius: 50%;
     background-color: ${({ theme }) => theme.color.blue};
-    color: white;
+    color: ${({ theme }) => theme.font.color.inverted};
     font-size: 0.75rem;
     font-weight: 700;
     margin-top: 1px;

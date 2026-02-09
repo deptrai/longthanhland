@@ -78,8 +78,8 @@ const StyledAgentCard = styled.div`
 `;
 
 const StyledBadgeHeader = styled.div`
-  background: linear-gradient(135deg, #16a34a, #15803d);
-  color: white;
+  background: ${({ theme }) => `linear-gradient(135deg, ${theme.color.green}, ${theme.color.green})`};
+  color: ${({ theme }) => theme.font.color.inverted};
   text-align: center;
   padding: 0.625rem;
   font-size: 0.9375rem;
@@ -137,7 +137,7 @@ const StyledVerifiedBadge = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #16a34a;
+  color: ${({ theme }) => theme.color.green};
   font-size: 1.5rem;
 `;
 
@@ -154,10 +154,10 @@ const StyledZaloButton = styled.a`
   justify-content: center;
   gap: 0.5rem;
   padding: 0.75rem;
-  background: linear-gradient(135deg, #0068ff, #0055d4);
+  background: ${({ theme }) => `linear-gradient(135deg, ${theme.color.blue}, ${theme.color.blue})`};
   border: none;
   border-radius: 8px;
-  color: white;
+  color: ${({ theme }) => theme.font.color.inverted};
   font-size: 0.9375rem;
   font-weight: 600;
   text-decoration: none;
@@ -240,18 +240,18 @@ const StyledTab = styled.button<{ active: boolean }>`
   font-size: 1rem;
   font-weight: 600;
   color: ${({ active, theme }) =>
-    active ? '#e03131' : theme.font.color.tertiary};
+    active ? theme.color.red : theme.font.color.tertiary};
   background: none;
   border: none;
-  border-bottom: 3px solid ${({ active }) =>
-    active ? '#e03131' : 'transparent'};
+  border-bottom: 3px solid ${({ active, theme }) =>
+    active ? theme.color.red : 'transparent'};
   cursor: pointer;
   transition: all 0.2s;
   margin-bottom: -2px;
 
   &:hover {
     color: ${({ active, theme }) =>
-      active ? '#e03131' : theme.font.color.primary};
+      active ? theme.color.red : theme.font.color.primary};
   }
 `;
 
@@ -306,7 +306,7 @@ const StyledPhotoCountBadge = styled.div`
   align-items: center;
   gap: 4px;
   background: rgba(0, 0, 0, 0.65);
-  color: white;
+  color: ${({ theme }) => theme.font.color.inverted};
   padding: 3px 8px;
   border-radius: 4px;
   font-size: 0.75rem;
@@ -327,7 +327,7 @@ const StyledExpiredOverlay = styled.div`
 
 const StyledExpiredLabel = styled.span`
   background: rgba(0, 0, 0, 0.75);
-  color: white;
+  color: ${({ theme }) => theme.font.color.inverted};
   padding: 0.5rem 1rem;
   border-radius: 6px;
   font-size: 0.875rem;
@@ -351,8 +351,8 @@ const StyledHeartButton = styled.button`
   transition: all 0.2s;
 
   &:hover {
-    color: #e03131;
-    background: white;
+    color: ${({ theme }) => theme.color.red};
+    background: ${({ theme }) => theme.background.primary};
   }
 `;
 
@@ -382,7 +382,7 @@ const StyledPriceRow = styled.div`
 const StyledPrice = styled.span`
   font-size: 1rem;
   font-weight: 700;
-  color: #e03131;
+  color: ${({ theme }) => theme.font.color.danger};
 `;
 
 const StyledArea = styled.span`

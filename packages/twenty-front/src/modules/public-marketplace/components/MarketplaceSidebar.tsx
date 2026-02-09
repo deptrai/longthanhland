@@ -29,8 +29,8 @@ const AgentCard = styled.div`
 `;
 
 const AgentBadgeHeader = styled.div`
-  background: linear-gradient(135deg, #16a34a, #15803d);
-  color: white;
+  background: ${({ theme }) => `linear-gradient(135deg, ${theme.color.green}, ${theme.color.green})`};
+  color: ${({ theme }) => theme.font.color.inverted};
   text-align: center;
   padding: 0.625rem;
   font-size: 0.9375rem;
@@ -87,7 +87,7 @@ const VerifiedBadge = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #16a34a;
+  color: ${({ theme }) => theme.color.green};
   font-size: 1.5rem;
 `;
 
@@ -122,10 +122,10 @@ const ZaloButton = styled.a`
   justify-content: center;
   gap: 0.5rem;
   padding: 0.625rem;
-  background: linear-gradient(135deg, #0068ff, #0055d4);
+  background: ${({ theme }) => `linear-gradient(135deg, ${theme.color.blue}, ${theme.color.blue})`};
   border: none;
   border-radius: 8px;
-  color: white;
+  color: ${({ theme }) => theme.font.color.inverted};
   font-size: 0.9375rem;
   font-weight: 600;
   text-decoration: none;

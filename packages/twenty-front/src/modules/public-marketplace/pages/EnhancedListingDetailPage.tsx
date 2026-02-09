@@ -2,13 +2,13 @@ import styled from '@emotion/styled';
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import {
-  IconBuilding,
-  IconMail,
-  IconMap,
-  IconPhone,
-  IconSchool,
-  IconShoppingCart,
-  IconTree,
+    IconBuilding,
+    IconMail,
+    IconMap,
+    IconPhone,
+    IconSchool,
+    IconShoppingCart,
+    IconTree,
 } from 'twenty-ui/display';
 import { EnhancedTrustScore } from '../components/EnhancedTrustScore';
 import { mockPublicListings } from '../data/mock-data';
@@ -27,7 +27,7 @@ const MaxWidth = styled.div`
 `;
 
 const HeroImage = styled.div`
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: ${({ theme }) => `linear-gradient(135deg, ${theme.color.blue} 0%, ${theme.color.purple} 100%)`};
   border-radius: 16px;
   height: 400px;
   margin-bottom: 2rem;
@@ -51,11 +51,11 @@ const HeroContent = styled.div`
   position: absolute;
   bottom: 2rem;
   left: 2rem;
-  color: white;
+  color: ${({ theme }) => theme.font.color.inverted};
 `;
 
 const Title = styled.h1`
-  color: white;
+  color: ${({ theme }) => theme.font.color.inverted};
   font-size: 2.5rem;
   font-weight: 700;
   margin-bottom: 0.5rem;
@@ -67,7 +67,7 @@ const LocationText = styled.div`
   gap: 0.5rem;
   font-size: 1.125rem;
   opacity: 0.9;
-  color: white;
+  color: ${({ theme }) => theme.font.color.inverted};
 `;
 
 const Grid = styled.div`
@@ -186,7 +186,7 @@ const ContactCard = styled.div`
 const ContactButton = styled.button`
   width: 100%;
   background-color: ${({ theme }) => theme.color.blue};
-  color: white;
+  color: ${({ theme }) => theme.font.color.inverted};
   border: none;
   border-radius: 8px;
   padding: 1rem;
@@ -211,11 +211,11 @@ const SellerAvatar = styled.div`
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: ${({ theme }) => `linear-gradient(135deg, ${theme.color.blue} 0%, ${theme.color.purple} 100%)`};
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: ${({ theme }) => theme.font.color.inverted};
   font-weight: 700;
   font-size: 1.25rem;
 `;
@@ -272,7 +272,7 @@ const RelatedCard = styled.div`
 
 const RelatedImage = styled.div`
   height: 180px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: ${({ theme }) => `linear-gradient(135deg, ${theme.color.blue} 0%, ${theme.color.purple} 100%)`};
   position: relative;
 `;
 

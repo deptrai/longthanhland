@@ -1,4 +1,5 @@
 import styled from '@emotion/styled';
+import { Link } from 'react-router-dom';
 
 const NewsContainer = styled.section`
   margin-top: 3rem;
@@ -153,24 +154,31 @@ const mockNews: NewsArticle[] = [
   },
 ];
 
+const NewsCardLink = styled(Link)`
+  text-decoration: none;
+  color: inherit;
+`;
+
 export const NewsSection = () => {
   return (
     <NewsContainer>
       <SectionTitle>📰 Tin tức Bất động sản</SectionTitle>
       <NewsGrid>
         {mockNews.map((article) => (
-          <NewsCard key={article.id}>
-            <NewsImage src={article.image} alt={article.title} />
-            <NewsContent>
-              <NewsCategory>{article.category}</NewsCategory>
-              <NewsTitle>{article.title}</NewsTitle>
-              <NewsExcerpt>{article.excerpt}</NewsExcerpt>
-              <NewsFooter>
-                <NewsDate>{article.date}</NewsDate>
-                <NewsReadTime>{article.readTime}</NewsReadTime>
-              </NewsFooter>
-            </NewsContent>
-          </NewsCard>
+          <NewsCardLink key={article.id} to={`/marketplace/news/${article.id}`}>
+            <NewsCard>
+              <NewsImage src={article.image} alt={article.title} />
+              <NewsContent>
+                <NewsCategory>{article.category}</NewsCategory>
+                <NewsTitle>{article.title}</NewsTitle>
+                <NewsExcerpt>{article.excerpt}</NewsExcerpt>
+                <NewsFooter>
+                  <NewsDate>{article.date}</NewsDate>
+                  <NewsReadTime>{article.readTime}</NewsReadTime>
+                </NewsFooter>
+              </NewsContent>
+            </NewsCard>
+          </NewsCardLink>
         ))}
       </NewsGrid>
     </NewsContainer>

@@ -103,7 +103,7 @@ const ForgotLink = styled.a`
 
 const Button = styled.button`
   background-color: ${({ theme }) => theme.color.blue};
-  color: white;
+  color: ${({ theme }) => theme.font.color.inverted};
   border: none;
   border-radius: 8px;
   padding: 0.875rem 1rem;

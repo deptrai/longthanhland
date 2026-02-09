@@ -1,8 +1,20 @@
 import styled from '@emotion/styled';
+import { useEffect, useRef, useState } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
+import {
+    IconBell,
+    IconBookmark,
+    IconChevronDown,
+    IconLayoutDashboard,
+    IconLogout,
+    IconPlus,
+    IconSettings,
+    IconUser,
+} from 'twenty-ui/display';
 import { AIAssistantSidebar } from '..';
 import { LanguageProvider, useLanguage } from '../i18n/LanguageContext';
 import { LanguageSwitcher } from './LanguageSwitcher';
+import { MarketplaceFooter } from './MarketplaceFooter';
 
 const Container = styled.div`
   background-color: ${({ theme }) => theme.background.primary};
@@ -13,7 +25,7 @@ const Container = styled.div`
 const Header = styled.header`
   background-color: ${({ theme }) => theme.background.secondary};
   border-bottom: 1px solid ${({ theme }) => theme.border.color.medium};
-  padding: 1rem 2rem;
+  padding: 0.75rem 2rem;
   position: sticky;
   top: 0;
   z-index: 1000;
@@ -32,15 +44,22 @@ const Logo = styled.div`
   align-items: center;
   gap: 0.75rem;
   cursor: pointer;
+  flex-shrink: 0;
 
   &:hover {
     opacity: 0.8;
   }
 `;
 
+const LogoImage = styled.img`
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+`;
+
 const LogoText = styled.h1`
-  font-size: 1.5rem;
-  font-weight: 600;
+  font-size: 1.35rem;
+  font-weight: 700;
   color: ${({ theme }) => theme.font.color.primary};
   margin: 0;
 `;
@@ -48,7 +67,7 @@ const LogoText = styled.h1`
 const Nav = styled.nav`
   display: flex;
   align-items: center;
-  gap: 2rem;
+  gap: 1.25rem;
 `;
 
 const NavLink = styled.button<{ $active?: boolean }>`
@@ -56,17 +75,142 @@ const NavLink = styled.button<{ $active?: boolean }>`
   border: none;
   color: ${({ theme, $active }) =>
     $active ? theme.color.blue : theme.font.color.secondary};
-  font-size: 0.9375rem;
+  font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
   padding: 0.5rem 0;
   border-bottom: 2px solid
     ${({ theme, $active }) => ($active ? theme.color.blue : 'transparent')};
   transition: all 0.2s;
+  white-space: nowrap;
 
   &:hover {
     color: ${({ theme }) => theme.color.blue};
   }
+`;
+
+const HeaderActions = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+`;
+
+const ActionButton = styled.button`
+  background: none;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  padding: 0.5rem;
+  border-radius: 8px;
+  color: ${({ theme }) => theme.font.color.secondary};
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    background-color: ${({ theme }) => theme.background.tertiary};
+    color: ${({ theme }) => theme.font.color.primary};
+  }
+`;
+
+const BadgeCount = styled.span`
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background-color: ${({ theme }) => theme.color.red};
+  color: ${({ theme }) => theme.font.color.inverted};
+  font-size: 0.625rem;
+  font-weight: 700;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+`;
+
+const CTAButton = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  background-color: ${({ theme }) => theme.color.red};
+  color: ${({ theme }) => theme.font.color.inverted};
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+
+  &:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+  }
+`;
+
+const UserMenuWrapper = styled.div`
+  position: relative;
+`;
+
+const UserButton = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  background: none;
+  border: 1px solid ${({ theme }) => theme.border.color.medium};
+  border-radius: 8px;
+  padding: 0.375rem 0.625rem;
+  cursor: pointer;
+  color: ${({ theme }) => theme.font.color.secondary};
+  transition: all 0.2s;
+
+  &:hover {
+    background-color: ${({ theme }) => theme.background.tertiary};
+    border-color: ${({ theme }) => theme.border.color.strong};
+  }
+`;
+
+const DropdownMenu = styled.div`
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background-color: ${({ theme }) => theme.background.primary};
+  border: 1px solid ${({ theme }) => theme.border.color.medium};
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  min-width: 220px;
+  padding: 0.5rem 0;
+  z-index: 1001;
+`;
+
+const DropdownItem = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 0.625rem 1rem;
+  font-size: 0.875rem;
+  color: ${({ theme }) => theme.font.color.secondary};
+  cursor: pointer;
+  transition: all 0.15s;
+
+  &:hover {
+    background-color: ${({ theme }) => theme.background.tertiary};
+    color: ${({ theme }) => theme.font.color.primary};
+  }
+`;
+
+const DropdownDivider = styled.div`
+  height: 1px;
+  background-color: ${({ theme }) => theme.border.color.medium};
+  margin: 0.375rem 0;
 `;
 
 const MainWrapper = styled.div`
@@ -80,14 +224,31 @@ const MainContent = styled.main`
   margin: 0 auto;
   padding: 2rem;
   width: 100%;
+  flex: 1;
 `;
 
 const MarketplaceLayoutContent = () => {
   const navigate = useNavigate();
   const currentPath = window.location.pathname;
   const { t } = useLanguage();
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        userMenuRef.current &&
+        !userMenuRef.current.contains(event.target as Node)
+      ) {
+        setUserMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleNavigation = (path: string) => {
+    setUserMenuOpen(false);
     navigate(path);
   };
 
@@ -96,53 +257,139 @@ const MarketplaceLayoutContent = () => {
       <MainWrapper>
         <Header>
           <HeaderContent>
-            <Logo onClick={() => handleNavigation('/marketplace/browse')}>
-              <LogoText>🏠 {t('browse.title')}</LogoText>
+            <Logo onClick={() => handleNavigation('/marketplace')}>
+              <LogoImage src="/images/longthanhland-logo.png" alt="Long Thành Land" />
+              <LogoText>{t('nav.logo')}</LogoText>
             </Logo>
             <Nav>
               <NavLink
-                $active={currentPath.includes('/browse')}
-                onClick={() => handleNavigation('/marketplace/browse')}
+                $active={
+                  currentPath === '/marketplace' ||
+                  currentPath === '/marketplace/home'
+                }
+                onClick={() => handleNavigation('/marketplace')}
               >
-                {t('nav.browse')}
+                {t('nav.home')}
               </NavLink>
               <NavLink
-                $active={currentPath.includes('/dashboard')}
-                onClick={() => handleNavigation('/marketplace/dashboard')}
+                $active={currentPath.includes('/for-sale')}
+                onClick={() => handleNavigation('/marketplace/for-sale')}
               >
-                {t('nav.dashboard')}
+                {t('nav.forSale')}
               </NavLink>
               <NavLink
-                $active={currentPath.includes('/post')}
+                $active={currentPath.includes('/for-rent')}
+                onClick={() => handleNavigation('/marketplace/for-rent')}
+              >
+                {t('nav.forRent')}
+              </NavLink>
+              <NavLink
+                $active={currentPath.includes('/projects')}
+                onClick={() => handleNavigation('/marketplace/projects')}
+              >
+                {t('nav.projects')}
+              </NavLink>
+              <NavLink
+                $active={currentPath.includes('/news')}
+                onClick={() => handleNavigation('/marketplace/news')}
+              >
+                {t('nav.news')}
+              </NavLink>
+              <NavLink
+                $active={currentPath.includes('/agents')}
+                onClick={() => handleNavigation('/marketplace/agents')}
+              >
+                {t('nav.agents')}
+              </NavLink>
+            </Nav>
+            <HeaderActions>
+              <LanguageSwitcher />
+              <ActionButton
+                onClick={() => handleNavigation('/marketplace/saved')}
+                title={t('nav.saved')}
+              >
+                <IconBookmark size={20} />
+                <BadgeCount>3</BadgeCount>
+              </ActionButton>
+              <ActionButton title={t('nav.notifications')}>
+                <IconBell size={20} />
+                <BadgeCount>5</BadgeCount>
+              </ActionButton>
+              <CTAButton
                 onClick={() => handleNavigation('/marketplace/post')}
               >
+                <IconPlus size={16} />
                 {t('nav.postListing')}
-              </NavLink>
-              <NavLink
-                $active={currentPath.includes('/inquiries')}
-                onClick={() => handleNavigation('/marketplace/inquiries')}
-              >
-                {t('nav.inquiries')}
-              </NavLink>
-              <NavLink
-                $active={currentPath.includes('/payment')}
-                onClick={() => handleNavigation('/marketplace/payment')}
-              >
-                {t('nav.subscription')}
-              </NavLink>
-              <NavLink
-                $active={currentPath.includes('/profile')}
-                onClick={() => handleNavigation('/marketplace/profile')}
-              >
-                {t('nav.profile')}
-              </NavLink>
-              <LanguageSwitcher />
-            </Nav>
+              </CTAButton>
+              <UserMenuWrapper ref={userMenuRef}>
+                <UserButton
+                  onClick={() => setUserMenuOpen(!userMenuOpen)}
+                >
+                  <IconUser size={20} />
+                  <IconChevronDown size={14} />
+                </UserButton>
+                {userMenuOpen && (
+                  <DropdownMenu>
+                    <DropdownItem
+                      onClick={() =>
+                        handleNavigation('/marketplace/dashboard')
+                      }
+                    >
+                      <IconLayoutDashboard size={18} />
+                      {t('nav.dashboard')}
+                    </DropdownItem>
+                    <DropdownItem
+                      onClick={() =>
+                        handleNavigation('/marketplace/profile')
+                      }
+                    >
+                      <IconUser size={18} />
+                      {t('nav.profile')}
+                    </DropdownItem>
+                    <DropdownItem
+                      onClick={() =>
+                        handleNavigation('/marketplace/saved')
+                      }
+                    >
+                      <IconBookmark size={18} />
+                      {t('nav.saved')}
+                    </DropdownItem>
+                    <DropdownItem
+                      onClick={() =>
+                        handleNavigation('/marketplace/inquiries')
+                      }
+                    >
+                      <IconBell size={18} />
+                      {t('nav.inquiries')}
+                    </DropdownItem>
+                    <DropdownDivider />
+                    <DropdownItem
+                      onClick={() =>
+                        handleNavigation('/marketplace/payment')
+                      }
+                    >
+                      <IconSettings size={18} />
+                      {t('nav.subscription')}
+                    </DropdownItem>
+                    <DropdownDivider />
+                    <DropdownItem
+                      onClick={() =>
+                        handleNavigation('/marketplace/login')
+                      }
+                    >
+                      <IconLogout size={18} />
+                      {t('nav.logout')}
+                    </DropdownItem>
+                  </DropdownMenu>
+                )}
+              </UserMenuWrapper>
+            </HeaderActions>
           </HeaderContent>
         </Header>
         <MainContent>
           <Outlet />
         </MainContent>
+        <MarketplaceFooter />
       </MainWrapper>
       <AIAssistantSidebar />
     </Container>
