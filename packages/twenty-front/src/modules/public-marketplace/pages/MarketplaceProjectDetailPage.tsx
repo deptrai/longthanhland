@@ -16,7 +16,7 @@ const BreadcrumbNav = styled.nav`
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 0.875rem;
+  font-size: 1rem;
   color: ${({ theme }) => theme.font.color.tertiary};
   margin-bottom: 1.5rem;
   flex-wrap: wrap;
@@ -52,7 +52,7 @@ const HeroOverlay = styled.div`
 `;
 
 const ProjectName = styled.h1`
-  font-size: 2rem;
+  font-size: 2.25rem;
   font-weight: 700;
   margin-bottom: 0.5rem;
 `;
@@ -61,7 +61,7 @@ const StatusBadge = styled.span<{ status: string }>`
   display: inline-block;
   padding: 0.3rem 0.85rem;
   border-radius: 20px;
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   font-weight: 600;
   margin-left: 0.75rem;
   background: ${({ theme, status }) =>
@@ -72,7 +72,7 @@ const StatusBadge = styled.span<{ status: string }>`
 `;
 
 const ProjectLocation = styled.p`
-  font-size: 1rem;
+  font-size: 1.125rem;
   opacity: 0.9;
   display: flex;
   align-items: center;
@@ -119,13 +119,13 @@ const QuickInfoCard = styled.div`
 `;
 
 const QuickInfoLabel = styled.div`
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   color: ${({ theme }) => theme.font.color.tertiary};
   margin-bottom: 0.35rem;
 `;
 
 const QuickInfoValue = styled.div`
-  font-size: 1.0625rem;
+  font-size: 1.1875rem;
   font-weight: 600;
   color: ${({ theme }) => theme.font.color.primary};
 `;
@@ -139,14 +139,14 @@ const Section = styled.section`
 `;
 
 const SectionTitle = styled.h2`
-  font-size: 1.25rem;
+  font-size: 1.375rem;
   font-weight: 600;
   color: ${({ theme }) => theme.font.color.primary};
   margin-bottom: 1rem;
 `;
 
 const Description = styled.p`
-  font-size: 1rem;
+  font-size: 1.125rem;
   line-height: 1.8;
   color: ${({ theme }) => theme.font.color.secondary};
 `;
@@ -164,7 +164,7 @@ const AmenityTag = styled.span`
   padding: 0.5rem 1rem;
   background: ${({ theme }) => theme.background.tertiary};
   border-radius: 8px;
-  font-size: 0.875rem;
+  font-size: 1rem;
   color: ${({ theme }) => theme.font.color.secondary};
 `;
 
@@ -185,13 +185,13 @@ const DeveloperLogo = styled.img`
 const DeveloperInfo = styled.div``;
 
 const DeveloperName = styled.div`
-  font-size: 1rem;
+  font-size: 1.125rem;
   font-weight: 600;
   color: ${({ theme }) => theme.font.color.primary};
 `;
 
 const DeveloperLabel = styled.div`
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   color: ${({ theme }) => theme.font.color.tertiary};
 `;
 
@@ -204,7 +204,7 @@ const SidebarCard = styled.div`
 `;
 
 const SidebarTitle = styled.h3`
-  font-size: 1.0625rem;
+  font-size: 1.1875rem;
   font-weight: 600;
   color: ${({ theme }) => theme.font.color.primary};
   margin-bottom: 1rem;
@@ -217,7 +217,7 @@ const ContactButton = styled.button`
   border: none;
   background: ${({ theme }) => theme.color.red};
   color: ${({ theme }) => theme.font.color.inverted};
-  font-size: 1rem;
+  font-size: 1.125rem;
   font-weight: 600;
   cursor: pointer;
   margin-bottom: 0.75rem;
@@ -231,7 +231,7 @@ const PhoneButton = styled.button`
   border: 1px solid ${({ theme }) => theme.border.color.medium};
   background: ${({ theme }) => theme.background.secondary};
   color: ${({ theme }) => theme.font.color.primary};
-  font-size: 1rem;
+  font-size: 1.125rem;
   font-weight: 600;
   cursor: pointer;
   &:hover { border-color: ${({ theme }) => theme.color.blue}; }
@@ -259,7 +259,7 @@ const RelatedProjectInfo = styled.div`
 `;
 
 const RelatedProjectName = styled.h4`
-  font-size: 0.875rem;
+  font-size: 1rem;
   font-weight: 500;
   color: ${({ theme }) => theme.font.color.primary};
   line-height: 1.4;
@@ -267,7 +267,7 @@ const RelatedProjectName = styled.h4`
 `;
 
 const RelatedProjectPrice = styled.span`
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   color: ${({ theme }) => theme.color.blue};
   font-weight: 600;
 `;
@@ -281,7 +281,7 @@ const MapPlaceholder = styled.div`
   align-items: center;
   justify-content: center;
   color: ${({ theme }) => theme.font.color.tertiary};
-  font-size: 0.875rem;
+  font-size: 1rem;
 `;
 
 const ListingCard = styled(Link)`
@@ -305,14 +305,14 @@ const ListingInfo = styled.div`
 `;
 
 const ListingTitle = styled.h4`
-  font-size: 0.875rem;
+  font-size: 1rem;
   font-weight: 500;
   color: ${({ theme }) => theme.font.color.primary};
   margin-bottom: 0.35rem;
 `;
 
 const ListingPrice = styled.div`
-  font-size: 1rem;
+  font-size: 1.125rem;
   font-weight: 700;
   color: ${({ theme }) => theme.font.color.danger};
 `;
@@ -326,7 +326,7 @@ const ListingsGrid = styled.div`
 const NotFoundMessage = styled.div`
   text-align: center;
   padding: 4rem 2rem;
-  font-size: 1.125rem;
+  font-size: 1.25rem;
   color: ${({ theme }) => theme.font.color.tertiary};
 `;
 

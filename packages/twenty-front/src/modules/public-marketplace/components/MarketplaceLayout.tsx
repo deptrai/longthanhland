@@ -58,7 +58,7 @@ const LogoImage = styled.img`
 `;
 
 const LogoText = styled.h1`
-  font-size: 1.35rem;
+  font-size: 1.5rem;
   font-weight: 700;
   color: ${({ theme }) => theme.font.color.primary};
   margin: 0;
@@ -75,7 +75,7 @@ const NavLink = styled.button<{ $active?: boolean }>`
   border: none;
   color: ${({ theme, $active }) =>
     $active ? theme.color.blue : theme.font.color.secondary};
-  font-size: 0.875rem;
+  font-size: 1rem;
   font-weight: 500;
   cursor: pointer;
   padding: 0.5rem 0;
@@ -121,7 +121,7 @@ const BadgeCount = styled.span`
   right: 2px;
   background-color: ${({ theme }) => theme.color.red};
   color: ${({ theme }) => theme.font.color.inverted};
-  font-size: 0.625rem;
+  font-size: 0.75rem;
   font-weight: 700;
   min-width: 16px;
   height: 16px;
@@ -141,7 +141,7 @@ const CTAButton = styled.button`
   border: none;
   border-radius: 8px;
   padding: 0.5rem 1rem;
-  font-size: 0.875rem;
+  font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
@@ -196,7 +196,7 @@ const DropdownItem = styled.button`
   background: none;
   border: none;
   padding: 0.625rem 1rem;
-  font-size: 0.875rem;
+  font-size: 1rem;
   color: ${({ theme }) => theme.font.color.secondary};
   cursor: pointer;
   transition: all 0.15s;

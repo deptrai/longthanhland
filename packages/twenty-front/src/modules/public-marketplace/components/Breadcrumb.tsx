@@ -6,7 +6,7 @@ const StyledBreadcrumbContainer = styled.div`
   align-items: center;
   color: ${({ theme }) => theme.font.color.tertiary};
   display: flex;
-  font-size: 0.875rem;
+  font-size: 1rem;
   gap: 0.5rem;
   margin-bottom: 1.5rem;
 `;

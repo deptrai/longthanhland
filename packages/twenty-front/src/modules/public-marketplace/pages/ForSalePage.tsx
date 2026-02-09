@@ -21,7 +21,7 @@ const Container = styled.div`
 `;
 const Breadcrumb = styled.div`
   max-width: 1400px; margin: 0 auto; padding: 1rem 2rem;
-  font-size: 0.8125rem; color: ${({ theme }) => theme.font.color.tertiary};
+  font-size: 0.9375rem; color: ${({ theme }) => theme.font.color.tertiary};
   display: flex; align-items: center; gap: 0.5rem;
   a { color: ${({ theme }) => theme.color.blue}; text-decoration: none; &:hover { text-decoration: underline; } }
 `;
@@ -29,12 +29,12 @@ const PageHeader = styled.div`
   max-width: 1400px; margin: 0 auto; padding: 0 2rem 1.5rem;
 `;
 const PageTitle = styled.h1`
-  font-size: 1.75rem; font-weight: 700; margin: 0 0 0.5rem;
+  font-size: 2rem; font-weight: 700; margin: 0 0 0.5rem;
   color: ${({ theme }) => theme.font.color.primary};
   display: flex; align-items: center; gap: 0.5rem;
 `;
 const PageDesc = styled.p`
-  font-size: 0.9375rem; margin: 0;
+  font-size: 1.0625rem; margin: 0;
   color: ${({ theme }) => theme.font.color.tertiary};
 `;
 const CatGrid = styled.div`
@@ -51,13 +51,13 @@ const CatCardWrapper = styled.div<{ $active?: boolean }>`
 const CatCard = styled(Link)`
   text-decoration: none; display: contents;
 `;
-const CatIcon = styled.span` font-size: 1.5rem; `;
+const CatIcon = styled.span` font-size: 1.75rem; `;
 const CatName = styled.div`
-  font-size: 0.8125rem; font-weight: 600;
+  font-size: 0.9375rem; font-weight: 600;
   color: ${({ theme }) => theme.font.color.primary};
 `;
 const CatCount = styled.div`
-  font-size: 0.6875rem; color: ${({ theme }) => theme.font.color.tertiary};
+  font-size: 0.8125rem; color: ${({ theme }) => theme.font.color.tertiary};
 `;
 const ContentArea = styled.div`
   max-width: 1400px; margin: 0 auto; padding: 0 2rem 2rem;
@@ -74,12 +74,12 @@ const FilterBox = styled.div`
   border-radius: 12px; padding: 1.25rem; margin-bottom: 1rem;
 `;
 const FilterTitle = styled.h3`
-  font-size: 0.9375rem; font-weight: 700; margin: 0 0 0.75rem;
+  font-size: 1.0625rem; font-weight: 700; margin: 0 0 0.75rem;
   color: ${({ theme }) => theme.font.color.primary};
 `;
 const FilterOption = styled.label`
   display: flex; align-items: center; gap: 0.5rem;
-  font-size: 0.8125rem; color: ${({ theme }) => theme.font.color.secondary};
+  font-size: 0.9375rem; color: ${({ theme }) => theme.font.color.secondary};
   padding: 0.375rem 0; cursor: pointer;
   input { accent-color: ${({ theme }) => theme.color.blue}; }
 `;
@@ -91,7 +91,7 @@ const SearchBox = styled.div`
 `;
 const SearchInput = styled.input`
   flex: 1; padding: 0.75rem 1rem; border: none;
-  font-size: 0.875rem; outline: none;
+  font-size: 1rem; outline: none;
   background: transparent; color: ${({ theme }) => theme.font.color.primary};
   &::placeholder { color: ${({ theme }) => theme.font.color.tertiary}; }
 `;
@@ -109,11 +109,11 @@ const SortBar = styled.div`
   border-radius: 10px;
 `;
 const SortLabel = styled.span`
-  font-size: 0.8125rem; color: ${({ theme }) => theme.font.color.tertiary};
+  font-size: 0.9375rem; color: ${({ theme }) => theme.font.color.tertiary};
 `;
 const SortSelect = styled.select`
   padding: 0.375rem 0.75rem; border: 1px solid ${({ theme }) => theme.border.color.medium};
-  border-radius: 6px; font-size: 0.8125rem; outline: none;
+  border-radius: 6px; font-size: 0.9375rem; outline: none;
   background: ${({ theme }) => theme.background.primary};
   color: ${({ theme }) => theme.font.color.primary};
 `;
@@ -136,21 +136,21 @@ const CardBody = styled.div`
   flex: 1; padding: 0.875rem 0.875rem 0.875rem 0; min-width: 0;
 `;
 const CardTitle = styled.div`
-  font-size: 0.875rem; font-weight: 600;
+  font-size: 1rem; font-weight: 600;
   color: ${({ theme }) => theme.font.color.primary};
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
   overflow: hidden; margin-bottom: 0.375rem; line-height: 1.3;
 `;
 const CardPrice = styled.div`
-  font-size: 1rem; font-weight: 700; color: ${({ theme }) => theme.font.color.danger}; margin-bottom: 0.25rem;
+  font-size: 1.125rem; font-weight: 700; color: ${({ theme }) => theme.font.color.danger}; margin-bottom: 0.25rem;
 `;
 const CardMeta = styled.div`
-  font-size: 0.75rem; color: ${({ theme }) => theme.font.color.tertiary};
+  font-size: 0.875rem; color: ${({ theme }) => theme.font.color.tertiary};
   margin-bottom: 0.25rem;
 `;
 const CardTrust = styled.div`
   display: inline-flex; align-items: center; gap: 0.25rem;
-  font-size: 0.6875rem; font-weight: 600; color: ${({ theme }) => theme.color.green};
+  font-size: 0.8125rem; font-weight: 600; color: ${({ theme }) => theme.color.green};
   background: ${({ theme }) => theme.tag.background.green}; padding: 0.2rem 0.5rem; border-radius: 4px;
 `;
 const Pagination = styled.div`
@@ -162,7 +162,7 @@ const PageBtn = styled.button<{ $active?: boolean }>`
     ${({ theme, $active }) => $active ? theme.color.blue : theme.border.color.medium};
   background: ${({ theme, $active }) => $active ? theme.color.blue : theme.background.secondary};
   color: ${({ theme, $active }) => $active ? theme.font.color.inverted : theme.font.color.primary};
-  font-size: 0.8125rem; cursor: pointer; transition: all 0.2s;
+  font-size: 0.9375rem; cursor: pointer; transition: all 0.2s;
   &:hover { border-color: ${({ theme }) => theme.color.blue}; }
   &:disabled { opacity: 0.4; cursor: default; }
 `;

@@ -21,7 +21,7 @@ const Header = styled.div`
 `;
 
 const Title = styled.h1`
-  font-size: 2.5rem;
+  font-size: 2.75rem;
   font-weight: 700;
   color: ${({ theme }) => theme.font.color.primary};
   margin-bottom: 0.5rem;
@@ -29,7 +29,7 @@ const Title = styled.h1`
 
 const Subtitle = styled.p`
   color: ${({ theme }) => theme.font.color.tertiary};
-  font-size: 1.125rem;
+  font-size: 1.25rem;
 `;
 
 const PlansGrid = styled.div`
@@ -61,7 +61,7 @@ const FeaturedBadge = styled.div`
   background: ${({ theme }) => `linear-gradient(135deg, ${theme.color.blue} 0%, ${theme.color.blue} 100%)`};
   border-radius: 9999px;
   color: ${({ theme }) => theme.font.color.inverted};
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   font-weight: 700;
   left: 50%;
   letter-spacing: 0.05em;
@@ -78,7 +78,7 @@ const PlanHeader = styled.div`
 `;
 
 const PlanName = styled.h3`
-  font-size: 1.5rem;
+  font-size: 1.75rem;
   font-weight: 700;
   color: ${({ theme }) => theme.font.color.primary};
   margin-bottom: 1rem;
@@ -90,19 +90,19 @@ const PlanPrice = styled.div`
 
 const Price = styled.span`
   color: ${({ theme }) => theme.font.color.primary};
-  font-size: 3rem;
+  font-size: 3.25rem;
   font-weight: 700;
 `;
 
 const PriceUnit = styled.span`
-  font-size: 1rem;
+  font-size: 1.125rem;
   color: ${({ theme }) => theme.font.color.tertiary};
   margin-left: 0.5rem;
 `;
 
 const PricePeriod = styled.div`
   color: ${({ theme }) => theme.font.color.tertiary};
-  font-size: 0.875rem;
+  font-size: 1rem;
 `;
 
 const FeaturesList = styled.ul`
@@ -115,7 +115,7 @@ const Feature = styled.li`
   align-items: center;
   color: ${({ theme }) => theme.font.color.secondary};
   display: flex;
-  font-size: 0.875rem;
+  font-size: 1rem;
   gap: 0.75rem;
   padding: 0.75rem 0;
 `;
@@ -137,7 +137,7 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
       : 'none'};
   border-radius: 8px;
   padding: 0.875rem 1rem;
-  font-size: 1rem;
+  font-size: 1.125rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;

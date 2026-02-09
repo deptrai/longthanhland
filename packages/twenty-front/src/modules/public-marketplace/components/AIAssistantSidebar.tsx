@@ -77,7 +77,7 @@ const HeaderTitle = styled.div`
 `;
 
 const Title = styled.h3`
-  font-size: 1rem;
+  font-size: 1.125rem;
   font-weight: 600;
   color: ${({ theme }) => theme.font.color.primary};
   margin: 0;
@@ -85,7 +85,7 @@ const Title = styled.h3`
 
 const Status = styled.span`
   color: ${({ theme }) => theme.font.color.tertiary};
-  font-size: 0.75rem;
+  font-size: 0.875rem;
 `;
 
 const MessagesContainer = styled.div`
@@ -104,7 +104,7 @@ const WelcomeMessage = styled.div`
 
 const WelcomeText = styled.p`
   color: ${({ theme }) => theme.font.color.secondary};
-  font-size: 0.9375rem;
+  font-size: 1.0625rem;
   margin-bottom: 1.5rem;
 `;
 
@@ -120,7 +120,7 @@ const SuggestedButton = styled.button`
   border-radius: 8px;
   padding: 0.75rem;
   color: ${({ theme }) => theme.font.color.secondary};
-  font-size: 0.875rem;
+  font-size: 1rem;
   text-align: left;
   cursor: pointer;
   transition: all 0.2s;
@@ -145,7 +145,7 @@ const MessageBubble = styled.div<{ $isUser: boolean }>`
   padding: 0.75rem 1rem;
   border-radius: 12px;
   max-width: 80%;
-  font-size: 0.9375rem;
+  font-size: 1.0625rem;
   line-height: 1.5;
   word-wrap: break-word;
 `;
@@ -155,7 +155,7 @@ const LoadingIndicator = styled.div`
   align-items: center;
   gap: 0.5rem;
   color: ${({ theme }) => theme.font.color.tertiary};
-  font-size: 0.875rem;
+  font-size: 1rem;
   padding: 0.5rem;
 `;
 
@@ -173,7 +173,7 @@ const Input = styled.input`
   border-radius: 8px;
   padding: 0.75rem;
   color: ${({ theme }) => theme.font.color.primary};
-  font-size: 0.9375rem;
+  font-size: 1.0625rem;
 
   &:focus {
     outline: none;

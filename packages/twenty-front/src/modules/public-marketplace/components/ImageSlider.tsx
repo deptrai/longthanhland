@@ -61,7 +61,7 @@ const StyledCounter = styled.div`
   border: 1px solid ${({ theme }) => theme.border.color.medium};
   padding: 0.5rem 1rem;
   border-radius: 20px;
-  font-size: 0.875rem;
+  font-size: 1rem;
   font-weight: 600;
   z-index: 10;
 `;

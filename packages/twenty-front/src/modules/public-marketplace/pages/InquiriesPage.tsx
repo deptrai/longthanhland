@@ -14,7 +14,7 @@ const MaxWidth = styled.div`
 `;
 
 const Title = styled.h1`
-  font-size: 1.875rem;
+  font-size: 2.125rem;
   font-weight: 600;
   color: ${({ theme }) => theme.font.color.primary};
   margin-bottom: 1.5rem;
@@ -34,7 +34,7 @@ const TableHeader = styled.div`
   border-bottom: 1px solid ${({ theme }) => theme.border.color.medium};
   color: ${({ theme }) => theme.font.color.tertiary};
   display: grid;
-  font-size: 0.875rem;
+  font-size: 1rem;
   font-weight: 600;
   gap: 1rem;
   grid-template-columns: 1.5fr 2fr 1fr 120px;
@@ -69,7 +69,7 @@ const BuyerName = styled.div`
 
 const BuyerEmail = styled.div`
   color: ${({ theme }) => theme.font.color.tertiary};
-  font-size: 0.875rem;
+  font-size: 1rem;
 `;
 
 const ListingTitle = styled.div`
@@ -107,7 +107,7 @@ const StatusBadge = styled.span<{ status: string }>`
     }
   }};
   display: inline-block;
-  font-size: 0.875rem;
+  font-size: 1rem;
   font-weight: 500;
   padding: 0.25rem 0.75rem;
   text-align: center;

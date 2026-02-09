@@ -15,7 +15,7 @@ const MaxWidth = styled.div`
 `;
 
 const Title = styled.h1`
-  font-size: 1.875rem;
+  font-size: 2.125rem;
   font-weight: 600;
   color: ${({ theme }) => theme.font.color.primary};
   margin-bottom: 1.5rem;
@@ -49,7 +49,7 @@ const StepNumber = styled.div<{ active?: boolean; completed?: boolean }>`
   align-items: center;
   justify-content: center;
   font-weight: 600;
-  font-size: 0.875rem;
+  font-size: 1rem;
   background-color: ${({ theme, active, completed }) =>
     completed
       ? theme.color.green
@@ -63,7 +63,7 @@ const StepNumber = styled.div<{ active?: boolean; completed?: boolean }>`
 const StepLabel = styled.span<{ active?: boolean }>`
   color: ${({ theme, active }) =>
     active ? theme.font.color.primary : theme.font.color.tertiary};
-  font-size: 0.875rem;
+  font-size: 1rem;
 `;
 
 const StepDivider = styled.div<{ completed?: boolean }>`
@@ -82,7 +82,7 @@ const Card = styled.div`
 `;
 
 const SectionTitle = styled.h2`
-  font-size: 1.25rem;
+  font-size: 1.375rem;
   font-weight: 600;
   color: ${({ theme }) => theme.font.color.primary};
   margin-bottom: 1.5rem;
@@ -102,7 +102,7 @@ const FormGroup = styled.div<{ fullWidth?: boolean }>`
 `;
 
 const Label = styled.label`
-  font-size: 0.875rem;
+  font-size: 1rem;
   color: ${({ theme }) => theme.font.color.primary};
   font-weight: 500;
 `;
@@ -112,7 +112,7 @@ const Input = styled.input`
   border: 1px solid ${({ theme }) => theme.border.color.medium};
   border-radius: 8px;
   padding: 0.75rem 1rem;
-  font-size: 1rem;
+  font-size: 1.125rem;
   color: ${({ theme }) => theme.font.color.primary};
 
   &:focus {
@@ -126,7 +126,7 @@ const Select = styled.select`
   border: 1px solid ${({ theme }) => theme.border.color.medium};
   border-radius: 8px;
   padding: 0.75rem 1rem;
-  font-size: 1rem;
+  font-size: 1.125rem;
   color: ${({ theme }) => theme.font.color.primary};
   cursor: pointer;
 
@@ -141,7 +141,7 @@ const TextArea = styled.textarea`
   border: 1px solid ${({ theme }) => theme.border.color.medium};
   border-radius: 8px;
   padding: 0.75rem 1rem;
-  font-size: 1rem;
+  font-size: 1.125rem;
   color: ${({ theme }) => theme.font.color.primary};
   min-height: 120px;
   resize: vertical;
@@ -171,7 +171,7 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
       : 'none'};
   border-radius: 8px;
   padding: 0.75rem 1.5rem;
-  font-size: 0.875rem;
+  font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;

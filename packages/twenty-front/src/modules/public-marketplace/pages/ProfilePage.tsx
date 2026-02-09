@@ -15,7 +15,7 @@ const MaxWidth = styled.div`
 `;
 
 const Title = styled.h1`
-  font-size: 1.875rem;
+  font-size: 2.125rem;
   font-weight: 600;
   color: ${({ theme }) => theme.font.color.primary};
   margin-bottom: 1.5rem;
@@ -37,7 +37,7 @@ const SubscriptionHeader = styled.div`
 `;
 
 const SubscriptionTitle = styled.div`
-  font-size: 1.5rem;
+  font-size: 1.75rem;
   font-weight: 700;
 `;
 
@@ -47,7 +47,7 @@ const UpgradeButton = styled.button`
   border: none;
   border-radius: 8px;
   padding: 0.5rem 1rem;
-  font-size: 0.875rem;
+  font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.2s;
@@ -58,7 +58,7 @@ const UpgradeButton = styled.button`
 `;
 
 const SubscriptionExpiry = styled.div`
-  font-size: 0.875rem;
+  font-size: 1rem;
   opacity: 0.9;
 `;
 
@@ -70,7 +70,7 @@ const Card = styled.div`
 `;
 
 const SectionTitle = styled.h2`
-  font-size: 1.25rem;
+  font-size: 1.375rem;
   font-weight: 600;
   color: ${({ theme }) => theme.font.color.primary};
   margin-bottom: 1.5rem;
@@ -89,7 +89,7 @@ const FormGroup = styled.div`
 `;
 
 const Label = styled.label`
-  font-size: 0.875rem;
+  font-size: 1rem;
   color: ${({ theme }) => theme.font.color.primary};
   font-weight: 500;
 `;
@@ -99,7 +99,7 @@ const Input = styled.input`
   border: 1px solid ${({ theme }) => theme.border.color.medium};
   border-radius: 8px;
   padding: 0.75rem 1rem;
-  font-size: 1rem;
+  font-size: 1.125rem;
   color: ${({ theme }) => theme.font.color.primary};
   transition: border-color 0.2s;
 
@@ -132,7 +132,7 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
       : 'none'};
   border-radius: 8px;
   padding: 0.75rem 1.5rem;
-  font-size: 0.875rem;
+  font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;

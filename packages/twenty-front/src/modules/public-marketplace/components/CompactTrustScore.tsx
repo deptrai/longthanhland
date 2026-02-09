@@ -29,7 +29,7 @@ const ShieldWrapper = styled.div<{ score: number }>`
 `;
 
 const ScoreText = styled.span<{ score: number }>`
-  font-size: 1rem;
+  font-size: 1.125rem;
   font-weight: 700;
   color: ${({ theme, score }) => {
     if (score >= 80) return theme.color.green;
@@ -39,7 +39,7 @@ const ScoreText = styled.span<{ score: number }>`
 `;
 
 const ScoreLabel = styled.span<{ score: number }>`
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   font-weight: 600;
   padding: 0.125rem 0.375rem;
   border-radius: 4px;
@@ -61,7 +61,7 @@ const AIBadge = styled.span`
   padding: 0.125rem 0.375rem;
   background: ${({ theme }) => `linear-gradient(135deg, ${theme.color.blue} 0%, ${theme.color.purple} 100%)`};
   color: ${({ theme }) => theme.font.color.inverted};
-  font-size: 0.625rem;
+  font-size: 0.75rem;
   font-weight: 700;
   border-radius: 3px;
   letter-spacing: 0.5px;
@@ -79,7 +79,7 @@ const FactorTag = styled.span<{ percentage: number }>`
   align-items: center;
   gap: 0.25rem;
   padding: 0.125rem 0.375rem;
-  font-size: 0.6875rem;
+  font-size: 0.8125rem;
   border-radius: 3px;
   background-color: ${({ theme, percentage }) => {
     if (percentage >= 80) return theme.tag.background.green;

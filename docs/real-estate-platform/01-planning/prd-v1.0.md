@@ -119,14 +119,16 @@ Nền tảng Phân phối Bất động sản là một hệ thống **dual-purp
 ### 2.1. Thị trường Mục tiêu
 
 **Internal (Sales Agents)**:
-- **Khu vực**: Long Thành, Đồng Nai
+- **Khu vực**: Bắt đầu từ Long Thành, Đồng Nai → Mở rộng toàn quốc
 - **Sản phẩm**: Đất nền (land plots) trong các dự án phân lô
-- **Quy mô**: 1000+ sales agents làm việc bán thời gian
+- **Quy mô**: 1000+ sales agents làm việc bán thời gian (Year 1) → 10,000+ agents (Year 3)
 
 **External (Public Marketplace)**:
-- **Target**: Buyers, sellers, small brokers
-- **Scope**: Toàn quốc (focus Đồng Nai, TP.HCM)
-- **Users**: 5,000 Year 1, 50,000 Year 3
+- **Target**: Buyers, sellers, small brokers toàn quốc Việt Nam
+- **Scope**: Toàn quốc (Năm 1: Long Thành, Đồng Nai → Năm 2: Miền Nam → Năm 3: Toàn quốc)
+- **Users**: 100,000 Year 1, 500,000 Year 2, 2M+ Year 3
+- **Market Size**: 500,000+ giao dịch BĐS/năm toàn quốc
+- **TAM**: 500 tỷ - 1 nghìn tỷ VND/năm
 
 ### 2.2. Vấn đề Cần Giải quyết
 

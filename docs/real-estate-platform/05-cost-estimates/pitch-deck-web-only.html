@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PropConnect Vietnam - Pitch Deck 2026</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{font-family:'Inter',sans-serif;background:#0a0a1a;color:#fff;overflow:hidden;}
+        .slides-container{width:100vw;height:100vh;position:relative;}
+        .slide{width:100%;height:100%;position:absolute;top:0;left:0;display:none;padding:45px 65px;overflow-y:auto;}
+        .slide.active{display:flex;flex-direction:column;justify-content:center;animation:slideIn .5s cubic-bezier(.16,1,.3,1);}
+        .slide:nth-child(odd){background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);}
+        .slide:nth-child(even){background:linear-gradient(135deg,#1a1a2e,#16213e,#0f3460);}
+        .slide[data-slide="1"]{background:linear-gradient(135deg,#667eea,#764ba2,#f093fb);}
+        .slide[data-slide="20"]{background:linear-gradient(135deg,#667eea,#764ba2,#f093fb);}
+        @keyframes slideIn{from{opacity:0;transform:translateY(25px) scale(.98);}to{opacity:1;transform:translateY(0) scale(1);}}
+        @keyframes glow{0%,100%{text-shadow:0 0 20px rgba(255,215,0,.5);}50%{text-shadow:0 0 40px rgba(255,215,0,.8),0 0 60px rgba(255,215,0,.3);}}
+        @keyframes barGrow{from{width:0;}}
+        @keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
+        .slide h1{font-size:3.2em;font-weight:900;margin-bottom:15px;background:linear-gradient(135deg,#fff,#ffd700);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:-1px;}
+        .slide h2{font-size:2.3em;font-weight:800;margin-bottom:25px;background:linear-gradient(135deg,#ffd700,#ff6b6b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+        .slide h3{font-size:1.4em;margin-bottom:18px;color:rgba(255,255,255,.75);font-weight:400;}
+        .slide p{font-size:1.15em;line-height:1.7;margin-bottom:12px;}
+        .slide ul{font-size:1.1em;line-height:1.8;list-style:none;padding-left:0;}
+        .slide ul li{margin-bottom:6px;padding-left:28px;position:relative;}
+        .slide ul li:before{content:"→";position:absolute;left:0;color:#00ff88;font-weight:bold;}
+        .hl{color:#ffd700;font-weight:700;}.hlg{color:#00ff88;font-weight:700;}.hlr{color:#ff6b6b;font-weight:700;}
+        .big-number{font-size:3.5em;font-weight:900;background:linear-gradient(135deg,#00ff88,#00d2ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin:15px 0;animation:glow 3s ease-in-out infinite;}
+        .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:25px;margin-top:25px;}
+        .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:25px;}
+        .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:25px;}
+        .card{background:rgba(255,255,255,.05);padding:22px;border-radius:14px;backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.1);transition:all .3s;position:relative;overflow:hidden;}
+        .card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#667eea,#764ba2,#f093fb);}
+        .card:hover{transform:translateY(-4px);border-color:rgba(255,255,255,.25);box-shadow:0 15px 35px rgba(0,0,0,.3);}
+        .card h4{font-size:1.25em;margin-bottom:10px;color:#ffd700;}
+        .card.gold::before{background:linear-gradient(90deg,#ffd700,#ff6b6b,#ffd700);}
+        .card.green::before{background:linear-gradient(90deg,#00ff88,#00d2ff,#00ff88);}
+        .card.blue::before{background:linear-gradient(90deg,#667eea,#764ba2,#667eea);}
+        .bar-c{background:rgba(255,255,255,.1);border-radius:10px;height:22px;margin:6px 0;overflow:hidden;}
+        .bar{height:100%;border-radius:10px;animation:barGrow 1.2s ease-out;display:flex;align-items:center;padding-left:10px;font-size:.75em;font-weight:700;}
+        .bar.blue{background:linear-gradient(90deg,#667eea,#764ba2);}.bar.green{background:linear-gradient(90deg,#00ff88,#00d2ff);color:#000;}
+        .bar.gold{background:linear-gradient(90deg,#ffd700,#ff6b6b);}.bar.red{background:linear-gradient(90deg,#ff6b6b,#ee5a24);}
+        .badge{display:inline-block;padding:5px 14px;border-radius:20px;font-size:.85em;font-weight:700;margin:4px;}
+        .badge.primary{background:linear-gradient(135deg,#667eea,#764ba2);}.badge.success{background:linear-gradient(135deg,#00ff88,#00d2ff);color:#000;}
+        .badge.warning{background:linear-gradient(135deg,#ffd700,#ff6b6b);color:#000;}.badge.danger{background:linear-gradient(135deg,#ff6b6b,#ee5a24);}
+        .nav{position:fixed;bottom:18px;right:28px;display:flex;gap:8px;z-index:1000;}
+        .nav-btn{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:#fff;padding:10px 22px;font-size:.95em;border-radius:10px;cursor:pointer;backdrop-filter:blur(10px);transition:all .3s;font-family:'Inter',sans-serif;font-weight:600;}
+        .nav-btn:hover{background:rgba(255,255,255,.22);transform:scale(1.05);}
+        .slide-num{position:fixed;bottom:18px;left:28px;font-size:.95em;color:rgba(255,255,255,.45);font-weight:600;}
+        table{width:100%;border-collapse:collapse;margin-top:15px;font-size:1.05em;}
+        th,td{padding:10px 14px;text-align:left;border-bottom:1px solid rgba(255,255,255,.1);}
+        th{background:rgba(255,255,255,.08);font-weight:700;color:#ffd700;}
+        .stat-row{display:flex;gap:18px;margin-top:18px;flex-wrap:wrap;}
+        .stat-item{flex:1;min-width:130px;text-align:center;padding:14px;background:rgba(255,255,255,.05);border-radius:12px;}
+        .stat-item .sv{font-size:1.8em;font-weight:900;color:#00ff88;}.stat-item .sl{font-size:.85em;color:rgba(255,255,255,.55);margin-top:4px;}
+        .deco{position:absolute;border-radius:50%;opacity:.06;background:linear-gradient(135deg,#667eea,#764ba2);}
+        .flow-box{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.15);border-radius:12px;padding:18px;text-align:center;}
+        .flow-arrow{font-size:2em;color:#ffd700;animation:float 2s ease-in-out infinite;}
+        .eco-grid{display:grid;grid-template-columns:1fr auto 1fr;gap:15px;align-items:center;margin-top:20px;}
+        .img-card{border-radius:14px;overflow:hidden;position:relative;}
+        .img-card img{width:100%;height:100%;object-fit:cover;display:block;}
+        .img-card .img-overlay{position:absolute;bottom:0;left:0;right:0;padding:14px 18px;background:linear-gradient(transparent,rgba(0,0,0,.85));color:#fff;}
+        .img-card .img-overlay h4{font-size:1.1em;margin-bottom:4px;}
+        .img-card .img-overlay p{font-size:.82em;color:rgba(255,255,255,.7);}
+        .img-banner{width:100%;height:160px;border-radius:14px;overflow:hidden;margin-bottom:18px;position:relative;}
+        .img-banner img{width:100%;height:100%;object-fit:cover;}
+        .img-banner .img-overlay{position:absolute;inset:0;background:linear-gradient(135deg,rgba(10,10,26,.7),rgba(102,126,234,.4));display:flex;align-items:center;justify-content:center;text-align:center;padding:20px;}
+        .img-round{width:100%;aspect-ratio:16/9;border-radius:12px;overflow:hidden;margin-top:12px;}
+        .img-round img{width:100%;height:100%;object-fit:cover;}
+        .slide-bg{position:absolute;inset:0;z-index:0;overflow:hidden;}
+        .slide-bg img{width:100%;height:100%;object-fit:cover;opacity:.15;}
+        .slide-bg .bg-overlay{position:absolute;inset:0;background:linear-gradient(135deg,rgba(10,10,26,.92),rgba(48,43,99,.88));}
+        .slide-content{position:relative;z-index:1;}
+    </style>
+</head>
+<body>
+    <div class="slides-container">
+        <!-- Slide 1: Cover -->
+        <div class="slide active" data-slide="1">
+            <div class="slide-bg"><img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1920&q=80" alt=""><div class="bg-overlay" style="background:linear-gradient(135deg,rgba(102,126,234,.88),rgba(118,75,162,.85),rgba(240,147,251,.7));"></div></div>
+            <div class="slide-content" style="text-align:center;">
+                <p style="font-size:1.1em;letter-spacing:8px;text-transform:uppercase;color:rgba(255,255,255,.55);margin-bottom:18px;">Investor Pitch Deck 2026</p>
+                <h1 style="font-size:4em;line-height:1.1;">🏢 PropConnect Vietnam</h1>
+                <p style="font-size:1.7em;margin-top:20px;color:rgba(255,255,255,.85);"><strong>Nền Tảng Đăng Tin BĐS AI + CRM Toàn Quốc</strong></p>
+                <p style="font-size:1.2em;margin-top:12px;color:rgba(255,255,255,.55);">Marketplace thu leads & dữ liệu ⟷ CRM tối ưu lợi nhuận</p>
+                <div class="big-number" style="font-size:3.2em;margin:25px 0 15px;">720,000,000 VND</div>
+                <p style="font-size:1.1em;color:rgba(255,255,255,.5);">2,400 giờ × 300K/h | 6 tháng | 4 người</p>
+                <div class="stat-row" style="justify-content:center;margin-top:22px;">
+                    <div class="stat-item"><div class="sv">6</div><div class="sl">Tháng phát triển</div></div>
+                    <div class="stat-item"><div class="sv">2,400</div><div class="sl">Giờ công</div></div>
+                    <div class="stat-item"><div class="sv">~11</div><div class="sl">Tháng hòa vốn</div></div>
+                    <div class="stat-item"><div class="sv">+67%</div><div class="sl">ROI Năm 1</div></div>
+                </div>
+                <div style="margin-top:22px;">
+                    <span class="badge primary">Web Platform</span>
+                    <span class="badge success">Toàn Quốc VN</span>
+                    <span class="badge warning">Cạnh tranh BDS.com.vn & Chợ Tốt</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 2: Problem -->
+        <div class="slide" data-slide="2">
+            <div class="img-banner">
+                <img src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=1200&q=80" alt="Real Estate Problems">
+                <div class="img-overlay"><h2 style="font-size:2em;margin:0;">❌ Vấn Đề Thị Trường</h2><p style="font-size:1.1em;margin-top:4px;">Thị trường BĐS Việt Nam đang gặp khó khăn nghiêm trọng</p></div>
+            </div>
+            <div class="grid-2">
+                <div class="card" style="border-left:4px solid #ff6b6b;">
+                    <h4>🏢 Công ty Môi giới (50,000+ agents)</h4>
+                    <ul>
+                        <li>Quản lý agents thủ công, không hiệu quả</li>
+                        <li>Không theo dõi được inventory real-time</li>
+                        <li>Tính hoa hồng chậm, dễ sai sót</li>
+                        <li>Không có hệ thống phân phối leads công bằng</li>
+                        <li>Không có CRM chuyên biệt cho BĐS</li>
+                    </ul>
+                    <div style="margin-top:12px;padding:10px;background:rgba(255,107,107,.15);border-radius:10px;text-align:center;">
+                        <span class="hlr" style="font-size:1.2em;">⚠️ Mất 30-40% doanh thu do quản lý kém</span>
+                    </div>
+                </div>
+                <div class="card" style="border-left:4px solid #ffd700;">
+                    <h4>👥 Người Mua/Bán BĐS (Toàn Quốc)</h4>
+                    <ul>
+                        <li>Thông tin BĐS phân tán, không đáng tin</li>
+                        <li>30-40% tin đăng là spam/lừa đảo</li>
+                        <li>Không có công cụ tìm kiếm thông minh</li>
+                        <li>BDS.com.vn & Chợ Tốt: Phí cao, ít tính năng</li>
+                        <li>Không có AI hỗ trợ định giá, phân tích</li>
+                    </ul>
+                    <div style="margin-top:12px;padding:10px;background:rgba(255,215,0,.15);border-radius:10px;text-align:center;">
+                        <span class="hl" style="font-size:1.2em;">⚠️ Mất thời gian & tiền do thông tin kém</span>
+                    </div>
+                </div>
+            </div>
+            <div class="stat-row" style="margin-top:25px;">
+                <div class="stat-item"><div class="sv">200B</div><div class="sl">USD thị trường/năm</div></div>
+                <div class="stat-item"><div class="sv">500K+</div><div class="sl">Giao dịch/năm</div></div>
+                <div class="stat-item"><div class="sv">30-40%</div><div class="sl">Tin spam/lừa đảo</div></div>
+                <div class="stat-item"><div class="sv">0</div><div class="sl">CRM chuyên biệt BĐS</div></div>
+            </div>
+        </div>
+
+        <!-- Slide 3: Market -->
+        <div class="slide" data-slide="3">
+            <div class="img-banner" style="height:140px;">
+                <img src="https://images.unsplash.com/photo-1583508915901-b5f84c1dcde1?w=1200&q=80" alt="Vietnam Cityscape">
+                <div class="img-overlay"><h2 style="font-size:1.8em;margin:0;">📊 Cơ Hội Thị Trường</h2><p style="font-size:1em;margin-top:4px;">Thị Trường BĐS Việt Nam — Tiềm Năng Khổng Lồ</p></div>
+            </div>
+            <div class="grid-3">
+                <div class="card gold">
+                    <h4>🇻🇳 Toàn Quốc</h4>
+                    <div class="big-number" style="font-size:2.5em;">200B USD</div>
+                    <p>Quy mô thị trường/năm</p>
+                    <span class="badge warning">500K+ giao dịch/năm</span>
+                    <span class="badge primary">50K+ môi giới</span>
+                </div>
+                <div class="card green">
+                    <h4>📈 Digital Adoption</h4>
+                    <div class="big-number" style="font-size:2.5em;">15%</div>
+                    <p>CAGR 2020-2025</p>
+                    <p style="font-size:.9em;margin-top:8px;">Online penetration:</p>
+                    <div class="bar-c"><div class="bar green" style="width:30%;">30% (2024)</div></div>
+                    <div class="bar-c"><div class="bar gold" style="width:70%;">70% (2029)</div></div>
+                </div>
+                <div class="card">
+                    <h4>🎯 Addressable Market</h4>
+                    <div style="margin-top:12px;">
+                        <p style="font-size:.9em;">SAM: <span class="hl">50B VND/năm</span></p>
+                        <div class="bar-c"><div class="bar blue" style="width:33%;">SAM</div></div>
+                        <p style="font-size:.9em;">TAM: <span class="hl">500B VND/năm</span></p>
+                        <div class="bar-c"><div class="bar gold" style="width:66%;">TAM</div></div>
+                        <p style="font-size:.9em;">Potential: <span class="hlg">1T+ VND/năm</span></p>
+                        <div class="bar-c"><div class="bar green" style="width:100%;">Potential</div></div>
+                    </div>
+                </div>
+            </div>
+            <p style="margin-top:30px;font-size:1.5em;text-align:center;">🚀 <span class="hl">Window of opportunity: 12-18 tháng trước khi đối thủ bắt kịp</span></p>
+        </div>
+
+        <!-- Slide 4: Solution - Ecosystem Diagram -->
+        <div class="slide" data-slide="4">
+            <h2>🔗 Hệ Sinh Thái PropConnect</h2>
+            <h3>2 Dự Án Khác Nhau — 1 Hệ Sinh Thái Tương Hỗ</h3>
+            <div class="eco-grid">
+                <div class="flow-box" style="border-color:rgba(0,255,136,.3);min-height:280px;">
+                    <div style="width:100%;height:80px;border-radius:8px;overflow:hidden;margin-bottom:10px;"><img src="https://images.unsplash.com/photo-1560520031-3a4dc4e9de0c?w=600&q=80" alt="Marketplace" style="width:100%;height:100%;object-fit:cover;opacity:.7;"></div>
+                    <h4 style="color:#00ff88;font-size:1.3em;margin-bottom:12px;">🌐 MARKETPLACE</h4>
+                    <p style="font-size:.95em;color:rgba(255,255,255,.7);margin-bottom:10px;"><em>Thu Leads & Dữ Liệu Thị Trường</em></p>
+                    <ul style="font-size:.9em;text-align:left;">
+                        <li>Đăng tin BĐS (phí rẻ hơn đối thủ)</li>
+                        <li>AI Search & Trust Score</li>
+                        <li>Crawling 10K+ tin/ngày</li>
+                        <li>Affiliate Credit-based</li>
+                        <li>Subscription & Quảng cáo</li>
+                    </ul>
+                    <div style="margin-top:10px;padding:8px;background:rgba(0,255,136,.1);border-radius:8px;">
+                        <span class="hlg" style="font-size:.9em;">Cạnh tranh: BDS.com.vn & Chợ Tốt</span>
+                    </div>
+                </div>
+                <div style="display:flex;flex-direction:column;align-items:center;gap:15px;">
+                    <div style="text-align:center;">
+                        <div class="flow-arrow">→</div>
+                        <p style="font-size:.8em;color:#ffd700;">Leads</p>
+                    </div>
+                    <div style="text-align:center;">
+                        <div class="flow-arrow">←</div>
+                        <p style="font-size:.8em;color:#ffd700;">Listings</p>
+                    </div>
+                    <div style="text-align:center;">
+                        <div class="flow-arrow">⟷</div>
+                        <p style="font-size:.8em;color:#ffd700;">Data</p>
+                    </div>
+                </div>
+                <div class="flow-box" style="border-color:rgba(255,215,0,.3);min-height:280px;">
+                    <div style="width:100%;height:80px;border-radius:8px;overflow:hidden;margin-bottom:10px;"><img src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=600&q=80" alt="CRM Team" style="width:100%;height:100%;object-fit:cover;opacity:.7;"></div>
+                    <h4 style="color:#ffd700;font-size:1.3em;margin-bottom:12px;">🏢 CRM</h4>
+                    <p style="font-size:.95em;color:rgba(255,255,255,.7);margin-bottom:10px;"><em>Tối Ưu Lợi Nhuận Từ Leads</em></p>
+                    <ul style="font-size:.9em;text-align:left;">
+                        <li>Quản lý 1000+ agents</li>
+                        <li>Hoa hồng tự động (2-3%/deal)</li>
+                        <li>CTV Network & Bán data leads</li>
+                        <li>Affiliate Cash-based (rút tiền)</li>
+                        <li>Lead scoring & Smart routing</li>
+                    </ul>
+                    <div style="margin-top:10px;padding:8px;background:rgba(255,215,0,.1);border-radius:8px;">
+                        <span class="hl" style="font-size:.9em;">Nguồn thu chính: 54% tổng DT</span>
+                    </div>
+                </div>
+            </div>
+            <div style="margin-top:20px;">
+                <div class="flow-box" style="border-color:rgba(102,126,234,.3);">
+                    <h4 style="color:#667eea;margin-bottom:8px;">🕷️ WEB CRAWLING & AI ENGINE</h4>
+                    <p style="font-size:.95em;">Cung cấp dữ liệu cho cả Marketplace & CRM | BDS.com.vn + Chợ Tốt spider | AI dự đoán giá 80%+ | Phát hiện gian lận 90%+</p>
+                </div>
+            </div>
+            <p style="margin-top:18px;font-size:1.3em;text-align:center;">💡 <span class="hl">Marketplace THU leads → CRM BIẾN leads thành tiền → Crawling cung cấp DATA cho cả hai</span></p>
+        </div>
+
+        <!-- Slide 5: Product Modules -->
+        <div class="slide" data-slide="5">
+            <div class="img-banner" style="height:130px;">
+                <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&q=80" alt="Dashboard Analytics">
+                <div class="img-overlay"><h2 style="font-size:1.8em;margin:0;">🎨 Sản Phẩm - 8 Module Chính</h2><p style="font-size:.95em;margin-top:4px;">Marketplace + CRM + AI + Crawling + Dual Affiliate</p></div>
+            </div>
+            <div class="grid-4">
+                <div class="card gold">
+                    <h4 style="font-size:1.05em;">📊 CRM Dashboard</h4>
+                    <p style="font-size:.85em;">KPI, bảng xếp hạng agents, revenue tracking</p>
+                    <span class="badge warning" style="font-size:.7em;">CRM</span>
+                </div>
+                <div class="card gold">
+                    <h4 style="font-size:1.05em;">🏘️ Inventory & Deal</h4>
+                    <p style="font-size:.85em;">Kho BĐS, pipeline giao dịch, hoa hồng tự động</p>
+                    <span class="badge warning" style="font-size:.7em;">CRM</span>
+                </div>
+                <div class="card green">
+                    <h4 style="font-size:1.05em;">🌐 Marketplace</h4>
+                    <p style="font-size:.85em;">Đăng tin, tìm kiếm, bộ lọc, SSR/SEO</p>
+                    <span class="badge success" style="font-size:.7em;">Marketplace</span>
+                </div>
+                <div class="card green">
+                    <h4 style="font-size:1.05em;">🤖 AI Engine</h4>
+                    <p style="font-size:.85em;">Trust Score, Price Predict, Spam Filter, Chatbot</p>
+                    <span class="badge success" style="font-size:.7em;">AI</span>
+                </div>
+                <div class="card blue">
+                    <h4 style="font-size:1.05em;">🕷️ Auto Crawling</h4>
+                    <p style="font-size:.85em;">10K+ tin/ngày, AI cleaning, market intelligence</p>
+                    <span class="badge primary" style="font-size:.7em;">Automation</span>
+                </div>
+                <div class="card blue">
+                    <h4 style="font-size:1.05em;">👥 CTV Network</h4>
+                    <p style="font-size:.85em;">Quản lý CTV, cấp bậc, KPI, bán data leads</p>
+                    <span class="badge primary" style="font-size:.7em;">CRM</span>
+                </div>
+                <div class="card">
+                    <h4 style="font-size:1.05em;">💳 Dual Affiliate</h4>
+                    <p style="font-size:.85em;">Credit (Marketplace) + Cash (CRM), Unified Wallet</p>
+                    <span class="badge danger" style="font-size:.7em;">Growth</span>
+                </div>
+                <div class="card">
+                    <h4 style="font-size:1.05em;">💰 Monetization</h4>
+                    <p style="font-size:.85em;">Subscription, Featured, Ads, AI Services</p>
+                    <span class="badge danger" style="font-size:.7em;">Revenue</span>
+                </div>
+            </div>
+            <div style="margin-top:20px;text-align:center;">
+                <span class="badge warning" style="font-size:.95em;padding:8px 18px;">💰 CRM = Revenue chính (54%)</span>
+                <span class="badge success" style="font-size:.95em;padding:8px 18px;">🌐 Marketplace = Thu leads & Scale</span>
+                <span class="badge primary" style="font-size:.95em;padding:8px 18px;">🤖 AI + Crawling = Competitive moat</span>
+            </div>
+        </div>
+
+        <!-- Slide 6: Business Model -->
+        <div class="slide" data-slide="6">
+            <h2>💰 Mô Hình Kinh Doanh</h2>
+            <h3>7 Nguồn Doanh Thu — CRM là nguồn thu chính</h3>
+            <div class="grid-2">
+                <div>
+                    <div class="card gold" style="margin-bottom:15px;">
+                        <h4>🏢 Từ CRM (54% tổng DT)</h4>
+                        <table style="font-size:.85em;margin-top:8px;">
+                            <tr><td>CRM Commission (2-3%/deal)</td><td><span class="hl">400M</span></td></tr>
+                            <tr><td>Bán Data Leads</td><td><span class="hl">150M</span></td></tr>
+                            <tr><td>CTV Network Fee</td><td><span class="hl">100M</span></td></tr>
+                            <tr style="background:rgba(255,215,0,.15);"><td><strong>Tổng CRM</strong></td><td><strong>650M</strong></td></tr>
+                        </table>
+                    </div>
+                    <div class="card green">
+                        <h4>🌐 Từ Marketplace (46% tổng DT)</h4>
+                        <table style="font-size:.85em;margin-top:8px;">
+                            <tr><td>Subscription (FREE/PRO/ENT)</td><td><span class="hlg">200M</span></td></tr>
+                            <tr><td>Featured Listings & Ads</td><td><span class="hlg">250M</span></td></tr>
+                            <tr><td>AI Services (premium)</td><td><span class="hlg">100M</span></td></tr>
+                            <tr style="background:rgba(0,255,136,.15);"><td><strong>Tổng Marketplace</strong></td><td><strong>550M</strong></td></tr>
+                        </table>
+                    </div>
+                </div>
+                <div>
+                    <div class="card" style="text-align:center;margin-bottom:15px;">
+                        <h4>📊 Tổng Doanh Thu Năm 1</h4>
+                        <div class="big-number" style="font-size:2.8em;">1.2 Tỷ VND</div>
+                        <p style="font-size:.9em;color:rgba(255,255,255,.5);">(6 tháng doanh thu — launch tháng 7)</p>
+                    </div>
+                    <div class="card">
+                        <h4>📈 Tỷ Trọng Doanh Thu</h4>
+                        <p style="font-size:.85em;margin-top:8px;">CRM (nguồn thu chính):</p>
+                        <div class="bar-c"><div class="bar gold" style="width:54%;">54% — 650M</div></div>
+                        <p style="font-size:.85em;">Marketplace:</p>
+                        <div class="bar-c"><div class="bar green" style="width:46%;">46% — 550M</div></div>
+                    </div>
+                    <div style="margin-top:12px;padding:10px;background:rgba(255,215,0,.1);border-radius:8px;text-align:center;">
+                        <p style="font-size:.85em;">💡 <strong>Năm 2+:</strong> Vận hành ~250M/năm | CP phát triển thêm: chưa tính</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7: Competitive Analysis -->
+        <div class="slide" data-slide="7">
+            <div class="img-banner" style="height:120px;">
+                <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&q=80" alt="Competition Analysis">
+                <div class="img-overlay"><h2 style="font-size:1.8em;margin:0;">⚔️ So Sánh Với Đối Thủ</h2><p style="font-size:.95em;margin-top:4px;">PropConnect vs BDS.com.vn vs Chợ Tốt Nhà Đất</p></div>
+            </div>
+            <table>
+                <thead><tr><th>Tiêu chí</th><th>BDS.com.vn</th><th>Chợ Tốt</th><th><span class="hl">PropConnect</span></th></tr></thead>
+                <tbody>
+                    <tr><td><strong>Phí đăng tin</strong></td><td>Cao</td><td>Trung bình</td><td><span class="hlg">✓ Rẻ hơn 30-50%</span></td></tr>
+                    <tr><td><strong>CRM cho agents</strong></td><td>❌ Không</td><td>❌ Không</td><td><span class="hlg">✓ Full CRM + 1000+ agents</span></td></tr>
+                    <tr><td><strong>AI Features</strong></td><td>❌ Không</td><td>❌ Không</td><td><span class="hlg">✓ 5 tính năng AI</span></td></tr>
+                    <tr><td><strong>Trust Score</strong></td><td>❌ Không</td><td>❌ Không</td><td><span class="hlg">✓ Tự động, 85%+ accuracy</span></td></tr>
+                    <tr><td><strong>Data Crawling</strong></td><td>User-generated</td><td>User-generated</td><td><span class="hlg">✓ Auto 10K+ tin/ngày</span></td></tr>
+                    <tr><td><strong>Affiliate System</strong></td><td>❌ Không</td><td>❌ Không</td><td><span class="hlg">✓ Dual (Credit + Cash)</span></td></tr>
+                    <tr><td><strong>Dự đoán giá AI</strong></td><td>❌ Không</td><td>❌ Không</td><td><span class="hlg">✓ 80%+ accuracy</span></td></tr>
+                    <tr><td><strong>CTV Network</strong></td><td>❌ Không</td><td>❌ Không</td><td><span class="hlg">✓ Quản lý đầy đủ</span></td></tr>
+                </tbody>
+            </table>
+            <p style="margin-top:22px;font-size:1.3em;text-align:center;">🎯 <span class="hl">PropConnect = Hệ sinh thái (Marketplace + CRM + AI + Crawling) — Đối thủ chỉ có Marketplace</span></p>
+        </div>
+
+
+        <!-- Slide 8: Go-to-Market / Phases -->
+        <div class="slide" data-slide="8">
+            <h2>🚀 Chiến Lược Phát Triển</h2>
+            <h3>3 Phase — 6 Tháng — 2,400 Giờ × 300K/h</h3>
+            <div class="grid-3">
+                <div class="card gold">
+                    <h4>📅 Phase 1 (Tháng 1-3)</h4>
+                    <p><strong>CRM Basic + Marketplace Basic</strong></p>
+                    <ul style="font-size:.88em;">
+                        <li>CRM: Auth, RBAC, Kho BĐS, Giao dịch</li>
+                        <li>CRM: Dashboard, Hoa hồng, Lead basic</li>
+                        <li>MP: Trang chủ, Duyệt, Chi tiết, Đăng tin</li>
+                        <li>MP: Auth công khai, Bộ lọc, Danh mục</li>
+                    </ul>
+                    <div style="margin-top:10px;">
+                        <p style="font-size:.8em;">1,000 giờ × 300K/h</p>
+                        <div class="bar-c"><div class="bar gold" style="width:42%;">300M (42%)</div></div>
+                    </div>
+                </div>
+                <div class="card green">
+                    <h4>📅 Phase 2 (Tháng 4-6)</h4>
+                    <p><strong>CRM Pro + MP Pro + Crawl Basic</strong></p>
+                    <ul style="font-size:.88em;">
+                        <li>CRM: Hoa hồng nâng cao, CTV, Bán leads</li>
+                        <li>CRM: Affiliate Cash (DỪNG CRM sau phase)</li>
+                        <li>MP: 5 AI features, Subscription, VNPay</li>
+                        <li>Crawl: Spider BDS.com.vn + Chợ Tốt basic</li>
+                    </ul>
+                    <div style="margin-top:10px;">
+                        <p style="font-size:.8em;">900 giờ × 300K/h</p>
+                        <div class="bar-c"><div class="bar green" style="width:37%;">270M (37%)</div></div>
+                    </div>
+                </div>
+                <div class="card blue">
+                    <h4>📅 Phase 3 (Tháng 3-6)</h4>
+                    <p><strong>MP Pro + Crawl Pro + Affiliate</strong></p>
+                    <ul style="font-size:.88em;">
+                        <li>MP: Affiliate Credit, Quảng cáo, Tin tức</li>
+                        <li>Crawl: Chống phát hiện, AI dự đoán giá</li>
+                        <li>Crawl: Phát hiện gian lận, Dashboard</li>
+                        <li>Dual Affiliate: Unified Wallet</li>
+                    </ul>
+                    <div style="margin-top:10px;">
+                        <p style="font-size:.8em;">500 giờ × 300K/h (song song)</p>
+                        <div class="bar-c"><div class="bar blue" style="width:21%;">150M (21%)</div></div>
+                    </div>
+                </div>
+            </div>
+            <div style="margin-top:20px;background:rgba(255,255,255,.05);border-radius:12px;padding:14px 22px;">
+                <p style="font-size:.9em;margin-bottom:6px;color:rgba(255,255,255,.5);">Timeline tổng quan (6 tháng)</p>
+                <div style="display:flex;gap:2px;height:28px;border-radius:8px;overflow:hidden;">
+                    <div style="flex:3;background:linear-gradient(90deg,#ffd700,#ff6b6b);display:flex;align-items:center;justify-content:center;font-size:.75em;font-weight:700;">Phase 1: CRM + MP Basic</div>
+                    <div style="flex:3;background:linear-gradient(90deg,#00ff88,#00d2ff);display:flex;align-items:center;justify-content:center;font-size:.75em;font-weight:700;color:#000;">Phase 2: CRM Pro + MP Pro</div>
+                </div>
+                <div style="display:flex;gap:2px;height:18px;border-radius:6px;overflow:hidden;margin-top:3px;">
+                    <div style="flex:2;background:transparent;"></div>
+                    <div style="flex:4;background:linear-gradient(90deg,#667eea,#764ba2);display:flex;align-items:center;justify-content:center;font-size:.65em;font-weight:600;">Phase 3: Crawl Pro + Affiliate (song song T3-6)</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9: Milestones & Payment -->
+        <div class="slide" data-slide="9">
+            <h2>📈 Milestones & Thanh Toán</h2>
+            <h3>7 Mốc — Thanh toán theo tiến độ thực tế</h3>
+            <div class="grid-2">
+                <div>
+                    <table style="font-size:.88em;">
+                        <thead><tr><th>Mốc</th><th>Tuần</th><th>Sản phẩm bàn giao</th><th>💰</th></tr></thead>
+                        <tbody>
+                            <tr><td><span class="badge primary" style="font-size:.75em;">M1</span></td><td>1</td><td>Khởi động dự án</td><td>80M</td></tr>
+                            <tr><td><span class="badge primary" style="font-size:.75em;">M2</span></td><td>8</td><td>CRM + MP Basic hoạt động</td><td>100M</td></tr>
+                            <tr><td><span class="badge warning" style="font-size:.75em;">M3</span></td><td>12</td><td>Phase 1 production ready</td><td>100M</td></tr>
+                            <tr><td><span class="badge warning" style="font-size:.75em;">M4</span></td><td>16</td><td>CRM Pro + AI features</td><td>120M</td></tr>
+                            <tr><td><span class="badge success" style="font-size:.75em;">M5</span></td><td>20</td><td>MP Pro + Crawling</td><td>120M</td></tr>
+                            <tr><td><span class="badge success" style="font-size:.75em;">M6</span></td><td>24</td><td>Production launch</td><td>120M</td></tr>
+                            <tr><td><span class="badge danger" style="font-size:.75em;">M7</span></td><td>28</td><td>30 ngày ổn định</td><td>80M</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div>
+                    <div class="card" style="margin-bottom:12px;">
+                        <h4>💰 Phân Bổ Theo Phase</h4>
+                        <p style="font-size:.85em;margin-top:8px;">Phase 1 — CRM + MP Basic (300M)</p>
+                        <div class="bar-c"><div class="bar gold" style="width:42%;">42%</div></div>
+                        <p style="font-size:.85em;">Phase 2 — CRM Pro + MP Pro + Crawl (270M)</p>
+                        <div class="bar-c"><div class="bar green" style="width:37%;">37%</div></div>
+                        <p style="font-size:.85em;">Phase 3 — MP Pro + Crawl Pro + Affiliate (150M)</p>
+                        <div class="bar-c"><div class="bar blue" style="width:21%;">21%</div></div>
+                    </div>
+                    <div class="card green">
+                        <h4>🛡️ Bảo Vệ Nhà Đầu Tư</h4>
+                        <ul style="font-size:.85em;">
+                            <li>Thanh toán theo milestone (7 mốc)</li>
+                            <li>KPI rõ ràng cho mỗi mốc</li>
+                            <li>Quyền dừng nếu không đạt KPI</li>
+                            <li>Code escrow bảo vệ IP</li>
+                            <li>Đơn giá chuẩn: 300K/giờ</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 10: Financial -->
+        <div class="slide" data-slide="10">
+            <h2>💰 Dự Báo Tài Chính</h2>
+            <h3>Chi Phí Thấp — Hòa Vốn Nhanh</h3>
+            <div class="grid-2">
+                <div>
+                    <table style="font-size:.88em;">
+                        <thead><tr><th>Chỉ số</th><th>Năm 1 (6T DT)</th><th>Năm 2</th><th>Năm 3</th></tr></thead>
+                        <tbody>
+                            <tr><td><strong>Doanh thu</strong></td><td>1.2B</td><td>5.5B</td><td><span class="hl">15B</span></td></tr>
+                            <tr><td>— Từ CRM</td><td>650M</td><td>3B</td><td>8B</td></tr>
+                            <tr><td>— Từ Marketplace</td><td>550M</td><td>2.5B</td><td>7B</td></tr>
+                            <tr style="background:rgba(255,215,0,.1);"><td><strong>CP phát triển</strong></td><td style="color:#ffd700;">720M</td><td colspan="2" style="color:rgba(255,255,255,.4);font-style:italic;">Chưa tính được *</td></tr>
+                            <tr><td><strong>CP vận hành</strong></td><td>0</td><td>~250M</td><td>~350M</td></tr>
+                            <tr style="background:rgba(0,255,136,.12);"><td><strong>Lãi Năm 1</strong></td><td><span class="hlg">+480M</span></td><td colspan="2" style="color:rgba(255,255,255,.4);font-style:italic;">Tùy thuộc CP PT thêm</td></tr>
+                        </tbody>
+                    </table>
+                    <div style="margin-top:10px;padding:8px 12px;background:rgba(255,215,0,.08);border-radius:8px;">
+                        <p style="font-size:.78em;color:rgba(255,255,255,.5);">* CP phát triển Năm 2, 3 sẽ đánh giá sau khi hoàn thành Năm 1 (mobile app, scale, tính năng mới...)</p>
+                    </div>
+                </div>
+                <div>
+                    <div class="card green" style="margin-bottom:12px;">
+                        <h4 style="color:#00ff88;">📊 Tăng Trưởng Doanh Thu</h4>
+                        <p style="font-size:.82em;margin-bottom:3px;">Năm 1: 1.2B VND</p>
+                        <div class="bar-c"><div class="bar blue" style="width:8%;">1.2B</div></div>
+                        <p style="font-size:.82em;margin-bottom:3px;">Năm 2: 5.5B VND</p>
+                        <div class="bar-c"><div class="bar gold" style="width:37%;">5.5B</div></div>
+                        <p style="font-size:.82em;margin-bottom:3px;">Năm 3: 15B VND</p>
+                        <div class="bar-c"><div class="bar green" style="width:100%;">15B 🚀</div></div>
+                    </div>
+                    <div class="card gold">
+                        <h4>⏱️ Break-even</h4>
+                        <div class="big-number" style="font-size:2em;text-align:center;">Tháng 11</div>
+                        <p style="text-align:center;font-size:.82em;">~5 tháng sau launch | ROI Năm 1: <span class="hl">+67%</span></p>
+                    </div>
+                </div>
+            </div>
+            <div class="stat-row" style="margin-top:12px;">
+                <div class="stat-item"><div class="sv" style="color:#00ff88;">+480M</div><div class="sl">Lãi Năm 1</div></div>
+                <div class="stat-item"><div class="sv">~200M</div><div class="sl">DT/tháng (ổn định)</div></div>
+                <div class="stat-item"><div class="sv" style="color:#ffd700;">~250M</div><div class="sl">CP vận hành/năm</div></div>
+                <div class="stat-item"><div class="sv">+67%</div><div class="sl">ROI Năm 1</div></div>
+            </div>
+        </div>
+
+        <!-- Slide 11: Team -->
+        <div class="slide" data-slide="11">
+            <h2>👥 Đội Ngũ Phát Triển</h2>
+            <h3>4 Người — Chuyên Biệt — 6 Tháng</h3>
+            <div class="grid-4">
+                <div class="card gold" style="text-align:center;">
+                    <div style="width:70px;height:70px;border-radius:50%;background:linear-gradient(135deg,#ffd700,#ff6b6b);margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:1.8em;">👨‍💻</div>
+                    <h4 style="font-size:1em;">Frontend Developer</h4>
+                    <p style="font-size:.82em;color:rgba(255,255,255,.6);margin-top:6px;">React, Next.js, TypeScript</p>
+                    <p style="font-size:.82em;">Marketplace UI + CRM Dashboard</p>
+                    <span class="badge warning" style="font-size:.7em;margin-top:8px;">~800 giờ</span>
+                </div>
+                <div class="card green" style="text-align:center;">
+                    <div style="width:70px;height:70px;border-radius:50%;background:linear-gradient(135deg,#00ff88,#00d2ff);margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:1.8em;">⚙️</div>
+                    <h4 style="font-size:1em;">Backend Developer</h4>
+                    <p style="font-size:.82em;color:rgba(255,255,255,.6);margin-top:6px;">NestJS, PostgreSQL, Redis</p>
+                    <p style="font-size:.82em;">API, Auth, CRM Logic, Payment</p>
+                    <span class="badge success" style="font-size:.7em;margin-top:8px;">~800 giờ</span>
+                </div>
+                <div class="card blue" style="text-align:center;">
+                    <div style="width:70px;height:70px;border-radius:50%;background:linear-gradient(135deg,#667eea,#764ba2);margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:1.8em;">🐍</div>
+                    <h4 style="font-size:1em;">Python Developer</h4>
+                    <p style="font-size:.82em;color:rgba(255,255,255,.6);margin-top:6px;">Scrapy, FastAPI, ML/AI</p>
+                    <p style="font-size:.82em;">Crawling, AI Engine, Data Pipeline</p>
+                    <span class="badge primary" style="font-size:.7em;margin-top:8px;">~500 giờ</span>
+                </div>
+                <div class="card" style="text-align:center;">
+                    <div style="width:70px;height:70px;border-radius:50%;background:linear-gradient(135deg,#ff6b6b,#ee5a24);margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:1.8em;">🧪</div>
+                    <h4 style="font-size:1em;">QA Engineer</h4>
+                    <p style="font-size:.82em;color:rgba(255,255,255,.6);margin-top:6px;">Testing, CI/CD, DevOps</p>
+                    <p style="font-size:.82em;">Quality Assurance, Deployment</p>
+                    <span class="badge danger" style="font-size:.7em;margin-top:8px;">~300 giờ</span>
+                </div>
+            </div>
+            <div style="margin-top:22px;background:rgba(255,255,255,.05);border-radius:12px;padding:14px 22px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <div><strong>Tổng giờ công:</strong> 2,400 giờ</div>
+                    <div><strong>Đơn giá:</strong> 300,000 VND/giờ</div>
+                    <div><strong>Tổng chi phí:</strong> <span class="hl">720,000,000 VND</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 12: Tech Stack -->
+        <div class="slide" data-slide="12">
+            <h2>🛠️ Tech Stack</h2>
+            <h3>Công Nghệ Hiện Đại — Sẵn Sàng Scale</h3>
+            <div class="grid-3">
+                <div class="card gold">
+                    <h4>🌐 Frontend</h4>
+                    <div style="margin-top:10px;">
+                        <span class="badge warning" style="font-size:.78em;">React 18</span>
+                        <span class="badge warning" style="font-size:.78em;">Next.js 14</span>
+                        <span class="badge warning" style="font-size:.78em;">TypeScript</span>
+                        <span class="badge warning" style="font-size:.78em;">Tailwind CSS</span>
+                        <span class="badge warning" style="font-size:.78em;">Recoil</span>
+                    </div>
+                    <p style="font-size:.82em;margin-top:10px;color:rgba(255,255,255,.6);">SSR/SEO cho Marketplace, SPA cho CRM Dashboard</p>
+                </div>
+                <div class="card green">
+                    <h4>⚙️ Backend</h4>
+                    <div style="margin-top:10px;">
+                        <span class="badge success" style="font-size:.78em;">NestJS</span>
+                        <span class="badge success" style="font-size:.78em;">PostgreSQL</span>
+                        <span class="badge success" style="font-size:.78em;">Redis</span>
+                        <span class="badge success" style="font-size:.78em;">GraphQL</span>
+                        <span class="badge success" style="font-size:.78em;">BullMQ</span>
+                    </div>
+                    <p style="font-size:.82em;margin-top:10px;color:rgba(255,255,255,.6);">Supabase Auth, TypeORM, VNPay Integration</p>
+                </div>
+                <div class="card blue">
+                    <h4>🤖 AI & Crawling</h4>
+                    <div style="margin-top:10px;">
+                        <span class="badge primary" style="font-size:.78em;">Python</span>
+                        <span class="badge primary" style="font-size:.78em;">Scrapy</span>
+                        <span class="badge primary" style="font-size:.78em;">FastAPI</span>
+                        <span class="badge primary" style="font-size:.78em;">OpenAI</span>
+                        <span class="badge primary" style="font-size:.78em;">Scikit-learn</span>
+                    </div>
+                    <p style="font-size:.82em;margin-top:10px;color:rgba(255,255,255,.6);">Proxy rotation, Anti-detection, ML Pipeline</p>
+                </div>
+            </div>
+            <div class="grid-2" style="margin-top:18px;">
+                <div class="card">
+                    <h4>☁️ Infrastructure</h4>
+                    <div style="margin-top:8px;">
+                        <span class="badge" style="background:rgba(255,255,255,.15);font-size:.78em;">VPS / Cloud</span>
+                        <span class="badge" style="background:rgba(255,255,255,.15);font-size:.78em;">Docker</span>
+                        <span class="badge" style="background:rgba(255,255,255,.15);font-size:.78em;">Nginx</span>
+                        <span class="badge" style="background:rgba(255,255,255,.15);font-size:.78em;">CI/CD</span>
+                        <span class="badge" style="background:rgba(255,255,255,.15);font-size:.78em;">Supabase</span>
+                    </div>
+                </div>
+                <div class="card">
+                    <h4>📊 Monitoring & Analytics</h4>
+                    <div style="margin-top:8px;">
+                        <span class="badge" style="background:rgba(255,255,255,.15);font-size:.78em;">Sentry</span>
+                        <span class="badge" style="background:rgba(255,255,255,.15);font-size:.78em;">Google Analytics</span>
+                        <span class="badge" style="background:rgba(255,255,255,.15);font-size:.78em;">Custom Dashboard</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 13: Dual Affiliate System -->
+        <div class="slide" data-slide="13">
+            <h2>💳 Hệ Thống Affiliate Kép</h2>
+            <h3>Credit-based (Marketplace) + Cash-based (CRM) — Unified Wallet</h3>
+            <div class="eco-grid">
+                <div class="flow-box" style="border-color:rgba(0,255,136,.3);">
+                    <h4 style="color:#00ff88;font-size:1.2em;margin-bottom:10px;">💳 MARKETPLACE AFFILIATE</h4>
+                    <p style="font-size:.95em;color:rgba(255,255,255,.7);margin-bottom:8px;"><strong>Credit-based</strong> — Không rút tiền</p>
+                    <ul style="font-size:.88em;text-align:left;">
+                        <li>Chia sẻ link → Kéo member mới</li>
+                        <li>Nhận credit vào ví</li>
+                        <li>Dùng credit: Đăng tin, Quảng cáo</li>
+                        <li>Dùng credit: AI Services, Báo cáo</li>
+                        <li>Dùng credit: Nâng cấp gói</li>
+                    </ul>
+                    <div style="margin-top:10px;padding:8px;background:rgba(0,255,136,.1);border-radius:8px;text-align:center;">
+                        <span style="font-size:.85em;">🎯 Mục đích: <strong>Tăng trưởng user base</strong></span>
+                    </div>
+                </div>
+                <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;">
+                    <div style="text-align:center;">
+                        <div style="font-size:2.5em;color:#ffd700;">⟷</div>
+                        <p style="font-size:.75em;color:#ffd700;font-weight:700;">UNIFIED<br>WALLET</p>
+                    </div>
+                </div>
+                <div class="flow-box" style="border-color:rgba(255,215,0,.3);">
+                    <h4 style="color:#ffd700;font-size:1.2em;margin-bottom:10px;">💰 CRM AFFILIATE</h4>
+                    <p style="font-size:.95em;color:rgba(255,255,255,.7);margin-bottom:8px;"><strong>Cash-based</strong> — Rút tiền thật</p>
+                    <ul style="font-size:.88em;text-align:left;">
+                        <li>Bán BĐS → Hoa hồng 2-3%</li>
+                        <li>Giới thiệu deal → Commission</li>
+                        <li>CTV bán hàng → Tiền thật</li>
+                        <li>Rút về tài khoản ngân hàng</li>
+                        <li>KYC required để rút tiền</li>
+                    </ul>
+                    <div style="margin-top:10px;padding:8px;background:rgba(255,215,0,.1);border-radius:8px;text-align:center;">
+                        <span style="font-size:.85em;">🎯 Mục đích: <strong>Tối ưu doanh thu</strong></span>
+                    </div>
+                </div>
+            </div>
+            <div style="margin-top:18px;">
+                <div class="card" style="text-align:center;">
+                    <h4 style="color:#667eea;">🏦 Unified Wallet — Best Practice</h4>
+                    <p style="font-size:.9em;margin-top:6px;">1 ví chung, 2 loại số dư: <span class="hlg">credit_balance</span> (non-withdrawable) + <span class="hl">cash_balance</span> (withdrawable)</p>
+                    <p style="font-size:.82em;color:rgba(255,255,255,.5);margin-top:4px;">Tiết kiệm ~30% effort so với 2 hệ thống riêng | Future-proof: convert credit → cash khi đạt threshold</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 14: AI & Crawling Demo -->
+        <div class="slide" data-slide="14">
+            <div class="img-banner" style="height:130px;">
+                <img src="https://images.unsplash.com/photo-1677442136019-21780ecad995?w=1200&q=80" alt="AI Technology">
+                <div class="img-overlay"><h2 style="font-size:1.8em;margin:0;">🤖 AI Engine & Web Crawling</h2><p style="font-size:.95em;margin-top:4px;">Competitive Moat — Đối thủ không có</p></div>
+            </div>
+            <div class="grid-2">
+                <div>
+                    <div class="card green" style="margin-bottom:15px;">
+                        <h4>🧠 5 Tính Năng AI</h4>
+                        <div style="margin-top:10px;">
+                            <p style="font-size:.85em;">1. AI Trust Score (Độ tin cậy tin đăng)</p>
+                            <div class="bar-c"><div class="bar green" style="width:85%;">85%+ accuracy</div></div>
+                            <p style="font-size:.85em;">2. AI Price Prediction (Dự đoán giá)</p>
+                            <div class="bar-c"><div class="bar green" style="width:80%;">80%+ accuracy</div></div>
+                            <p style="font-size:.85em;">3. AI Spam Filter (Lọc tin spam)</p>
+                            <div class="bar-c"><div class="bar green" style="width:90%;">90%+ accuracy</div></div>
+                            <p style="font-size:.85em;">4. AI Summary (Tóm tắt thông minh)</p>
+                            <div class="bar-c"><div class="bar blue" style="width:75%;">GPT-powered</div></div>
+                            <p style="font-size:.85em;">5. AI Chatbot (Tư vấn tự động)</p>
+                            <div class="bar-c"><div class="bar blue" style="width:70%;">24/7 support</div></div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="card blue" style="margin-bottom:15px;">
+                        <h4>🕷️ Web Crawling System</h4>
+                        <div style="margin-top:10px;">
+                            <p style="font-size:.85em;">Nguồn crawl:</p>
+                            <div class="bar-c"><div class="bar gold" style="width:45%;">BDS.com.vn</div></div>
+                            <div class="bar-c"><div class="bar gold" style="width:35%;">Chợ Tốt Nhà Đất</div></div>
+                            <div class="bar-c"><div class="bar blue" style="width:20%;">Các nguồn khác</div></div>
+                        </div>
+                        <div class="stat-row" style="margin-top:12px;">
+                            <div class="stat-item" style="padding:8px;"><div class="sv" style="font-size:1.3em;">10K+</div><div class="sl">Tin/ngày</div></div>
+                            <div class="stat-item" style="padding:8px;"><div class="sv" style="font-size:1.3em;">99%</div><div class="sl">Uptime</div></div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h4>🛡️ Anti-Detection</h4>
+                        <ul style="font-size:.82em;">
+                            <li>Proxy rotation (100+ IPs)</li>
+                            <li>User-Agent randomization</li>
+                            <li>Rate limiting thông minh</li>
+                            <li>CAPTCHA solving (Phase 3)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <p style="margin-top:15px;font-size:1.2em;text-align:center;">💡 <span class="hl">AI + Crawling = Rào cản gia nhập cao cho đối thủ mới</span></p>
+        </div>
+
+        <!-- Slide 15: Risks & Mitigation -->
+        <div class="slide" data-slide="15">
+            <h2>⚠️ Rủi Ro & Giảm Thiểu</h2>
+            <h3>Nhận diện sớm — Giải pháp rõ ràng</h3>
+            <div class="grid-2">
+                <div>
+                    <div class="card" style="margin-bottom:12px;border-left:4px solid #ff6b6b;">
+                        <h4>🔴 Rủi Ro Cao</h4>
+                        <table style="font-size:.82em;">
+                            <tr><td><strong>Cạnh tranh</strong></td><td>BDS.com.vn phản ứng</td></tr>
+                            <tr><td style="color:rgba(255,255,255,.5);">→ Giảm thiểu</td><td style="color:#00ff88;">AI + CRM = moat. Họ chỉ có marketplace</td></tr>
+                            <tr><td><strong>Pháp lý crawling</strong></td><td>Rủi ro vi phạm ToS</td></tr>
+                            <tr><td style="color:rgba(255,255,255,.5);">→ Giảm thiểu</td><td style="color:#00ff88;">Tuân thủ robots.txt, rate limit, legal review</td></tr>
+                        </table>
+                    </div>
+                    <div class="card" style="margin-bottom:12px;border-left:4px solid #ffd700;">
+                        <h4>🟡 Rủi Ro Trung Bình</h4>
+                        <table style="font-size:.82em;">
+                            <tr><td><strong>Chậm tiến độ</strong></td><td>Scope creep, kỹ thuật phức tạp</td></tr>
+                            <tr><td style="color:rgba(255,255,255,.5);">→ Giảm thiểu</td><td style="color:#00ff88;">Milestone rõ ràng, Agile sprint</td></tr>
+                            <tr><td><strong>Chi phí AI API</strong></td><td>OpenAI cost tăng</td></tr>
+                            <tr><td style="color:rgba(255,255,255,.5);">→ Giảm thiểu</td><td style="color:#00ff88;">Cache, local model fallback</td></tr>
+                        </table>
+                    </div>
+                </div>
+                <div>
+                    <div class="card" style="margin-bottom:12px;border-left:4px solid #00ff88;">
+                        <h4>🟢 Rủi Ro Thấp</h4>
+                        <table style="font-size:.82em;">
+                            <tr><td><strong>Kỹ thuật</strong></td><td>Tech stack proven, team có kinh nghiệm</td></tr>
+                            <tr><td><strong>Thị trường</strong></td><td>BĐS VN luôn có nhu cầu cao</td></tr>
+                        </table>
+                    </div>
+                    <div class="card green">
+                        <h4>🛡️ Bảo Vệ Nhà Đầu Tư</h4>
+                        <ul style="font-size:.85em;">
+                            <li>✅ Thanh toán theo 7 milestones</li>
+                            <li>✅ KPI rõ ràng cho mỗi mốc</li>
+                            <li>✅ Quyền dừng nếu không đạt KPI</li>
+                            <li>✅ Code escrow bảo vệ IP</li>
+                            <li>✅ Đơn giá minh bạch: 300K/giờ</li>
+                            <li>✅ Báo cáo tiến độ hàng tuần</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 16: Vision & Expansion -->
+        <div class="slide" data-slide="16">
+            <div class="img-banner" style="height:130px;">
+                <img src="https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=1200&q=80" alt="City Future Vision">
+                <div class="img-overlay"><h2 style="font-size:1.8em;margin:0;">🔭 Tầm Nhìn 3 Năm</h2><p style="font-size:.95em;margin-top:4px;">Từ Web Platform → Hệ Sinh Thái BĐS Toàn Diện</p></div>
+            </div>
+            <div class="grid-3">
+                <div class="card gold">
+                    <div style="width:100%;height:70px;border-radius:8px;overflow:hidden;margin-bottom:8px;"><img src="https://images.unsplash.com/photo-1460317442991-0ec209397118?w=400&q=80" alt="Foundation" style="width:100%;height:100%;object-fit:cover;opacity:.6;"></div>
+                    <h4>📅 Năm 1 (2026)</h4>
+                    <div class="big-number" style="font-size:1.8em;text-align:center;">1.2B</div>
+                    <ul style="font-size:.85em;">
+                        <li>Launch Marketplace + CRM</li>
+                        <li>5,000+ tin đăng</li>
+                        <li>500+ agents trên CRM</li>
+                        <li>AI + Crawling hoạt động</li>
+                        <li>Dual Affiliate System</li>
+                    </ul>
+                    <span class="badge warning" style="font-size:.75em;">Foundation</span>
+                </div>
+                <div class="card green">
+                    <div style="width:100%;height:70px;border-radius:8px;overflow:hidden;margin-bottom:8px;"><img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=400&q=80" alt="Growth" style="width:100%;height:100%;object-fit:cover;opacity:.6;"></div>
+                    <h4>📅 Năm 2 (2027)</h4>
+                    <div class="big-number" style="font-size:1.8em;text-align:center;">5.5B</div>
+                    <ul style="font-size:.85em;">
+                        <li>Mobile App (iOS + Android)</li>
+                        <li>50,000+ tin đăng</li>
+                        <li>2,000+ agents</li>
+                        <li>Mở rộng 10+ tỉnh thành</li>
+                        <li>Partnership với ngân hàng</li>
+                    </ul>
+                    <span class="badge success" style="font-size:.75em;">Growth</span>
+                </div>
+                <div class="card blue">
+                    <div style="width:100%;height:70px;border-radius:8px;overflow:hidden;margin-bottom:8px;"><img src="https://images.unsplash.com/photo-1486325212027-8081e485255e?w=400&q=80" alt="Scale" style="width:100%;height:100%;object-fit:cover;opacity:.6;"></div>
+                    <h4>📅 Năm 3 (2028)</h4>
+                    <div class="big-number" style="font-size:1.8em;text-align:center;">15B</div>
+                    <ul style="font-size:.85em;">
+                        <li>Top 3 nền tảng BĐS VN</li>
+                        <li>200,000+ tin đăng</li>
+                        <li>5,000+ agents</li>
+                        <li>Toàn quốc 63 tỉnh thành</li>
+                        <li>Fintech integration (vay mua nhà)</li>
+                    </ul>
+                    <span class="badge primary" style="font-size:.75em;">Scale</span>
+                </div>
+            </div>
+            <div style="margin-top:20px;background:rgba(255,255,255,.05);border-radius:12px;padding:14px 22px;">
+                <div style="display:flex;gap:2px;height:30px;border-radius:8px;overflow:hidden;">
+                    <div style="flex:1;background:linear-gradient(90deg,#ffd700,#ff6b6b);display:flex;align-items:center;justify-content:center;font-size:.8em;font-weight:700;">Y1: Web Platform</div>
+                    <div style="flex:1;background:linear-gradient(90deg,#00ff88,#00d2ff);display:flex;align-items:center;justify-content:center;font-size:.8em;font-weight:700;color:#000;">Y2: + Mobile + Scale</div>
+                    <div style="flex:1;background:linear-gradient(90deg,#667eea,#764ba2);display:flex;align-items:center;justify-content:center;font-size:.8em;font-weight:700;">Y3: Top 3 VN + Fintech</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 17: Why Now -->
+        <div class="slide" data-slide="17">
+            <div class="slide-bg"><img src="https://images.unsplash.com/photo-1436491865332-7a61a109db05?w=1920&q=80" alt="Airport Construction"><div class="bg-overlay" style="background:linear-gradient(135deg,rgba(15,12,41,.9),rgba(48,43,99,.85));"></div></div>
+            <div class="slide-content">
+            <h2>⏰ Tại Sao Là Bây Giờ?</h2>
+            <h3>6 Lý Do Không Thể Chờ Đợi</h3>
+            <div class="grid-3">
+                <div class="card gold">
+                    <div style="width:100%;height:70px;border-radius:8px;overflow:hidden;margin-bottom:8px;"><img src="https://images.unsplash.com/photo-1530521954074-e64f6810b32d?w=400&q=80" alt="Long Thanh Airport" style="width:100%;height:100%;object-fit:cover;opacity:.65;"></div>
+                    <h4>🏗️ Sân Bay Long Thành</h4>
+                    <p style="font-size:.88em;">Khai trương 2026 — 25 tỷ USD đầu tư. BĐS khu vực tăng 300% (2020-2025). Window cơ hội đang mở.</p>
+                </div>
+                <div class="card green">
+                    <div style="width:100%;height:70px;border-radius:8px;overflow:hidden;margin-bottom:8px;"><img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400&q=80" alt="Digital Adoption" style="width:100%;height:100%;object-fit:cover;opacity:.65;"></div>
+                    <h4>📱 Digital Adoption</h4>
+                    <p style="font-size:.88em;">70% giao dịch BĐS sẽ online vào 2029. Ai chiếm thị phần trước sẽ thắng. First-mover advantage.</p>
+                </div>
+                <div class="card blue">
+                    <h4>🤖 AI Revolution</h4>
+                    <p style="font-size:.88em;">Chi phí AI giảm 10x trong 2 năm. GPT-4 level giá rẻ. Đối thủ chưa áp dụng AI vào BĐS.</p>
+                </div>
+                <div class="card">
+                    <h4>📊 Thị Trường Phục Hồi</h4>
+                    <p style="font-size:.88em;">BĐS VN phục hồi mạnh 2025-2026. Luật Đất đai mới tạo minh bạch. Nhu cầu tăng cao.</p>
+                </div>
+                <div class="card">
+                    <h4>🏢 Đối Thủ Chậm</h4>
+                    <p style="font-size:.88em;">BDS.com.vn & Chợ Tốt không có CRM, AI, Crawling. 12-18 tháng để họ bắt kịp nếu bắt đầu ngay.</p>
+                </div>
+                <div class="card">
+                    <h4>💰 Chi Phí Thấp</h4>
+                    <p style="font-size:.88em;">720M VND cho full platform. Đơn giá 300K/h cạnh tranh. ROI +67% năm 1. Rủi ro thấp.</p>
+                </div>
+            </div>
+            <p style="margin-top:22px;font-size:1.4em;text-align:center;">🚀 <span class="hl">Window of opportunity: 12-18 tháng — Hành động NGAY hoặc mất cơ hội!</span></p>
+            </div><!-- end slide-content -->
+        </div>
+
+        <!-- Slide 18: Funding Ask -->
+        <div class="slide" data-slide="18">
+            <h2>💰 Đề Xuất Đầu Tư</h2>
+            <h3>720 Triệu VND — 6 Tháng — Full Platform</h3>
+            <div class="grid-2">
+                <div>
+                    <div class="card gold" style="text-align:center;margin-bottom:15px;">
+                        <h4>Tổng Vốn Cần</h4>
+                        <div class="big-number" style="font-size:3em;">720M VND</div>
+                        <p style="font-size:.9em;">2,400 giờ × 300,000 VND/giờ</p>
+                    </div>
+                    <div class="card">
+                        <h4>📊 Phân Bổ Vốn</h4>
+                        <p style="font-size:.85em;margin-top:8px;">Nhân sự (85%):</p>
+                        <div class="bar-c"><div class="bar gold" style="width:85%;">612M — Dev Team</div></div>
+                        <p style="font-size:.85em;">Hạ tầng (7%):</p>
+                        <div class="bar-c"><div class="bar blue" style="width:7%;">50M</div></div>
+                        <p style="font-size:.85em;">Dự phòng (8%):</p>
+                        <div class="bar-c"><div class="bar red" style="width:8%;">58M</div></div>
+                    </div>
+                </div>
+                <div>
+                    <div class="card green" style="margin-bottom:15px;">
+                        <h4>📋 Điều Khoản</h4>
+                        <table style="font-size:.88em;margin-top:8px;">
+                            <tr><td><strong>Thanh toán</strong></td><td>7 milestones</td></tr>
+                            <tr><td><strong>Timeline</strong></td><td>6 tháng</td></tr>
+                            <tr><td><strong>Đơn giá</strong></td><td>300,000 VND/giờ</td></tr>
+                            <tr><td><strong>Bảo hành</strong></td><td>30 ngày sau launch</td></tr>
+                            <tr><td><strong>IP</strong></td><td>100% thuộc nhà đầu tư</td></tr>
+                            <tr><td><strong>Source code</strong></td><td>Bàn giao đầy đủ</td></tr>
+                        </table>
+                    </div>
+                    <div class="card" style="text-align:center;">
+                        <h4>📈 Kỳ Vọng Return</h4>
+                        <div class="stat-row">
+                            <div class="stat-item" style="padding:8px;"><div class="sv" style="font-size:1.4em;color:#00ff88;">+67%</div><div class="sl">ROI Năm 1</div></div>
+                            <div class="stat-item" style="padding:8px;"><div class="sv" style="font-size:1.4em;color:#ffd700;">~T11</div><div class="sl">Break-even</div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 19: Next Steps -->
+        <div class="slide" data-slide="19">
+            <h2>📋 Bước Tiếp Theo</h2>
+            <h3>Từ Pitch → Production trong 6 tháng</h3>
+            <div style="max-width:700px;margin:0 auto;">
+                <div style="display:flex;align-items:center;gap:18px;margin-bottom:18px;">
+                    <div style="min-width:55px;height:55px;border-radius:50%;background:linear-gradient(135deg,#ffd700,#ff6b6b);display:flex;align-items:center;justify-content:center;font-size:1.4em;font-weight:900;">1</div>
+                    <div class="card" style="flex:1;margin:0;"><h4>📝 Ký Hợp Đồng & Thanh Toán M1</h4><p style="font-size:.88em;">Tuần 1 — Khởi động dự án, setup team & infrastructure</p></div>
+                </div>
+                <div style="display:flex;align-items:center;gap:18px;margin-bottom:18px;">
+                    <div style="min-width:55px;height:55px;border-radius:50%;background:linear-gradient(135deg,#ffd700,#ff6b6b);display:flex;align-items:center;justify-content:center;font-size:1.4em;font-weight:900;">2</div>
+                    <div class="card" style="flex:1;margin:0;"><h4>🏗️ Phase 1: CRM + MP Basic</h4><p style="font-size:.88em;">Tháng 1-3 — Xây dựng nền tảng cơ bản cho cả 2 sản phẩm</p></div>
+                </div>
+                <div style="display:flex;align-items:center;gap:18px;margin-bottom:18px;">
+                    <div style="min-width:55px;height:55px;border-radius:50%;background:linear-gradient(135deg,#00ff88,#00d2ff);display:flex;align-items:center;justify-content:center;font-size:1.4em;font-weight:900;color:#000;">3</div>
+                    <div class="card" style="flex:1;margin:0;"><h4>⚡ Phase 2: CRM Pro + AI + Crawling</h4><p style="font-size:.88em;">Tháng 4-6 — Nâng cao CRM, tích hợp AI & Web Crawling</p></div>
+                </div>
+                <div style="display:flex;align-items:center;gap:18px;margin-bottom:18px;">
+                    <div style="min-width:55px;height:55px;border-radius:50%;background:linear-gradient(135deg,#667eea,#764ba2);display:flex;align-items:center;justify-content:center;font-size:1.4em;font-weight:900;">4</div>
+                    <div class="card" style="flex:1;margin:0;"><h4>🚀 Launch & Stabilize</h4><p style="font-size:.88em;">Tháng 6-7 — Production launch + 30 ngày ổn định</p></div>
+                </div>
+                <div style="display:flex;align-items:center;gap:18px;">
+                    <div style="min-width:55px;height:55px;border-radius:50%;background:linear-gradient(135deg,#ff6b6b,#ee5a24);display:flex;align-items:center;justify-content:center;font-size:1.4em;font-weight:900;">5</div>
+                    <div class="card" style="flex:1;margin:0;"><h4>💰 Thu Doanh Thu & Scale</h4><p style="font-size:.88em;">Tháng 7+ — Bắt đầu kiếm tiền, hòa vốn tháng 11</p></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 20: Thank You -->
+        <div class="slide" data-slide="20">
+            <div class="slide-bg"><img src="https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=1920&q=80" alt="Modern City Skyline"><div class="bg-overlay" style="background:linear-gradient(135deg,rgba(102,126,234,.88),rgba(118,75,162,.85),rgba(240,147,251,.7));"></div></div>
+            <div class="slide-content" style="text-align:center;">
+                <h1 style="font-size:3.5em;line-height:1.2;">🙏 Cảm Ơn!</h1>
+                <p style="font-size:1.5em;margin-top:15px;color:rgba(255,255,255,.8);">PropConnect Vietnam — Nền Tảng BĐS AI + CRM Toàn Quốc</p>
+                <div style="margin-top:30px;display:flex;justify-content:center;gap:25px;flex-wrap:wrap;">
+                    <div class="stat-item" style="min-width:140px;">
+                        <div class="sv" style="font-size:1.6em;">720M</div>
+                        <div class="sl">Tổng đầu tư</div>
+                    </div>
+                    <div class="stat-item" style="min-width:140px;">
+                        <div class="sv" style="font-size:1.6em;">6</div>
+                        <div class="sl">Tháng phát triển</div>
+                    </div>
+                    <div class="stat-item" style="min-width:140px;">
+                        <div class="sv" style="font-size:1.6em;">1.2B</div>
+                        <div class="sl">DT Năm 1</div>
+                    </div>
+                    <div class="stat-item" style="min-width:140px;">
+                        <div class="sv" style="font-size:1.6em;">+67%</div>
+                        <div class="sl">ROI Năm 1</div>
+                    </div>
+                </div>
+                <div style="margin-top:30px;">
+                    <p style="font-size:1.1em;color:rgba(255,255,255,.5);">📧 Email: contact@propconnect.vn</p>
+                    <p style="font-size:1.1em;color:rgba(255,255,255,.5);">🌐 Website: propconnect.vn</p>
+                </div>
+                <div style="margin-top:25px;">
+                    <span class="badge primary" style="font-size:1em;padding:10px 22px;">Marketplace + CRM + AI + Crawling</span>
+                </div>
+                <p style="margin-top:20px;font-size:1.3em;"><span class="hl">Sẵn sàng bắt đầu ngay hôm nay! 🚀</span></p>
+            </div>
+        </div>
+
+    </div><!-- end slides-container -->
+
+    <!-- Navigation -->
+    <div class="nav">
+        <button class="nav-btn" onclick="goSlide(1)">⏮</button>
+        <button class="nav-btn" onclick="prevSlide()">◀ Trước</button>
+        <button class="nav-btn" onclick="nextSlide()">Sau ▶</button>
+        <button class="nav-btn" onclick="goSlide(totalSlides)">⏭</button>
+    </div>
+    <div class="slide-num" id="slideNum">1 / 20</div>
+
+    <script>
+        let current=1;const totalSlides=20;
+        function showSlide(n){
+            document.querySelectorAll('.slide').forEach(s=>{s.classList.remove('active');s.style.display='none';});
+            const s=document.querySelector(`[data-slide="${n}"]`);
+            if(s){s.style.display='flex';setTimeout(()=>s.classList.add('active'),10);}
+            document.getElementById('slideNum').textContent=`${n} / ${totalSlides}`;
+        }
+        function nextSlide(){if(current<totalSlides){current++;showSlide(current);}}
+        function prevSlide(){if(current>1){current--;showSlide(current);}}
+        function goSlide(n){current=n;showSlide(current);}
+        document.addEventListener('keydown',e=>{
+            if(e.key==='ArrowRight'||e.key===' ')nextSlide();
+            else if(e.key==='ArrowLeft')prevSlide();
+            else if(e.key==='Home'){e.preventDefault();goSlide(1);}
+            else if(e.key==='End'){e.preventDefault();goSlide(totalSlides);}
+        });
+        let touchStartX=0;
+        document.addEventListener('touchstart',e=>{touchStartX=e.changedTouches[0].screenX;});
+        document.addEventListener('touchend',e=>{
+            const diff=e.changedTouches[0].screenX-touchStartX;
+            if(diff<-50)nextSlide();else if(diff>50)prevSlide();
+        });
+        showSlide(1);
+    </script>
+</body>
+</html>

@@ -82,7 +82,7 @@ const StyledBadgeHeader = styled.div`
   color: ${({ theme }) => theme.font.color.inverted};
   text-align: center;
   padding: 0.625rem;
-  font-size: 0.9375rem;
+  font-size: 1.0625rem;
   font-weight: 600;
 `;
 
@@ -104,7 +104,7 @@ const StyledAvatar = styled.img`
 `;
 
 const StyledAgentName = styled.h2`
-  font-size: 1.25rem;
+  font-size: 1.375rem;
   font-weight: 700;
   color: ${({ theme }) => theme.font.color.primary};
   margin: 0 0 0.75rem;
@@ -122,13 +122,13 @@ const StyledStatItem = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  font-size: 0.8125rem;
+  font-size: 0.9375rem;
   color: ${({ theme }) => theme.font.color.tertiary};
   text-align: center;
 `;
 
 const StyledStatValue = styled.span`
-  font-size: 1.0625rem;
+  font-size: 1.1875rem;
   font-weight: 700;
   color: ${({ theme }) => theme.font.color.primary};
 `;
@@ -138,7 +138,7 @@ const StyledVerifiedBadge = styled.div`
   align-items: center;
   justify-content: center;
   color: ${({ theme }) => theme.color.green};
-  font-size: 1.5rem;
+  font-size: 1.75rem;
 `;
 
 const StyledButtonGroup = styled.div`
@@ -158,7 +158,7 @@ const StyledZaloButton = styled.a`
   border: none;
   border-radius: 8px;
   color: ${({ theme }) => theme.font.color.inverted};
-  font-size: 0.9375rem;
+  font-size: 1.0625rem;
   font-weight: 600;
   text-decoration: none;
   cursor: pointer;
@@ -176,7 +176,7 @@ const StyledPhoneButton = styled.a`
   border: 1px solid ${({ theme }) => theme.border.color.medium};
   border-radius: 8px;
   color: ${({ theme }) => theme.font.color.primary};
-  font-size: 0.9375rem;
+  font-size: 1.0625rem;
   font-weight: 600;
   text-decoration: none;
   cursor: pointer;
@@ -203,7 +203,7 @@ const StyledInfoCard = styled.div`
 `;
 
 const StyledInfoTitle = styled.h3`
-  font-size: 1.125rem;
+  font-size: 1.25rem;
   font-weight: 700;
   color: ${({ theme }) => theme.font.color.primary};
   margin: 0 0 1rem;
@@ -214,7 +214,7 @@ const StyledInfoRow = styled.div`
   align-items: center;
   gap: 0.75rem;
   margin-bottom: 0.75rem;
-  font-size: 0.9375rem;
+  font-size: 1.0625rem;
   color: ${({ theme }) => theme.font.color.secondary};
 
   svg {
@@ -237,7 +237,7 @@ const StyledTabsContainer = styled.div`
 
 const StyledTab = styled.button<{ active: boolean }>`
   padding: 0.875rem 1.5rem;
-  font-size: 1rem;
+  font-size: 1.125rem;
   font-weight: 600;
   color: ${({ active, theme }) =>
     active ? theme.color.red : theme.font.color.tertiary};
@@ -309,7 +309,7 @@ const StyledPhotoCountBadge = styled.div`
   color: ${({ theme }) => theme.font.color.inverted};
   padding: 3px 8px;
   border-radius: 4px;
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   font-weight: 500;
 `;
 
@@ -330,7 +330,7 @@ const StyledExpiredLabel = styled.span`
   color: ${({ theme }) => theme.font.color.inverted};
   padding: 0.5rem 1rem;
   border-radius: 6px;
-  font-size: 0.875rem;
+  font-size: 1rem;
   font-weight: 600;
 `;
 
@@ -361,7 +361,7 @@ const StyledCardContent = styled.div`
 `;
 
 const StyledListingTitle = styled.h4`
-  font-size: 0.9375rem;
+  font-size: 1.0625rem;
   font-weight: 600;
   color: ${({ theme }) => theme.font.color.primary};
   margin: 0 0 0.5rem;
@@ -380,18 +380,18 @@ const StyledPriceRow = styled.div`
 `;
 
 const StyledPrice = styled.span`
-  font-size: 1rem;
+  font-size: 1.125rem;
   font-weight: 700;
   color: ${({ theme }) => theme.font.color.danger};
 `;
 
 const StyledArea = styled.span`
-  font-size: 0.875rem;
+  font-size: 1rem;
   color: ${({ theme }) => theme.font.color.secondary};
 `;
 
 const StyledLocationRow = styled.div`
-  font-size: 0.8125rem;
+  font-size: 0.9375rem;
   color: ${({ theme }) => theme.font.color.tertiary};
   margin-bottom: 0.375rem;
   white-space: nowrap;
@@ -400,7 +400,7 @@ const StyledLocationRow = styled.div`
 `;
 
 const StyledDateRow = styled.div`
-  font-size: 0.8125rem;
+  font-size: 0.9375rem;
   color: ${({ theme }) => theme.font.color.tertiary};
 `;
 
@@ -408,7 +408,7 @@ const StyledEmptyState = styled.div`
   text-align: center;
   padding: 3rem;
   color: ${({ theme }) => theme.font.color.tertiary};
-  font-size: 1rem;
+  font-size: 1.125rem;
 `;
 
 // === Helper ===

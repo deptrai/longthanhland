@@ -29,7 +29,7 @@ const SectionCard = styled.div`
 `;
 
 const SectionTitle = styled.h4`
-  font-size: 1rem;
+  font-size: 1.125rem;
   font-weight: 700;
   color: ${({ theme }) => theme.font.color.primary};
   padding: 0.875rem 1.125rem;
@@ -60,7 +60,7 @@ const FilterLink = styled.a`
   align-items: center;
   padding: 0.5rem 1.125rem;
   color: ${({ theme }) => theme.font.color.secondary};
-  font-size: 0.9rem;
+  font-size: 1rem;
   text-decoration: none;
   cursor: pointer;
   transition: background-color 0.15s;
@@ -73,7 +73,7 @@ const FilterLink = styled.a`
 
 const CityCount = styled.span`
   color: ${({ theme }) => theme.font.color.tertiary};
-  font-size: 0.8125rem;
+  font-size: 0.9375rem;
 `;
 
 const ShowMoreButton = styled.button`
@@ -87,7 +87,7 @@ const ShowMoreButton = styled.button`
   border: none;
   border-top: 1px solid ${({ theme }) => theme.border.color.light};
   color: ${({ theme }) => theme.color.blue};
-  font-size: 0.875rem;
+  font-size: 1rem;
   font-weight: 500;
   cursor: pointer;
   transition: background-color 0.15s;
@@ -118,7 +118,7 @@ const ArticleLink = styled.a`
   gap: 0.625rem;
   padding: 0.625rem 1.125rem;
   color: ${({ theme }) => theme.font.color.secondary};
-  font-size: 0.875rem;
+  font-size: 1rem;
   line-height: 1.4;
   text-decoration: none;
   cursor: pointer;
@@ -140,7 +140,7 @@ const ArticleLink = styled.a`
     border-radius: 50%;
     background-color: ${({ theme }) => theme.color.blue};
     color: ${({ theme }) => theme.font.color.inverted};
-    font-size: 0.75rem;
+    font-size: 0.875rem;
     font-weight: 700;
     margin-top: 1px;
   }

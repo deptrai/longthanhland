@@ -15,7 +15,7 @@ const LanguageButton = styled.button<{ active: boolean }>`
     active ? theme.font.color.inverted : theme.font.color.secondary};
   border: 1px solid ${({ theme }) => theme.border.color.medium};
   border-radius: 6px;
-  font-size: 0.875rem;
+  font-size: 1rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;

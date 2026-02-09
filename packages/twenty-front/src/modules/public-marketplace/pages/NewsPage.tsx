@@ -1,5 +1,6 @@
 import styled from '@emotion/styled';
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { NewsSection } from '../components/NewsSection';
 import { useLanguage } from '../i18n/LanguageContext';
 
@@ -21,7 +22,7 @@ const PageHeader = styled.div`
 `;
 
 const PageTitle = styled.h1`
-  font-size: 1.5rem;
+  font-size: 1.75rem;
   font-weight: 700;
   color: ${({ theme }) => theme.font.color.primary};
   margin-bottom: 1rem;
@@ -37,7 +38,7 @@ const CategoryTabs = styled.div`
 const CategoryTab = styled.button<{ $active?: boolean }>`
   padding: 0.5rem 1rem;
   border-radius: 20px;
-  font-size: 0.875rem;
+  font-size: 1rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
@@ -90,14 +91,14 @@ const FeaturedBadge = styled.span`
   padding: 0.25rem 0.75rem;
   background-color: ${({ theme }) => theme.color.red};
   color: ${({ theme }) => theme.font.color.inverted};
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   font-weight: 600;
   border-radius: 4px;
   margin-bottom: 0.75rem;
 `;
 
 const FeaturedTitle = styled.h2`
-  font-size: 1.375rem;
+  font-size: 1.5rem;
   font-weight: 700;
   color: ${({ theme }) => theme.font.color.primary};
   line-height: 1.4;
@@ -105,14 +106,14 @@ const FeaturedTitle = styled.h2`
 `;
 
 const FeaturedExcerpt = styled.p`
-  font-size: 0.9375rem;
+  font-size: 1.0625rem;
   color: ${({ theme }) => theme.font.color.secondary};
   line-height: 1.6;
   margin-bottom: 1rem;
 `;
 
 const FeaturedMeta = styled.div`
-  font-size: 0.8125rem;
+  font-size: 0.9375rem;
   color: ${({ theme }) => theme.font.color.tertiary};
   display: flex;
   gap: 1rem;
@@ -139,28 +140,30 @@ export const NewsPage = () => {
         </CategoryTabs>
       </PageHeader>
 
-      <FeaturedArticle>
-        <FeaturedImage
-          src="https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=800"
-          alt="Featured article"
-        />
-        <FeaturedContent>
-          <FeaturedBadge>Nổi bật</FeaturedBadge>
-          <FeaturedTitle>
-            Sân bay Long Thành: Cơ hội vàng cho nhà đầu tư bất động sản
-          </FeaturedTitle>
-          <FeaturedExcerpt>
-            Dự án sân bay quốc tế Long Thành dự kiến hoàn thành giai đoạn 1
-            vào năm 2025, mở ra cơ hội đầu tư hấp dẫn cho khu vực Đồng Nai
-            với tiềm năng tăng giá 40-50%.
-          </FeaturedExcerpt>
-          <FeaturedMeta>
-            <span>27/12/2025</span>
-            <span>5 phút đọc</span>
-            <span>Thị trường</span>
-          </FeaturedMeta>
-        </FeaturedContent>
-      </FeaturedArticle>
+      <Link to="/marketplace/news/news-1" style={{ textDecoration: 'none', color: 'inherit' }}>
+        <FeaturedArticle>
+          <FeaturedImage
+            src="https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=800"
+            alt="Featured article"
+          />
+          <FeaturedContent>
+            <FeaturedBadge>Nổi bật</FeaturedBadge>
+            <FeaturedTitle>
+              Sân bay Long Thành: Cơ hội vàng cho nhà đầu tư bất động sản
+            </FeaturedTitle>
+            <FeaturedExcerpt>
+              Dự án sân bay quốc tế Long Thành dự kiến hoàn thành giai đoạn 1
+              vào năm 2025, mở ra cơ hội đầu tư hấp dẫn cho khu vực Đồng Nai
+              với tiềm năng tăng giá 40-50%.
+            </FeaturedExcerpt>
+            <FeaturedMeta>
+              <span>27/12/2025</span>
+              <span>5 phút đọc</span>
+              <span>Thị trường</span>
+            </FeaturedMeta>
+          </FeaturedContent>
+        </FeaturedArticle>
+      </Link>
 
       <NewsSection />
     </Container>

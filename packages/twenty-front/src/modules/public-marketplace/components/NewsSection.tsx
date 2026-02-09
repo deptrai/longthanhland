@@ -7,7 +7,7 @@ const NewsContainer = styled.section`
 `;
 
 const SectionTitle = styled.h2`
-  font-size: 1.5rem;
+  font-size: 1.75rem;
   font-weight: 600;
   color: ${({ theme }) => theme.font.color.primary};
   margin-bottom: 1.5rem;
@@ -48,7 +48,7 @@ const NewsCategory = styled.span`
   padding: 0.25rem 0.75rem;
   background-color: ${({ theme }) => theme.color.blue};
   color: ${({ theme }) => theme.font.color.inverted};
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   font-weight: 600;
   border-radius: 4px;
   margin-bottom: 0.75rem;
@@ -56,14 +56,14 @@ const NewsCategory = styled.span`
 
 const NewsTitle = styled.h3`
   color: ${({ theme }) => theme.font.color.primary};
-  font-size: 1.125rem;
+  font-size: 1.25rem;
   font-weight: 600;
   line-height: 1.4;
   margin-bottom: 0.5rem;
 `;
 
 const NewsExcerpt = styled.p`
-  font-size: 0.9375rem;
+  font-size: 1.0625rem;
   color: ${({ theme }) => theme.font.color.secondary};
   line-height: 1.6;
   margin-bottom: 1rem;
@@ -73,7 +73,7 @@ const NewsFooter = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 0.875rem;
+  font-size: 1rem;
   color: ${({ theme }) => theme.font.color.tertiary};
 `;
 

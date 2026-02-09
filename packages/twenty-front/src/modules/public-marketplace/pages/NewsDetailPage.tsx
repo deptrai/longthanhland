@@ -29,7 +29,7 @@ const BreadcrumbNav = styled.nav`
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 0.875rem;
+  font-size: 1rem;
   color: ${({ theme }) => theme.font.color.tertiary};
   margin-bottom: 1.5rem;
   flex-wrap: wrap;
@@ -42,7 +42,7 @@ const BreadcrumbLink = styled(Link)`
 `;
 
 const ArticleTitle = styled.h1`
-  font-size: 1.75rem;
+  font-size: 2rem;
   font-weight: 700;
   color: ${({ theme }) => theme.font.color.primary};
   line-height: 1.4;
@@ -53,7 +53,7 @@ const MetaRow = styled.div`
   display: flex;
   align-items: center;
   gap: 1.5rem;
-  font-size: 0.875rem;
+  font-size: 1rem;
   color: ${({ theme }) => theme.font.color.tertiary};
   margin-bottom: 1.5rem;
   flex-wrap: wrap;
@@ -81,7 +81,7 @@ const FeaturedImage = styled.img`
 `;
 
 const ArticleBody = styled.div`
-  font-size: 1.0625rem;
+  font-size: 1.1875rem;
   line-height: 1.8;
   color: ${({ theme }) => theme.font.color.primary};
   p { margin-bottom: 1.25rem; }
@@ -100,7 +100,7 @@ const Tag = styled(Link)`
   padding: 0.35rem 0.85rem;
   background: ${({ theme }) => theme.background.tertiary};
   border-radius: 20px;
-  font-size: 0.8125rem;
+  font-size: 0.9375rem;
   color: ${({ theme }) => theme.font.color.secondary};
   text-decoration: none;
   &:hover { background: ${({ theme }) => theme.color.blue}; color: ${({ theme }) => theme.font.color.inverted}; }
@@ -111,7 +111,7 @@ const ShareRow = styled.div`
   align-items: center;
   gap: 0.75rem;
   margin-top: 1.5rem;
-  font-size: 0.875rem;
+  font-size: 1rem;
   color: ${({ theme }) => theme.font.color.tertiary};
 `;
 
@@ -122,7 +122,7 @@ const ShareButton = styled.button`
   background: ${({ theme }) => theme.background.secondary};
   color: ${({ theme }) => theme.font.color.secondary};
   cursor: pointer;
-  font-size: 0.8125rem;
+  font-size: 0.9375rem;
   &:hover { border-color: ${({ theme }) => theme.color.blue}; color: ${({ theme }) => theme.color.blue}; }
 `;
 
@@ -135,7 +135,7 @@ const SidebarCard = styled.div`
 `;
 
 const SidebarTitle = styled.h3`
-  font-size: 1.0625rem;
+  font-size: 1.1875rem;
   font-weight: 600;
   color: ${({ theme }) => theme.font.color.primary};
   margin-bottom: 1rem;
@@ -163,7 +163,7 @@ const RelatedInfo = styled.div`
 `;
 
 const RelatedTitle = styled.h4`
-  font-size: 0.875rem;
+  font-size: 1rem;
   font-weight: 500;
   color: ${({ theme }) => theme.font.color.primary};
   line-height: 1.4;
@@ -175,14 +175,14 @@ const RelatedTitle = styled.h4`
 `;
 
 const RelatedDate = styled.span`
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   color: ${({ theme }) => theme.font.color.tertiary};
 `;
 
 const NotFoundMessage = styled.div`
   text-align: center;
   padding: 4rem 2rem;
-  font-size: 1.125rem;
+  font-size: 1.25rem;
   color: ${({ theme }) => theme.font.color.tertiary};
 `;
 

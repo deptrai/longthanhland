@@ -69,12 +69,12 @@ const ContactIconWrap = styled.div`
 `;
 
 const ContactLabel = styled.div`
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   color: ${({ theme }) => theme.font.color.tertiary};
 `;
 
 const ContactValue = styled.div`
-  font-size: 1rem;
+  font-size: 1.125rem;
   font-weight: 600;
   color: ${({ theme }) => theme.font.color.primary};
 `;
@@ -99,7 +99,7 @@ const MainGrid = styled.div`
 const FooterSection = styled.div``;
 
 const FooterTitle = styled.h3`
-  font-size: 0.85rem;
+  font-size: 0.9375rem;
   font-weight: 700;
   color: ${({ theme }) => theme.font.color.primary};
   text-transform: uppercase;
@@ -112,7 +112,7 @@ const FooterLink = styled.a`
   color: ${({ theme }) => theme.font.color.secondary};
   text-decoration: none;
   margin-bottom: 0.6rem;
-  font-size: 0.85rem;
+  font-size: 0.9375rem;
   transition: color 0.2s;
 
   &:hover {
@@ -121,14 +121,14 @@ const FooterLink = styled.a`
 `;
 
 const CompanyName = styled.div`
-  font-size: 0.85rem;
+  font-size: 0.9375rem;
   font-weight: 600;
   color: ${({ theme }) => theme.font.color.primary};
   margin-bottom: 0.5rem;
 `;
 
 const CompanyAddress = styled.div`
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   color: ${({ theme }) => theme.font.color.tertiary};
   line-height: 1.6;
   margin-bottom: 1rem;
@@ -138,7 +138,7 @@ const CompanyAddress = styled.div`
 `;
 
 const CompanyPhone = styled.div`
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   color: ${({ theme }) => theme.font.color.secondary};
   display: flex;
   align-items: center;
@@ -164,7 +164,7 @@ const QRPlaceholder = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.6rem;
+  font-size: 0.6875rem;
   color: ${({ theme }) => theme.font.color.tertiary};
   font-weight: 600;
   text-align: center;
@@ -177,7 +177,7 @@ const StoreBadge = styled.a`
   color: ${({ theme }) => theme.font.color.primary};
   padding: 0.4rem 0.75rem;
   border-radius: 6px;
-  font-size: 0.7rem;
+  font-size: 0.8125rem;
   text-decoration: none;
   text-align: center;
   transition: background 0.2s;
@@ -189,7 +189,7 @@ const StoreBadge = styled.a`
 
   span {
     display: block;
-    font-size: 0.55rem;
+    font-size: 0.625rem;
     color: ${({ theme }) => theme.font.color.tertiary};
   }
 `;
@@ -214,7 +214,7 @@ const NewsletterInput = styled.div`
     border-radius: 6px 0 0 6px;
     background: ${({ theme }) => theme.background.primary};
     color: ${({ theme }) => theme.font.color.primary};
-    font-size: 0.85rem;
+    font-size: 0.9375rem;
     outline: none;
 
     &::placeholder {
@@ -257,7 +257,7 @@ const BranchToggle = styled.button`
   background: none;
   border: none;
   color: ${({ theme }) => theme.font.color.primary};
-  font-size: 0.85rem;
+  font-size: 0.9375rem;
   font-weight: 600;
   cursor: pointer;
   padding: 0;
@@ -281,14 +281,14 @@ const BranchGrid = styled.div<{ $open: boolean }>`
 const BranchCard = styled.div``;
 
 const BranchName = styled.div`
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   font-weight: 600;
   color: ${({ theme }) => theme.font.color.primary};
   margin-bottom: 0.25rem;
 `;
 
 const BranchAddress = styled.div`
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   color: ${({ theme }) => theme.font.color.tertiary};
   line-height: 1.5;
 `;
@@ -308,7 +308,7 @@ const BottomSection = styled.div`
 `;
 
 const LegalInfo = styled.div`
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   color: ${({ theme }) => theme.font.color.tertiary};
   line-height: 1.8;
   flex: 1;
@@ -340,7 +340,7 @@ const SocialIcon = styled.a`
   justify-content: center;
   color: ${({ theme }) => theme.font.color.secondary};
   text-decoration: none;
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   font-weight: 700;
   transition: all 0.2s;
 
@@ -359,7 +359,7 @@ const GovBadge = styled.a`
   border-radius: 6px;
   color: ${({ theme }) => theme.font.color.secondary};
   text-decoration: none;
-  font-size: 0.7rem;
+  font-size: 0.8125rem;
   transition: border-color 0.2s;
 
   &:hover {

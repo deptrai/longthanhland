@@ -21,7 +21,7 @@ const MaxWidth = styled.div`
 `;
 
 const Title = styled.h1`
-  font-size: 1.875rem;
+  font-size: 2.125rem;
   font-weight: 600;
   color: ${({ theme }) => theme.font.color.primary};
   margin-bottom: 1.5rem;
@@ -50,7 +50,7 @@ const StatHeader = styled.div`
 
 const StatLabel = styled.div`
   color: ${({ theme }) => theme.font.color.tertiary};
-  font-size: 0.875rem;
+  font-size: 1rem;
 `;
 
 const StatIcon = styled.div<{ color?: string }>`
@@ -65,14 +65,14 @@ const StatIcon = styled.div<{ color?: string }>`
 `;
 
 const StatValue = styled.div`
-  font-size: 2rem;
+  font-size: 2.25rem;
   font-weight: 700;
   color: ${({ theme }) => theme.font.color.primary};
   margin-bottom: 0.5rem;
 `;
 
 const StatChange = styled.div<{ positive?: boolean }>`
-  font-size: 0.875rem;
+  font-size: 1rem;
   color: ${({ theme, positive }) => (positive ? theme.color.green : theme.color.red)};
   display: flex;
   align-items: center;
@@ -93,7 +93,7 @@ const CardHeader = styled.div`
 
 const CardTitle = styled.h2`
   color: ${({ theme }) => theme.font.color.primary};
-  font-size: 1.25rem;
+  font-size: 1.375rem;
   font-weight: 600;
 `;
 
@@ -104,7 +104,7 @@ const TableHeader = styled.div`
   border-bottom: 1px solid ${({ theme }) => theme.border.color.medium};
   color: ${({ theme }) => theme.font.color.tertiary};
   display: grid;
-  font-size: 0.875rem;
+  font-size: 1rem;
   font-weight: 600;
   gap: 1rem;
   grid-template-columns: 2fr 1fr 1fr 1fr;
@@ -140,14 +140,14 @@ const FeaturedBadge = styled.span`
   color: ${({ theme }) => theme.background.primary};
   padding: 0.125rem 0.375rem;
   border-radius: 4px;
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   font-weight: 700;
 `;
 
 const StatusBadge = styled.span<{ status: string }>`
   padding: 0.25rem 0.75rem;
   border-radius: 9999px;
-  font-size: 0.875rem;
+  font-size: 1rem;
   font-weight: 500;
   background-color: ${({ theme, status }) => {
     switch (status) {

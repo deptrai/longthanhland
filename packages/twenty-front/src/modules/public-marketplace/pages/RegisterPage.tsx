@@ -21,7 +21,7 @@ const Card = styled.div`
 `;
 
 const Title = styled.h1`
-  font-size: 2rem;
+  font-size: 2.25rem;
   font-weight: 600;
   color: ${({ theme }) => theme.font.color.primary};
   margin-bottom: 0.5rem;
@@ -47,7 +47,7 @@ const FormGroup = styled.div`
 `;
 
 const Label = styled.label`
-  font-size: 0.875rem;
+  font-size: 1rem;
   color: ${({ theme }) => theme.font.color.primary};
   font-weight: 500;
 `;
@@ -57,7 +57,7 @@ const Input = styled.input`
   border: 1px solid ${({ theme }) => theme.border.color.medium};
   border-radius: 8px;
   padding: 0.75rem 1rem;
-  font-size: 1rem;
+  font-size: 1.125rem;
   color: ${({ theme }) => theme.font.color.primary};
   transition: border-color 0.2s;
 
@@ -77,7 +77,7 @@ const Button = styled.button`
   border: none;
   border-radius: 8px;
   padding: 0.875rem 1rem;
-  font-size: 1rem;
+  font-size: 1.125rem;
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.2s;
@@ -94,7 +94,7 @@ const Button = styled.button`
 
 const ErrorMessage = styled.div`
   color: ${({ theme }) => theme.color.red};
-  font-size: 0.875rem;
+  font-size: 1rem;
   margin-top: 0.5rem;
 `;
 
@@ -102,7 +102,7 @@ const LinkText = styled.div`
   text-align: center;
   margin-top: 1.5rem;
   color: ${({ theme }) => theme.font.color.tertiary};
-  font-size: 0.875rem;
+  font-size: 1rem;
 
   a {
     color: ${({ theme }) => theme.color.blue};

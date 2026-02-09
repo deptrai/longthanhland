@@ -20,7 +20,7 @@ const Header = styled.div`
 `;
 
 const Title = styled.h3`
-  font-size: 1.25rem;
+  font-size: 1.375rem;
   font-weight: 600;
   color: ${({ theme }) => theme.font.color.primary};
   display: flex;
@@ -43,12 +43,12 @@ const ScoreBadge = styled.div<{ score: number }>`
 `;
 
 const ScoreNumber = styled.div`
-  font-size: 2rem;
+  font-size: 2.25rem;
   font-weight: 700;
 `;
 
 const ScoreLabel = styled.div`
-  font-size: 0.875rem;
+  font-size: 1rem;
   font-weight: 500;
 `;
 
@@ -61,7 +61,7 @@ const ExpandButton = styled.button`
   color: ${({ theme }) => theme.font.color.secondary};
   border: 1px solid ${({ theme }) => theme.border.color.medium};
   border-radius: 6px;
-  font-size: 0.875rem;
+  font-size: 1rem;
   cursor: pointer;
   transition: all 0.2s;
 
@@ -93,13 +93,13 @@ const FactorHeader = styled.div`
 
 const FactorName = styled.div`
   color: ${({ theme }) => theme.font.color.primary};
-  font-size: 0.9375rem;
+  font-size: 1.0625rem;
   font-weight: 600;
 `;
 
 const FactorScore = styled.div`
   color: ${({ theme }) => theme.color.blue};
-  font-size: 0.875rem;
+  font-size: 1rem;
   font-weight: 600;
 `;
 
@@ -124,7 +124,7 @@ const Progress = styled.div<{ percentage: number }>`
 `;
 
 const FactorDetails = styled.div`
-  font-size: 0.8125rem;
+  font-size: 0.9375rem;
   color: ${({ theme }) => theme.font.color.tertiary};
   line-height: 1.5;
 `;
@@ -135,7 +135,7 @@ const AIBadge = styled.span`
   padding: 0.125rem 0.5rem;
   background: ${({ theme }) => `linear-gradient(135deg, ${theme.color.blue} 0%, ${theme.color.purple} 100%)`};
   color: ${({ theme }) => theme.font.color.inverted};
-  font-size: 0.6875rem;
+  font-size: 0.8125rem;
   font-weight: 600;
   border-radius: 4px;
   margin-left: 0.5rem;

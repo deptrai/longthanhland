@@ -56,7 +56,7 @@ const HeroContent = styled.div`
 
 const Title = styled.h1`
   color: ${({ theme }) => theme.font.color.inverted};
-  font-size: 2.5rem;
+  font-size: 2.75rem;
   font-weight: 700;
   margin-bottom: 0.5rem;
 `;
@@ -65,7 +65,7 @@ const LocationText = styled.div`
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 1.125rem;
+  font-size: 1.25rem;
   opacity: 0.9;
   color: ${({ theme }) => theme.font.color.inverted};
 `;
@@ -85,14 +85,14 @@ const StatCard = styled.div`
 `;
 
 const StatLabel = styled.div`
-  font-size: 0.875rem;
+  font-size: 1rem;
   color: ${({ theme }) => theme.font.color.tertiary};
   margin-bottom: 0.5rem;
 `;
 
 const StatValue = styled.div`
   color: ${({ theme }) => theme.color.blue};
-  font-size: 1.875rem;
+  font-size: 2.125rem;
   font-weight: 700;
 `;
 
@@ -105,7 +105,7 @@ const Card = styled.div`
 `;
 
 const SectionTitle = styled.h2`
-  font-size: 1.5rem;
+  font-size: 1.75rem;
   font-weight: 600;
   color: ${({ theme }) => theme.font.color.primary};
   margin-bottom: 1.5rem;
@@ -132,13 +132,13 @@ const SpecItem = styled.div`
 
 const SpecLabel = styled.span`
   color: ${({ theme }) => theme.font.color.tertiary};
-  font-size: 0.9375rem;
+  font-size: 1.0625rem;
 `;
 
 const SpecValue = styled.span`
   color: ${({ theme }) => theme.font.color.primary};
   font-weight: 600;
-  font-size: 0.9375rem;
+  font-size: 1.0625rem;
 `;
 
 const AmenityGrid = styled.div`
@@ -172,7 +172,7 @@ const AmenityTitle = styled.div`
 
 const AmenityList = styled.div`
   color: ${({ theme }) => theme.font.color.tertiary};
-  font-size: 0.875rem;
+  font-size: 1rem;
 `;
 
 const ContactCard = styled.div`
@@ -190,7 +190,7 @@ const ContactButton = styled.button`
   border: none;
   border-radius: 8px;
   padding: 1rem;
-  font-size: 1rem;
+  font-size: 1.125rem;
   font-weight: 600;
   cursor: pointer;
   margin-bottom: 1.5rem;
@@ -217,7 +217,7 @@ const SellerAvatar = styled.div`
   justify-content: center;
   color: ${({ theme }) => theme.font.color.inverted};
   font-weight: 700;
-  font-size: 1.25rem;
+  font-size: 1.375rem;
 `;
 
 const SellerDetails = styled.div`
@@ -227,13 +227,13 @@ const SellerDetails = styled.div`
 const SellerName = styled.div`
   color: ${({ theme }) => theme.font.color.primary};
   font-weight: 600;
-  font-size: 1.125rem;
+  font-size: 1.25rem;
   margin-bottom: 0.25rem;
 `;
 
 const SellerLabel = styled.div`
   color: ${({ theme }) => theme.font.color.tertiary};
-  font-size: 0.875rem;
+  font-size: 1rem;
 `;
 
 const ContactInfo = styled.div`
@@ -247,7 +247,7 @@ const ContactItem = styled.div`
   align-items: center;
   color: ${({ theme }) => theme.font.color.secondary};
   display: flex;
-  font-size: 0.9375rem;
+  font-size: 1.0625rem;
   gap: 0.75rem;
 `;
 
@@ -288,7 +288,7 @@ const RelatedContent = styled.div`
 
 const RelatedTitle = styled.div`
   color: ${({ theme }) => theme.font.color.primary};
-  font-size: 0.9375rem;
+  font-size: 1.0625rem;
   font-weight: 600;
   margin-bottom: 0.5rem;
 `;
@@ -296,7 +296,7 @@ const RelatedTitle = styled.div`
 const RelatedPrice = styled.div`
   color: ${({ theme }) => theme.color.blue};
   font-weight: 700;
-  font-size: 1.125rem;
+  font-size: 1.25rem;
 `;
 
 const MapPlaceholder = styled.div`
@@ -307,7 +307,7 @@ const MapPlaceholder = styled.div`
   align-items: center;
   justify-content: center;
   color: ${({ theme }) => theme.font.color.tertiary};
-  font-size: 1rem;
+  font-size: 1.125rem;
 `;
 
 export const EnhancedListingDetailPage = () => {

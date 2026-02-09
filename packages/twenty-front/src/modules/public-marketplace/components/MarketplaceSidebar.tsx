@@ -33,7 +33,7 @@ const AgentBadgeHeader = styled.div`
   color: ${({ theme }) => theme.font.color.inverted};
   text-align: center;
   padding: 0.625rem;
-  font-size: 0.9375rem;
+  font-size: 1.0625rem;
   font-weight: 600;
 `;
 
@@ -54,7 +54,7 @@ const Avatar = styled.img`
 `;
 
 const AgentName = styled.h3`
-  font-size: 1.1875rem;
+  font-size: 1.3125rem;
   font-weight: 700;
   color: ${({ theme }) => theme.font.color.primary};
   margin: 0 0 0.75rem;
@@ -72,13 +72,13 @@ const StatItem = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  font-size: 0.8125rem;
+  font-size: 0.9375rem;
   color: ${({ theme }) => theme.font.color.tertiary};
   text-align: center;
 `;
 
 const StatValue = styled.span`
-  font-size: 1.0625rem;
+  font-size: 1.1875rem;
   font-weight: 700;
   color: ${({ theme }) => theme.font.color.primary};
 `;
@@ -88,7 +88,7 @@ const VerifiedBadge = styled.div`
   align-items: center;
   justify-content: center;
   color: ${({ theme }) => theme.color.green};
-  font-size: 1.5rem;
+  font-size: 1.75rem;
 `;
 
 const ButtonGroup = styled.div`
@@ -105,7 +105,7 @@ const ProfileButton = styled(Link)`
   border: 1px solid ${({ theme }) => theme.border.color.medium};
   border-radius: 8px;
   color: ${({ theme }) => theme.font.color.primary};
-  font-size: 0.9375rem;
+  font-size: 1.0625rem;
   font-weight: 500;
   text-decoration: none;
   cursor: pointer;
@@ -126,7 +126,7 @@ const ZaloButton = styled.a`
   border: none;
   border-radius: 8px;
   color: ${({ theme }) => theme.font.color.inverted};
-  font-size: 0.9375rem;
+  font-size: 1.0625rem;
   font-weight: 600;
   text-decoration: none;
   cursor: pointer;
@@ -147,7 +147,7 @@ const PhoneButton = styled.a`
   border: 1px solid ${({ theme }) => theme.border.color.medium};
   border-radius: 8px;
   color: ${({ theme }) => theme.font.color.primary};
-  font-size: 0.9375rem;
+  font-size: 1.0625rem;
   font-weight: 600;
   text-decoration: none;
   cursor: pointer;
@@ -158,7 +158,7 @@ const PhoneButton = styled.a`
 `;
 
 const PhoneHint = styled.div`
-  font-size: 0.8125rem;
+  font-size: 0.9375rem;
   color: ${({ theme }) => theme.font.color.tertiary};
   text-align: center;
   margin-top: 0.25rem;
@@ -173,7 +173,7 @@ const SectionCard = styled.div`
 `;
 
 const SectionTitle = styled.h4`
-  font-size: 1rem;
+  font-size: 1.125rem;
   font-weight: 700;
   color: ${({ theme }) => theme.font.color.primary};
   padding: 0.875rem 1.125rem;
@@ -202,7 +202,7 @@ const AreaLink = styled.a`
   align-items: center;
   padding: 0.625rem 1.125rem;
   color: ${({ theme }) => theme.font.color.secondary};
-  font-size: 0.9375rem;
+  font-size: 1.0625rem;
   text-decoration: none;
   cursor: pointer;
   transition: background-color 0.15s;
@@ -215,7 +215,7 @@ const AreaLink = styled.a`
 
 const AreaCount = styled.span`
   color: ${({ theme }) => theme.font.color.tertiary};
-  font-size: 0.875rem;
+  font-size: 1rem;
 `;
 
 // === Featured Listings Section ===
@@ -237,7 +237,7 @@ const FeaturedLink = styled.a`
   display: block;
   padding: 0.625rem 1.125rem;
   color: ${({ theme }) => theme.color.blue};
-  font-size: 0.9375rem;
+  font-size: 1.0625rem;
   font-weight: 500;
   text-decoration: none;
   cursor: pointer;

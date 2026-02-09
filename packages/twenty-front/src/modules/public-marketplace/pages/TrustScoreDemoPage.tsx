@@ -14,7 +14,7 @@ const MaxWidth = styled.div`
 `;
 
 const Title = styled.h1`
-  font-size: 2rem;
+  font-size: 2.25rem;
   font-weight: 700;
   color: ${({ theme }) => theme.font.color.primary};
   margin-bottom: 1rem;
@@ -22,7 +22,7 @@ const Title = styled.h1`
 
 const Description = styled.p`
   color: ${({ theme }) => theme.font.color.secondary};
-  font-size: 1rem;
+  font-size: 1.125rem;
   line-height: 1.6;
   margin-bottom: 2rem;
 `;
@@ -32,7 +32,7 @@ const DemoSection = styled.div`
 `;
 
 const SectionTitle = styled.h2`
-  font-size: 1.5rem;
+  font-size: 1.75rem;
   font-weight: 600;
   color: ${({ theme }) => theme.font.color.primary};
   margin-bottom: 1rem;

@@ -36,7 +36,7 @@ const StyledMaxWidth = styled.div`
 
 const StyledTitle = styled.h1`
   color: ${({ theme }) => theme.font.color.primary};
-  font-size: 2rem;
+  font-size: 2.25rem;
   font-weight: 700;
   margin: 1.5rem 0 1rem;
 `;
@@ -45,7 +45,7 @@ const StyledLocationText = styled.div`
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 1rem;
+  font-size: 1.125rem;
   color: ${({ theme }) => theme.font.color.tertiary};
   margin-bottom: 2rem;
 `;
@@ -65,14 +65,14 @@ const StyledStatCard = styled.div`
 `;
 
 const StyledStatLabel = styled.div`
-  font-size: 0.875rem;
+  font-size: 1rem;
   color: ${({ theme }) => theme.font.color.tertiary};
   margin-bottom: 0.5rem;
 `;
 
 const StyledStatValue = styled.div`
   color: ${({ theme }) => theme.color.blue};
-  font-size: 1.875rem;
+  font-size: 2.125rem;
   font-weight: 700;
 `;
 
@@ -92,13 +92,13 @@ const StyledSpecItem = styled.div`
 
 const StyledSpecLabel = styled.span`
   color: ${({ theme }) => theme.font.color.tertiary};
-  font-size: 0.9375rem;
+  font-size: 1.0625rem;
 `;
 
 const StyledSpecValue = styled.span`
   color: ${({ theme }) => theme.font.color.primary};
   font-weight: 600;
-  font-size: 0.9375rem;
+  font-size: 1.0625rem;
 `;
 
 const StyledAmenityGrid = styled.div`
@@ -132,7 +132,7 @@ const StyledAmenityTitle = styled.div`
 
 const StyledAmenityList = styled.div`
   color: ${({ theme }) => theme.font.color.tertiary};
-  font-size: 0.875rem;
+  font-size: 1rem;
 `;
 
 const StyledContactCard = styled.div`
@@ -150,7 +150,7 @@ const StyledContactButton = styled.button`
   border: none;
   border-radius: 8px;
   padding: 1rem;
-  font-size: 1rem;
+  font-size: 1.125rem;
   font-weight: 600;
   cursor: pointer;
   margin-bottom: 1.5rem;
@@ -172,7 +172,7 @@ const StyledContactItem = styled.div`
   align-items: center;
   color: ${({ theme }) => theme.font.color.secondary};
   display: flex;
-  font-size: 0.9375rem;
+  font-size: 1.0625rem;
   gap: 0.75rem;
 `;
 
@@ -213,7 +213,7 @@ const StyledRelatedContent = styled.div`
 
 const StyledRelatedTitle = styled.div`
   color: ${({ theme }) => theme.font.color.primary};
-  font-size: 0.9375rem;
+  font-size: 1.0625rem;
   font-weight: 600;
   margin-bottom: 0.5rem;
 `;
@@ -221,7 +221,7 @@ const StyledRelatedTitle = styled.div`
 const StyledRelatedPrice = styled.div`
   color: ${({ theme }) => theme.color.blue};
   font-weight: 700;
-  font-size: 1.125rem;
+  font-size: 1.25rem;
 `;
 
 const StyledCard = styled.div`
@@ -233,7 +233,7 @@ const StyledCard = styled.div`
 `;
 
 const StyledSectionTitle = styled.h3`
-  font-size: 1.25rem;
+  font-size: 1.375rem;
   font-weight: 600;
   color: ${({ theme }) => theme.font.color.primary};
   margin-bottom: 1rem;
@@ -254,7 +254,7 @@ const StyledSellerAvatar = styled.div`
   justify-content: center;
   color: ${({ theme }) => theme.font.color.inverted};
   font-weight: 700;
-  font-size: 1.25rem;
+  font-size: 1.375rem;
 `;
 
 const StyledSellerInfo = styled.div`
@@ -270,13 +270,13 @@ const StyledSellerDetails = styled.div`
 const StyledSellerName = styled.div`
   color: ${({ theme }) => theme.font.color.primary};
   font-weight: 600;
-  font-size: 1.125rem;
+  font-size: 1.25rem;
   margin-bottom: 0.25rem;
 `;
 
 const StyledSellerLabel = styled.div`
   color: ${({ theme }) => theme.font.color.tertiary};
-  font-size: 0.875rem;
+  font-size: 1rem;
 `;
 
 export const ListingDetailPage = () => {
