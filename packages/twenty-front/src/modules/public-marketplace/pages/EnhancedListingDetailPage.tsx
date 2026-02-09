@@ -65,7 +65,7 @@ const LocationText = styled.div`
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 1.25rem;
+  font-size: 1.75rem;
   opacity: 0.9;
   color: ${({ theme }) => theme.font.color.inverted};
 `;
@@ -132,13 +132,13 @@ const SpecItem = styled.div`
 
 const SpecLabel = styled.span`
   color: ${({ theme }) => theme.font.color.tertiary};
-  font-size: 1.0625rem;
+  font-size: 1.3125rem;
 `;
 
 const SpecValue = styled.span`
   color: ${({ theme }) => theme.font.color.primary};
   font-weight: 600;
-  font-size: 1.0625rem;
+  font-size: 1.3125rem;
 `;
 
 const AmenityGrid = styled.div`
@@ -190,7 +190,7 @@ const ContactButton = styled.button`
   border: none;
   border-radius: 8px;
   padding: 1rem;
-  font-size: 1.125rem;
+  font-size:     -eem;
   font-weight: 600;
   cursor: pointer;
   margin-bottom: 1.5rem;
@@ -217,7 +217,7 @@ const SellerAvatar = styled.div`
   justify-content: center;
   color: ${({ theme }) => theme.font.color.inverted};
   font-weight: 700;
-  font-size: 1.375rem;
+  font-size:     -eem;
 `;
 
 const SellerDetails = styled.div`
@@ -227,7 +227,7 @@ const SellerDetails = styled.div`
 const SellerName = styled.div`
   color: ${({ theme }) => theme.font.color.primary};
   font-weight: 600;
-  font-size: 1.25rem;
+  font-size: 1.75rem;
   margin-bottom: 0.25rem;
 `;
 
@@ -247,7 +247,7 @@ const ContactItem = styled.div`
   align-items: center;
   color: ${({ theme }) => theme.font.color.secondary};
   display: flex;
-  font-size: 1.0625rem;
+  font-size: 1.3125rem;
   gap: 0.75rem;
 `;
 
@@ -288,7 +288,7 @@ const RelatedContent = styled.div`
 
 const RelatedTitle = styled.div`
   color: ${({ theme }) => theme.font.color.primary};
-  font-size: 1.0625rem;
+  font-size: 1.3125rem;
   font-weight: 600;
   margin-bottom: 0.5rem;
 `;
@@ -296,7 +296,7 @@ const RelatedTitle = styled.div`
 const RelatedPrice = styled.div`
   color: ${({ theme }) => theme.color.blue};
   font-weight: 700;
-  font-size: 1.25rem;
+  font-size: 1.75rem;
 `;
 
 const MapPlaceholder = styled.div`
@@ -307,7 +307,7 @@ const MapPlaceholder = styled.div`
   align-items: center;
   justify-content: center;
   color: ${({ theme }) => theme.font.color.tertiary};
-  font-size: 1.125rem;
+  font-size:     -eem;
 `;
 
 export const EnhancedListingDetailPage = () => {

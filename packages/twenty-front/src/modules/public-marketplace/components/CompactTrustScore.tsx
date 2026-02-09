@@ -29,7 +29,7 @@ const ShieldWrapper = styled.div<{ score: number }>`
 `;
 
 const ScoreText = styled.span<{ score: number }>`
-  font-size: 1.125rem;
+  font-size:     -eem;
   font-weight: 700;
   color: ${({ theme, score }) => {
     if (score >= 80) return theme.color.green;
@@ -39,7 +39,7 @@ const ScoreText = styled.span<{ score: number }>`
 `;
 
 const ScoreLabel = styled.span<{ score: number }>`
-  font-size: 0.875rem;
+  font-size: 1.375rem;
   font-weight: 600;
   padding: 0.125rem 0.375rem;
   border-radius: 4px;

@@ -11,7 +11,7 @@ const MessageContent = styled.div`
 
 const SectionTitle = styled.div`
   font-weight: 700;
-  font-size: 1.0625rem;
+  font-size: 1.3125rem;
   margin-top: 0.5rem;
   margin-bottom: 0.125rem;
   color: inherit;
@@ -57,7 +57,7 @@ const HighlightBox = styled.div<{ $variant: 'info' | 'success' | 'warning' }>`
   border-radius: 0 6px 6px 0;
   padding: 0.5rem 0.625rem;
   margin: 0.25rem 0;
-  font-size: 0.9375rem;
+  font-size: 1.4375rem;
 `;
 
 const TagRow = styled.div`
@@ -76,7 +76,7 @@ const Tag = styled.span<{ $color?: string }>`
         ? theme.color.orange
         : theme.color.blue};
   border-radius: 999px;
-  font-size: 0.875rem;
+  font-size: 1.375rem;
   font-weight: 500;
   padding: 0.125rem 0.5rem;
 `;
@@ -101,7 +101,7 @@ const ProgressFill = styled.div<{ $percent: number; $color?: string }>`
 const CompactTable = styled.div`
   border: 1px solid rgba(128, 128, 128, 0.15);
   border-radius: 8px;
-  font-size: 0.9375rem;
+  font-size: 1.4375rem;
   margin: 0.375rem 0;
   overflow: hidden;
 `;

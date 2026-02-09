@@ -29,7 +29,7 @@ const Title = styled.h1`
 
 const Subtitle = styled.p`
   color: ${({ theme }) => theme.font.color.tertiary};
-  font-size: 1.25rem;
+  font-size: 1.75rem;
 `;
 
 const PlansGrid = styled.div`
@@ -61,7 +61,7 @@ const FeaturedBadge = styled.div`
   background: ${({ theme }) => `linear-gradient(135deg, ${theme.color.blue} 0%, ${theme.color.blue} 100%)`};
   border-radius: 9999px;
   color: ${({ theme }) => theme.font.color.inverted};
-  font-size: 0.875rem;
+  font-size: 1.375rem;
   font-weight: 700;
   left: 50%;
   letter-spacing: 0.05em;
@@ -95,7 +95,7 @@ const Price = styled.span`
 `;
 
 const PriceUnit = styled.span`
-  font-size: 1.125rem;
+  font-size:     -eem;
   color: ${({ theme }) => theme.font.color.tertiary};
   margin-left: 0.5rem;
 `;
@@ -137,7 +137,7 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
       : 'none'};
   border-radius: 8px;
   padding: 0.875rem 1rem;
-  font-size: 1.125rem;
+  font-size:     -eem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;

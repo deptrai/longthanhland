@@ -21,7 +21,7 @@ const Container = styled.div`
 `;
 const Breadcrumb = styled.div`
   max-width: 1400px; margin: 0 auto; padding: 1rem 2rem;
-  font-size: 0.9375rem; color: ${({ theme }) => theme.font.color.tertiary};
+  font-size: 1.4375rem; color: ${({ theme }) => theme.font.color.tertiary};
   display: flex; align-items: center; gap: 0.5rem;
   a { color: ${({ theme }) => theme.color.blue}; text-decoration: none; &:hover { text-decoration: underline; } }
 `;
@@ -34,7 +34,7 @@ const PageTitle = styled.h1`
   display: flex; align-items: center; gap: 0.5rem;
 `;
 const PageDesc = styled.p`
-  font-size: 1.0625rem; margin: 0;
+  font-size: 1.3125rem; margin: 0;
   color: ${({ theme }) => theme.font.color.tertiary};
 `;
 const CatGrid = styled.div`
@@ -53,7 +53,7 @@ const CatCard = styled(Link)`
 `;
 const CatIcon = styled.span` font-size: 1.75rem; `;
 const CatName = styled.div`
-  font-size: 0.9375rem; font-weight: 600;
+  font-size: 1.4375rem; font-weight: 600;
   color: ${({ theme }) => theme.font.color.primary};
 `;
 const CatCount = styled.div`
@@ -74,12 +74,12 @@ const FilterBox = styled.div`
   border-radius: 12px; padding: 1.25rem; margin-bottom: 1rem;
 `;
 const FilterTitle = styled.h3`
-  font-size: 1.0625rem; font-weight: 700; margin: 0 0 0.75rem;
+  font-size: 1.3125rem; font-weight: 700; margin: 0 0 0.75rem;
   color: ${({ theme }) => theme.font.color.primary};
 `;
 const FilterOption = styled.label`
   display: flex; align-items: center; gap: 0.5rem;
-  font-size: 0.9375rem; color: ${({ theme }) => theme.font.color.secondary};
+  font-size: 1.4375rem; color: ${({ theme }) => theme.font.color.secondary};
   padding: 0.375rem 0; cursor: pointer;
   input { accent-color: ${({ theme }) => theme.color.blue}; }
 `;
@@ -109,11 +109,11 @@ const SortBar = styled.div`
   border-radius: 10px;
 `;
 const SortLabel = styled.span`
-  font-size: 0.9375rem; color: ${({ theme }) => theme.font.color.tertiary};
+  font-size: 1.4375rem; color: ${({ theme }) => theme.font.color.tertiary};
 `;
 const SortSelect = styled.select`
   padding: 0.375rem 0.75rem; border: 1px solid ${({ theme }) => theme.border.color.medium};
-  border-radius: 6px; font-size: 0.9375rem; outline: none;
+  border-radius: 6px; font-size: 1.4375rem; outline: none;
   background: ${({ theme }) => theme.background.primary};
   color: ${({ theme }) => theme.font.color.primary};
 `;
@@ -142,10 +142,10 @@ const CardTitle = styled.div`
   overflow: hidden; margin-bottom: 0.375rem; line-height: 1.3;
 `;
 const CardPrice = styled.div`
-  font-size: 1.125rem; font-weight: 700; color: ${({ theme }) => theme.color.blue}; margin-bottom: 0.25rem;
+  font-size:     -eem; font-weight: 700; color: ${({ theme }) => theme.color.blue}; margin-bottom: 0.25rem;
 `;
 const CardMeta = styled.div`
-  font-size: 0.875rem; color: ${({ theme }) => theme.font.color.tertiary};
+  font-size: 1.375rem; color: ${({ theme }) => theme.font.color.tertiary};
   margin-bottom: 0.25rem;
 `;
 const CardTrust = styled.div`
@@ -162,7 +162,7 @@ const PageBtn = styled.button<{ $active?: boolean }>`
     ${({ theme, $active }) => $active ? theme.color.blue : theme.border.color.medium};
   background: ${({ theme, $active }) => $active ? theme.color.blue : theme.background.secondary};
   color: ${({ theme, $active }) => $active ? theme.font.color.inverted : theme.font.color.primary};
-  font-size: 0.9375rem; cursor: pointer; transition: all 0.2s;
+  font-size: 1.4375rem; cursor: pointer; transition: all 0.2s;
   &:hover { border-color: ${({ theme }) => theme.color.blue}; }
   &:disabled { opacity: 0.4; cursor: default; }
 `;

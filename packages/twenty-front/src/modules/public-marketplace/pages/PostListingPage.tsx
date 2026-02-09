@@ -82,7 +82,7 @@ const Card = styled.div`
 `;
 
 const SectionTitle = styled.h2`
-  font-size: 1.375rem;
+  font-size:     -eem;
   font-weight: 600;
   color: ${({ theme }) => theme.font.color.primary};
   margin-bottom: 1.5rem;
@@ -112,7 +112,7 @@ const Input = styled.input`
   border: 1px solid ${({ theme }) => theme.border.color.medium};
   border-radius: 8px;
   padding: 0.75rem 1rem;
-  font-size: 1.125rem;
+  font-size:     -eem;
   color: ${({ theme }) => theme.font.color.primary};
 
   &:focus {
@@ -126,7 +126,7 @@ const Select = styled.select`
   border: 1px solid ${({ theme }) => theme.border.color.medium};
   border-radius: 8px;
   padding: 0.75rem 1rem;
-  font-size: 1.125rem;
+  font-size:     -eem;
   color: ${({ theme }) => theme.font.color.primary};
   cursor: pointer;
 
@@ -141,7 +141,7 @@ const TextArea = styled.textarea`
   border: 1px solid ${({ theme }) => theme.border.color.medium};
   border-radius: 8px;
   padding: 0.75rem 1rem;
-  font-size: 1.125rem;
+  font-size:     -eem;
   color: ${({ theme }) => theme.font.color.primary};
   min-height: 120px;
   resize: vertical;

@@ -32,7 +32,7 @@ const StyledMapIcon = styled.div`
 `;
 
 const StyledMapText = styled.div`
-  font-size: 1.125rem;
+  font-size:     -eem;
   font-weight: 500;
 `;
 

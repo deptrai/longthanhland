@@ -57,7 +57,7 @@ const Input = styled.input`
   border: 1px solid ${({ theme }) => theme.border.color.medium};
   border-radius: 8px;
   padding: 0.75rem 1rem;
-  font-size: 1.125rem;
+  font-size:     -eem;
   color: ${({ theme }) => theme.font.color.primary};
   transition: border-color 0.2s;
 
@@ -107,7 +107,7 @@ const Button = styled.button`
   border: none;
   border-radius: 8px;
   padding: 0.875rem 1rem;
-  font-size: 1.125rem;
+  font-size:     -eem;
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.2s;

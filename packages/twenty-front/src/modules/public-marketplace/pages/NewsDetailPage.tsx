@@ -81,7 +81,7 @@ const FeaturedImage = styled.img`
 `;
 
 const ArticleBody = styled.div`
-  font-size: 1.1875rem;
+  font-size: 1.4375rem;
   line-height: 1.8;
   color: ${({ theme }) => theme.font.color.primary};
   p { margin-bottom: 1.25rem; }
@@ -100,7 +100,7 @@ const Tag = styled(Link)`
   padding: 0.35rem 0.85rem;
   background: ${({ theme }) => theme.background.tertiary};
   border-radius: 20px;
-  font-size: 0.9375rem;
+  font-size: 1.4375rem;
   color: ${({ theme }) => theme.font.color.secondary};
   text-decoration: none;
   &:hover { background: ${({ theme }) => theme.color.blue}; color: ${({ theme }) => theme.font.color.inverted}; }
@@ -122,7 +122,7 @@ const ShareButton = styled.button`
   background: ${({ theme }) => theme.background.secondary};
   color: ${({ theme }) => theme.font.color.secondary};
   cursor: pointer;
-  font-size: 0.9375rem;
+  font-size: 1.4375rem;
   &:hover { border-color: ${({ theme }) => theme.color.blue}; color: ${({ theme }) => theme.color.blue}; }
 `;
 
@@ -135,7 +135,7 @@ const SidebarCard = styled.div`
 `;
 
 const SidebarTitle = styled.h3`
-  font-size: 1.1875rem;
+  font-size: 1.4375rem;
   font-weight: 600;
   color: ${({ theme }) => theme.font.color.primary};
   margin-bottom: 1rem;
@@ -175,14 +175,14 @@ const RelatedTitle = styled.h4`
 `;
 
 const RelatedDate = styled.span`
-  font-size: 0.875rem;
+  font-size: 1.375rem;
   color: ${({ theme }) => theme.font.color.tertiary};
 `;
 
 const NotFoundMessage = styled.div`
   text-align: center;
   padding: 4rem 2rem;
-  font-size: 1.25rem;
+  font-size: 1.75rem;
   color: ${({ theme }) => theme.font.color.tertiary};
 `;
 

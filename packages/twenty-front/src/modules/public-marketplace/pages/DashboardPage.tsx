@@ -93,7 +93,7 @@ const CardHeader = styled.div`
 
 const CardTitle = styled.h2`
   color: ${({ theme }) => theme.font.color.primary};
-  font-size: 1.375rem;
+  font-size:     -eem;
   font-weight: 600;
 `;
 
@@ -140,7 +140,7 @@ const FeaturedBadge = styled.span`
   color: ${({ theme }) => theme.background.primary};
   padding: 0.125rem 0.375rem;
   border-radius: 4px;
-  font-size: 0.875rem;
+  font-size: 1.375rem;
   font-weight: 700;
 `;
 

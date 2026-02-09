@@ -135,7 +135,7 @@ const SortSelect = styled.select`
   border: 1px solid ${({ theme }) => theme.border.color.medium};
   border-radius: 6px;
   padding: 0.375rem 0.5rem;
-  font-size: 0.9375rem;
+  font-size: 1.4375rem;
   color: ${({ theme }) => theme.font.color.primary};
   cursor: pointer;
 `;
@@ -230,7 +230,7 @@ const CardBody = styled.div`
   min-width: 0;
 `;
 const CardTitle = styled.h3<{ $vip: VipTier }>`
-  font-size: 1.125rem;
+  font-size:     -eem;
   font-weight: 600;
   margin: 0 0 0.375rem 0;
   color: ${({ theme, $vip }) =>
@@ -249,19 +249,19 @@ const PriceRow = styled.div`
   flex-wrap: wrap;
 `;
 const PriceMain = styled.span`
-  font-size: 1.25rem;
+  font-size: 1.75rem;
   font-weight: 700;
   color: ${({ theme }) => theme.font.color.danger};
 `;
 const PricePerM2 = styled.span`
-  font-size: 0.9375rem;
+  font-size: 1.4375rem;
   color: ${({ theme }) => theme.font.color.tertiary};
 `;
 const PropMeta = styled.div`
   display: flex;
   align-items: center;
   gap: 0.875rem;
-  font-size: 0.9375rem;
+  font-size: 1.4375rem;
   color: ${({ theme }) => theme.font.color.secondary};
   margin-bottom: 0.375rem;
   flex-wrap: wrap;
@@ -276,7 +276,7 @@ const LocationRow = styled.div`
   display: flex;
   align-items: center;
   gap: 0.25rem;
-  font-size: 0.9375rem;
+  font-size: 1.4375rem;
   color: ${({ theme }) => theme.font.color.tertiary};
   margin-bottom: 0.5rem;
 `;
@@ -307,7 +307,7 @@ const AgentAvatar = styled.img`
   flex-shrink: 0;
 `;
 const AgentName = styled.span`
-  font-size: 0.9375rem;
+  font-size: 1.4375rem;
   font-weight: 600;
   color: ${({ theme }) => theme.font.color.primary};
   white-space: nowrap;
@@ -334,7 +334,7 @@ const PhoneRevealBtn = styled.button`
   border: none;
   border-radius: 6px;
   padding: 0.375rem 0.625rem;
-  font-size: 0.875rem;
+  font-size: 1.375rem;
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
@@ -345,7 +345,7 @@ const PublishDate = styled.span`
   display: inline-flex;
   align-items: center;
   gap: 0.25rem;
-  font-size: 0.875rem;
+  font-size: 1.375rem;
   color: ${({ theme }) => theme.font.color.tertiary};
   flex-shrink: 0;
 `;
@@ -370,7 +370,7 @@ const PageBtn = styled.button<{ $active?: boolean }>`
   border: 1px solid ${({ theme, $active }) => ($active ? theme.color.red : theme.border.color.medium)};
   background-color: ${({ theme, $active }) => ($active ? theme.color.red : 'transparent')};
   color: ${({ theme, $active }) => ($active ? theme.font.color.inverted : theme.font.color.primary)};
-  font-size: 0.9375rem;
+  font-size: 1.4375rem;
   font-weight: ${({ $active }) => ($active ? 700 : 400)};
   cursor: pointer;
   transition: all 0.15s;

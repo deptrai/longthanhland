@@ -74,7 +74,7 @@ const ContactLabel = styled.div`
 `;
 
 const ContactValue = styled.div`
-  font-size: 1.125rem;
+  font-size:     -eem;
   font-weight: 600;
   color: ${({ theme }) => theme.font.color.primary};
 `;
@@ -99,7 +99,7 @@ const MainGrid = styled.div`
 const FooterSection = styled.div``;
 
 const FooterTitle = styled.h3`
-  font-size: 0.9375rem;
+  font-size: 1.4375rem;
   font-weight: 700;
   color: ${({ theme }) => theme.font.color.primary};
   text-transform: uppercase;
@@ -112,7 +112,7 @@ const FooterLink = styled.a`
   color: ${({ theme }) => theme.font.color.secondary};
   text-decoration: none;
   margin-bottom: 0.6rem;
-  font-size: 0.9375rem;
+  font-size: 1.4375rem;
   transition: color 0.2s;
 
   &:hover {
@@ -121,7 +121,7 @@ const FooterLink = styled.a`
 `;
 
 const CompanyName = styled.div`
-  font-size: 0.9375rem;
+  font-size: 1.4375rem;
   font-weight: 600;
   color: ${({ theme }) => theme.font.color.primary};
   margin-bottom: 0.5rem;
@@ -214,7 +214,7 @@ const NewsletterInput = styled.div`
     border-radius: 6px 0 0 6px;
     background: ${({ theme }) => theme.background.primary};
     color: ${({ theme }) => theme.font.color.primary};
-    font-size: 0.9375rem;
+    font-size: 1.4375rem;
     outline: none;
 
     &::placeholder {
@@ -257,7 +257,7 @@ const BranchToggle = styled.button`
   background: none;
   border: none;
   color: ${({ theme }) => theme.font.color.primary};
-  font-size: 0.9375rem;
+  font-size: 1.4375rem;
   font-weight: 600;
   cursor: pointer;
   padding: 0;
@@ -288,7 +288,7 @@ const BranchName = styled.div`
 `;
 
 const BranchAddress = styled.div`
-  font-size: 0.875rem;
+  font-size: 1.375rem;
   color: ${({ theme }) => theme.font.color.tertiary};
   line-height: 1.5;
 `;
@@ -308,7 +308,7 @@ const BottomSection = styled.div`
 `;
 
 const LegalInfo = styled.div`
-  font-size: 0.875rem;
+  font-size: 1.375rem;
   color: ${({ theme }) => theme.font.color.tertiary};
   line-height: 1.8;
   flex: 1;
@@ -340,7 +340,7 @@ const SocialIcon = styled.a`
   justify-content: center;
   color: ${({ theme }) => theme.font.color.secondary};
   text-decoration: none;
-  font-size: 0.875rem;
+  font-size: 1.375rem;
   font-weight: 700;
   transition: all 0.2s;
 

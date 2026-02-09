@@ -20,7 +20,7 @@ const Header = styled.div`
 `;
 
 const Title = styled.h3`
-  font-size: 1.375rem;
+  font-size:     -eem;
   font-weight: 600;
   color: ${({ theme }) => theme.font.color.primary};
   display: flex;
@@ -93,7 +93,7 @@ const FactorHeader = styled.div`
 
 const FactorName = styled.div`
   color: ${({ theme }) => theme.font.color.primary};
-  font-size: 1.0625rem;
+  font-size: 1.3125rem;
   font-weight: 600;
 `;
 
@@ -124,7 +124,7 @@ const Progress = styled.div<{ percentage: number }>`
 `;
 
 const FactorDetails = styled.div`
-  font-size: 0.9375rem;
+  font-size: 1.4375rem;
   color: ${({ theme }) => theme.font.color.tertiary};
   line-height: 1.5;
 `;

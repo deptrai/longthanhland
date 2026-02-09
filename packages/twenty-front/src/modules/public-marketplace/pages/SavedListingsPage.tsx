@@ -40,7 +40,7 @@ const PageTitle = styled.h1`
 const CountBadge = styled.span`
   background-color: ${({ theme }) => theme.color.blue};
   color: ${({ theme }) => theme.font.color.inverted};
-  font-size: 0.875rem;
+  font-size: 1.375rem;
   font-weight: 600;
   padding: 0.25rem 0.625rem;
   border-radius: 12px;
@@ -55,7 +55,7 @@ const EmptyIcon = styled.div`
   margin-bottom: 1rem;
 `;
 const EmptyTitle = styled.h2`
-  font-size: 1.375rem;
+  font-size:     -eem;
   font-weight: 600;
   color: ${({ theme }) => theme.font.color.secondary};
   margin-bottom: 0.5rem;
@@ -104,7 +104,7 @@ const ImageCount = styled.span`
   left: 8px;
   background: rgba(0, 0, 0, 0.6);
   color: ${({ theme }) => theme.font.color.inverted};
-  font-size: 0.875rem;
+  font-size: 1.375rem;
   padding: 0.2rem 0.5rem;
   border-radius: 4px;
   display: flex;
@@ -134,7 +134,7 @@ const CardBody = styled.div`
   padding: 1rem;
 `;
 const CardTitle = styled.h3`
-  font-size: 1.0625rem;
+  font-size: 1.3125rem;
   font-weight: 600;
   color: ${({ theme }) => theme.font.color.primary};
   margin-bottom: 0.5rem;
@@ -145,7 +145,7 @@ const CardTitle = styled.h3`
   overflow: hidden;
 `;
 const CardPrice = styled.div`
-  font-size: 1.25rem;
+  font-size: 1.75rem;
   font-weight: 700;
   color: ${({ theme }) => theme.font.color.danger};
   margin-bottom: 0.5rem;
@@ -154,7 +154,7 @@ const CardMeta = styled.div`
   display: flex;
   align-items: center;
   gap: 1rem;
-  font-size: 0.9375rem;
+  font-size: 1.4375rem;
   color: ${({ theme }) => theme.font.color.tertiary};
   margin-bottom: 0.5rem;
 `;
@@ -174,7 +174,7 @@ const SellerInfo = styled.div`
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 0.9375rem;
+  font-size: 1.4375rem;
   color: ${({ theme }) => theme.font.color.secondary};
 `;
 const SellerAvatar = styled.img`
@@ -192,7 +192,7 @@ const PhoneButton = styled.button`
   border: none;
   border-radius: 6px;
   padding: 0.375rem 0.75rem;
-  font-size: 0.875rem;
+  font-size: 1.375rem;
   font-weight: 600;
   cursor: pointer;
   &:hover {

@@ -29,7 +29,7 @@ const SectionCard = styled.div`
 `;
 
 const SectionTitle = styled.h4`
-  font-size: 1.125rem;
+  font-size:     -eem;
   font-weight: 700;
   color: ${({ theme }) => theme.font.color.primary};
   padding: 0.875rem 1.125rem;
@@ -73,7 +73,7 @@ const FilterLink = styled.a`
 
 const CityCount = styled.span`
   color: ${({ theme }) => theme.font.color.tertiary};
-  font-size: 0.9375rem;
+  font-size: 1.4375rem;
 `;
 
 const ShowMoreButton = styled.button`
@@ -140,7 +140,7 @@ const ArticleLink = styled.a`
     border-radius: 50%;
     background-color: ${({ theme }) => theme.color.blue};
     color: ${({ theme }) => theme.font.color.inverted};
-    font-size: 0.875rem;
+    font-size: 1.375rem;
     font-weight: 700;
     margin-top: 1px;
   }

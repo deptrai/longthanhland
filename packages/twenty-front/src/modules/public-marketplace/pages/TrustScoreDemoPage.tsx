@@ -22,7 +22,7 @@ const Title = styled.h1`
 
 const Description = styled.p`
   color: ${({ theme }) => theme.font.color.secondary};
-  font-size: 1.125rem;
+  font-size:     -eem;
   line-height: 1.6;
   margin-bottom: 2rem;
 `;

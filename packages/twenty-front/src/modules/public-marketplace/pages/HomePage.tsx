@@ -37,7 +37,7 @@ const HeroTitle = styled.h1`
   font-size: 2.75rem; font-weight: 700; margin: 0 0 0.75rem;
 `;
 const HeroSubtitle = styled.p`
-  font-size: 1.25rem; opacity: 0.9; margin: 0 0 2rem;
+  font-size: 1.75rem; opacity: 0.9; margin: 0 0 2rem;
   max-width: 600px; margin-left: auto; margin-right: auto;
 `;
 const SearchBar = styled.div`
@@ -47,17 +47,17 @@ const SearchBar = styled.div`
 `;
 const SearchInput = styled.input`
   flex: 1; padding: 1rem 1.25rem; border: none;
-  font-size: 1.125rem; color: ${({ theme }) => theme.font.color.primary}; outline: none;
+  font-size:     -eem; color: ${({ theme }) => theme.font.color.primary}; outline: none;
   &::placeholder { color: ${({ theme }) => theme.font.color.light}; }
 `;
 const SearchSelect = styled.select`
   padding: 1rem; border: none; border-left: 1px solid ${({ theme }) => theme.border.color.light};
-  background: ${({ theme }) => theme.background.primary}; font-size: 1.0625rem; color: ${({ theme }) => theme.font.color.secondary};
+  background: ${({ theme }) => theme.background.primary}; font-size: 1.3125rem; color: ${({ theme }) => theme.font.color.secondary};
   cursor: pointer; outline: none;
 `;
 const SearchButton = styled.button`
   padding: 1rem 2rem; background: ${({ theme }) => theme.color.red}; color: ${({ theme }) => theme.font.color.inverted};
-  border: none; font-size: 1.125rem; font-weight: 600; cursor: pointer;
+  border: none; font-size:     -eem; font-weight: 600; cursor: pointer;
   display: flex; align-items: center; gap: 0.5rem;
   &:hover { opacity: 0.9; }
 `;
@@ -83,11 +83,11 @@ const QuickNavIcon = styled.div<{ $color: string }>`
   color: ${({ theme }) => theme.font.color.inverted}; flex-shrink: 0;
 `;
 const QuickNavTitle = styled.div`
-  font-size: 1.125rem; font-weight: 700;
+  font-size:     -eem; font-weight: 700;
   color: ${({ theme }) => theme.font.color.primary};
 `;
 const QuickNavDesc = styled.div`
-  font-size: 0.9375rem; color: ${({ theme }) => theme.font.color.tertiary};
+  font-size: 1.4375rem; color: ${({ theme }) => theme.font.color.tertiary};
 `;
 const Sec = styled.section`
   max-width: 1400px; margin: 0 auto; padding: 2.5rem 2rem;
@@ -123,7 +123,7 @@ const CatName = styled.div`
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 `;
 const CatCount = styled.div`
-  font-size: 0.875rem; color: ${({ theme }) => theme.font.color.tertiary};
+  font-size: 1.375rem; color: ${({ theme }) => theme.font.color.tertiary};
 `;
 const ProjGrid = styled.div`
   display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem;
@@ -143,22 +143,22 @@ const ProjImg = styled.div<{ $src: string }>`
 const ProjBadge = styled.span<{ $status: string }>`
   position: absolute; top: 0.75rem; left: 0.75rem;
   padding: 0.25rem 0.75rem; border-radius: 6px;
-  font-size: 0.875rem; font-weight: 600; color: ${({ theme }) => theme.font.color.inverted};
+  font-size: 1.375rem; font-weight: 600; color: ${({ theme }) => theme.font.color.inverted};
   background: ${({ theme, $status }) =>
     $status === 'SELLING' ? theme.color.green : $status === 'UPCOMING' ? theme.color.orange : theme.color.gray};
 `;
 const ProjBody = styled.div` padding: 1rem; `;
 const ProjName = styled.h3`
-  font-size: 1.125rem; font-weight: 700; margin: 0 0 0.25rem;
+  font-size:     -eem; font-weight: 700; margin: 0 0 0.25rem;
   color: ${({ theme }) => theme.font.color.primary};
 `;
 const ProjDev = styled.div`
-  font-size: 0.9375rem; color: ${({ theme }) => theme.font.color.tertiary};
+  font-size: 1.4375rem; color: ${({ theme }) => theme.font.color.tertiary};
   margin-bottom: 0.5rem;
 `;
 const ProjTags = styled.div` display: flex; flex-wrap: wrap; gap: 0.5rem; `;
 const ProjTag = styled.span`
-  font-size: 0.875rem; padding: 0.2rem 0.5rem; border-radius: 4px;
+  font-size: 1.375rem; padding: 0.2rem 0.5rem; border-radius: 4px;
   background: ${({ theme }) => theme.background.tertiary};
   color: ${({ theme }) => theme.font.color.secondary};
 `;
@@ -175,7 +175,7 @@ const StatNumber = styled.div`
   color: ${({ theme }) => theme.color.blue};
 `;
 const StatLabel = styled.div`
-  font-size: 0.9375rem; color: ${({ theme }) => theme.font.color.tertiary};
+  font-size: 1.4375rem; color: ${({ theme }) => theme.font.color.tertiary};
   margin-top: 0.25rem;
 `;
 const FeaturesGrid = styled.div`
@@ -195,7 +195,7 @@ const FeatureIcon = styled.div`
   margin: 0 auto 1rem; color: ${({ theme }) => theme.color.blue};
 `;
 const FeatureTitle = styled.h3`
-  font-size: 1.25rem; font-weight: 700; margin: 0 0 0.5rem;
+  font-size: 1.75rem; font-weight: 700; margin: 0 0 0.5rem;
   color: ${({ theme }) => theme.font.color.primary};
 `;
 const FeatureDesc = styled.p`
@@ -218,16 +218,16 @@ const ListingImg = styled.div<{ $src: string }>`
 `;
 const ListingBody = styled.div` padding: 0.75rem; `;
 const ListingTitle = styled.div`
-  font-size: 0.9375rem; font-weight: 600;
+  font-size: 1.4375rem; font-weight: 600;
   color: ${({ theme }) => theme.font.color.primary};
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
   overflow: hidden; margin-bottom: 0.375rem; line-height: 1.3;
 `;
 const ListingPrice = styled.div`
-  font-size: 1.0625rem; font-weight: 700; color: ${({ theme }) => theme.font.color.danger};
+  font-size: 1.3125rem; font-weight: 700; color: ${({ theme }) => theme.font.color.danger};
 `;
 const ListingMeta = styled.div`
-  font-size: 0.875rem; color: ${({ theme }) => theme.font.color.tertiary};
+  font-size: 1.375rem; color: ${({ theme }) => theme.font.color.tertiary};
   margin-top: 0.25rem;
 `;
 

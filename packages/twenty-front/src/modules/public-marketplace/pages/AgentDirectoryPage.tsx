@@ -156,7 +156,7 @@ const AgentInfo = styled.div`
   min-width: 0;
 `;
 const AgentName = styled.h3`
-  font-size: 1.125rem;
+  font-size:     -eem;
   font-weight: 600;
   color: ${({ theme }) => theme.font.color.primary};
   margin-bottom: 0.25rem;
@@ -176,12 +176,12 @@ const VerifiedBadge = styled.span`
   flex-shrink: 0;
 `;
 const AgentCompany = styled.div`
-  font-size: 0.9375rem;
+  font-size: 1.4375rem;
   color: ${({ theme }) => theme.font.color.secondary};
   margin-bottom: 0.25rem;
 `;
 const AgentLocation = styled.div`
-  font-size: 0.9375rem;
+  font-size: 1.4375rem;
   color: ${({ theme }) => theme.font.color.tertiary};
   display: flex;
   align-items: center;
@@ -197,7 +197,7 @@ const Tag = styled.span`
   padding: 0.2rem 0.625rem;
   background: ${({ theme }) => theme.background.tertiary};
   color: ${({ theme }) => theme.font.color.secondary};
-  font-size: 0.875rem;
+  font-size: 1.375rem;
   border-radius: 12px;
 `;
 const AgentStats = styled.div`
@@ -211,7 +211,7 @@ const AgentStatItem = styled.div`
   text-align: center;
 `;
 const AgentStatValue = styled.div`
-  font-size: 1.125rem;
+  font-size:     -eem;
   font-weight: 700;
   color: ${({ theme }) => theme.font.color.primary};
 `;
@@ -228,7 +228,7 @@ const PhoneBtn = styled.button`
   border: none;
   border-radius: 6px;
   padding: 0.375rem 0.75rem;
-  font-size: 0.875rem;
+  font-size: 1.375rem;
   font-weight: 600;
   cursor: pointer;
   &:hover {
