@@ -1,1 +1,77 @@
 @import 'tailwindcss';
+
+/* ==========================================================================
+   bdsai.vn — Tailwind 4 CSS-first theme (Story 1.4, AC7)
+   Primary: Slate near-black #111827 | Accent: Emerald #10B981 (bg/border only)
+   Font: Geist (via `geist` package, CSS var --font-sans)
+   Rounded: sm 4px / md 8px / lg 12px
+   Source: DESIGN.md (ux-longthanhland-2026-06-24)
+   TODO: dark mode skip ở 1.4 (DESIGN.md đơn sắc Slate) — thêm .dark sau.
+   ========================================================================== */
+
+@theme {
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+
+  --color-background: hsl(0 0% 100%);
+  --color-foreground: hsl(222 47% 11%);
+  --color-card: hsl(0 0% 100%);
+  --color-card-foreground: hsl(222 47% 11%);
+  --color-popover: hsl(0 0% 100%);
+  --color-popover-foreground: hsl(222 47% 11%);
+
+  --color-primary: #111827;
+  --color-primary-foreground: #ffffff;
+
+  --color-secondary: hsl(210 40% 96%);
+  --color-secondary-foreground: hsl(222 47% 11%);
+
+  --color-muted: hsl(210 40% 96%);
+  --color-muted-foreground: hsl(215 16% 47%);
+
+  --color-accent: #10b981;
+  --color-accent-foreground: #04231a;
+
+  --color-destructive: hsl(0 84% 60%);
+  --color-destructive-foreground: #ffffff;
+
+  --color-border: hsl(214 32% 91%);
+  --color-input: hsl(214 32% 91%);
+  --color-ring: #10b981;
+
+  --radius: 0.5rem;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 4px);
+  --radius-xl: calc(var(--radius) + 8px);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    overflow-x: hidden;
+  }
+}
+
+@layer components {
+  /* Display typography — Geist 44px/700, letter-spacing -0.02em (DESIGN.md). */
+  .text-display {
+    font-size: 2.75rem;
+    line-height: 1.1;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  /* Display sm — 28px/700, -0.01em. */
+  .text-display-sm {
+    font-size: 1.75rem;
+    line-height: 1.2;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+}

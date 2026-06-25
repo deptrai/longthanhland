@@ -48,3 +48,6 @@ dump.rdb
 
 mcp.json
 /.junie/
+
+# Playwright MCP console logs (e2e test artifact)
+.playwright-mcp/
