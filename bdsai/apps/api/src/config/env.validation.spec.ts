@@ -6,6 +6,7 @@ describe('validateEnv (AC2 — fail-fast config)', () => {
     SUPABASE_URL: 'http://127.0.0.1:54351',
     SUPABASE_ANON_KEY: 'anon-key',
     SUPABASE_SERVICE_ROLE_KEY: 'service-role-key',
+    SUPABASE_JWT_SECRET: 'super-secret-jwt-token-with-at-least-32-characters-long',
   };
 
   it('parse thành công khi đủ biến bắt buộc + áp default', () => {
@@ -30,6 +31,7 @@ describe('validateEnv (AC2 — fail-fast config)', () => {
     'SUPABASE_URL',
     'SUPABASE_ANON_KEY',
     'SUPABASE_SERVICE_ROLE_KEY',
+    'SUPABASE_JWT_SECRET',
   ])('throw khi thiếu biến bắt buộc: %s', (key) => {
     const broken: Record<string, unknown> = { ...validConfig };
     delete broken[key];

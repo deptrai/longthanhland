@@ -2,6 +2,7 @@ import { execSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import { Test, type TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
+import cookieParser from 'cookie-parser';
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { DRIZZLE } from '../src/db/database.tokens';
@@ -62,6 +63,8 @@ suite('POST /auth/register (e2e — AC4, AC5, AC7, AC3)', () => {
     }).compile();
 
     app = moduleRef.createNestApplication();
+    // Story 2.2: cookie-parser cần thiết cho /auth/refresh (đọc refresh_token cookie).
+    app.use(cookieParser());
     await app.init();
     db = app.get(DRIZZLE);
     supabase = app.get(SupabaseService);
@@ -228,5 +231,233 @@ suite('POST /auth/register (e2e — AC4, AC5, AC7, AC3)', () => {
       // ignore
     }
     await db.delete(publicUsers).where(eq(publicUsers.email, emailNorm));
+  });
+});
+
+/**
+ * Integration test POST /auth/login, GET /auth/me, POST /auth/refresh, POST /auth/logout
+ * (AC1, AC2, AC3, AC4, AC5, AC6, AC7, E1-E7) — Story 2.2.
+ *
+ * Yêu cầu Supabase local chạy + migration 0001 đã apply + Redis chạy.
+ */
+const loginSuite = supabaseAvailable ? describe : describe.skip;
+
+loginSuite('POST /auth/login, GET /auth/me, POST /auth/refresh, POST /auth/logout (e2e — AC1-AC7)', () => {
+  let app: INestApplication;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let db: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let supabase: any;
+
+  const uniqueSuffix = randomUUID();
+  const testEmail = `e2e-2-2-${uniqueSuffix}@bdsai.vn`;
+  const testPassword = 'Abc12345';
+  let userId: string;
+  let accessToken: string;
+  let refreshToken: string;
+
+  jest.setTimeout(60_000);
+
+  beforeAll(async () => {
+    const moduleRef: TestingModule = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
+
+    app = moduleRef.createNestApplication();
+    app.use(cookieParser());
+    await app.init();
+    db = app.get(DRIZZLE);
+    supabase = app.get(SupabaseService);
+
+    // Register a test user via API (reuse 2.1 register).
+    const regRes = await request(app.getHttpServer())
+      .post('/auth/register')
+      .send({ email: testEmail, phone: '0909999999', password: testPassword })
+      .expect(201);
+    userId = regRes.body.userId;
+
+    // Auto-confirm email (enable_confirmations=true → login requires confirmed email).
+    await supabase.auth.admin.updateUserById(userId, { email_confirm: true });
+  });
+
+  afterAll(async () => {
+    // Cleanup.
+    try {
+      if (userId) await supabase.auth.admin.deleteUser(userId);
+    } catch {
+      // ignore
+    }
+    try {
+      await db.delete(publicUsers).where(eq(publicUsers.email, testEmail));
+    } catch {
+      // ignore
+    }
+    await app?.close();
+  });
+
+  it('AC1: login hợp lệ → 200 { accessToken, refreshToken, user } + Set-Cookie httpOnly', async () => {
+    const res = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({ email: testEmail, password: testPassword })
+      .expect(200);
+
+    expect(res.body.accessToken).toBeDefined();
+    expect(typeof res.body.accessToken).toBe('string');
+    expect(res.body.refreshToken).toBeDefined();
+    expect(res.body.user).toBeDefined();
+    expect(res.body.user.id).toBe(userId);
+    expect(res.body.user.email).toBe(testEmail);
+    expect(res.body.user.role).toBe('user');
+
+    // AC4: Set-Cookie header có refresh_token httpOnly.
+    const setCookie = res.headers['set-cookie'];
+    expect(setCookie).toBeDefined();
+    const cookieStr = Array.isArray(setCookie) ? setCookie.join(';') : String(setCookie);
+    expect(cookieStr).toContain('refresh_token=');
+    expect(cookieStr.toLowerCase()).toContain('httponly');
+    expect(cookieStr.toLowerCase()).toContain('samesite=lax');
+    expect(cookieStr.toLowerCase()).toContain('path=/api/auth');
+
+    accessToken = res.body.accessToken;
+    refreshToken = res.body.refreshToken;
+  });
+
+  it('AC3/E1: sai password → 401 "Email hoặc mật khẩu không đúng"', async () => {
+    const res = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({ email: testEmail, password: 'WrongPass!' })
+      .expect(401);
+
+    expect(res.body.statusCode).toBe(401);
+    expect(res.body.message).toBe('Email hoặc mật khẩu không đúng');
+  });
+
+  it('AC3/E2: email không tồn tại → 401 same message (anti-enumeration)', async () => {
+    const res = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({ email: `nonexist-${uniqueSuffix}@bdsai.vn`, password: testPassword })
+      .expect(401);
+
+    expect(res.body.statusCode).toBe(401);
+    expect(res.body.message).toBe('Email hoặc mật khẩu không đúng');
+  });
+
+  it('AC7: GET /auth/me với JWT → 200 { id, email, phone, role, ... }', async () => {
+    const res = await request(app.getHttpServer())
+      .get('/auth/me')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .expect(200);
+
+    expect(res.body.id).toBe(userId);
+    expect(res.body.email).toBe(testEmail);
+    expect(res.body.phone).toBe('0909999999');
+    expect(res.body.role).toBe('user');
+    expect(res.body.banned).toBe(false);
+  });
+
+  it('AC6: GET /auth/me không JWT → 401 "Thiếu token xác thực"', async () => {
+    const res = await request(app.getHttpServer()).get('/auth/me').expect(401);
+
+    expect(res.body.statusCode).toBe(401);
+    expect(res.body.message).toBe('Thiếu token xác thực');
+  });
+
+  it('AC6/E10: GET /auth/me với JWT malformed → 401', async () => {
+    const res = await request(app.getHttpServer())
+      .get('/auth/me')
+      .set('Authorization', 'Bearer not-a-jwt')
+      .expect(401);
+
+    expect(res.body.statusCode).toBe(401);
+  });
+
+  it('AC5: POST /auth/refresh với cookie → 200 { accessToken } + new Set-Cookie', async () => {
+    const res = await request(app.getHttpServer())
+      .post('/auth/refresh')
+      .set('Cookie', `refresh_token=${refreshToken}`)
+      .expect(200);
+
+    expect(res.body.accessToken).toBeDefined();
+    expect(typeof res.body.accessToken).toBe('string');
+    expect(res.body.refreshToken).toBeDefined();
+
+    // New Set-Cookie (rotated refresh token).
+    const setCookie = res.headers['set-cookie'];
+    expect(setCookie).toBeDefined();
+
+    // Update refreshToken for subsequent tests.
+    refreshToken = res.body.refreshToken;
+  });
+
+  it('AC5: POST /auth/refresh không cookie → 401 "Phiên hết hạn"', async () => {
+    const res = await request(app.getHttpServer())
+      .post('/auth/refresh')
+      .expect(401);
+
+    expect(res.body.statusCode).toBe(401);
+    expect(res.body.message).toBe('Phiên hết hạn, vui lòng đăng nhập lại');
+  });
+
+  it('AC2: POST /auth/logout với JWT → 200 + clear cookie', async () => {
+    const res = await request(app.getHttpServer())
+      .post('/auth/logout')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .expect(200);
+
+    expect(res.body.message).toBe('Đăng xuất thành công');
+
+    // Set-Cookie clear (Max-Age=0).
+    const setCookie = res.headers['set-cookie'];
+    if (setCookie) {
+      const cookieStr = Array.isArray(setCookie) ? setCookie.join(';') : String(setCookie);
+      expect(cookieStr.toLowerCase()).toContain('max-age=0');
+    }
+  });
+
+  it('E6: POST /auth/logout không JWT → 401 (guard reject — HIGH-1 fix)', async () => {
+    const res = await request(app.getHttpServer())
+      .post('/auth/logout')
+      .expect(401);
+
+    expect(res.body.statusCode).toBe(401);
+  });
+});
+
+/**
+ * Rate limit test (E9) — separate app instance with fresh ThrottlerModule storage.
+ */
+const rateLimitSuite = supabaseAvailable ? describe : describe.skip;
+
+rateLimitSuite('Rate limit /auth/login (E9 — 5/15 phút/IP)', () => {
+  let app: INestApplication;
+
+  jest.setTimeout(60_000);
+
+  beforeAll(async () => {
+    const moduleRef: TestingModule = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
+
+    app = moduleRef.createNestApplication();
+    app.use(cookieParser());
+    await app.init();
+  });
+
+  afterAll(async () => {
+    await app?.close();
+  });
+
+  it('E9: 6 login sai liên tiếp → lần 6 trả 429', async () => {
+    let got429 = false;
+    for (let i = 0; i < 6; i++) {
+      const res = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send({ email: `rate-test-${randomUUID()}@bdsai.vn`, password: 'WrongPass!' });
+      if (res.status === 429) {
+        got429 = true;
+        break;
+      }
+    }
+    expect(got429).toBe(true);
   });
 });

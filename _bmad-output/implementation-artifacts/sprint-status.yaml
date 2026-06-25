@@ -1,5 +1,6 @@
 # generated: 2026-06-24
 # last_updated: 2026-06-26
+# last_updated_note: 2026-06-26 — Story 2.2 fix review findings (HIGH-1 + MEDIUM-1), status → review
 # project: longthanhland (bdsai.vn)
 # project_key: NOKEY
 # tracking_system: file-system
@@ -35,7 +36,7 @@
 # - Thứ tự dev khuyến nghị: Epic 1 → 2 → 3 → 4(P1) → 6.
 
 generated: 2026-06-24
-last_updated: 2026-06-27
+last_updated: 2026-06-26
 project: longthanhland
 project_key: NOKEY
 tracking_system: file-system
@@ -57,7 +58,7 @@ development_status:
   # Epic 2: User Authentication & Profiles
   epic-2: in-progress
   2-1-dang-ky-email-phone: done
-  2-2-dang-nhap-dang-xuat-jwt: backlog
+  2-2-dang-nhap-dang-xuat-jwt: done
   2-3-quan-ly-profile: backlog
   2-4-admin-danh-sach-user-ban-unban: backlog
   2-5-admin-role-grant: backlog

@@ -9,6 +9,7 @@ import {
   navigationMenuTriggerStyle,
 } from '@/components/ui/navigation-menu';
 import { MobileNav } from '@/components/shared/mobile-nav';
+import { HeaderAuthActions } from '@/components/shared/header-auth-actions';
 
 // SiteHeader — server component (AD-4 SSR). MobileNav (Sheet) là client island.
 // Nav desktop md+, hamburger <md. Touch target >= 44px (EXPERIENCE.md).
@@ -43,14 +44,9 @@ export function SiteHeader() {
           </NavigationMenuList>
         </NavigationMenu>
 
-        {/* Actions desktop */}
+        {/* Actions desktop — conditional auth (Story 2.2 AC8e) */}
         <div className="hidden items-center gap-2 md:flex">
-          <Button asChild variant="ghost">
-            <Link href="/login">Đăng nhập</Link>
-          </Button>
-          <Button asChild variant="outline">
-            <Link href="/register">Đăng ký</Link>
-          </Button>
+          <HeaderAuthActions />
           <Button asChild>
             <Link href="/my-listings/new">Đăng tin</Link>
           </Button>

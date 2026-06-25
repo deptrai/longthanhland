@@ -1,15 +1,20 @@
 import {
   ConflictException,
+  ForbiddenException,
   Injectable,
   InternalServerErrorException,
   Logger,
+  NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
+import { eq } from 'drizzle-orm';
 import { InjectDrizzle, type DrizzleDB } from '../db/database.tokens';
 import { publicUsers } from '../db/schema/public-users';
 import { SupabaseService } from '../supabase/supabase.service';
 import { QueueService } from '../queue/queue.service';
 import { normalizePhone, toE164 } from './phone-normalize';
 import { registerApiSchema, type RegisterDto } from './dto/register.dto';
+import { type LoginDto } from './dto/login.dto';
 
 /**
  * AuthService (AC4, AC5, AC7, AD-2, AD-5, AD-6, AD-8) — Story 2.1.
@@ -32,6 +37,34 @@ export interface RegisterResponse {
   email: string;
   phoneVerified: boolean;
   emailVerified: boolean;
+}
+
+// Story 2.2 — login/logout/refresh/me response types.
+
+export interface LoginResponse {
+  accessToken: string;
+  refreshToken: string;
+  user: {
+    id: string;
+    email: string;
+    role: string;
+    phoneVerified: boolean;
+  };
+}
+
+export interface RefreshResponse {
+  accessToken: string;
+  refreshToken: string;
+}
+
+export interface MeResponse {
+  id: string;
+  email: string;
+  phone: string;
+  phoneVerified: boolean;
+  role: string;
+  banned: boolean;
+  createdAt: Date;
 }
 
 @Injectable()
@@ -165,6 +198,221 @@ export class AuthService {
     };
   }
 
+  // --- Story 2.2: login / logout / refresh / getMe ---
+
+  /**
+   * login() (AC1, AC3, E1, E2, E3, E7) — Story 2.2.
+   *
+   * Flow:
+   *   1. supabase.auth.signInWithPassword({ email, password }) → session.
+   *   2. If error → generic 401 "Email hoặc mật khẩu không đúng" (AC3 — anti-enumeration).
+   *   3. Query public_users → check banned (E7 → 403).
+   *   4. Return { accessToken, refreshToken, user }.
+   *
+   * AD-5: signInWithPassword qua service-role client (persistSession: false).
+   * AD-8: KHÔNG log email raw — log chỉ reason + userId.
+   */
+  async login(dto: LoginDto): Promise<LoginResponse> {
+    // Step 1: Supabase Auth signInWithPassword.
+    let session: {
+      access_token: string;
+      refresh_token: string;
+      user: { id: string; email?: string };
+    };
+    try {
+      const { data, error } = await this.supabase.auth.signInWithPassword({
+        email: dto.email,
+        password: dto.password,
+      });
+      if (error) throw error;
+      if (!data.session || !data.user) {
+        throw new Error('Supabase signInWithPassword trả session null');
+      }
+      session = data.session;
+    } catch (e) {
+      const message = this.extractMessage(e);
+      // E3: email chưa verify → 403 (message khác — user đã biết email mình).
+      if (this.isEmailNotConfirmed(message)) {
+        this.logger.warn(
+          { action: 'login', reason: 'email-not-confirmed' },
+          'Email chưa xác thực',
+        );
+        throw new ForbiddenException('Vui lòng xác thực email trước khi đăng nhập');
+      }
+      // AC3/E1/E2: sai password hoặc email không tồn tại → generic 401.
+      this.logger.warn(
+        { action: 'login', reason: 'invalid-credentials' },
+        'Đăng nhập thất bại — thông tin không hợp lệ',
+      );
+      throw new UnauthorizedException('Email hoặc mật khẩu không đúng');
+    }
+
+    // Step 2: Query public_users → check banned (E7).
+    let userRow: typeof publicUsers.$inferSelect | undefined;
+    try {
+      const rows = await this.db
+        .select()
+        .from(publicUsers)
+        .where(eq(publicUsers.id, session.user.id));
+      userRow = rows[0];
+    } catch (e) {
+      this.logger.error(
+        { userId: session.user.id, action: 'login', reason: 'db-fail', err: this.safeErr(e) },
+        'public_users query thất bại trong login',
+      );
+      throw new InternalServerErrorException('Đăng nhập thất bại');
+    }
+
+    if (!userRow) {
+      // Orphan — user có Supabase Auth nhưng thiếu public_users (Story 2.1 R1).
+      this.logger.warn(
+        { userId: session.user.id, action: 'login', reason: 'orphan-user' },
+        'public_users row không tồn tại (orphan)',
+      );
+      throw new NotFoundException('Hồ sơ người dùng không tồn tại');
+    }
+
+    if (userRow.banned) {
+      // E7: banned → 403, KHÔNG return JWT.
+      this.logger.warn(
+        { userId: session.user.id, action: 'login', reason: 'banned' },
+        'Tài khoản đã bị khóa',
+      );
+      throw new ForbiddenException('Tài khoản đã bị khóa');
+    }
+
+    this.logger.log(
+      { userId: session.user.id, action: 'login', reason: 'success' },
+      'Đăng nhập thành công',
+    );
+
+    return {
+      accessToken: session.access_token,
+      refreshToken: session.refresh_token,
+      user: {
+        id: session.user.id,
+        email: userRow.email,
+        role: userRow.role,
+        phoneVerified: userRow.phoneVerified,
+      },
+    };
+  }
+
+  /**
+   * logout() (AC2, E6) — Story 2.2.
+   *
+   * Supabase Auth signOut({ scope: 'global' }) — revoke tất cả session.
+   * JwtAuthGuard đã verify JWT signature + extract userId → truyền trực tiếp
+   * (KHÔNG decode lại — fix HIGH-1: jwt.decode không verify signature → DoS).
+   * E6 idempotent: signOut fail (đã logout) → vẫn 200 + clear cookie.
+   *
+   * @param userId — từ req.user.id (guard đã verify JWT signature).
+   */
+  async logout(userId: string): Promise<{ message: string }> {
+    try {
+      // AC2: signOut global — revoke tất cả refresh token của user.
+      await this.supabase.auth.admin.signOut(userId, 'global');
+    } catch (e) {
+      // E6 idempotent: signOut fail (đã logout) → vẫn 200 + clear cookie.
+      this.logger.warn(
+        { userId, action: 'logout', reason: 'supabase-fail', err: this.safeErr(e) },
+        'Supabase signOut thất bại (KHÔNG block — cookie vẫn clear)',
+      );
+    }
+
+    this.logger.log(
+      { userId, action: 'logout', reason: 'success' },
+      'Đăng xuất thành công',
+    );
+    return { message: 'Đăng xuất thành công' };
+  }
+
+  /**
+   * refresh() (AC5, E5) — Story 2.2.
+   *
+   * Đọc refresh_token (từ cookie ưu tiên, body fallback).
+   * supabase.auth.refreshSession({ refresh_token }) → new session (rotated).
+   * Refresh fail → 401 "Phiên hết hạn, vui lòng đăng nhập lại" + clear cookie.
+   */
+  async refresh(refreshToken: string | undefined): Promise<RefreshResponse> {
+    if (!refreshToken) {
+      // AC5a: KHÔNG có refresh_token → 401.
+      throw new UnauthorizedException('Phiên hết hạn, vui lòng đăng nhập lại');
+    }
+
+    let newSession: { access_token: string; refresh_token: string };
+    try {
+      const { data, error } = await this.supabase.auth.refreshSession({
+        refresh_token: refreshToken,
+      });
+      if (error) throw error;
+      if (!data.session) {
+        throw new Error('Supabase refreshSession trả session null');
+      }
+      newSession = data.session;
+    } catch (e) {
+      // E5: refresh token hết hạn / revoked → 401 + clear cookie.
+      this.logger.warn(
+        { action: 'refresh', reason: 'refresh-fail', err: this.safeErr(e) },
+        'Refresh token không hợp lệ — phiên hết hạn',
+      );
+      throw new UnauthorizedException('Phiên hết hạn, vui lòng đăng nhập lại');
+    }
+
+    this.logger.log(
+      { action: 'refresh', reason: 'success' },
+      'Refresh token thành công',
+    );
+
+    return {
+      accessToken: newSession.access_token,
+      refreshToken: newSession.refresh_token,
+    };
+  }
+
+  /**
+   * getMe() (AC7) — Story 2.2.
+   *
+   * Guard đã verify JWT + attach request.user.id.
+   * Query public_users → return profile.
+   * Orphan (no row) → 404.
+   */
+  async getMe(userId: string): Promise<MeResponse> {
+    let userRow: typeof publicUsers.$inferSelect | undefined;
+    try {
+      const rows = await this.db
+        .select()
+        .from(publicUsers)
+        .where(eq(publicUsers.id, userId));
+      userRow = rows[0];
+    } catch (e) {
+      this.logger.error(
+        { userId, action: 'me', reason: 'db-fail', err: this.safeErr(e) },
+        'public_users query thất bại trong getMe',
+      );
+      throw new InternalServerErrorException('Lỗi truy vấn hồ sơ');
+    }
+
+    if (!userRow) {
+      // AC7d: orphan → 404.
+      this.logger.warn(
+        { userId, action: 'me', reason: 'not-found' },
+        'Hồ sơ người dùng không tồn tại (orphan)',
+      );
+      throw new NotFoundException('Hồ sơ người dùng không tồn tại');
+    }
+
+    return {
+      id: userRow.id,
+      email: userRow.email,
+      phone: userRow.phone,
+      phoneVerified: userRow.phoneVerified,
+      role: userRow.role,
+      banned: userRow.banned,
+      createdAt: userRow.createdAt,
+    };
+  }
+
   /** Phát hiện error "User already registered" (email trùng) từ Supabase Auth (E1/AC7). */
   private isDuplicateEmail(message: string, errorCode?: string): boolean {
     // Ưu tiên error_code từ Supabase (email_exists).
@@ -202,6 +450,12 @@ export class AuthService {
   private isRateLimited(message: string): boolean {
     const lower = message.toLowerCase();
     return lower.includes('rate limit') || lower.includes('too many requests');
+  }
+
+  /** Phát hiện email chưa verify (E3) — Supabase trả "Email not confirmed". */
+  private isEmailNotConfirmed(message: string): boolean {
+    const lower = message.toLowerCase();
+    return lower.includes('email not confirmed') || lower.includes('email_not_confirmed');
   }
 
   /**

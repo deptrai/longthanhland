@@ -10,6 +10,7 @@ import type { ErrorEvent, EventHint } from '@sentry/node';
 
 const SECRET_PATTERNS = [
   /SUPABASE_SERVICE_ROLE_KEY/i,
+  /SUPABASE_JWT_SECRET/i,
   /SERVICE_ROLE/i,
   /DATABASE_URL/i,
   /REDIS_URL/i,
@@ -17,6 +18,10 @@ const SECRET_PATTERNS = [
   /password/i,
   /confirmPassword/i,
   /serviceRoleKey/i,
+  /accessToken/i,
+  /refreshToken/i,
+  /access_token/i,
+  /refresh_token/i,
   /token/i,
   /secret/i,
   /jwt/i,

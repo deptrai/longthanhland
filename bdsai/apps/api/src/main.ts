@@ -2,6 +2,7 @@ import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { Logger } from 'nestjs-pino';
 import * as Sentry from '@sentry/node';
+import cookieParser from 'cookie-parser';
 import type { Env } from './config/env.validation';
 import { AppModule } from './app.module';
 import { redactSecrets } from './common/sentry/sentry.util';
@@ -37,6 +38,16 @@ async function bootstrap(): Promise<void> {
 
   // AC5: thay default NestJS Logger bằng nestjs-pino (pino structured JSON).
   app.useLogger(app.get(Logger));
+
+  // Story 2.2 AC5: cookie-parser — parse refresh_token httpOnly cookie.
+  app.use(cookieParser());
+
+  // Story 2.2 AC4/AC8: CORS credentials — web (3100) → API (3101) cross-origin.
+  // Cookie SameSite=Lax + CORS credentials → browser gửi httpOnly cookie.
+  app.enableCors({
+    origin: process.env['NEXT_PUBLIC_WEB_URL'] ?? 'http://localhost:3100',
+    credentials: true,
+  });
 
   app.enableShutdownHooks();
 

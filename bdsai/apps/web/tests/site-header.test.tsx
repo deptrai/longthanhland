@@ -1,5 +1,10 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
+
+// Mock next/navigation (HeaderAuthActions uses useRouter).
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ push: vi.fn() }),
+}));
 
 import { SiteHeader } from '@/components/shared/site-header';
 
@@ -19,7 +24,7 @@ describe('SiteHeader', () => {
     expect(screen.getAllByText('Đăng tin').length).toBeGreaterThan(0);
   });
 
-  it('renders Đăng nhập link', () => {
+  it('renders Đăng nhập link (unauthenticated default)', () => {
     render(<SiteHeader />);
     expect(screen.getByText('Đăng nhập')).toBeInTheDocument();
   });

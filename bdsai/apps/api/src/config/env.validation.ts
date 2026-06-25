@@ -32,6 +32,13 @@ export const envSchema = z.object({
     .string()
     .min(1, 'SUPABASE_SERVICE_ROLE_KEY là bắt buộc (chỉ backend)'),
 
+  // Story 2.2 AC6: Supabase JWT secret — verify JWT local trong JwtAuthGuard.
+  // Local: supabase status output (hoặc config.toml [auth] jwt_secret).
+  // Demo local cố định (super-secret-jwt-token-with-at-least-32-characters-long).
+  SUPABASE_JWT_SECRET: z
+    .string()
+    .min(32, 'SUPABASE_JWT_SECRET là bắt buộc (≥ 32 ký tự — xem supabase status)'),
+
   // Bucket lưu ảnh listing (Story sau dùng) — default 'listings'
   SUPABASE_STORAGE_BUCKET: z.string().min(1).default('listings'),
 

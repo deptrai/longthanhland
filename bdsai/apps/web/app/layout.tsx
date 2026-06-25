@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { GeistSans } from 'geist/font/sans';
+import { AuthProvider } from '@/components/auth/auth-provider';
 
 import './globals.css';
 
@@ -24,7 +25,8 @@ export default function RootLayout({
         >
           Bỏ qua đến nội dung
         </a>
-        {children}
+        {/* Story 2.2 AC8: AuthProvider — accessToken in memory, restore qua refresh. */}
+        <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
   );
