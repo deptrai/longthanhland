@@ -5,7 +5,13 @@ import { Logger } from 'nestjs-pino';
 import { Queue } from 'bullmq';
 import IORedis from 'ioredis';
 import type { Env } from '../config/env.validation';
-import { ECHO_QUEUE, REDIS_CONNECTION, type EchoJobData } from './queue.tokens';
+import {
+  ECHO_QUEUE,
+  EMAIL_QUEUE,
+  REDIS_CONNECTION,
+  type EchoJobData,
+  type EmailVerificationJobData,
+} from './queue.tokens';
 
 /**
  * QueueService (AC2, AD-6, AD-1) — Story 1.6.
@@ -28,6 +34,8 @@ export class QueueService implements OnModuleInit {
   constructor(
     @Inject(REDIS_CONNECTION) private readonly redis: IORedis,
     @InjectQueue(ECHO_QUEUE) private readonly echoQueue: Queue<EchoJobData>,
+    @InjectQueue(EMAIL_QUEUE)
+    private readonly emailQueue: Queue<EmailVerificationJobData>,
     private readonly config: ConfigService<Env, true>,
     private readonly logger: Logger,
   ) {}
@@ -65,6 +73,26 @@ export class QueueService implements OnModuleInit {
     }
     // E3 retry: attempts 3 + exponential backoff 1s.
     const job = await this.echoQueue.add(ECHO_QUEUE, data, {
+      attempts: 3,
+      backoff: { type: 'exponential', delay: 1000 },
+    });
+    return job.id ?? '';
+  }
+
+  /**
+   * Enqueue email verification job (Story 2.1 AC4d, AD-6).
+   * Supabase Auth đã gửi email tự động — job wrapper cho future custom SMTP.
+   * AD-6: KHÔNG await job hoàn thành — chỉ enqueue.
+   * E1: throw clear error khi Redis down (queue disabled). AuthService catch
+   *   và log warn (KHÔNG block registration — email Supabase đã gửi).
+   */
+  async addEmailVerificationJob(data: EmailVerificationJobData): Promise<string> {
+    if (!this.enabled) {
+      throw new Error(
+        'Queue disabled — Redis không kết nối được (E1). Kiểm tra REDIS_URL + docker run redis.',
+      );
+    }
+    const job = await this.emailQueue.add(EMAIL_QUEUE, data, {
       attempts: 3,
       backoff: { type: 'exponential', delay: 1000 },
     });

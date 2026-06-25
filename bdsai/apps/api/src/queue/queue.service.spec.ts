@@ -3,7 +3,7 @@ import { getQueueToken } from '@nestjs/bullmq';
 import { ConfigService } from '@nestjs/config';
 import { Logger } from 'nestjs-pino';
 import { QueueService } from './queue.service';
-import { ECHO_QUEUE, REDIS_CONNECTION, type EchoJobData } from './queue.tokens';
+import { ECHO_QUEUE, EMAIL_QUEUE, REDIS_CONNECTION, type EchoJobData } from './queue.tokens';
 
 /**
  * Unit test QueueService (AC2, AC9) — Story 1.6.
@@ -29,6 +29,7 @@ describe('QueueService', () => {
         QueueService,
         { provide: REDIS_CONNECTION, useValue: redis },
         { provide: getQueueToken(ECHO_QUEUE), useValue: echoQueue },
+        { provide: getQueueToken(EMAIL_QUEUE), useValue: { add: jest.fn().mockResolvedValue({ id: 'email-job-1' }) } },
         {
           provide: ConfigService,
           useValue: {

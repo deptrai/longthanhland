@@ -48,10 +48,16 @@ export function MobileNav() {
             </Link>
           ))}
           <Link
-            href="/auth/login"
+            href="/login"
             className="flex min-h-[44px] items-center rounded-md px-3 py-2 text-base font-medium text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
           >
             Đăng nhập
+          </Link>
+          <Link
+            href="/register"
+            className="flex min-h-[44px] items-center rounded-md px-3 py-2 text-base font-medium text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+          >
+            Đăng ký
           </Link>
         </nav>
       </SheetContent>

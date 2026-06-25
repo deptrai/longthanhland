@@ -162,11 +162,15 @@ describe('Vietnamese Full-Text Search (e2e) — Story 1.5', () => {
     expect(dupRows).toHaveLength(0);
   });
 
-  // AC6 — 0 bảng nghiệp vụ trong schema public (chỉ extension + function, không table).
-  it('AC6: không có bảng nghiệp vụ trong schema public (migration chỉ extension+function)', async () => {
+  // AC6 — migration 0000 chỉ extension + function, KHÔNG tạo table.
+  // Story 2.1 thêm public_users (migration 0001) — chấp nhận bảng này.
+  it('AC6: migration 0000 không tạo bảng nghiệp vụ (chỉ extension+function)', async () => {
     const rows = (await db.execute(
       `SELECT tablename FROM pg_tables WHERE schemaname='public'`,
     )) as { tablename: string }[];
-    expect(rows).toHaveLength(0);
+    // Story 2.1: public_users là bảng nghiệp vụ đầu tiên (migration 0001).
+    // Migration 0000 (vietnamese_fts) KHÔNG tạo table — chỉ extension + function.
+    const nonStory21Tables = rows.filter((r) => r.tablename !== 'public_users');
+    expect(nonStory21Tables).toHaveLength(0);
   });
 });

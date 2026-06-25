@@ -4,9 +4,10 @@ import { BullModule } from '@nestjs/bullmq';
 import IORedis from 'ioredis';
 import type { QueueOptions } from 'bullmq';
 import type { Env } from '../config/env.validation';
-import { ECHO_QUEUE, REDIS_CONNECTION } from './queue.tokens';
+import { ECHO_QUEUE, EMAIL_QUEUE, REDIS_CONNECTION } from './queue.tokens';
 import { QueueService } from './queue.service';
 import { EchoProcessor } from './queue.processor';
+import { EmailProcessor } from './email.processor';
 
 /**
  * QueueModule (AC2, AD-1, AD-6) — Story 1.6.
@@ -35,6 +36,7 @@ import { EchoProcessor } from './queue.processor';
       useFactory: (redis: IORedis) => ({ connection: redis }) as unknown as QueueOptions,
     }),
     BullModule.registerQueue({ name: ECHO_QUEUE }),
+    BullModule.registerQueue({ name: EMAIL_QUEUE }),
   ],
   providers: [
     {
@@ -48,6 +50,7 @@ import { EchoProcessor } from './queue.processor';
     },
     QueueService,
     EchoProcessor,
+    EmailProcessor,
   ],
   exports: [QueueService, REDIS_CONNECTION],
 })

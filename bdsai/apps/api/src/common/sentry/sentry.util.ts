@@ -15,16 +15,27 @@ const SECRET_PATTERNS = [
   /REDIS_URL/i,
   /SENTRY_DSN/i,
   /password/i,
+  /confirmPassword/i,
   /serviceRoleKey/i,
   /token/i,
   /secret/i,
   /jwt/i,
+  // Story 2.1 AC8: PII fields — redact khỏi Sentry event.
+  /email/i,
+  /phone/i,
 ];
+
+// Story 2.1 AC8: regex redact PII raw value khỏi string (email + phone VN).
+const EMAIL_REGEX = /[\w.+-]+@[\w-]+\.[\w.-]+/g;
+const PHONE_VN_REGEX = /(\+84|0084|0)\d{9,10}/g;
 
 /** Redact string value chứa secret pattern → [Redacted]. */
 function redactString(value: string): string {
+  // Story 2.1 AC8: redact PII (email + phone VN) raw value khỏi string.
+  let piiOut = value.replace(EMAIL_REGEX, '[email-redacted]');
+  piiOut = piiOut.replace(PHONE_VN_REGEX, '[phone-redacted]');
   // Connection string: postgres://user:pass@host → postgres://[Redacted]@host
-  let out = value.replace(/postgres(ql)?:\/\/[^@]+@/gi, 'postgres$1://[Redacted]@');
+  let out = piiOut.replace(/postgres(ql)?:\/\/[^@]+@/gi, 'postgres$1://[Redacted]@');
   out = out.replace(/redis:\/\/[^@]*@?/gi, 'redis://[Redacted]');
   // Bare secret values (key-like, long base64/JWT).
   if (SECRET_PATTERNS.some((p) => p.test(out)) || /^eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(out)) {

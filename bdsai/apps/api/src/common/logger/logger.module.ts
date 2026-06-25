@@ -29,6 +29,7 @@ import type { Params } from 'nestjs-pino';
                 'req.headers.authorization',
                 'req.headers.cookie',
                 '*.password',
+                '*.confirmPassword',
                 '*.key',
                 '*.token',
                 '*.serviceRoleKey',
@@ -36,6 +37,9 @@ import type { Params } from 'nestjs-pino';
                 '*.DATABASE_URL',
                 '*.REDIS_URL',
                 '*.SENTRY_DSN',
+                // Story 2.1 AC8: redact PII (email, phone) — KHÔNG log raw.
+                '*.email',
+                '*.phone',
               ],
               censor: '[Redacted]',
             },

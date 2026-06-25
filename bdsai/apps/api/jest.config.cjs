@@ -11,5 +11,7 @@ module.exports = {
   testEnvironment: 'node',
   moduleNameMapper: {
     '^@bdsai/shared$': '<rootDir>/../../../packages/shared/src/index.ts',
+    // Strip .js extension cho relative imports (shared package dùng ESM .js).
+    '^(\\.{1,2}/.*)\\.js$': '$1',
   },
 };

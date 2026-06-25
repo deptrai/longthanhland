@@ -1,3 +1,4 @@
-// @bdsai/shared — Zod schemas dùng chung (placeholder).
-// Story 1.1: chưa có schema nghiệp vụ. Các story sau (listing, inquiry...) sẽ điền.
-export {};
+// @bdsai/shared — Zod schemas dùng chung FE ↔ BE.
+// Story 2.1: register schema (email, phone VN, password).
+
+export * from './register.js';

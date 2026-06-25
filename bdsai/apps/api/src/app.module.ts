@@ -10,6 +10,7 @@ import { SupabaseModule } from './supabase/supabase.module';
 import { HealthModule } from './health/health.module';
 import { LoggerModule } from './common/logger/logger.module';
 import { QueueModule } from './queue/queue.module';
+import { AuthModule } from './auth/auth.module';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 
 /**
@@ -40,6 +41,8 @@ import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
     // AC7/E10: ScheduleModule cho @Cron (monitoring.service).
     ScheduleModule.forRoot(),
     HealthModule,
+    // Story 2.1: AuthModule (register — AC4).
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [
