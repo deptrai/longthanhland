@@ -4,6 +4,7 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Patch,
   Post,
   Req,
   Res,
@@ -22,18 +23,20 @@ import {
 import { registerApiSchema } from './dto/register.dto';
 import { loginApiSchema } from './dto/login.dto';
 import { refreshApiSchema } from './dto/refresh.dto';
+import { updateMeApiSchema } from './dto/update-me.dto';
 import { JwtAuthGuard, type JwtUser } from './guards/jwt-auth.guard';
 import { REFRESH_COOKIE_NAME, setRefreshCookie, clearRefreshCookie } from './cookie.helper';
 
 /**
- * AuthController (AC1, AC2, AC4, AC5, AC6, AC7) — Story 2.1 + 2.2.
+ * AuthController (AC1, AC2, AC4, AC5, AC6, AC7) — Story 2.1 + 2.2 + 2.3.
  *
  * Endpoints:
  *   - POST /auth/register — đăng ký user mới (Story 2.1).
  *   - POST /auth/login — đăng nhập (Story 2.2 AC1).
  *   - POST /auth/logout — đăng xuất + clear cookie (Story 2.2 AC2).
  *   - POST /auth/refresh — refresh access token (Story 2.2 AC5).
- *   - GET /auth/me — profile user, cần JwtAuthGuard (Story 2.2 AC7).
+ *   - GET /auth/me — profile user, cần JwtAuthGuard (Story 2.2 AC7 + 2.3 AC2).
+ *   - PATCH /auth/me — cập nhật profile (Story 2.3 AC3, AC4, AC9).
  *
  * AD-2: mutation qua NestJS API → Service → Drizzle/Supabase. AD-5: service-role.
  * AD-8: KHÔNG log email/password/token raw. AC3: generic error anti-enumeration.
@@ -119,5 +122,22 @@ export class AuthController {
     // Guard đã verify JWT + attach request.user = { id, email }.
     const user = (req as Request & { user: JwtUser }).user;
     return this.authService.getMe(user.id);
+  }
+
+  // --- Story 2.3: PATCH /auth/me (cập nhật profile — AC3, AC4, AC9) ---
+
+  @Patch('me')
+  @UseGuards(JwtAuthGuard)
+  // AC9: rate limit 10 update / 15 phút / IP (tránh spam update).
+  @Throttle({ default: { limit: 10, ttl: 15 * 60 * 1000 } })
+  async updateMe(@Body() body: unknown, @Req() req: Request): Promise<MeResponse> {
+    // AC3: validate qua Zod — whitelist strip field thừa + sanitize XSS.
+    const result = updateMeApiSchema.safeParse(body);
+    if (!result.success) {
+      throw new ZodError(result.error.issues);
+    }
+    // Guard đã verify JWT + attach request.user = { id, email }.
+    const user = (req as Request & { user: JwtUser }).user;
+    return this.authService.updateMe(user.id, result.data);
   }
 }

@@ -28,6 +28,12 @@ const SECRET_PATTERNS = [
   // Story 2.1 AC8: PII fields — redact khỏi Sentry event.
   /email/i,
   /phone/i,
+  // Story 2.3 AC8: profile PII fields — redact khỏi Sentry event.
+  /bio/i,
+  /displayName/i,
+  /display_name/i,
+  /avatarUrl/i,
+  /avatar_url/i,
 ];
 
 // Story 2.1 AC8: regex redact PII raw value khỏi string (email + phone VN).

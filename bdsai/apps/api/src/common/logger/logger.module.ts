@@ -45,6 +45,12 @@ import type { Params } from 'nestjs-pino';
                 // Story 2.1 AC8: redact PII (email, phone) — KHÔNG log raw.
                 '*.email',
                 '*.phone',
+                // Story 2.3 AC8: redact profile PII (bio, displayName, avatarUrl).
+                '*.bio',
+                '*.displayName',
+                '*.avatarUrl',
+                '*.avatar_url',
+                '*.display_name',
               ],
               censor: '[Redacted]',
             },

@@ -353,6 +353,10 @@ loginSuite('POST /auth/login, GET /auth/me, POST /auth/refresh, POST /auth/logou
     expect(res.body.phone).toBe('0909999999');
     expect(res.body.role).toBe('user');
     expect(res.body.banned).toBe(false);
+    // Story 2.3 AC2: 3 profile fields (null cho user mới).
+    expect(res.body.avatarUrl).toBeNull();
+    expect(res.body.bio).toBeNull();
+    expect(res.body.displayName).toBeNull();
   });
 
   it('AC6: GET /auth/me không JWT → 401 "Thiếu token xác thực"', async () => {
@@ -421,6 +425,93 @@ loginSuite('POST /auth/login, GET /auth/me, POST /auth/refresh, POST /auth/logou
 
     expect(res.body.statusCode).toBe(401);
   });
+
+  // --- Story 2.3: PATCH /auth/me (cập nhật profile — AC3, AC4, E1, E2, E3, E8) ---
+
+  it('AC3: PATCH /auth/me displayName + bio → 200 + profile mới', async () => {
+    // Re-login (logout đã clear token ở test trước — nhưng accessToken vẫn valid JWT).
+    const res = await request(app.getHttpServer())
+      .patch('/auth/me')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({ displayName: 'Luis P', bio: 'Môi giới BĐS Long Thành' })
+      .expect(200);
+
+    expect(res.body.displayName).toBe('Luis P');
+    expect(res.body.bio).toBe('Môi giới BĐS Long Thành');
+
+    // Verify DB — psql equivalent via Drizzle.
+    const rows = await db
+      .select()
+      .from(publicUsers)
+      .where(eq(publicUsers.id, userId));
+    expect(rows[0]?.displayName).toBe('Luis P');
+    expect(rows[0]?.bio).toBe('Môi giới BĐS Long Thành');
+  });
+
+  it('E1: PATCH /auth/me không JWT → 401', async () => {
+    const res = await request(app.getHttpServer())
+      .patch('/auth/me')
+      .send({ bio: 'x' })
+      .expect(401);
+
+    expect(res.body.statusCode).toBe(401);
+  });
+
+  it('E2: PATCH /auth/me extra field (email/role) → silent strip, KHÔNG update', async () => {
+    // Capture email/role trước.
+    const beforeRows = await db
+      .select()
+      .from(publicUsers)
+      .where(eq(publicUsers.id, userId));
+    const beforeEmail = beforeRows[0]?.email;
+    const beforeRole = beforeRows[0]?.role;
+
+    const res = await request(app.getHttpServer())
+      .patch('/auth/me')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({ email: 'hacked@bdsai.vn', role: 'admin', bio: 'extra-test' })
+      .expect(200);
+
+    // bio update OK, email/role KHÔNG đổi.
+    expect(res.body.bio).toBe('extra-test');
+
+    const afterRows = await db
+      .select()
+      .from(publicUsers)
+      .where(eq(publicUsers.id, userId));
+    expect(afterRows[0]?.email).toBe(beforeEmail);
+    expect(afterRows[0]?.role).toBe(beforeRole);
+  });
+
+  it('E3: PATCH /auth/me bio > 500 chars → 400', async () => {
+    const res = await request(app.getHttpServer())
+      .patch('/auth/me')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({ bio: 'a'.repeat(501) })
+      .expect(400);
+
+    expect(res.body.statusCode).toBe(400);
+  });
+
+  it('E4: PATCH /auth/me displayName > 100 chars → 400', async () => {
+    const res = await request(app.getHttpServer())
+      .patch('/auth/me')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({ displayName: 'a'.repeat(101) })
+      .expect(400);
+
+    expect(res.body.statusCode).toBe(400);
+  });
+
+  it('E14: PATCH /auth/me XSS in bio → sanitize encoded', async () => {
+    const res = await request(app.getHttpServer())
+      .patch('/auth/me')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({ bio: '<script>alert(1)</script>' })
+      .expect(200);
+
+    expect(res.body.bio).toBe('&lt;script&gt;alert(1)&lt;/script&gt;');
+  });
 });
 
 /**
@@ -453,6 +544,79 @@ rateLimitSuite('Rate limit /auth/login (E9 — 5/15 phút/IP)', () => {
       const res = await request(app.getHttpServer())
         .post('/auth/login')
         .send({ email: `rate-test-${randomUUID()}@bdsai.vn`, password: 'WrongPass!' });
+      if (res.status === 429) {
+        got429 = true;
+        break;
+      }
+    }
+    expect(got429).toBe(true);
+  });
+});
+
+/**
+ * Rate limit test PATCH /auth/me (E16 — 10/15 phút/IP) — Story 2.3 AC9.
+ */
+const patchRateLimitSuite = supabaseAvailable ? describe : describe.skip;
+
+patchRateLimitSuite('Rate limit PATCH /auth/me (E16 — 10/15 phút/IP)', () => {
+  let app: INestApplication;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let db: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let supabase: any;
+  let accessToken: string;
+  let userId: string;
+
+  jest.setTimeout(60_000);
+
+  beforeAll(async () => {
+    const moduleRef: TestingModule = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
+
+    app = moduleRef.createNestApplication();
+    app.use(cookieParser());
+    await app.init();
+    db = app.get(DRIZZLE);
+    supabase = app.get(SupabaseService);
+
+    const uniqueSuffix = randomUUID();
+    const email = `e2e-rate-patch-${uniqueSuffix}@bdsai.vn`;
+    const regRes = await request(app.getHttpServer())
+      .post('/auth/register')
+      .send({ email, phone: '0908887777', password: 'Abc12345' })
+      .expect(201);
+    userId = regRes.body.userId;
+    await supabase.auth.admin.updateUserById(userId, { email_confirm: true });
+
+    const loginRes = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({ email, password: 'Abc12345' })
+      .expect(200);
+    accessToken = loginRes.body.accessToken;
+  });
+
+  afterAll(async () => {
+    try {
+      if (userId) await supabase.auth.admin.deleteUser(userId);
+    } catch {
+      // ignore
+    }
+    try {
+      await db.delete(publicUsers).where(eq(publicUsers.id, userId));
+    } catch {
+      // ignore
+    }
+    await app?.close();
+  });
+
+  it('E16: 11 PATCH /auth/me liên tiếp → lần 11 trả 429', async () => {
+    let got429 = false;
+    for (let i = 0; i < 11; i++) {
+      const res = await request(app.getHttpServer())
+        .patch('/auth/me')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({ bio: `attempt-${i}` });
       if (res.status === 429) {
         got429 = true;
         break;

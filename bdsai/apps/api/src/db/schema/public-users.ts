@@ -29,6 +29,13 @@ export const publicUsers = pgTable('public_users', {
   // AD-5 role discriminator: 'user' | 'admin'.
   role: text('role').notNull().default('user'),
   banned: boolean('banned').notNull().default(false),
+  // --- Story 2.3: profile fields (nullable — user chưa set thì NULL) ---
+  // AD-7 — chỉ lưu URL reference, KHÔNG lưu binary.
+  avatarUrl: text('avatar_url'),
+  // max 500 chars (validate AC3).
+  bio: text('bio'),
+  // max 100 chars (validate AC3).
+  displayName: text('display_name'),
   createdAt: timestamp('created_at', { withTimezone: true })
     .notNull()
     .defaultNow(),

@@ -31,6 +31,10 @@ export function HeaderAuthActions() {
   if (isAuthenticated && user) {
     return (
       <div className="hidden items-center gap-2 md:flex">
+        {/* Story 2.3: link Hồ sơ (/profile) khi authenticated. */}
+        <Button asChild variant="ghost" size="sm">
+          <Link href="/profile">Hồ sơ</Link>
+        </Button>
         <span className="text-sm text-muted-foreground">{user.email}</span>
         <Button variant="outline" onClick={handleLogout}>
           Đăng xuất

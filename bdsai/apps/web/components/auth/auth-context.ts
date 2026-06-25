@@ -15,6 +15,13 @@ export interface AuthUser {
   email: string;
   role: string;
   phoneVerified?: boolean;
+  // Story 2.3 AC2: profile fields (nullable — null nếu chưa set).
+  phone?: string;
+  banned?: boolean;
+  createdAt?: string;
+  avatarUrl?: string | null;
+  bio?: string | null;
+  displayName?: string | null;
 }
 
 export interface AuthContextValue {

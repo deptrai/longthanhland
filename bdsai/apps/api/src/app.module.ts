@@ -11,6 +11,7 @@ import { HealthModule } from './health/health.module';
 import { LoggerModule } from './common/logger/logger.module';
 import { QueueModule } from './queue/queue.module';
 import { AuthModule } from './auth/auth.module';
+import { UploadModule } from './upload/upload.module';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 
 /**
@@ -43,6 +44,8 @@ import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
     HealthModule,
     // Story 2.1: AuthModule (register — AC4).
     AuthModule,
+    // Story 2.3: UploadModule (avatar upload — AC5, AD-1 module riêng).
+    UploadModule,
   ],
   controllers: [AppController],
   providers: [

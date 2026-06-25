@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   ForbiddenException,
   Injectable,
@@ -7,6 +8,7 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { eq } from 'drizzle-orm';
 import { InjectDrizzle, type DrizzleDB } from '../db/database.tokens';
 import { publicUsers } from '../db/schema/public-users';
@@ -15,6 +17,8 @@ import { QueueService } from '../queue/queue.service';
 import { normalizePhone, toE164 } from './phone-normalize';
 import { registerApiSchema, type RegisterDto } from './dto/register.dto';
 import { type LoginDto } from './dto/login.dto';
+import { type UpdateMeDto } from './dto/update-me.dto';
+import type { Env } from '../config/env.validation';
 
 /**
  * AuthService (AC4, AC5, AC7, AD-2, AD-5, AD-6, AD-8) — Story 2.1.
@@ -65,6 +69,10 @@ export interface MeResponse {
   role: string;
   banned: boolean;
   createdAt: Date;
+  // Story 2.3 AC2: profile fields (nullable — null nếu chưa set).
+  avatarUrl: string | null;
+  bio: string | null;
+  displayName: string | null;
 }
 
 @Injectable()
@@ -75,6 +83,7 @@ export class AuthService {
     private readonly supabase: SupabaseService,
     @InjectDrizzle() private readonly db: DrizzleDB,
     private readonly queueService: QueueService,
+    private readonly config: ConfigService<Env, true>,
   ) {}
 
   async register(dto: RegisterDto): Promise<RegisterResponse> {
@@ -436,7 +445,130 @@ export class AuthService {
       role: userRow.role,
       banned: userRow.banned,
       createdAt: userRow.createdAt,
+      // Story 2.3 AC2: profile fields (null nếu chưa set).
+      avatarUrl: userRow.avatarUrl ?? null,
+      bio: userRow.bio ?? null,
+      displayName: userRow.displayName ?? null,
     };
+  }
+
+  /**
+   * updateMe() (AC3, E2, E8, E11, E12, E13) — Story 2.3.
+   *
+   * Flow:
+   *   1. Guard đã verify JWT + attach request.user.id.
+   *   2. Query public_users → check tồn tại (orphan → 404), check banned (→ 403).
+   *   3. Validate avatarUrl host (match Supabase host) nếu có (E13).
+   *   4. Build update set (chỉ field có trong dto — undefined = không update).
+   *   5. db.update(publicUsers).set({...fields, updatedAt}).where(eq(id, userId)).
+   *   6. Query lại → return profile mới (same shape AC2).
+   *
+   * AD-2: mutation qua NestJS Service → Drizzle. Last-write-wins (E12 — KHÔNG
+   * optimistic locking, profile text không critical).
+   * AC3a: Zod đã silent strip field thừa (whitelist) trước khi vào service.
+   * AC3c: sanitize đã làm trong Zod transform.
+   */
+  async updateMe(userId: string, dto: UpdateMeDto): Promise<MeResponse> {
+    // Step 1: query existing row (check orphan + banned).
+    let userRow: typeof publicUsers.$inferSelect | undefined;
+    try {
+      const rows = await this.db
+        .select()
+        .from(publicUsers)
+        .where(eq(publicUsers.id, userId));
+      userRow = rows[0];
+    } catch (e) {
+      this.logger.error(
+        { userId, action: 'updateMe', reason: 'db-fail', err: this.safeErr(e) },
+        'public_users query thất bại trong updateMe',
+      );
+      throw new InternalServerErrorException('Lỗi cập nhật hồ sơ');
+    }
+
+    if (!userRow) {
+      // E11: orphan → 404.
+      this.logger.warn(
+        { userId, action: 'updateMe', reason: 'not-found' },
+        'Hồ sơ người dùng không tồn tại (orphan)',
+      );
+      throw new NotFoundException('Hồ sơ người dùng không tồn tại');
+    }
+
+    // E8: banned user → 403 (KHÔNG update profile).
+    if (userRow.banned) {
+      this.logger.warn(
+        { userId, action: 'updateMe', reason: 'banned' },
+        'Tài khoản đã bị khóa — từ chối update profile',
+      );
+      throw new ForbiddenException('Tài khoản đã bị khóa');
+    }
+
+    // Step 2: validate avatarUrl host (match Supabase host) — E13.
+    if (dto.avatarUrl !== undefined && dto.avatarUrl !== null) {
+      this.assertAvatarUrlHost(dto.avatarUrl);
+    }
+
+    // Step 3: build update set (chỉ field có trong dto).
+    const updateSet: Record<string, unknown> = { updatedAt: new Date() };
+    if (dto.displayName !== undefined) {
+      updateSet.displayName = dto.displayName;
+    }
+    if (dto.bio !== undefined) {
+      updateSet.bio = dto.bio;
+    }
+    if (dto.avatarUrl !== undefined) {
+      updateSet.avatarUrl = dto.avatarUrl;
+    }
+
+    // Step 4: db.update (AD-2 mutation — last-write-wins E12).
+    try {
+      await this.db
+        .update(publicUsers)
+        .set(updateSet)
+        .where(eq(publicUsers.id, userId));
+    } catch (e) {
+      this.logger.error(
+        { userId, action: 'updateMe', reason: 'update-fail', err: this.safeErr(e) },
+        'public_users update thất bại',
+      );
+      throw new InternalServerErrorException('Cập nhật hồ sơ thất bại');
+    }
+
+    this.logger.log(
+      { userId, action: 'updateMe', reason: 'success' },
+      'Cập nhật hồ sơ thành công',
+    );
+
+    // Step 5: query lại → return profile mới (nhất quán shape AC2).
+    return this.getMe(userId);
+  }
+
+  /**
+   * Validate avatarUrl host phải match Supabase project host (E13 — chống inject
+   * URL ngoài domain). URL `https://evil.com/x.jpg` → 400.
+   */
+  private assertAvatarUrlHost(avatarUrl: string): void {
+    const supabaseUrl = this.config.get('SUPABASE_URL', { infer: true });
+    let expectedHost: string;
+    try {
+      expectedHost = new URL(supabaseUrl).host;
+    } catch {
+      // SUPABASE_URL đã validate qua env schema — không thể sai.
+      expectedHost = '';
+    }
+    let actualHost: string;
+    try {
+      actualHost = new URL(avatarUrl).host;
+    } catch {
+      throw new BadRequestException('URL ảnh không hợp lệ');
+    }
+    if (expectedHost && actualHost !== expectedHost) {
+      this.logger.warn(
+        { action: 'updateMe', reason: 'avatar-url-host-mismatch', expectedHost, actualHost },
+        'Avatar URL host không khớp Supabase — từ chối',
+      );
+      throw new BadRequestException('URL ảnh không hợp lệ');
+    }
   }
 
   /** Phát hiện error "User already registered" (email trùng) từ Supabase Auth (E1/AC7). */

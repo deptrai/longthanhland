@@ -19,6 +19,12 @@ import type { Env } from '../config/env.validation';
 export class SupabaseService {
   private readonly logger = new Logger(SupabaseService.name);
   private readonly client: SupabaseClient;
+  // Story 2.3: storage-only client — service-role key, KHÔNG session.
+  // auth.signInWithPassword() trên client chính lưu session in-memory
+  // (persistSession: false chỉ tắt localStorage, KHÔNG tắt in-memory).
+  // Storage upload qua client chính → dùng access token user (authenticated role)
+  // → RLS reject. Storage-only client luôn dùng service-role key → bypass RLS.
+  private readonly storageClient: SupabaseClient;
   private readonly bucket: string;
 
   constructor(private readonly config: ConfigService<Env, true>) {
@@ -34,6 +40,15 @@ export class SupabaseService {
       },
     });
 
+    // Storage-only client: service-role key, không session.
+    // Tách biệt khỏi auth client — auth.signInWithPassword KHÔNG ảnh hưởng.
+    this.storageClient = createClient(url, serviceRoleKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+      },
+    });
+
     // AD-8: chỉ log host, KHÔNG log key.
     this.logger.log(`Supabase client khởi tạo (host=${new URL(url).host}, bucket=${this.bucket})`);
   }
@@ -43,9 +58,9 @@ export class SupabaseService {
     return this.client.auth;
   }
 
-  /** Truy cập Supabase Storage API. */
+  /** Truy cập Supabase Storage API (service-role, KHÔNG session — Story 2.3). */
   get storage(): SupabaseClient['storage'] {
-    return this.client.storage;
+    return this.storageClient.storage;
   }
 
   /** Tên bucket lưu ảnh (mặc định 'listings'). */

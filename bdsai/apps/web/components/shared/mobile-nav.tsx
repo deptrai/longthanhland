@@ -18,6 +18,8 @@ const navItems = [
   { label: 'Trang chủ', href: '/' },
   { label: 'Tìm kiếm', href: '/listings' },
   { label: 'Đăng tin', href: '/my-listings/new' },
+  // Story 2.3: link Hồ sơ (authenticated page).
+  { label: 'Hồ sơ', href: '/profile' },
 ];
 
 export function MobileNav() {
