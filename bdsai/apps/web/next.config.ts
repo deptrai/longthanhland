@@ -1,4 +1,5 @@
 import type { NextConfig } from 'next';
+import { withSentryConfig } from '@sentry/nextjs';
 import path from 'node:path';
 
 const nextConfig: NextConfig = {
@@ -11,4 +12,20 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+// AC4 (Story 1.6): Sentry wrapper — auto-wire sentry.client.config.ts vào
+// browser bundle + upload source maps khi có SENTRY_AUTH_TOKEN (CI only).
+// E2: SENTRY_DSN empty → client config skip init (graceful, không crash).
+export default withSentryConfig(nextConfig, {
+  // Chỉ log upload source maps trong CI.
+  silent: !process.env['CI'],
+  // Upload source maps chỉ khi có authToken (CI). Dev local không upload.
+  org: process.env['SENTRY_ORG'],
+  project: process.env['SENTRY_PROJECT'],
+  authToken: process.env['SENTRY_AUTH_TOKEN'],
+  // Source maps: xóa sau upload (không serve công khai) — v10 API.
+  sourcemaps: {
+    deleteSourcemapsAfterUpload: true,
+  },
+  // Tắt telemetry Sentry (KHÔNG gửi usage data).
+  telemetry: false,
+});

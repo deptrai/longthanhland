@@ -39,6 +39,23 @@ export const envSchema = z.object({
   DB_POOL_MAX: z.coerce.number().int().positive().default(10),
   // idle_timeout phải > 0: 0 = disabled → connection leak trên Supabase Free (LOW-6).
   DB_IDLE_TIMEOUT: z.coerce.number().int().positive().default(20),
+
+  // --- Redis (Story 1.6 AC1) — BullMQ queue backend ---
+  // Optional (default redis://localhost:6379). Supabase local KHÔNG có Redis —
+  // chạy riêng: docker run -d --name bdsai-redis -p 6379:6379 redis:7-alpine.
+  // E1 graceful degradation: QueueModule ping fail → log warn + queue disabled,
+  // app vẫn boot (Redis là hạ tầng job nền, không bắt buộc healthcheck cơ bản).
+  REDIS_URL: z.string().min(1).default('redis://localhost:6379'),
+
+  // --- Sentry (Story 1.6 AC4) — error tracking ---
+  // Optional (default empty = disabled). E2: DSN empty → Sentry.init skip,
+  // captureException no-op (SDK handle tự). KHÔNG crash app khi thiếu DSN.
+  SENTRY_DSN: z.string().default(''),
+
+  // --- Monitoring thresholds (Story 1.6 AC7, NFR5) ---
+  // Supabase Free: DB 500MB → cảnh báo 400MB (80%). Storage 1GB → 800MB (80%).
+  DB_SIZE_ALERT_MB: z.coerce.number().int().positive().default(400),
+  STORAGE_SIZE_ALERT_MB: z.coerce.number().int().positive().default(800),
 });
 
 export type Env = z.infer<typeof envSchema>;

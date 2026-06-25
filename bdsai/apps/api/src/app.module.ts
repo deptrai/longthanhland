@@ -1,24 +1,30 @@
 import { Module } from '@nestjs/common';
+import { APP_FILTER } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
+import { ScheduleModule } from '@nestjs/schedule';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { validateEnv } from './config/env.validation';
 import { DatabaseModule } from './db/database.module';
 import { SupabaseModule } from './supabase/supabase.module';
 import { HealthModule } from './health/health.module';
+import { LoggerModule } from './common/logger/logger.module';
+import { QueueModule } from './queue/queue.module';
+import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 
 /**
  * Root module — bdsai.vn API (Application layer, NestJS 11).
  *
  * AD-1 (Module Isolation): các module nghiệp vụ (marketplace, auth, ai,
- * xaction, admin, queue) sẽ được import vào đây ở các story sau, mỗi module
- * chỉ expose service interface công khai. Story 1.1 chưa tạo module nghiệp vụ.
+ * xaction, admin) sẽ được import vào đây ở các story sau, mỗi module
+ * chỉ expose service interface công khai.
  *
- * Story 1.2 thêm hạ tầng nền tảng (không phải module nghiệp vụ):
- *   - ConfigModule (AC2): env qua @nestjs/config + validate fail-fast.
- *   - DatabaseModule (AC1/AC5): Drizzle + postgres.js (@Global, expose DI token).
- *   - SupabaseModule (AC3): Auth + Storage client server-side (@Global).
- *   - HealthModule (AC3): GET /health/supabase.
+ * Story 1.2: hạ tầng nền tảng (ConfigModule, DatabaseModule, SupabaseModule, HealthModule).
+ * Story 1.6: hạ tầng nền tiếp (LoggerModule, QueueModule, ScheduleModule, global filter).
+ *   - LoggerModule (AC5): nestjs-pino structured JSON logger.
+ *   - QueueModule (AC2, AD-6): BullMQ @Global — Redis + echo queue.
+ *   - ScheduleModule (AC7, E10): @Cron cho monitoring hourly.
+ *   - AllExceptionsFilter (AC6): global exception filter — error shape chuẩn.
  */
 @Module({
   imports: [
@@ -26,11 +32,20 @@ import { HealthModule } from './health/health.module';
       isGlobal: true,
       validate: validateEnv,
     }),
+    // AC5: pino logger phải load trước module dùng Logger (DI order).
+    LoggerModule,
     DatabaseModule,
     SupabaseModule,
+    QueueModule,
+    // AC7/E10: ScheduleModule cho @Cron (monitoring.service).
+    ScheduleModule.forRoot(),
     HealthModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    // AC6: global exception filter qua DI (inject pino Logger + HttpAdapterHost).
+    { provide: APP_FILTER, useClass: AllExceptionsFilter },
+  ],
 })
 export class AppModule {}

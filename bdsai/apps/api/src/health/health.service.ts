@@ -1,7 +1,9 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Inject, Logger } from '@nestjs/common';
 import { sql } from 'drizzle-orm';
+import IORedis from 'ioredis';
 import { InjectDrizzle, type DrizzleDB } from '../db/database.tokens';
 import { SupabaseService } from '../supabase/supabase.service';
+import { REDIS_CONNECTION } from '../queue/queue.tokens';
 
 /** Trạng thái một thành phần hạ tầng. */
 export interface ComponentHealth {
@@ -18,13 +20,20 @@ export interface SupabaseHealth {
   storage: ComponentHealth;
 }
 
+/** Kết quả healthcheck Redis (AC1 — Story 1.6). */
+export interface RedisHealth {
+  status: 'ok' | 'degraded';
+  redis: ComponentHealth;
+}
+
 /**
- * HealthService (AC3, AC7) — Story 1.2.
+ * HealthService (AC3, AC7, AC1) — Story 1.2 + 1.6.
  *
- * Ping độc lập 3 thành phần:
+ * Ping độc lập các thành phần:
  *   - db:      Drizzle `SELECT 1` qua postgres.js.
  *   - auth:    Supabase Auth admin (server-side) — list users (giới hạn 1).
  *   - storage: Supabase Storage — list buckets.
+ *   - redis:   ioredis ping (Story 1.6 AC1).
  *
  * Mỗi thành phần được bọc try/catch riêng → một thành phần down KHÔNG làm
  * cả endpoint crash (AC3). AD-8: chỉ trả message ngắn, KHÔNG lộ key/connection string.
@@ -36,6 +45,7 @@ export class HealthService {
   constructor(
     @InjectDrizzle() private readonly db: DrizzleDB,
     private readonly supabase: SupabaseService,
+    @Inject(REDIS_CONNECTION) private readonly redis: IORedis,
   ) {}
 
   async checkSupabase(): Promise<SupabaseHealth> {
@@ -97,5 +107,27 @@ export class HealthService {
     const msg = e instanceof Error ? e.message : String(e);
     // Cắt ngắn + loại bỏ chuỗi giống connection string nếu vô tình lọt vào.
     return msg.replace(/postgres(ql)?:\/\/[^\s]+/gi, '[redacted-url]').slice(0, 200);
+  }
+
+  /**
+   * checkRedis (AC1 — Story 1.6) — ping Redis qua ioredis.
+   * E1: Redis down → status down + error ngắn (KHÔNG crash endpoint).
+   */
+  async checkRedis(): Promise<RedisHealth> {
+    const redis = await this.pingRedis();
+    return { status: redis.status === 'up' ? 'ok' : 'degraded', redis };
+  }
+
+  private async pingRedis(): Promise<ComponentHealth> {
+    try {
+      const pong = await this.redis.ping();
+      if (pong !== 'PONG') {
+        return { status: 'down', error: `Redis ping trả '${pong}'` };
+      }
+      return { status: 'up' };
+    } catch (e) {
+      this.logger.warn(`Redis healthcheck down: ${this.safeMessage(e)}`);
+      return { status: 'down', error: this.safeMessage(e) };
+    }
   }
 }
