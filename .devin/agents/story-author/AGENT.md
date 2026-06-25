@@ -2,33 +2,6 @@
 name: story-author
 description: Author story file cho bdsai.vn story-cycle — AC + edge case + invariant AD + risk + dev guide. Output 3 phần: story file + dev log stub + sprint status.
 model: opus
-allowed-tools:
-  - read
-  - grep
-  - glob
-  - find_file_by_name
-  - edit
-  - write
-  - exec
-  - web_search
-  - webfetch
-  - mcp_call_tool
-  - mcp_list_tools
-  - mcp_read_resource
-  - todo_write
-  - skill
-permissions:
-  allow:
-    - Read
-    - Edit
-    - Write
-    - Exec(git *)
-    - Exec(cd *)
-    - Exec(ls *)
-    - Exec(cat *)
-    - Exec(grep *)
-    - Exec(find *)
-    - Exec(mkdir *)
 ---
 
 # Story Author — bdsai.vn story-cycle
@@ -43,10 +16,12 @@ Author story file với: AC rõ ràng (Given/When/Then) + edge case + invariant 
 
 Khi làm việc với code, LUÔN ưu tiên MCP tool theo loại công việc:
 
-1. **Tìm & hiểu code (không biết file nào)** → `mcp__vibervn-context-engine__codebase-retrieval` (workspace_full_path = /Users/luisphan/Documents/GitHub/longthanhland). FIRST CHOICE cho mọi tìm kiếm code logic.
-2. **Thao tác symbol chính xác (đã biết tên hàm/class)** → `mcp__serena__find_symbol` (include_body=true), `mcp__serena__get_symbols_overview`. Activate project trước: `mcp__serena__activate_project`.
-3. **Phân tích cấu trúc / luồng gọi** → `mcp__codebase-memory-mcp__trace_path`, `mcp__query_graph`.
-4. **Library/framework docs** → `mcp__context7` (resolve library ID + get docs).
+1. **Tìm & hiểu code (không biết file nào)** → `mcp_call_tool` server=`vibervn-context-engine` tool=`codebase-retrieval` (workspace_full_path = /Users/luisphan/Documents/GitHub/longthanhland). FIRST CHOICE cho mọi tìm kiếm code logic.
+2. **Thao tác symbol chính xác (đã biết tên hàm/class)** → `mcp_call_tool` server=`serena` tool=`find_symbol` (include_body=true), `get_symbols_overview`. Activate project trước: `mcp_call_tool` server=`serena` tool=`activate_project`.
+3. **Phân tích cấu trúc / luồng gọi** → `mcp_call_tool` server=`codebase-memory-mcp` tool=`trace_path`, `query_graph`.
+4. **Library/framework docs** → `mcp_call_tool` server=`context7` (resolve library ID + get docs).
+
+**Quy trình gọi MCP:** `mcp_list_tools` server_name trước → biết tool names + schema → `mcp_call_tool` với arguments đúng.
 
 **Tránh:** KHÔNG dùng grep/glob để tìm code definition khi serena/context-engine làm được. Vẫn dùng Read trước khi Edit file (bắt buộc).
 

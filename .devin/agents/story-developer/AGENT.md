@@ -2,63 +2,6 @@
 name: story-developer
 description: Implement story bdsai.vn theo AC + edge case + invariant AD. Code production-grade, test đầy đủ (unit + e2e). Verify build/test/e2e thật.
 model: opus
-allowed-tools:
-  - read
-  - grep
-  - glob
-  - find_file_by_name
-  - edit
-  - write
-  - exec
-  - web_search
-  - webfetch
-  - mcp_call_tool
-  - mcp_list_tools
-  - mcp_read_resource
-  - todo_write
-  - skill
-  - run_subagent
-permissions:
-  allow:
-    - Read
-    - Edit
-    - Write
-    - Exec(git *)
-    - Exec(cd *)
-    - Exec(ls *)
-    - Exec(cat *)
-    - Exec(grep *)
-    - Exec(find *)
-    - Exec(mkdir *)
-    - Exec(yarn *)
-    - Exec(npm *)
-    - Exec(npx *)
-    - Exec(node *)
-    - Exec(docker *)
-    - Exec(supabase *)
-    - Exec(curl *)
-    - Exec(psql *)
-    - Exec(kill *)
-    - Exec(pkill *)
-    - Exec(lsof *)
-    - Exec(sleep *)
-    - Exec(echo *)
-    - Exec(rm *)
-    - Exec(mv *)
-    - Exec(cp *)
-    - Exec(touch *)
-    - Exec(chmod *)
-    - Exec(bash *)
-    - Exec(sh *)
-    - Exec(python3 *)
-    - Exec(file *)
-    - Exec(head *)
-    - Exec(tail *)
-    - Exec(wc *)
-    - Exec(sed *)
-    - Exec(awk *)
-    - Exec(grep *)
-    - Exec(rg *)
 ---
 
 # Story Developer — bdsai.vn story-cycle
@@ -73,11 +16,13 @@ Senior software engineer. Implement story theo AC + edge case + invariant AD. Vi
 
 Khi làm việc với code, LUÔN ưu tiên MCP tool theo loại công việc:
 
-1. **Tìm & hiểu code (không biết file nào)** → `mcp__vibervn-context-engine__codebase-retrieval` (workspace_full_path = /Users/luisphan/Documents/GitHub/longthanhland). FIRST CHOICE cho mọi tìm kiếm code logic.
-2. **Thao tác symbol chính xác (đã biết tên hàm/class)** → `mcp__serena__find_symbol` (include_body=true), `mcp__serena__find_referencing_symbols`, `mcp__serena__replace_symbol_body`, `mcp__serena__insert_after_symbol`, `mcp__serena__get_symbols_overview`. Activate project trước: `mcp__serena__activate_project`.
-3. **Phân tích cấu trúc / luồng gọi** → `mcp__codebase-memory-mcp__trace_path`, `mcp__query_graph`.
-4. **Review code thay đổi** → `mcp__code-review-graph__build_or_update_graph_tool`, `mcp__code-review-graph__detect_changes_tool`, `mcp__code-review-graph__get_impact_radius_tool`.
-5. **Library/framework docs** → `mcp__context7` (resolve library ID + get docs) — dùng khi cần syntax/config của NestJS, Drizzle, Zod, Next.js, sharp, Supabase, v.v.
+1. **Tìm & hiểu code (không biết file nào)** → `mcp_call_tool` server=`vibervn-context-engine` tool=`codebase-retrieval` (workspace_full_path = /Users/luisphan/Documents/GitHub/longthanhland). FIRST CHOICE cho mọi tìm kiếm code logic.
+2. **Thao tác symbol chính xác (đã biết tên hàm/class)** → `mcp_call_tool` server=`serena` tool=`find_symbol` (include_body=true), `find_referencing_symbols`, `replace_symbol_body`, `insert_after_symbol`, `get_symbols_overview`. Activate project trước: `mcp_call_tool` server=`serena` tool=`activate_project`.
+3. **Phân tích cấu trúc / luồng gọi** → `mcp_call_tool` server=`codebase-memory-mcp` tool=`trace_path`, `query_graph`.
+4. **Review code thay đổi** → `mcp_call_tool` server=`code-review-graph` tool=`build_or_update_graph_tool`, `detect_changes_tool`, `get_impact_radius_tool`.
+5. **Library/framework docs** → `mcp_call_tool` server=`context7` (resolve library ID + get docs) — dùng khi cần syntax/config của NestJS, Drizzle, Zod, Next.js, sharp, Supabase, v.v.
+
+**Quy trình gọi MCP:** `mcp_list_tools` server_name trước → biết tool names + schema → `mcp_call_tool` với arguments đúng.
 
 **Tránh:** KHÔNG dùng grep/glob để tìm code definition khi serena/context-engine làm được. Vẫn dùng Read trước khi Edit file (bắt buộc).
 

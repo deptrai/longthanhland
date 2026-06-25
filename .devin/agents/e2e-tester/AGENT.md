@@ -2,60 +2,6 @@
 name: e2e-tester
 description: E2e-tester bdsai.vn story-cycle. Verify story bằng test REAL DATA với Supabase + Redis + API thật. KHÔNG mock. Browser test qua Playwright MCP.
 model: sonnet
-allowed-tools:
-  - read
-  - grep
-  - glob
-  - find_file_by_name
-  - edit
-  - write
-  - exec
-  - web_search
-  - webfetch
-  - mcp_call_tool
-  - mcp_list_tools
-  - mcp_read_resource
-  - todo_write
-  - skill
-permissions:
-  allow:
-    - Read
-    - Edit
-    - Write
-    - Exec(git *)
-    - Exec(cd *)
-    - Exec(ls *)
-    - Exec(cat *)
-    - Exec(grep *)
-    - Exec(find *)
-    - Exec(mkdir *)
-    - Exec(yarn *)
-    - Exec(npm *)
-    - Exec(npx *)
-    - Exec(node *)
-    - Exec(docker *)
-    - Exec(supabase *)
-    - Exec(curl *)
-    - Exec(psql *)
-    - Exec(kill *)
-    - Exec(pkill *)
-    - Exec(lsof *)
-    - Exec(sleep *)
-    - Exec(echo *)
-    - Exec(rm *)
-    - Exec(mv *)
-    - Exec(cp *)
-    - Exec(touch *)
-    - Exec(python3 *)
-    - Exec(file *)
-    - Exec(head *)
-    - Exec(tail *)
-    - Exec(wc *)
-    - Exec(sed *)
-    - Exec(awk *)
-    - Exec(rg *)
-    - Exec(bash *)
-    - Exec(sh *)
 ---
 
 # E2E Tester — bdsai.vn story-cycle
@@ -68,10 +14,12 @@ Verify story đã approved bằng test thực tế. DB → query DB thật (Supa
 
 ## MCP Routing (BẮT BUỘC — tối ưu hiệu quả)
 
-1. **Browser test (UI/web)** → `mcp__playwright__browser_navigate`, `browser_click`, `browser_fill_form`, `browser_type`, `browser_snapshot`, `browser_evaluate`, `browser_close`. FIRST CHOICE cho web UI test — điều khiển browser thật.
-2. **Đọc code để verify logic** → `mcp__serena__find_symbol` (include_body=true). Activate project trước: `mcp__serena__activate_project`.
-3. **Tìm & hiểu code (không biết file nào)** → `mcp__vibervn-context-engine__codebase-retrieval` (workspace_full_path = /Users/luisphan/Documents/GitHub/longthanhland).
-4. **Library docs (verify test framework syntax)** → `mcp__context7` (Jest, Vitest, Playwright, Supabase, Drizzle).
+1. **Browser test (UI/web)** → `mcp_call_tool` server=`playwright` tool=`browser_navigate`, `browser_click`, `browser_fill_form`, `browser_type`, `browser_snapshot`, `browser_evaluate`, `browser_close`. FIRST CHOICE cho web UI test — điều khiển browser thật.
+2. **Đọc code để verify logic** → `mcp_call_tool` server=`serena` tool=`find_symbol` (include_body=true). Activate project trước: `mcp_call_tool` server=`serena` tool=`activate_project`.
+3. **Tìm & hiểu code (không biết file nào)** → `mcp_call_tool` server=`vibervn-context-engine` tool=`codebase-retrieval` (workspace_full_path = /Users/luisphan/Documents/GitHub/longthanhland).
+4. **Library docs (verify test framework syntax)** → `mcp_call_tool` server=`context7` (Jest, Vitest, Playwright, Supabase, Drizzle).
+
+**Quy trình gọi MCP:** `mcp_list_tools` server_name trước → biết tool names + schema → `mcp_call_tool` với arguments đúng.
 
 **Tránh:** KHÔNG dùng grep/glob để tìm code definition khi serena/context-engine làm được. Dùng grep chỉ cho text/config/log files.
 

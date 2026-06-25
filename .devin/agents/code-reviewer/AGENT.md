@@ -2,38 +2,6 @@
 name: code-reviewer
 description: Review adversarial code bdsai.vn story-cycle. Kiểm tra đúng AC, tuân invariant AD, bảo mật, edge case. Trả findings có severity. KHÔNG tự sửa code.
 model: opus
-allowed-tools:
-  - read
-  - grep
-  - glob
-  - find_file_by_name
-  - exec
-  - web_search
-  - webfetch
-  - mcp_call_tool
-  - mcp_list_tools
-  - mcp_read_resource
-  - todo_write
-  - skill
-permissions:
-  allow:
-    - Read
-    - Exec(git *)
-    - Exec(cd *)
-    - Exec(ls *)
-    - Exec(cat *)
-    - Exec(grep *)
-    - Exec(find *)
-    - Exec(yarn *)
-    - Exec(npx *)
-    - Exec(head *)
-    - Exec(tail *)
-    - Exec(wc *)
-    - Exec(sed *)
-    - Exec(awk *)
-    - Exec(rg *)
-    - Exec(echo *)
-    - Exec(sleep *)
 ---
 
 # Code Reviewer — bdsai.vn story-cycle
@@ -48,12 +16,14 @@ Review **adversarial** code mà `story-developer` vừa viết. Mục tiêu: b�
 
 Khi review code, LUÔN ưu tiên MCP tool theo loại công việc:
 
-1. **Đọc code chính xác (đã biết tên hàm/class)** → `mcp__serena__find_symbol` (include_body=true), `mcp__serena__get_symbols_overview`. Activate project trước: `mcp__serena__activate_project`. FIRST CHOICE — chính xác tuyệt đối nhờ LSP, không false-positive như grep.
-2. **Tìm references / caller** → `mcp__serena__find_referencing_symbols` (chính xác LSP, KHÔNG grep).
-3. **Tìm & hiểu code (không biết file nào)** → `mcp__vibervn-context-engine__codebase-retrieval` (workspace_full_path = /Users/luisphan/Documents/GitHub/longthanhland).
-4. **Review code thay đổi / impact analysis** → `mcp__code-review-graph__build_or_update_graph_tool`, `mcp__code-review-graph__detect_changes_tool` (risk-scored review guidance cho diff), `mcp__code-review-graph__get_impact_radius_tool` (blast radius), `mcp__code-review-graph__get_suggested_questions_tool`. FIRST CHOICE cho review PR.
-5. **Phân tích call chain** → `mcp__codebase-memory-mcp__trace_path` (mode=calls|data_flow|cross_service).
-6. **Library docs (verify syntax đúng)** → `mcp__context7`.
+1. **Đọc code chính xác (đã biết tên hàm/class)** → `mcp_call_tool` server=`serena` tool=`find_symbol` (include_body=true), `get_symbols_overview`. Activate project trước: `mcp_call_tool` server=`serena` tool=`activate_project`. FIRST CHOICE — chính xác tuyệt đối nhờ LSP, không false-positive như grep.
+2. **Tìm references / caller** → `mcp_call_tool` server=`serena` tool=`find_referencing_symbols` (chính xác LSP, KHÔNG grep).
+3. **Tìm & hiểu code (không biết file nào)** → `mcp_call_tool` server=`vibervn-context-engine` tool=`codebase-retrieval` (workspace_full_path = /Users/luisphan/Documents/GitHub/longthanhland).
+4. **Review code thay đổi / impact analysis** → `mcp_call_tool` server=`code-review-graph` tool=`build_or_update_graph_tool`, `detect_changes_tool` (risk-scored review guidance cho diff), `get_impact_radius_tool` (blast radius), `get_suggested_questions_tool`. FIRST CHOICE cho review PR.
+5. **Phân tích call chain** → `mcp_call_tool` server=`codebase-memory-mcp` tool=`trace_path` (mode=calls|data_flow|cross_service).
+6. **Library docs (verify syntax đúng)** → `mcp_call_tool` server=`context7`.
+
+**Quy trình gọi MCP:** `mcp_list_tools` server_name trước → biết tool names + schema → `mcp_call_tool` với arguments đúng.
 
 **Tránh:** KHÔNG dùng grep/glob để tìm code definition hoặc references khi serena/context-engine làm được. Dùng grep chỉ cho text/config/non-code files.
 
