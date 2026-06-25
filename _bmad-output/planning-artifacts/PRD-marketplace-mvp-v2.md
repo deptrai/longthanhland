@@ -191,15 +191,18 @@ Xây dựng **sàn rao vặt bất động sản thông minh** tập trung vào 
 | Story | Mô tả | Estimate |
 |-------|--------|----------|
 | M4.1 | AI Summary: GPT-4 phân tích tin đăng | 8h |
-| M4.2 | Trust Score: algorithm (seller verify + listing quality + market alignment) | 8h |
+| M4.2a | Trust Score Phase 1: seller verify + listing quality (KHÔNG cần market data) | 5h |
+| M4.2b | Trust Score Phase 2: + market alignment (**Track B** — sau khi có Auto-Import M5) | 3h |
 | M4.3 | Smart Spam Filter: rule-based + keyword blacklist | 6h |
-| M4.4 | Display AI insights trên listing detail | 4h |
+| M4.4 | Display AI insights trên listing detail (kèm disclaimer + nút appeal) | 4h |
 
 **Deliverable:** AI-powered insights cho mỗi tin đăng
 
 ---
 
-### Epic M5: Xaction Integration — Auto-Post & Import (Week 7-9)
+### Epic M5: Xaction Integration — Auto-Post & Import (BLOCKED — chờ API docs + quyết định compliance)
+
+> ⚠️ **Track B — KHÔNG nằm trong critical path.** Điều kiện mở khóa: (1) Xaction API docs; (2) quyết định kinh doanh về ToS/compliance (xem Section 11); (3) schema phone đã hash (AD-8). Estimate 52h dưới đây CHƯA đáng tin cho tới khi có API docs.
 
 | Story | Mô tả | Estimate |
 |-------|--------|----------|
@@ -220,7 +223,7 @@ Xây dựng **sàn rao vặt bất động sản thông minh** tập trung vào 
 | Story | Mô tả | Estimate |
 |-------|--------|----------|
 | M6.1 | Inquiry form: gửi liên hệ cho seller | 6h |
-| M6.2 | Notification: email + SMS cho seller khi có inquiry | 6h |
+| M6.2 | Notification: **email cho seller khi có inquiry (SMS hoãn sang post-MVP)** | 5h |
 | M6.3 | Dynamic sitemap.xml + robots.txt | 4h |
 | M6.4 | Structured data: JSON-LD Schema.org | 4h |
 | M6.5 | Performance optimization: caching, lazy load | 6h |
@@ -347,8 +350,8 @@ export const importedListings = pgTable('imported_listings', {
   area: decimal('area', { precision: 10, scale: 2 }),
   location: varchar('location', { length: 500 }),
   images: text('images').array(),
-  sellerName: varchar('seller_name', { length: 255 }),
-  sellerPhone: varchar('seller_phone', { length: 20 }),
+  sellerName: varchar('seller_name', { length: 255 }), // ẩn/hash khi hiển thị công khai (AD-8)
+  sellerPhoneHash: varchar('seller_phone_hash', { length: 64 }), // sha256 — dedup only, KHÔNG lưu raw (AD-8, NĐ 13/2023)
   status: varchar('status', { length: 20 }).notNull().default('imported'), // 'imported', 'approved', 'rejected', 'linked'
   linkedListingId: uuid('linked_listing_id').references(() => publicListings.id),
   importedAt: timestamp('imported_at').defaultNow().notNull(),
@@ -448,11 +451,13 @@ Week 9-11:  Epic M6 — Inquiry & SEO
 
 | Risk | Impact | Probability | Mitigation |
 |------|--------|-------------|------------|
+| **Vi phạm ToS FB/BDS/Chợ Tốt (proxy post + crawl)** | **EXISTENTIAL** | HIGH | Quyết định compliance TRƯỚC khi code M5 (Section 11); ưu tiên official API (FB Page API, đối tác); rate limit KHÔNG giải quyết bản chất fake account |
+| **Lưu PII (sellerPhone) từ crawl vi phạm NĐ 13/2023** | **EXISTENTIAL** | HIGH | Hash phone (AD-8), cơ chế xóa theo yêu cầu, ẩn PII công khai |
+| **Phụ thuộc đơn điểm vào Xaction** | HIGH | MEDIUM | Provider pattern (AD-3 mở rộng); Track A không phụ thuộc Xaction |
 | Xaction API không ổn định | HIGH | MEDIUM | Retry logic, fallback manual, queue system |
-| Facebook chặn auto-post | HIGH | HIGH | Tuân thủ rate limit, đa dạng content, dùng Page API |
 | Ít user đăng ký ban đầu | MEDIUM | HIGH | Seed data từ crawling, mời brokers trực tiếp |
 | AI cost quá cao (GPT-4) | MEDIUM | LOW | Dùng GPT-3.5 cho simple tasks, cache results |
-| Batdongsan/Chợ Tốt chặn crawl | MEDIUM | MEDIUM | Respectful rate limiting, Xaction proxy rotation |
+| Trust Score gắn nhãn sai → kiện cáo | MEDIUM | MEDIUM | Disclaimer "tham khảo"; quy trình appeal (Section 11.3) |
 | SEO chưa hiệu quả ngay | LOW | HIGH | Structured data, sitemap, social signals từ auto-post |
 
 ---
@@ -478,11 +483,39 @@ Week 9-11:  Epic M6 — Inquiry & SEO
 
 ---
 
+## 11. Compliance & Pháp lý
+
+> ⚠️ Section này được thêm sau review (24/06/2026) vì cả PRD/Architecture/Epics ban đầu KHÔNG đề cập rủi ro pháp lý — đây là rủi ro tồn vong, không phải kỹ thuật.
+
+### 11.1. Auto-Post & Quản lý danh tính proxy
+
+- **RỦI RO:** Đăng bài dưới danh tính proxy lên Facebook/Batdongsan/Chợ Tốt có thể vi phạm ToS các nền tảng này (fake account, automation trái phép) → ban account hàng loạt, mất kênh quảng bá, rủi ro pháp lý.
+- **QUYẾT ĐỊNH CẦN CHỐT (Luis — business decision):**
+  - [ ] Chấp nhận rủi ro (hiểu rõ hậu quả), HOẶC
+  - [ ] Chuyển sang official API (FB Page API, đối tác chính thức của BDS/Chợ Tốt), HOẶC
+  - [ ] Bỏ các kênh vi phạm, chỉ giữ kênh hợp lệ
+- **LƯU Ý:** "Rate limiting" trong bảng Risks cũ KHÔNG phải mitigation hợp lệ — nó không giải quyết bản chất fake account.
+
+### 11.2. Bảo vệ Dữ liệu Cá nhân (Nghị định 13/2023/NĐ-CP)
+
+- **KHÔNG lưu `sellerPhone` raw** từ nguồn crawl. Chỉ lưu hash (sha256) phục vụ deduplication (xem AD-8 trong Architecture).
+- Có cơ chế **xóa theo yêu cầu** (data subject request).
+- Imported listing chỉ hiển thị công khai khi có cơ sở pháp lý hoặc đã ẩn PII.
+- Audit log mọi truy cập dữ liệu cá nhân.
+
+### 11.3. AI Trust Score — Trách nhiệm pháp lý
+
+- Mọi hiển thị Trust Score phải kèm **disclaimer**: "Điểm tham khảo do AI tạo, không phải xác nhận pháp lý về tính chính xác của tin đăng."
+- Có **quy trình appeal** cho seller khi tin bị gắn nhãn điểm thấp — tránh rủi ro kiện cáo về bôi nhọ/cản trở kinh doanh.
+
+---
+
 ## Changelog
 
 | Ngày | Thay đổi |
 |------|----------|
 | 22/06/2026 | PRD v2.0 MVP — Viết lại hoàn toàn, focus marketplace only |
+| 24/06/2026 | Correct Course: M5 → BLOCKED (Track B); thêm Section 11 Compliance; sửa Risks (ToS + PII = EXISTENTIAL); tách Trust Score Phase 1/2 |
 
 ---
 

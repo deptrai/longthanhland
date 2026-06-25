@@ -14,7 +14,12 @@ docs/bdsai/
 
 | File | Mô tả | Status |
 |------|--------|--------|
-| `planning/prd-mvp-v2.md` | PRD v2.0 — MVP Marketplace | READY |
+| `planning/prd-mvp-v2.md` | PRD v2.0 — MVP Marketplace (+ Section 11 Compliance) | READY |
+| `architecture/ARCHITECTURE-SPINE.md` | Architecture Spine — 10 invariants AD-1→AD-10 | READY |
+| `ux-design/wireframe-listing-form.md` | Wireframe low-fi multi-step form (M3.2) | READY |
+| `ux-designs/ux-longthanhland-2026-06-24/` | UX Spec đầy đủ — DESIGN.md + EXPERIENCE.md (validated) | FINAL |
+
+> **Trạng thái sau review (24/06):** Track A (M1-M4 Phase1, M6) ✅ READY để tạo story. Track B (M5 Xaction + Trust Score Phase 2) 🔴 BLOCKED — chờ Xaction API docs + quyết định ToS compliance. Xem `_bmad-output/planning-artifacts/sprint-change-proposal-2026-06-24.md` và `implementation-readiness-report-2026-06-24-v2.md`.
 
 ## Tổng Quan Dự Án
 
@@ -26,10 +31,11 @@ docs/bdsai/
 
 ## Tài Liệu Cần Tạo
 
-- [ ] Architecture document
-- [ ] User stories (6 epics × ~5 stories)
-- [ ] UX wireframes
-- [ ] Xaction API integration spec (chờ docs từ Luis)
+- [x] Architecture document — `architecture/ARCHITECTURE-SPINE.md`
+- [ ] User stories Track A (M1-M4 Phase1, M6) — **bước tiếp theo**
+- [~] UX wireframes — wireframe form + UX Spec đầy đủ (DESIGN.md + EXPERIENCE.md, validated 3 lens)
+- [ ] Xaction API integration spec (chờ docs từ Luis — gate Track B)
+- [ ] Quyết định ToS compliance (Luis — gate Track B)
 
 ## Archive
 

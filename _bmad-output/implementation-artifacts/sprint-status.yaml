@@ -1,0 +1,104 @@
+# generated: 2026-06-24
+# last_updated: 2026-06-24
+# project: longthanhland (bdsai.vn)
+# project_key: NOKEY
+# tracking_system: file-system
+# story_location: _bmad-output/implementation-artifacts
+
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic not yet started
+#   - in-progress: Epic actively being worked on
+#   - done: All stories in epic completed
+#   - blocked: Epic chờ điều kiện ngoài (gate) — KHÔNG đưa vào sprint cho tới khi gỡ
+#
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - ready-for-dev: Story file created in stories folder
+#   - in-progress: Developer actively working on implementation
+#   - review: Ready for code review
+#   - done: Story completed
+#   - blocked: Story chờ gate ngoài (Track B)
+#
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - done: Retrospective completed
+#
+# WORKFLOW NOTES:
+# ===============
+# - Track A (Epic 1,2,3,4-Phase1,6): sẵn sàng dev theo trình tự.
+# - Track B (Epic 5 + story 4-2b): BLOCKED — chờ 2 gate: (1) Xaction API docs, (2) quyết định ToS compliance.
+#   Story details Epic 5 CHƯA sinh (chờ gỡ gate rồi chạy lại create-epics-and-stories).
+# - Epic chuyển 'in-progress' khi story đầu tiên được tạo.
+# - Story qua 'review' trước 'done'.
+# - Thứ tự dev khuyến nghị: Epic 1 → 2 → 3 → 4(P1) → 6.
+
+generated: 2026-06-24
+last_updated: 2026-06-26
+project: longthanhland
+project_key: NOKEY
+tracking_system: file-system
+story_location: _bmad-output/implementation-artifacts
+
+development_status:
+  # ===== TRACK A — sẵn sàng dev =====
+
+  # Epic 1: Foundation & Infrastructure
+  epic-1: in-progress
+  1-1-khoi-tao-monorepo-turborepo: done
+  1-2-ket-noi-supabase: done
+  1-3-cicd-github-actions: backlog
+  1-4-base-ui-layout-navigation: backlog
+  1-5-vietnamese-full-text-search: backlog
+  1-6-ha-tang-nen-redis-bullmq-drizzle-sentry: backlog
+  epic-1-retrospective: optional
+
+  # Epic 2: User Authentication & Profiles
+  epic-2: backlog
+  2-1-dang-ky-email-phone: backlog
+  2-2-dang-nhap-dang-xuat-jwt: backlog
+  2-3-quan-ly-profile: backlog
+  2-4-admin-danh-sach-user-ban-unban: backlog
+  2-5-admin-role-grant: backlog
+  epic-2-retrospective: optional
+
+  # Epic 3: Listing Management & Search
+  epic-3: backlog
+  3-1-listing-entity-crud-status-workflow: backlog
+  3-2-dang-tin-form-nhieu-buoc-upload-anh: backlog
+  3-3-duyet-tim-kiem-filter-sort-phan-trang: backlog
+  3-4-trang-chi-tiet-listing-ssr-seo: backlog
+  3-5-admin-hang-doi-duyet-co-spam: backlog
+  3-6-vong-doi-tin-het-han-gia-han-da-ban: backlog
+  3-7-seed-du-lieu-listing-mau: backlog
+  epic-3-retrospective: optional
+
+  # Epic 4: AI Intelligence (Phase 1 — Track A)
+  epic-4: backlog
+  4-1-ai-summary-gpt4: backlog
+  4-2a-trust-score-phase-1: backlog
+  4-3-smart-spam-filter-nang-cao: backlog
+  4-4-hien-thi-ai-insights-disclaimer-appeal: backlog
+  epic-4-retrospective: optional
+
+  # Epic 6: Inquiry System & SEO
+  epic-6: backlog
+  6-1-form-lien-he-inquiry: backlog
+  6-2-notification-email-seller: backlog
+  6-3-dynamic-sitemap-robots: backlog
+  6-4-structured-data-json-ld: backlog
+  6-5-toi-uu-hieu-nang-caching-lazy-load: backlog
+  epic-6-retrospective: optional
+
+  # ===== TRACK B — BLOCKED (chờ Xaction API docs + ToS compliance) =====
+  # Story details CHƯA sinh. Chạy lại create-epics-and-stories sau khi gỡ gate.
+
+  # Story 4.2b (Trust Score Phase 2 — market alignment) — phụ thuộc Epic 5 Auto-Import
+  4-2b-trust-score-phase-2-market-alignment: blocked
+
+  # Epic 5: Xaction — Quảng bá & Import đa kênh
+  epic-5: blocked
+  # FR10 Auto-Post, FR11 Auto-Import, FR12 Promotion dashboard, FR13 Import dashboard, FR17 News feed
+  # (story chi tiết sinh sau khi gỡ 2 gate)
+  epic-5-retrospective: optional

@@ -150,3 +150,23 @@ IMPORTANT: Use Context7 for code generation, setup or configuration steps, or li
 - `tsconfig.base.json` - Base TypeScript configuration
 - `package.json` - Root package with workspace definitions
 - `.cursor/rules/` - Development guidelines and best practices
+
+---
+
+## 하네스: bdsai.vn Story Cycle
+
+**목표:** Chạy vòng đời từng story Track A của bdsai.vn (create-story → dev → code-review → e2e real-data) bằng đội 4 agent dùng skill BMad với model chỉ định.
+
+**트리거:** Khi user yêu cầu làm/dev/implement story, "làm từng story", "chạy story cycle", "làm story tiếp theo" cho bdsai.vn → dùng skill `bmad-story-cycle-orchestrator`. Câu hỏi planning đơn thuần → trả lời trực tiếp. Track B (Xaction, story 5.x, 4-2b) bị block — không chạy tới khi gỡ gate.
+
+**에이전트:** story-author (opus), story-developer (opus), code-reviewer (opus), e2e-tester (sonnet, real API + browser thật). Định nghĩa tại `.claude/agents/`. Workspace: `_bmad-output/harness-workspace/`.
+
+**변경 이력:**
+| 날짜 | 변경 내용 | 대상 | 사유 |
+|------|----------|------|------|
+| 2026-06-24 | Khởi tạo harness story-cycle (4 agent + orchestrator) | 전체 | Yêu cầu Luis: đội BMad làm từng story với model chỉ định + e2e real-data |
+| 2026-06-24 | Pin subagent model = opus-4.8 ở project settings (Option A) | .claude/settings.json | Global `CLAUDE_CODE_SUBAGENT_MODEL=sonnet-4.6` override mất ý định opus. Env var "all-or-one" → cả 4 agent opus (e2e gốc muốn sonnet, chấp nhận để không đụng global) |
+| 2026-06-24 | Chốt port Supabase local bdsai = **5435x** (API 54351/DB 54352/Studio 54353/Inbucket 54354/Analytics 54359) | infra ràng buộc cứng | 5434x bị project epsilon-local chiếm. Story 1.2+ dùng 5435x nhất quán |
+| 2026-06-24 | Story-author phải tự verify ghi đủ 3 output trước khi kết thúc | agents/story-author.md | Bài học pipeline 1.1: agent dừng giữa chừng (1/3 output), leader phải hoàn tất thủ công |
+| 2026-06-24 | Story 1.1 DONE qua harness (author→dev→review→e2e, 6/6 real test pass) | bdsai/ monorepo | Pipeline harness chạy thật thành công lần đầu |
+| 2026-06-25 | Story 1.2 DONE qua harness (author→dev→review→e2e, 7/7 AC real-data pass) | bdsai/ apps/api + apps/web | Kết nối Supabase (Drizzle + postgres.js + healthcheck). Review APPROVED 0 critical/high (6 low non-blocking). E2e: curl /health/supabase 200 thật, PG15.8 verify, 0 bảng nghiệp vụ, teardown sạch. Resume từ trạm 3 sau gián đoạn session |
