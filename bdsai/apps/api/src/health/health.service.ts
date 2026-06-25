@@ -64,7 +64,10 @@ export class HealthService {
       // Auth admin API: list user (1) — xác nhận client + key hoạt động.
       const { error } = await this.supabase.auth.admin.listUsers({ page: 1, perPage: 1 });
       if (error) {
-        return { status: 'down', error: error.message };
+        // AD-8: redact message (nhánh non-throw cũng phải qua safeMessage).
+        const safe = this.safeMessage(new Error(error.message));
+        this.logger.warn(`Auth healthcheck down: ${safe}`);
+        return { status: 'down', error: safe };
       }
       return { status: 'up' };
     } catch (e) {
@@ -77,7 +80,10 @@ export class HealthService {
     try {
       const { error } = await this.supabase.storage.listBuckets();
       if (error) {
-        return { status: 'down', error: error.message };
+        // AD-8: redact message (nhánh non-throw cũng phải qua safeMessage).
+        const safe = this.safeMessage(new Error(error.message));
+        this.logger.warn(`Storage healthcheck down: ${safe}`);
+        return { status: 'down', error: safe };
       }
       return { status: 'up' };
     } catch (e) {

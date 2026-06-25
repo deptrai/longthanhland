@@ -37,7 +37,8 @@ export const envSchema = z.object({
 
   // Connection pool (AC5) — giới hạn cho Supabase Free
   DB_POOL_MAX: z.coerce.number().int().positive().default(10),
-  DB_IDLE_TIMEOUT: z.coerce.number().int().nonnegative().default(20),
+  // idle_timeout phải > 0: 0 = disabled → connection leak trên Supabase Free (LOW-6).
+  DB_IDLE_TIMEOUT: z.coerce.number().int().positive().default(20),
 });
 
 export type Env = z.infer<typeof envSchema>;

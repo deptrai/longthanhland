@@ -8,8 +8,10 @@ import { DRIZZLE, PG_CLIENT, type DrizzleDB } from './database.tokens';
 /**
  * DatabaseModule (AC1, AC5, AD-1) — Story 1.2.
  *
- * Khởi tạo postgres.js client + Drizzle ORM, expose qua DI token DRIZZLE / PG_CLIENT.
- * Module khác inject token — KHÔNG tạo connection riêng (AD-1 Module Isolation).
+ * Khởi tạo postgres.js client + Drizzle ORM, expose qua DI token DRIZZLE.
+ * Module khác inject DRIZZLE — KHÔNG tạo connection riêng (AD-1 Module Isolation).
+ * PG_CLIENT chỉ dùng nội bộ (OnModuleDestroy đóng pool) — KHÔNG export để tránh
+ * module nghiệp vụ bypass Drizzle (AD-1).
  *
  * @Global: DB là hạ tầng dùng chung; tránh import lặp ở mọi module nghiệp vụ.
  *
@@ -45,7 +47,7 @@ import { DRIZZLE, PG_CLIENT, type DrizzleDB } from './database.tokens';
         drizzle({ client }) as DrizzleDB,
     },
   ],
-  exports: [DRIZZLE, PG_CLIENT],
+  exports: [DRIZZLE],
 })
 export class DatabaseModule implements OnModuleDestroy {
   constructor(@Inject(PG_CLIENT) private readonly client: ReturnType<typeof postgres>) {}
