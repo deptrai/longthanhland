@@ -170,8 +170,7 @@ export class AuthService {
     // Lưu ý (HIGH-2 fix): admin.createUser KHÔNG tự gửi confirmation email kể cả
     // khi config.toml enable_confirmations=true (chỉ anon signUp gửi). Email xác
     // thực thực sự cho path admin.createUser sẽ gửi qua EmailProcessor custom SMTP
-    // (Story 6.2) hoặc admin.inviteUserByEmail (Story 2.2). Job này là wrapper cho
-    // future custom SMTP. KHÔNG await job hoàn thành.
+    // (Story 6.2). Job này là wrapper cho future custom SMTP. KHÔNG await job hoàn thành.
     try {
       await this.queueService.addEmailVerificationJob({
         userId: authUserId,
@@ -183,6 +182,33 @@ export class AuthService {
         { userId: authUserId, action: 'register', reason: 'queue-fail', err: this.safeErr(e) },
         'Email verification job enqueue thất bại (KHÔNG block — email verify deferred)',
       );
+    }
+
+    // --- Step 3b: dev-only confirmation link (local dev — Story 6.2 sẽ thay SMTP thật) ---
+    // admin.createUser không trigger email. Local dev: generate confirmation link + log ra
+    // pino để dev click confirm. Prod: Story 6.2 EmailProcessor sẽ gửi qua SMTP (Resend/SES).
+    // KHÔNG log link trong production (AD-8 — link chứa token OTP).
+    if (process.env.NODE_ENV !== 'production') {
+      try {
+        const { data: linkData, error: linkErr } =
+          await this.supabase.auth.admin.generateLink({
+            type: 'signup',
+            email: dto.email,
+            password: dto.password,
+          });
+        if (linkErr) throw linkErr;
+        if (linkData?.properties?.action_link) {
+          this.logger.log(
+            { userId: authUserId, action: 'register', reason: 'dev-confirm-link', link: linkData.properties.action_link },
+            'DEV: confirmation link (click để xác thực email local)',
+          );
+        }
+      } catch (e) {
+        this.logger.warn(
+          { userId: authUserId, action: 'register', reason: 'generate-link-fail', err: this.safeErr(e) },
+          'generateLink thất bại (dev-only, KHÔNG block)',
+        );
+      }
     }
 
     this.logger.log(
