@@ -52,7 +52,7 @@ development_status:
   1-4-base-ui-layout-navigation: done
   1-5-vietnamese-full-text-search: done
   1-6-ha-tang-nen-redis-bullmq-drizzle-sentry: done
-  epic-1-retrospective: optional
+  epic-1-retrospective: done
 
   # Epic 2: User Authentication & Profiles
   epic-2: backlog
