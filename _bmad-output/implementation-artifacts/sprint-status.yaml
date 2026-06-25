@@ -48,7 +48,7 @@ development_status:
   epic-1: in-progress
   1-1-khoi-tao-monorepo-turborepo: done
   1-2-ket-noi-supabase: done
-  1-3-cicd-github-actions: backlog
+  1-3-cicd-github-actions: done
   1-4-base-ui-layout-navigation: backlog
   1-5-vietnamese-full-text-search: backlog
   1-6-ha-tang-nen-redis-bullmq-drizzle-sentry: backlog

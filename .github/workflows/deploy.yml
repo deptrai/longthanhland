@@ -1,0 +1,196 @@
+# bdsai.vn — Deploy pipeline (Story 1.3, AC2 + AC3 + AC4 + AC5)
+# Trigger push vào production CHỈ (KHÔNG develop, KHÔNG PR).
+# Luồng: ci-gate → (deploy-web || deploy-api) → lighthouse (post-deploy gate).
+# - deploy-web: Vercel CLI deploy --prod (VERCEL_TOKEN + ORG/PROJECT id).
+# - deploy-api: Docker build → push GHCR → Dokploy webhook redeploy.
+# - lighthouse: post-deploy quality gate, SEO ≥ 90, fail → tạo issue (không rollback).
+# Tách file + chạy lại CI gate trong workflow để không phụ thuộc cross-workflow race.
+
+name: deploy
+
+on:
+  push:
+    branches: [production]
+
+concurrency:
+  group: deploy-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  # ---- CI gate (AC3) — chạy lại trong deploy workflow ----
+  ci-gate:
+    name: CI gate (lint + typecheck + build + test)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: bdsai
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: yarn
+          cache-dependency-path: bdsai/yarn.lock
+
+      - name: Enable corepack (yarn 4.9.2)
+        run: corepack enable
+
+      - name: Install dependencies (immutable)
+        run: yarn install --immutable
+
+      - name: Build
+        run: yarn build
+
+      - name: Lint
+        run: yarn lint
+
+      - name: Typecheck
+        run: yarn typecheck
+
+      - name: Test
+        run: yarn test
+
+  # ---- Deploy web (Vercel CLI) ----
+  deploy-web:
+    name: Deploy web → Vercel
+    needs: ci-gate
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: bdsai
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: yarn
+          cache-dependency-path: bdsai/yarn.lock
+
+      - name: Enable corepack (yarn 4.9.2)
+        run: corepack enable
+
+      - name: Install dependencies (immutable)
+        run: yarn install --immutable
+
+      - name: Build web
+        run: yarn build
+
+      # Vercel CLI deploy — kiểm soát explicit, logs trong GitHub Actions.
+      # VERCEL_ORG_ID + VERCEL_PROJECT_ID qua env, token qua CLI flag (AD-8: không echo).
+      - name: Deploy to Vercel (prod)
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: |
+          npx vercel@latest deploy --prod --yes \
+            --token "${{ secrets.VERCEL_TOKEN }}" \
+            --cwd apps/web
+
+  # ---- Deploy api (Docker → GHCR → Dokploy) ----
+  deploy-api:
+    name: Deploy api → GHCR + Dokploy
+    needs: ci-gate
+    runs-on: ubuntu-latest
+    permissions:
+      # GHCR push cần packages: write (M2 — repo default token permissions có thể restrictive).
+      packages: write
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # GHCR dùng GITHUB_TOKEN auto-provided (lowercase image name).
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Lowercase owner
+        id: owner
+        run: echo "name=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
+
+      # Build context = bdsai/ (chứa yarn.lock + workspace + packages/shared).
+      - name: Build & push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: bdsai
+          file: bdsai/apps/api/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/${{ steps.owner.outputs.name }}/bdsai-api:latest
+            ghcr.io/${{ steps.owner.outputs.name }}/bdsai-api:${{ github.sha }}
+          # KHÔNG bake secret vào layer (AD-8) — env truyền runtime lúc docker run.
+
+      # Dokploy webhook trigger redeploy. Image đã sẵn sàng ở registry.
+      - name: Trigger Dokploy redeploy
+        env:
+          DOKPLOY_WEBHOOK_URL: ${{ secrets.DOKPLOY_WEBHOOK_URL }}
+          DOKPLOY_TOKEN: ${{ secrets.DOKPLOY_TOKEN }}
+        run: |
+          curl --fail --silent --show-error \
+            -X POST "$DOKPLOY_WEBHOOK_URL" \
+            -H "Authorization: Bearer $DOKPLOY_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d '{"image":"ghcr.io/${{ steps.owner.outputs.name }}/bdsai-api:${{ github.sha }}"}'
+
+  # ---- Lighthouse post-deploy gate (AC4) ----
+  # Chạy SAU deploy-web để có URL production. Post-deploy gate: fail → tạo issue,
+  # KHÔNG rollback web đã deploy (Vercel không có rollback CLI đơn giản).
+  lighthouse:
+    name: Lighthouse CI (SEO ≥ 90)
+    needs: deploy-web
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: bdsai
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Lighthouse CI
+        uses: treosh/lighthouse-ci-action@v11
+        with:
+          configPath: bdsai/.lighthouserc.js
+          uploadArtifacts: true
+          temporaryPublicStorage: true
+
+  # ---- Post-deploy quality gate issue (AC4 edge case) ----
+  # Nếu lighthouse fail → tạo GitHub issue cảnh báo (không rollback).
+  lighthouse-fail-issue:
+    name: Open issue on Lighthouse fail
+    needs: lighthouse
+    if: failure()
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Create GitHub issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `🚨 Lighthouse SEO gate FAILED on production deploy ${{ github.sha }}`,
+              body: [
+                'Lighthouse post-deploy gate (SEO ≥ 90) đã fail trên production.',
+                '',
+                `Commit: ${{ github.sha }}`,
+                `Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}`,
+                '',
+                '⚠️ Web đã deploy (post-deploy gate, KHÔNG rollback tự động).',
+                'Kiểm tra `.lighthouserc.js` và sửa SEO issue rồi redeploy.',
+              ].join('\n'),
+              labels: ['lighthouse', 'seo-gate', 'production'],
+            });

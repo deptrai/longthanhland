@@ -1,0 +1,58 @@
+# bdsai.vn — CI gate (Story 1.3, AC1 + AC3)
+# Chạy lint + typecheck + build + test cho cả 3 package (shared → api → web)
+# qua Turborepo. Trigger push/PR vào production + develop.
+# KHÔNG chứa secret nghiệp vụ — CI chỉ build/test (AD-5: không lộ service-role key).
+# Workflow files ở repo root `.github/workflows/` (GitHub chỉ nhận diện ở đây);
+# code nằm trong `bdsai/` nên dùng `working-directory` + `cache-dependency-path`.
+
+name: ci
+
+on:
+  push:
+    branches: [production, develop]
+  pull_request:
+    branches: [production, develop]
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    name: lint + typecheck + build + test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: bdsai
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: yarn
+          cache-dependency-path: bdsai/yarn.lock
+
+      - name: Enable corepack (yarn 4.9.2)
+        run: corepack enable
+
+      # Frozen lockfile — fail nếu lockfile lệch package.json (AC1).
+      - name: Install dependencies (immutable)
+        run: yarn install --immutable
+
+      # Turborepo topological order: shared → api → web (dependsOn ^build).
+      # Mỗi step fail → job fail → pipeline dừng (gate AC3).
+      - name: Build
+        run: yarn build
+
+      - name: Lint
+        run: yarn lint
+
+      - name: Typecheck
+        run: yarn typecheck
+
+      - name: Test
+        run: yarn test
