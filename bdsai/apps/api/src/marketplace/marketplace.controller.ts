@@ -4,6 +4,7 @@ import {
   Controller,
   Delete,
   Get,
+  Header,
   HttpCode,
   HttpStatus,
   Param,
@@ -242,6 +243,7 @@ export class MarketplacePublicController {
 
   // GET /marketplace/search — public search PUBLISHED listings (FTS + filter + sort + pagination).
   @Get('search')
+  @Header('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=3600')
   async searchListings(
     @Query('q') q?: string,
     @Query('province') province?: string,

@@ -15,6 +15,7 @@ import { UploadModule } from './upload/upload.module';
 import { AdminModule } from './admin/admin.module';
 import { MarketplaceModule } from './marketplace/marketplace.module';
 import { AiModule } from './ai/ai.module';
+import { InquiryModule } from './inquiry/inquiry.module';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 
 /**
@@ -55,6 +56,8 @@ import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
     MarketplaceModule,
     // Story 4.1: AiModule (AI summary + trust score via BullMQ).
     AiModule,
+    // Story 6.1 + 6.2: InquiryModule (buyer inquiry + email notification).
+    InquiryModule,
   ],
   controllers: [AppController],
   providers: [

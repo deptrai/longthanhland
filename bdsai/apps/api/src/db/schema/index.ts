@@ -12,3 +12,4 @@ export * from './public-users';
 export * from './public-listings';
 export * from './moderation-audit-logs';
 export * from './ai-results';
+export * from './inquiries';

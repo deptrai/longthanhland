@@ -85,12 +85,12 @@ development_status:
   epic-4-retrospective: optional
 
   # Epic 6: Inquiry System & SEO
-  epic-6: backlog
-  6-1-form-lien-he-inquiry: backlog
-  6-2-notification-email-seller: backlog
-  6-3-dynamic-sitemap-robots: backlog
-  6-4-structured-data-json-ld: backlog
-  6-5-toi-uu-hieu-nang-caching-lazy-load: backlog
+  epic-6: in-progress
+  6-1-form-lien-he-inquiry: done
+  6-2-notification-email-seller: done
+  6-3-dynamic-sitemap-robots: done
+  6-4-structured-data-json-ld: done
+  6-5-toi-uu-hieu-nang-caching-lazy-load: done
   epic-6-retrospective: optional
 
   # ===== TRACK B — BLOCKED (chờ Xaction API docs + ToS compliance) =====

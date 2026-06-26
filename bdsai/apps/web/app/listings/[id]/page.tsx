@@ -42,7 +42,8 @@ async function fetchListing(id: string): Promise<Listing | null> {
     const res = await fetch(`${API_BASE_URL}/marketplace/listings/${id}`, {
       method: 'GET',
       // No auth — public access for PUBLISHED only. NestJS returns 403 for non-PUBLISHED.
-      cache: 'force-cache',
+      // Story 6.5: ISR caching — revalidate every 300s (5 min) for performance.
+      next: { revalidate: 300 },
     });
     if (!res.ok) return null;
     return (await res.json()) as Listing;
@@ -101,6 +102,35 @@ export default async function ListingDetailPage({
 
   return (
     <div className="mx-auto max-w-4xl py-8">
+      {/* Story 6.4: JSON-LD structured data (Schema.org RealEstateListing). */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'RealEstateListing',
+            name: listing.title,
+            description: listing.description,
+            url: `https://bdsai.vn/listings/${listing.id}`,
+            image: coverImage?.url,
+            price: listing.price,
+            priceCurrency: 'VND',
+            address: {
+              '@type': 'PostalAddress',
+              streetAddress: listing.address,
+              addressLocality: listing.district,
+              addressRegion: listing.province,
+              addressCountry: 'VN',
+            },
+            ...(listing.area && { floorSize: { '@type': 'QuantitativeValue', value: Number(listing.area), unitText: 'm²' } }),
+            ...(listing.bedrooms != null && { numberOfBedrooms: listing.bedrooms }),
+            ...(listing.bathrooms != null && { numberOfBathroomsTotal: listing.bathrooms }),
+            datePublished: listing.publishedAt,
+            ...('expiresAt' in listing && listing.expiresAt ? { availabilityEnds: listing.expiresAt } : {}),
+          }),
+        }}
+      />
+
       {/* Breadcrumb */}
       <nav className="mb-4 text-sm text-gray-500">
         <Link href="/" className="hover:underline">Trang chủ</Link>
