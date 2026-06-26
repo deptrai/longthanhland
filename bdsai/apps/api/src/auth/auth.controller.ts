@@ -10,7 +10,6 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
-import { Throttle } from '@nestjs/throttler';
 import { ZodError } from 'zod';
 import type { Request, Response } from 'express';
 import {
@@ -26,6 +25,7 @@ import { refreshApiSchema } from './dto/refresh.dto';
 import { updateMeApiSchema } from './dto/update-me.dto';
 import { JwtAuthGuard, type JwtUser } from './guards/jwt-auth.guard';
 import { REFRESH_COOKIE_NAME, setRefreshCookie, clearRefreshCookie } from './cookie.helper';
+import { DevThrottle } from '../common/throttle/dev-throttle.decorator';
 
 /**
  * AuthController (AC1, AC2, AC4, AC5, AC6, AC7) — Story 2.1 + 2.2 + 2.3.
@@ -61,7 +61,8 @@ export class AuthController {
   @Post('login')
   @HttpCode(HttpStatus.OK)
   // E9: rate limit 5 login / 15 phút / IP (chỉ login, KHÔNG global).
-  @Throttle({ default: { limit: 5, ttl: 15 * 60 * 1000 } })
+  // Dev: x10 (50/15min) để test local không bị 429.
+  @DevThrottle({ prodLimit: 5, ttl: 15 * 60 * 1000 })
   async login(
     @Body() body: unknown,
     @Res({ passthrough: true }) res: Response,
@@ -129,7 +130,8 @@ export class AuthController {
   @Patch('me')
   @UseGuards(JwtAuthGuard)
   // AC9: rate limit 10 update / 15 phút / IP (tránh spam update).
-  @Throttle({ default: { limit: 10, ttl: 15 * 60 * 1000 } })
+  // Dev: x10 (100/15min).
+  @DevThrottle({ prodLimit: 10, ttl: 15 * 60 * 1000 })
   async updateMe(@Body() body: unknown, @Req() req: Request): Promise<MeResponse> {
     // AC3: validate qua Zod — whitelist strip field thừa + sanitize XSS.
     const result = updateMeApiSchema.safeParse(body);
@@ -145,7 +147,8 @@ export class AuthController {
 
   @Post('phone/otp')
   @UseGuards(JwtAuthGuard)
-  @Throttle({ default: { limit: 3, ttl: 60 * 60 * 1000 } }) // 3 OTP/hour
+  // Dev: x10 (30 OTP/hour).
+  @DevThrottle({ prodLimit: 3, ttl: 60 * 60 * 1000 }) // 3 OTP/hour
   async sendPhoneOtp(@Body() body: { phone?: string }, @Req() req: Request): Promise<{ sent: boolean }> {
     const user = (req as Request & { user: JwtUser }).user;
     if (!body.phone) {
@@ -156,7 +159,8 @@ export class AuthController {
 
   @Post('phone/verify')
   @UseGuards(JwtAuthGuard)
-  @Throttle({ default: { limit: 10, ttl: 15 * 60 * 1000 } }) // 10 verify/15min
+  // Dev: x10 (100 verify/15min).
+  @DevThrottle({ prodLimit: 10, ttl: 15 * 60 * 1000 }) // 10 verify/15min
   async verifyPhoneOtp(
     @Body() body: { phone?: string; token?: string },
     @Req() req: Request,

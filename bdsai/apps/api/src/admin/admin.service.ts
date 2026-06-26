@@ -215,6 +215,19 @@ export class AdminService {
 
     const target = await this.findUserOrThrow(targetId);
 
+    // Defense-in-depth: super-admin role KHÔNG thay đổi qua API (chỉ SQL/migration).
+    // roleGrantSchema chỉ chấp nhận 'admin'|'user' — nếu target đang là super-admin,
+    // reject 400 để tránh demote super-admin (R2 — prevent privilege loss).
+    if (target.role === 'super-admin') {
+      this.logger.warn(
+        { action: 'role-grant', targetId, adminId, newRole, reason: 'super-admin-target' },
+        'Cố gắng thay đổi role super-admin qua API — từ chối',
+      );
+      throw new BadRequestException(
+        'Không thể thay đổi vai trò super-admin qua API',
+      );
+    }
+
     // E5: idempotent — role already === newRole → vẫn 200 (no-op update).
     try {
       await this.db

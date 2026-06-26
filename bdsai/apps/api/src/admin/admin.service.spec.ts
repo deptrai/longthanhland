@@ -323,6 +323,14 @@ describe('AdminService (AC1, AC2, AC3, E4-E9)', () => {
     expect(db.update).not.toHaveBeenCalled();
   });
 
+  it('grantRole target là super-admin → 400 (R2 — defense-in-depth)', async () => {
+    db.select = findUserSelect({ ...targetUser, role: 'super-admin' });
+    await expect(
+      service.grantRole(targetId, 'user', adminId),
+    ).rejects.toBeInstanceOf(BadRequestException);
+    expect(db.update).not.toHaveBeenCalled();
+  });
+
   it('grantRole self-grant → 200 idempotent (E5)', async () => {
     db.select = findUserSelect({
       id: adminId,

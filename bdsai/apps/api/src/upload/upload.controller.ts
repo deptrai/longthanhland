@@ -10,10 +10,10 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { Throttle } from '@nestjs/throttler';
 import type { Request } from 'express';
 import { JwtAuthGuard, type JwtUser } from '../auth/guards/jwt-auth.guard';
 import { UploadService } from './upload.service';
+import { DevThrottle } from '../common/throttle/dev-throttle.decorator';
 
 /**
  * UploadController (AC5, AC9, AD-1) — Story 2.3.
@@ -32,7 +32,8 @@ export class UploadController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard)
   // AC9: rate limit 10 upload / 15 phút / IP.
-  @Throttle({ default: { limit: 10, ttl: 15 * 60 * 1000 } })
+  // Dev: x10 (100/15min).
+  @DevThrottle({ prodLimit: 10, ttl: 15 * 60 * 1000 })
   @UseInterceptors(
     FileInterceptor('file', {
       limits: { fileSize: 10 * 1024 * 1024 }, // 10MB — AC5b/E5.
@@ -54,7 +55,8 @@ export class UploadController {
   @Post('listing-image')
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard)
-  @Throttle({ default: { limit: 30, ttl: 15 * 60 * 1000 } })
+  // Dev: x10 (300/15min).
+  @DevThrottle({ prodLimit: 30, ttl: 15 * 60 * 1000 })
   @UseInterceptors(
     FileInterceptor('file', {
       limits: { fileSize: 10 * 1024 * 1024 }, // 10MB — AD-7.

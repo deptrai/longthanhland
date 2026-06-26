@@ -297,12 +297,18 @@ export function UsersTable() {
                   <td className="px-3 py-2">
                     <span
                       className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                        item.role === 'admin'
-                          ? 'bg-blue-500/10 text-blue-700 dark:text-blue-400'
-                          : 'bg-muted text-muted-foreground'
+                        item.role === 'super-admin'
+                          ? 'bg-purple-500/10 text-purple-700 dark:text-purple-400'
+                          : item.role === 'admin'
+                            ? 'bg-blue-500/10 text-blue-700 dark:text-blue-400'
+                            : 'bg-muted text-muted-foreground'
                       }`}
                     >
-                      {item.role === 'admin' ? 'Admin' : 'User'}
+                      {item.role === 'super-admin'
+                        ? 'Super admin'
+                        : item.role === 'admin'
+                          ? 'Admin'
+                          : 'User'}
                     </span>
                   </td>
                   <td className="px-3 py-2">
@@ -343,7 +349,19 @@ export function UsersTable() {
                         </button>
                       )}
                       {/* Role grant/revoke button (AC5 — Story 2.5) */}
-                      {item.role === 'user' ? (
+                      {item.role === 'super-admin' ? (
+                        // Super-admin role KHÔNG grant/revoke qua API (chỉ SQL/migration).
+                        // roleGrantSchema chỉ chấp nhận 'admin'|'user' — UI block + server block.
+                        <button
+                          type="button"
+                          disabled
+                          title="Super admin chỉ quản lý qua SQL/migration, không qua UI"
+                          aria-label={`Super admin ${item.email}`}
+                          className="min-h-[44px] cursor-not-allowed rounded-md border border-purple-500/30 px-3 py-1 text-sm font-medium text-purple-700/50 dark:text-purple-400/50"
+                        >
+                          Super admin
+                        </button>
+                      ) : item.role === 'user' ? (
                         <button
                           type="button"
                           onClick={() =>

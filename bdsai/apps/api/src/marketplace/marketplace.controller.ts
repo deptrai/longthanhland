@@ -14,10 +14,10 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { Throttle } from '@nestjs/throttler';
 import { ZodError, z } from 'zod';
 import type { Request } from 'express';
 import { MarketplaceService, type ListingItem } from './marketplace.service';
+import { DevThrottle } from '../common/throttle/dev-throttle.decorator';
 import { ModerationService, REJECT_REASONS } from './moderation.service';
 import { JwtAuthGuard, type JwtUser } from '../auth/guards/jwt-auth.guard';
 import { AdminGuard } from '../admin/guards/admin.guard';
@@ -43,7 +43,8 @@ import { createListingSchema, updateListingSchema } from './dto/create-listing.d
  */
 @Controller('marketplace')
 @UseGuards(JwtAuthGuard)
-@Throttle({ default: { limit: 60, ttl: 60_000 } })
+// Dev: x10 (600/min).
+@DevThrottle({ prodLimit: 60, ttl: 60_000 })
 export class MarketplaceController {
   constructor(
     private readonly marketplaceService: MarketplaceService,
@@ -239,7 +240,8 @@ export class MarketplaceController {
 
 // Story 3.3: Public search controller — NO JWT (public access to PUBLISHED listings).
 @Controller('marketplace')
-@Throttle({ default: { limit: 100, ttl: 60_000 } })
+// Dev: x10 (1000/min).
+@DevThrottle({ prodLimit: 100, ttl: 60_000 })
 export class MarketplacePublicController {
   constructor(private readonly marketplaceService: MarketplaceService) {}
 

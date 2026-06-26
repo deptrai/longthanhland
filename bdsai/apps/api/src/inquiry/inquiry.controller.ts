@@ -1,9 +1,9 @@
 import { BadRequestException, Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
-import { Throttle } from '@nestjs/throttler';
 import { z } from 'zod';
 import type { Request } from 'express';
 import { InquiryService } from './inquiry.service';
 import { JwtAuthGuard, type JwtUser } from '../auth/guards/jwt-auth.guard';
+import { DevThrottle } from '../common/throttle/dev-throttle.decorator';
 
 // Story 6.1 + 6.2 — Inquiry controller.
 // Public POST (buyer chưa đăng nhập vẫn gửi được).
@@ -18,7 +18,8 @@ const createInquirySchema = z.object({
 });
 
 @Controller('inquiries')
-@Throttle({ default: { limit: 10, ttl: 60_000 } }) // Anti-spam: 10 inquiries/min per IP
+// Dev: x10 (100/min).
+@DevThrottle({ prodLimit: 10, ttl: 60_000 }) // Anti-spam: 10 inquiries/min per IP
 export class InquiryController {
   constructor(private readonly inquiryService: InquiryService) {}
 

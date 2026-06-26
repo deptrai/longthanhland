@@ -11,7 +11,6 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { Throttle } from '@nestjs/throttler';
 import { ZodError, z } from 'zod';
 import type { Request } from 'express';
 import { AdminService, type AdminUserItem, type ListUsersResponse } from './admin.service';
@@ -20,6 +19,7 @@ import { SuperAdminGuard } from './guards/super-admin.guard';
 import { JwtAuthGuard, type JwtUser } from '../auth/guards/jwt-auth.guard';
 import { listUsersApiSchema } from './dto/list-users.dto';
 import { roleGrantSchema } from './dto/role-grant.dto';
+import { DevThrottle } from '../common/throttle/dev-throttle.decorator';
 
 // UUID validation via Zod (AC2a/AC3a) — validate :id param.
 
@@ -30,7 +30,8 @@ import { roleGrantSchema } from './dto/role-grant.dto';
 // AC10: rate limit 20 admin actions / 15 phút / IP.
 @Controller('admin')
 @UseGuards(JwtAuthGuard, AdminGuard)
-@Throttle({ default: { limit: 20, ttl: 15 * 60 * 1000 } })
+// Dev: x10 (200/15min).
+@DevThrottle({ prodLimit: 20, ttl: 15 * 60 * 1000 })
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 
@@ -75,7 +76,8 @@ export class AdminController {
   @Post('users/:id/role')
   @HttpCode(HttpStatus.OK)
   @UseGuards(SuperAdminGuard)
-  @Throttle({ default: { limit: 10, ttl: 15 * 60 * 1000 } })
+  // Dev: x10 (100/15min).
+  @DevThrottle({ prodLimit: 10, ttl: 15 * 60 * 1000 })
   async grantRole(
     @Param('id') id: string,
     @Body() body: unknown,
