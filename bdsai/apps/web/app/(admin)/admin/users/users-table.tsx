@@ -8,7 +8,8 @@ import { useAuthFetch } from '@/lib/auth-fetch';
 // UsersTable (AC6, AC7) — Story 2.4.
 // Client component: table list + search + pagination + ban/unban button.
 // Auth protect: !isAuthenticated && !isLoading → redirect /login?redirect=/admin/users.
-// user.role !== 'admin' → redirect / (E11 — user thường không thấy admin page).
+// user.role !== 'admin' && !== 'super-admin' → redirect / (E11 — user thường không thấy admin page).
+// super-admin có thêm quyền grant/revoke role (Story 2.5).
 // AD-10: submit qua Next API thin proxy (/api/admin/users, /api/admin/users/:id/ban).
 
 interface AdminUserItem {
@@ -57,7 +58,7 @@ export function UsersTable() {
       router.replace('/login?redirect=/admin/users');
       return;
     }
-    if (user && user.role !== 'admin') {
+    if (user && user.role !== 'admin' && user.role !== 'super-admin') {
       router.replace('/');
     }
   }, [isLoading, isAuthenticated, user, router]);
@@ -203,7 +204,7 @@ export function UsersTable() {
     );
   }
 
-  if (!isAuthenticated || (user && user.role !== 'admin')) {
+  if (!isAuthenticated || (user && user.role !== 'admin' && user.role !== 'super-admin')) {
     // Redirect đã trigger trong useEffect — render null tránh flash.
     return null;
   }

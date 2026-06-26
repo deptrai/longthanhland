@@ -8,8 +8,9 @@ import { useAuth } from '@/components/auth/use-auth';
 
 // Admin shell (AC7) — Story 2.4.
 // Header chung + sidebar nav admin + main. Admin guard ở layout level:
-// user.role !== 'admin' → redirect / (E11). Check client-side (accessToken in
-// memory — SSR không biết auth state, AD-4 SSR Boundary).
+// user.role !== 'admin' && !== 'super-admin' → redirect / (E11).
+// super-admin có toàn quyền admin + grant/revoke role (Story 2.5).
+// Check client-side (accessToken in memory — SSR không biết auth state, AD-4 SSR Boundary).
 export default function AdminLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
@@ -24,7 +25,7 @@ export default function AdminLayout({
       router.replace(`/login?redirect=${encodeURIComponent(pathname)}`);
       return;
     }
-    if (user && user.role !== 'admin') {
+    if (user && user.role !== 'admin' && user.role !== 'super-admin') {
       router.replace('/');
     }
   }, [isLoading, isAuthenticated, user, router, pathname]);
@@ -42,7 +43,7 @@ export default function AdminLayout({
     );
   }
 
-  if (!isAuthenticated || (user && user.role !== 'admin')) {
+  if (!isAuthenticated || (user && user.role !== 'admin' && user.role !== 'super-admin')) {
     // Redirect đã trigger trong useEffect — render null tránh flash.
     return (
       <div className="flex min-h-screen flex-col">

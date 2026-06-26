@@ -8,7 +8,8 @@ import { useAuthFetch } from '@/lib/auth-fetch';
 // PendingListingsTable — Story 3.5.
 // Admin moderation queue: list PENDING listings + spam flags + approve/reject/bulk-approve.
 // Auth protect: !isAuthenticated && !isLoading → redirect /login?redirect=/admin/listings.
-// user.role !== 'admin' → redirect / (E11).
+// user.role !== 'admin' && !== 'super-admin' → redirect / (E11).
+// super-admin có toàn quyền admin (Story 2.5).
 // AD-10: submit qua Next API thin proxy.
 
 interface PendingItem {
@@ -61,7 +62,7 @@ export function PendingListingsTable() {
       router.replace('/login?redirect=/admin/listings');
       return;
     }
-    if (user && user.role !== 'admin') {
+    if (user && user.role !== 'admin' && user.role !== 'super-admin') {
       router.replace('/');
     }
   }, [isLoading, isAuthenticated, user, router]);
@@ -247,7 +248,7 @@ export function PendingListingsTable() {
     );
   }
 
-  if (!isAuthenticated || (user && user.role !== 'admin')) {
+  if (!isAuthenticated || (user && user.role !== 'admin' && user.role !== 'super-admin')) {
     return null;
   }
 
