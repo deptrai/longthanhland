@@ -71,7 +71,29 @@ export default function MyListingsPage() {
       router.replace('/login?redirect=/dashboard/my-listings');
       return;
     }
-    void reload();
+    let cancelled = false;
+    async function fetchData() {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await authFetch('/api/marketplace/my-listings');
+        const body = (await res.json()) as MyListing[] & { message?: string };
+        if (cancelled) return;
+        if (!res.ok) {
+          setError(body.message ?? 'Tải danh sách thất bại');
+          return;
+        }
+        setListings(Array.isArray(body) ? body : []);
+      } catch {
+        if (!cancelled) setError('Lỗi mạng, thử lại sau');
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+    void fetchData();
+    return () => {
+      cancelled = true;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, isLoading, router]);
 

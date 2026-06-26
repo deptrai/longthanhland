@@ -2,7 +2,6 @@ import { Injectable, Logger, BadRequestException, NotFoundException } from '@nes
 import { eq } from 'drizzle-orm';
 import { InjectDrizzle, type DrizzleDB } from '../db/database.tokens';
 import { spamKeywords, spamConfig } from '../db/schema/spam-config';
-import { publicListings } from '../db/schema/public-listings';
 import { moderationAuditLogs } from '../db/schema/moderation-audit-logs';
 
 // Story 4.3 — SpamConfigService.
