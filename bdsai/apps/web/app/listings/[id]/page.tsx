@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { InquiryForm } from './inquiry-form';
+import { AppealButton } from './appeal-button';
 
 // Story 3.4 — Listing detail SSR page + SEO meta.
 // Server component (AD-4) — fetch listing via API proxy, generateMetadata dynamic.
@@ -256,15 +257,9 @@ async function AiInsightsBlock({ listingId }: { listingId: string }) {
         </div>
       )}
 
-      {/* Story 4.4 AC: seller appeal button. */}
+      {/* Story 4.4 AC: seller appeal button — functional. */}
       <div className="mt-4">
-        <button
-          type="button"
-          className="text-xs text-purple-600 underline hover:text-purple-800"
-          onClick={() => alert('Tính năng khiếu nại điểm sẽ khả dụng sau. Vui lòng liên hệ admin.')}
-        >
-          Khiếu nại điểm AI
-        </button>
+        <AppealButton listingId={listing.id} />
       </div>
     </div>
   );

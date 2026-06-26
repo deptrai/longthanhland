@@ -12,6 +12,7 @@ import { Queue } from 'bullmq';
 import { InjectDrizzle, type DrizzleDB } from '../db/database.tokens';
 import { publicListings, type publicListings as listingsTable } from '../db/schema/public-listings';
 import { publicUsers } from '../db/schema/public-users';
+import { AiService } from '../ai/ai.service';
 
 /**
  * MarketplaceService (AC1-AC4, AD-2, AD-9) — Story 3.1.
@@ -47,6 +48,7 @@ export class MarketplaceService {
   constructor(
     @InjectDrizzle() private readonly db: DrizzleDB,
     @InjectQueue('ai-summary') private readonly aiSummaryQueue: Queue,
+    private readonly aiService: AiService,
   ) {}
 
   // AC1: POST /marketplace/listings — create DRAFT.
@@ -146,13 +148,25 @@ export class MarketplaceService {
       if (dto.area != null) setValues.area = String(dto.area);
       if (dto.lat != null) setValues.lat = String(dto.lat);
       if (dto.lng != null) setValues.lng = String(dto.lng);
+      // Story 3.6: race condition guard — chỉ update nếu status vẫn còn editable.
+      // Tránh cron expire set EXPIRED → user edit ghi đè lại.
       const [updated] = await this.db
         .update(publicListings)
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         .set(setValues as any)
-        .where(eq(publicListings.id, listingId))
+        .where(
+          and(
+            eq(publicListings.id, listingId),
+            // Status phải vẫn là DRAFT/PENDING/REJECTED tại thời điểm update.
+            sql`${publicListings.status} IN ('DRAFT', 'PENDING', 'REJECTED')`,
+          ),
+        )
         .returning();
-      if (!updated) throw new InternalServerErrorException('Cập nhật tin thất bại');
+      if (!updated) {
+        throw new BadRequestException(
+          'Không thể sửa tin — trạng thái đã thay đổi (có thể tin đã hết hạn hoặc được duyệt). Tải lại trang.',
+        );
+      }
       this.logger.log(
         { action: 'update-listing', listingId, sellerId, reason: 'success' },
         'Listing updated',
@@ -386,12 +400,30 @@ export class MarketplaceService {
     }
   }
 
-  // Story 3.3: admin approve — PENDING → PUBLISHED + set expiry (Story 3.6) + enqueue AI summary (Story 4.1).
+  // Story 3.3: admin approve — PENDING → PUBLISHED + set expiry (Story 3.6) + enqueue AI summary (Story 4.1) + trust score (Story 4.2a).
   async approveListing(listingId: string, adminId: string): Promise<ListingItem> {
     const result = await this.transitionStatus(listingId, adminId, 'PENDING', 'PUBLISHED' as ListingStatus);
     await this.setExpiryOnPublish(listingId);
     // Story 4.1: enqueue AI summary generation (background, AD-6).
     await this.aiSummaryQueue.add('generate-summary', { listingId }, { attempts: 3, backoff: { type: 'exponential', delay: 5000 } });
+    // Story 4.2a: compute + save trust score (synchronous — pure calculation).
+    try {
+      const [seller] = await this.db
+        .select({ phoneVerified: publicUsers.phoneVerified, createdAt: publicUsers.createdAt })
+        .from(publicUsers)
+        .where(eq(publicUsers.id, result.sellerId))
+        .limit(1);
+      if (seller) {
+        const trust = this.aiService.computeTrustScore(result, seller);
+        const contentHash = `${result.id}-${result.updatedAt?.getTime() ?? Date.now()}`;
+        await this.aiService.saveTrustScore(listingId, trust.score, trust.factors, contentHash);
+      }
+    } catch (e) {
+      this.logger.warn(
+        { action: 'trust-score', listingId, reason: 'compute-fail', err: e instanceof Error ? e.message : String(e) },
+        'Trust score computation failed (non-blocking)',
+      );
+    }
     return result;
   }
 
