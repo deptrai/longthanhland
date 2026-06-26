@@ -13,6 +13,7 @@ import { QueueModule } from './queue/queue.module';
 import { AuthModule } from './auth/auth.module';
 import { UploadModule } from './upload/upload.module';
 import { AdminModule } from './admin/admin.module';
+import { MarketplaceModule } from './marketplace/marketplace.module';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 
 /**
@@ -49,6 +50,8 @@ import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
     UploadModule,
     // Story 2.4: AdminModule (admin user management — list/ban/unban).
     AdminModule,
+    // Story 3.1: MarketplaceModule (listing CRUD + status workflow).
+    MarketplaceModule,
   ],
   controllers: [AppController],
   providers: [

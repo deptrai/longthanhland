@@ -66,8 +66,8 @@ development_status:
   epic-2-retrospective: done
 
   # Epic 3: Listing Management & Search
-  epic-3: backlog
-  3-1-listing-entity-crud-status-workflow: backlog
+  epic-3: in-progress
+  3-1-listing-entity-crud-status-workflow: done
   3-2-dang-tin-form-nhieu-buoc-upload-anh: backlog
   3-3-duyet-tim-kiem-filter-sort-phan-trang: backlog
   3-4-trang-chi-tiet-listing-ssr-seo: backlog
