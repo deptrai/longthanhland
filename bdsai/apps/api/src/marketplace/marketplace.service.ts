@@ -11,6 +11,7 @@ import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { InjectDrizzle, type DrizzleDB } from '../db/database.tokens';
 import { publicListings, type publicListings as listingsTable } from '../db/schema/public-listings';
+import { publicUsers } from '../db/schema/public-users';
 
 /**
  * MarketplaceService (AC1-AC4, AD-2, AD-9) — Story 3.1.
@@ -49,10 +50,20 @@ export class MarketplaceService {
   ) {}
 
   // AC1: POST /marketplace/listings — create DRAFT.
+  // Story 2.4: banned user không đăng tin được.
   async createListing(
     sellerId: string,
     dto: Record<string, unknown>,
   ): Promise<ListingItem> {
+    // Check seller banned status.
+    const [seller] = await this.db
+      .select({ banned: publicUsers.banned })
+      .from(publicUsers)
+      .where(eq(publicUsers.id, sellerId))
+      .limit(1);
+    if (seller?.banned) {
+      throw new ForbiddenException('Tài khoản đã bị khóa, không thể đăng tin');
+    }
     try {
       const [row] = await this.db
         .insert(publicListings)
@@ -303,7 +314,15 @@ export class MarketplaceService {
     const limit = Math.min(50, Math.max(1, params.limit ?? 20));
     const offset = (page - 1) * limit;
 
-    const conditions: SQL[] = [eq(publicListings.status, 'PUBLISHED')];
+    const conditions: SQL[] = [
+      eq(publicListings.status, 'PUBLISHED'),
+      // Story 2.4: ẩn tin của banned seller khỏi search public.
+      sql`NOT EXISTS (
+        SELECT 1 FROM ${publicUsers}
+        WHERE ${publicUsers.id} = ${publicListings.sellerId}
+        AND ${publicUsers.banned} = true
+      )`,
+    ];
 
     if (params.q && params.q.trim()) {
       // FTS tiếng Việt không dấu (Story 1.5 — f_unaccent_query).

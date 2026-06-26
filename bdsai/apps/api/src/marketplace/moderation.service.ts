@@ -1,7 +1,11 @@
 import { Injectable, Logger, BadRequestException } from '@nestjs/common';
+import { eq } from 'drizzle-orm';
 import { InjectDrizzle, type DrizzleDB } from '../db/database.tokens';
 import { moderationAuditLogs } from '../db/schema/moderation-audit-logs';
+import { publicListings } from '../db/schema/public-listings';
+import { publicUsers } from '../db/schema/public-users';
 import { MarketplaceService, type ListingItem } from './marketplace.service';
+import { EmailService } from '../notification/email.service';
 
 // Story 3.5 — keyword blacklist cho spam filter (rule-based cơ bản).
 // Admin có thể thêm/xóa keyword (Story 4.3 sẽ nâng cấp thành heuristic).
@@ -44,6 +48,7 @@ export class ModerationService {
   constructor(
     @InjectDrizzle() private readonly db: DrizzleDB,
     private readonly marketplaceService: MarketplaceService,
+    private readonly emailService: EmailService,
   ) {}
 
   // AC: spam check — keyword blacklist trên title + description + heuristic nâng cao (Story 4.3).
@@ -118,18 +123,53 @@ export class ModerationService {
     return { approved, failed };
   }
 
-  // AC: approve single + audit log.
+  // AC: approve single + audit log + email seller (Story 6.2).
   async approveWithAudit(listingId: string, adminId: string, spamFlagged: boolean): Promise<ListingItem> {
     const result = await this.marketplaceService.approveListing(listingId, adminId);
     await this.logAudit(adminId, listingId, 'approve', null, spamFlagged);
+    await this.notifySeller(listingId, 'approved', null);
     return result;
   }
 
-  // AC: reject single + audit log.
+  // AC: reject single + audit log + email seller (Story 6.2).
   async rejectWithAudit(listingId: string, adminId: string, reason: string, spamFlagged: boolean): Promise<ListingItem> {
     const result = await this.marketplaceService.rejectListing(listingId, adminId, reason);
     await this.logAudit(adminId, listingId, 'reject', reason, spamFlagged);
+    await this.notifySeller(listingId, 'rejected', reason);
     return result;
+  }
+
+  // Story 6.2: email seller khi listing được duyệt hoặc bị reject.
+  private async notifySeller(listingId: string, action: 'approved' | 'rejected', reason: string | null): Promise<void> {
+    try {
+      const [listing] = await this.db
+        .select()
+        .from(publicListings)
+        .where(eq(publicListings.id, listingId))
+        .limit(1);
+      if (!listing) return;
+      const [seller] = await this.db
+        .select({ email: publicUsers.email })
+        .from(publicUsers)
+        .where(eq(publicUsers.id, listing.sellerId))
+        .limit(1);
+      if (!seller?.email) return;
+      if (action === 'approved') {
+        await this.emailService.send({
+          to: seller.email,
+          subject: `[bdsai.vn] Tin "${listing.title}" đã được duyệt`,
+          body: `Tin "${listing.title}" của bạn đã được duyệt và hiển thị công khai.\n\nXem tin: https://bdsai.vn/listings/${listing.id}`,
+        });
+      } else {
+        await this.emailService.send({
+          to: seller.email,
+          subject: `[bdsai.vn] Tin "${listing.title}" bị từ chối`,
+          body: `Tin "${listing.title}" của bạn bị từ chối.\n\nLý do: ${reason ?? 'Không rõ'}\n\nVui lòng chỉnh sửa và đăng lại.`,
+        });
+      }
+    } catch (e) {
+      this.logger.warn({ action: 'notify-seller', listingId, reason: 'email-fail', err: e instanceof Error ? e.message : String(e) }, 'Seller notification failed (non-blocking)');
+    }
   }
 
   // AC: list pending queue with spam flags.

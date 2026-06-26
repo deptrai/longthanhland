@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { z } from 'zod';
 import type { Request } from 'express';
@@ -30,7 +30,10 @@ export class InquiryController {
   ) {
     const result = createInquirySchema.safeParse(body);
     if (!result.success) {
-      throw new Error(JSON.stringify(result.error.issues));
+      throw new BadRequestException({
+        message: 'Dữ liệu không hợp lệ',
+        details: result.error.issues,
+      });
     }
     // Extract buyer ID if authenticated (optional).
     const user = (req as Request & { user?: JwtUser }).user;

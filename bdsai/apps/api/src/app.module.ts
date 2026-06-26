@@ -16,6 +16,7 @@ import { AdminModule } from './admin/admin.module';
 import { MarketplaceModule } from './marketplace/marketplace.module';
 import { AiModule } from './ai/ai.module';
 import { InquiryModule } from './inquiry/inquiry.module';
+import { NotificationModule } from './notification/notification.module';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 
 /**
@@ -58,6 +59,8 @@ import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
     AiModule,
     // Story 6.1 + 6.2: InquiryModule (buyer inquiry + email notification).
     InquiryModule,
+    // Story 6.2: NotificationModule (email service — Resend/log).
+    NotificationModule,
   ],
   controllers: [AppController],
   providers: [

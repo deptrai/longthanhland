@@ -63,6 +63,11 @@ export const envSchema = z.object({
   // Supabase Free: DB 500MB → cảnh báo 400MB (80%). Storage 1GB → 800MB (80%).
   DB_SIZE_ALERT_MB: z.coerce.number().int().positive().default(400),
   STORAGE_SIZE_ALERT_MB: z.coerce.number().int().positive().default(800),
+
+  // --- Email (Story 6.2) — Resend API ---
+  // Optional (default empty = dev log-only mode). Prod: set RESEND_API_KEY.
+  RESEND_API_KEY: z.string().default(''),
+  EMAIL_FROM: z.string().default('no-reply@bdsai.vn'),
 });
 
 export type Env = z.infer<typeof envSchema>;

@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
+import { InquiryForm } from './inquiry-form';
 
 // Story 3.4 — Listing detail SSR page + SEO meta.
 // Server component (AD-4) — fetch listing via API proxy, generateMetadata dynamic.
@@ -195,16 +196,8 @@ export default async function ListingDetailPage({
         <p className="mt-2 whitespace-pre-wrap text-gray-700">{listing.description}</p>
       </div>
 
-      {/* Contact CTA */}
-      <div className="mt-8 rounded-lg bg-blue-50 p-6 text-center">
-        <p className="text-lg font-semibold text-blue-900">Quan tâm tin này?</p>
-        <a
-          href={`/api/marketplace/listings/${listing.id}/inquiry`}
-          className="mt-3 inline-block rounded-md bg-blue-600 px-6 py-2 text-white hover:bg-blue-700"
-        >
-          Liên hệ người bán
-        </a>
-      </div>
+      {/* Contact CTA — Story 6.1 inquiry form */}
+      <InquiryForm listingId={listing.id} />
 
       {/* Story 4.4: AI Insights block (graceful hide if no AI result). */}
       <AiInsightsBlock listingId={listing.id} />

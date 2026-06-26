@@ -6,6 +6,7 @@ import { InjectDrizzle, type DrizzleDB } from '../db/database.tokens';
 import { inquiries } from '../db/schema/inquiries';
 import { publicListings } from '../db/schema/public-listings';
 import { publicUsers } from '../db/schema/public-users';
+import { EmailService } from '../notification/email.service';
 
 // Story 6.2 — BullMQ processor cho inquiry email notification.
 // Job data: { inquiryId, listingId, sellerId }
@@ -17,6 +18,7 @@ export class InquiryNotificationProcessor extends WorkerHost {
 
   constructor(
     @InjectDrizzle() private readonly db: DrizzleDB,
+    private readonly emailService: EmailService,
   ) {
     super();
   }
@@ -59,28 +61,21 @@ export class InquiryNotificationProcessor extends WorkerHost {
       return;
     }
 
-    // Send email (placeholder — actual email sending via Resend/Supabase in production).
-    // For now, log the notification. Production would call email provider API.
-    const emailContent = {
+    // Story 6.2: send email via EmailService (Resend prod / log dev).
+    const emailBody = [
+      `Bạn nhận được một inquiry mới từ ${inquiry.buyerName}.`,
+      ``,
+      `Tin: ${listing.title}`,
+      `Liên hệ buyer: ${inquiry.buyerPhone}${inquiry.buyerEmail ? ` / ${inquiry.buyerEmail}` : ''}`,
+      `Lời nhắn: ${inquiry.message}`,
+      ``,
+      `Xem tin: https://bdsai.vn/listings/${listing.id}`,
+    ].join('\n');
+
+    await this.emailService.send({
       to: seller.email,
       subject: `[bdsai.vn] Inquiry mới cho tin "${listing.title}"`,
-      body: [
-        `Bạn nhận được một inquiry mới từ ${inquiry.buyerName}.`,
-        ``,
-        `Tin: ${listing.title}`,
-        `Liên hệ buyer: ${inquiry.buyerPhone}${inquiry.buyerEmail ? ` / ${inquiry.buyerEmail}` : ''}`,
-        `Lời nhắn: ${inquiry.message}`,
-        ``,
-        `Xem tin: https://bdsai.vn/listings/${listing.id}`,
-      ].join('\n'),
-    };
-
-    this.logger.log(
-      { action: 'inquiry-email-sent', inquiryId, to: seller.email, subject: emailContent.subject },
-      'Inquiry notification email sent (logged — production would call email API)',
-    );
-
-    // TODO: Call actual email provider (Resend/Supabase) in production.
-    // await emailProvider.send(emailContent);
+      body: emailBody,
+    });
   }
 }
