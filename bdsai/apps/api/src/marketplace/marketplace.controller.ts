@@ -73,14 +73,16 @@ export class MarketplaceController {
   }
 
   // AC1: GET /marketplace/listings/:id — get listing.
+  // Story 3.1: admin xem được non-PUBLISHED (isAdmin từ role attached by AdminGuard).
   @Get('listings/:id')
   async getListing(
     @Param('id') id: string,
     @Req() req: Request,
   ): Promise<ListingItem> {
     this.assertUuid(id);
-    const user = (req as Request & { user: JwtUser }).user;
-    return this.marketplaceService.getListing(id, user.id, false);
+    const user = (req as Request & { user: JwtUser & { role?: string } }).user;
+    const isAdmin = user?.role === 'admin' || user?.role === 'super-admin';
+    return this.marketplaceService.getListing(id, user.id, isAdmin);
   }
 
   // AC1: PATCH /marketplace/listings/:id — update (owner, DRAFT/PENDING/REJECTED).
