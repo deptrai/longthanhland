@@ -70,8 +70,8 @@ development_status:
   3-1-listing-entity-crud-status-workflow: done
   3-2-dang-tin-form-nhieu-buoc-upload-anh: done
   3-3-duyet-tim-kiem-filter-sort-phan-trang: done
-  3-4-trang-chi-tiet-listing-ssr-seo: backlog
-  3-5-admin-hang-doi-duyet-co-spam: backlog
+  3-4-trang-chi-tiet-listing-ssr-seo: done
+  3-5-admin-hang-doi-duyet-co-spam: done
   3-6-vong-doi-tin-het-han-gia-han-da-ban: backlog
   3-7-seed-du-lieu-listing-mau: backlog
   epic-3-retrospective: optional

@@ -17,6 +17,7 @@ import { Throttle } from '@nestjs/throttler';
 import { ZodError, z } from 'zod';
 import type { Request } from 'express';
 import { MarketplaceService, type ListingItem } from './marketplace.service';
+import { ModerationService, REJECT_REASONS } from './moderation.service';
 import { JwtAuthGuard, type JwtUser } from '../auth/guards/jwt-auth.guard';
 import { AdminGuard } from '../admin/guards/admin.guard';
 import { createListingSchema, updateListingSchema } from './dto/create-listing.dto';
@@ -43,7 +44,10 @@ import { createListingSchema, updateListingSchema } from './dto/create-listing.d
 @UseGuards(JwtAuthGuard)
 @Throttle({ default: { limit: 60, ttl: 60_000 } })
 export class MarketplaceController {
-  constructor(private readonly marketplaceService: MarketplaceService) {}
+  constructor(
+    private readonly marketplaceService: MarketplaceService,
+    private readonly moderationService: ModerationService,
+  ) {}
 
   // AC1: POST /marketplace/listings — create DRAFT.
   @Post('listings')
@@ -130,44 +134,64 @@ export class MarketplaceController {
     return this.marketplaceService.submitListing(id, user.id);
   }
 
-  // Story 3.3: POST /marketplace/listings/:id/approve — admin PENDING → PUBLISHED.
+  // Story 3.3 + 3.5: POST /marketplace/listings/:id/approve — admin PENDING → PUBLISHED + audit log.
   @Post('listings/:id/approve')
   @HttpCode(HttpStatus.OK)
   @UseGuards(AdminGuard)
   async approveListing(
     @Param('id') id: string,
+    @Body() body: { spamFlagged?: boolean },
     @Req() req: Request,
   ): Promise<ListingItem> {
     this.assertUuid(id);
     const user = (req as Request & { user: JwtUser }).user;
-    return this.marketplaceService.approveListing(id, user.id);
+    return this.moderationService.approveWithAudit(id, user.id, body.spamFlagged ?? false);
   }
 
-  // Story 3.3: POST /marketplace/listings/:id/reject — admin PENDING → REJECTED.
+  // Story 3.3 + 3.5: POST /marketplace/listings/:id/reject — admin PENDING → REJECTED + audit log.
   @Post('listings/:id/reject')
   @HttpCode(HttpStatus.OK)
   @UseGuards(AdminGuard)
   async rejectListing(
     @Param('id') id: string,
-    @Body() body: { reason?: string },
+    @Body() body: { reason?: string; spamFlagged?: boolean },
     @Req() req: Request,
   ): Promise<ListingItem> {
     this.assertUuid(id);
     const user = (req as Request & { user: JwtUser }).user;
-    return this.marketplaceService.rejectListing(id, user.id, body.reason ?? '');
+    return this.moderationService.rejectWithAudit(id, user.id, body.reason ?? '', body.spamFlagged ?? false);
   }
 
-  // Story 3.3: GET /marketplace/admin/pending — admin pending queue.
+  // Story 3.3 + 3.5: GET /marketplace/admin/pending — admin pending queue with spam flags.
   @Get('admin/pending')
   @UseGuards(AdminGuard)
   async listPendingQueue(
     @Query('page') page?: string,
     @Query('limit') limit?: string,
-  ): Promise<{ items: ListingItem[]; total: number; page: number; limit: number; totalPages: number }> {
-    return this.marketplaceService.listPendingQueue({
+  ): Promise<{ items: Array<ListingItem & { spamFlagged: boolean; spamReasons: string[] }>; total: number; page: number; limit: number; totalPages: number }> {
+    return this.moderationService.listPendingWithSpamFlags({
       page: page ? Number(page) : 1,
       limit: limit ? Number(limit) : 20,
     });
+  }
+
+  // Story 3.5: POST /marketplace/admin/bulk-approve — bulk approve.
+  @Post('admin/bulk-approve')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(AdminGuard)
+  async bulkApprove(
+    @Body() body: { listingIds?: string[] },
+    @Req() req: Request,
+  ): Promise<{ approved: string[]; failed: Array<{ id: string; error: string }> }> {
+    const user = (req as Request & { user: JwtUser }).user;
+    return this.moderationService.bulkApprove(body.listingIds ?? [], user.id);
+  }
+
+  // Story 3.5: GET /marketplace/admin/reject-reasons — reject reason templates.
+  @Get('admin/reject-reasons')
+  @UseGuards(AdminGuard)
+  async getRejectReasons(): Promise<{ reasons: string[] }> {
+    return { reasons: REJECT_REASONS };
   }
 
   private assertUuid(id: string): void {
