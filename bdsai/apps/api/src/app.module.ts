@@ -12,6 +12,7 @@ import { LoggerModule } from './common/logger/logger.module';
 import { QueueModule } from './queue/queue.module';
 import { AuthModule } from './auth/auth.module';
 import { UploadModule } from './upload/upload.module';
+import { AdminModule } from './admin/admin.module';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 
 /**
@@ -46,6 +47,8 @@ import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
     AuthModule,
     // Story 2.3: UploadModule (avatar upload — AC5, AD-1 module riêng).
     UploadModule,
+    // Story 2.4: AdminModule (admin user management — list/ban/unban).
+    AdminModule,
   ],
   controllers: [AppController],
   providers: [

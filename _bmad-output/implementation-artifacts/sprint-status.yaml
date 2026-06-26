@@ -37,7 +37,7 @@
 
 generated: 2026-06-24
 last_updated: 2026-06-26
-last_updated_note: 2026-06-26 — Story 2.3 (Quản lý profile) dev complete, status → dev (ready for review)
+last_updated_note: 2026-06-26 — Story 2.4 (Admin danh sách user ban/unban) dev complete, status → dev
 project: longthanhland
 project_key: NOKEY
 tracking_system: file-system
@@ -61,7 +61,7 @@ development_status:
   2-1-dang-ky-email-phone: done
   2-2-dang-nhap-dang-xuat-jwt: done
   2-3-quan-ly-profile: done
-  2-4-admin-danh-sach-user-ban-unban: backlog
+  2-4-admin-danh-sach-user-ban-unban: done
   2-5-admin-role-grant: backlog
   epic-2-retrospective: optional
 
