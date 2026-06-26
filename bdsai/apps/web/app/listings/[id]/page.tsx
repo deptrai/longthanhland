@@ -263,7 +263,7 @@ async function AiInsightsBlock({ listingId }: { listingId: string }) {
 
       {/* Story 4.4 AC: seller appeal button — functional. */}
       <div className="mt-4">
-        <AppealButton listingId={listing.id} />
+        <AppealButton listingId={listingId} />
       </div>
     </div>
   );

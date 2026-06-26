@@ -429,7 +429,10 @@ export class MarketplaceService {
         .where(eq(publicUsers.id, result.sellerId))
         .limit(1);
       if (seller) {
-        const trust = this.aiService.computeTrustScore(result, seller);
+        const trust = this.aiService.computeTrustScore(result, {
+          phoneVerified: seller.phoneVerified,
+          createdAt: seller.createdAt.toISOString(),
+        });
         const contentHash = `${result.id}-${result.updatedAt?.getTime() ?? Date.now()}`;
         await this.aiService.saveTrustScore(listingId, trust.score, trust.factors, contentHash);
       }

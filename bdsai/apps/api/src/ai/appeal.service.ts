@@ -1,4 +1,4 @@
-import { Injectable, Logger, BadRequestException, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { Injectable, Logger, BadRequestException, NotFoundException, ForbiddenException, InternalServerErrorException } from '@nestjs/common';
 import { eq, desc } from 'drizzle-orm';
 import { InjectDrizzle, type DrizzleDB } from '../db/database.tokens';
 import { appealRequests } from '../db/schema/appeal-requests';
@@ -31,6 +31,7 @@ export class AppealService {
       .insert(appealRequests)
       .values({ listingId, sellerId, reason: trimmed })
       .returning({ id: appealRequests.id, status: appealRequests.status });
+    if (!row) throw new InternalServerErrorException('Tạo khiếu nại thất bại');
     this.logger.log({ action: 'create-appeal', appealId: row.id, sellerId, listingId }, 'Appeal created');
     return row;
   }

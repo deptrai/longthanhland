@@ -656,7 +656,7 @@ export class AuthService {
     // Convert to E.164 for Supabase.
     const e164 = `+84${phone.slice(1)}`;
     try {
-      const { error } = await this.supabase.admin.auth.signInWithOtp({
+      const { error } = await this.supabase.auth.signInWithOtp({
         phone: e164,
         options: { shouldCreateUser: false },
       });
@@ -686,7 +686,7 @@ export class AuthService {
     }
     const e164 = `+84${phone.slice(1)}`;
     try {
-      const { error } = await this.supabase.admin.auth.verifyOtp({
+      const { error } = await this.supabase.auth.verifyOtp({
         phone: e164,
         token,
         type: 'sms',

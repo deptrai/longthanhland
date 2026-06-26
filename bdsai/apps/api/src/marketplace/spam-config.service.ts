@@ -65,6 +65,7 @@ export class SpamConfigService {
         set: { value: value.trim(), updatedAt: new Date(), updatedBy: adminId },
       })
       .returning({ key: spamConfig.key, value: spamConfig.value });
+    if (!row) throw new Error('Cập nhật config thất bại');
     return row;
   }
 
