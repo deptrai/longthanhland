@@ -646,6 +646,74 @@ export class AuthService {
       .slice(0, 300);
     return { name: 'SupabaseError', message: safeMsg };
   }
+
+  // Story 2.3: Phone OTP verification — send OTP via Supabase Auth.
+  async sendPhoneOtp(userId: string, phone: string): Promise<{ sent: boolean }> {
+    // Validate phone VN format.
+    if (!/^0\d{9,10}$/.test(phone)) {
+      throw new BadRequestException('Số điện thoại không hợp lệ (VD: 0901234567)');
+    }
+    // Convert to E.164 for Supabase.
+    const e164 = `+84${phone.slice(1)}`;
+    try {
+      const { error } = await this.supabase.admin.auth.signInWithOtp({
+        phone: e164,
+        options: { shouldCreateUser: false },
+      });
+      if (error) {
+        this.logger.error(
+          { action: 'send-phone-otp', reason: 'supabase-error', err: this.safeErr(error) },
+          'Send phone OTP failed',
+        );
+        throw new BadRequestException('Gửi OTP thất bại, thử lại sau');
+      }
+      this.logger.log({ action: 'send-phone-otp', userId, reason: 'success' }, 'Phone OTP sent');
+      return { sent: true };
+    } catch (e) {
+      if (e instanceof BadRequestException) throw e;
+      this.logger.error(
+        { action: 'send-phone-otp', reason: 'network', err: this.safeErr(e) },
+        'Send phone OTP network error',
+      );
+      throw new BadRequestException('Gửi OTP thất bại, thử lại sau');
+    }
+  }
+
+  // Story 2.3: verify phone OTP → set phone_verified = true.
+  async verifyPhoneOtp(userId: string, phone: string, token: string): Promise<{ verified: boolean }> {
+    if (!/^\d{6}$/.test(token)) {
+      throw new BadRequestException('Mã OTP phải là 6 chữ số');
+    }
+    const e164 = `+84${phone.slice(1)}`;
+    try {
+      const { error } = await this.supabase.admin.auth.verifyOtp({
+        phone: e164,
+        token,
+        type: 'sms',
+      });
+      if (error) {
+        this.logger.error(
+          { action: 'verify-phone-otp', reason: 'supabase-error', err: this.safeErr(error) },
+          'Verify phone OTP failed',
+        );
+        throw new BadRequestException('Mã OTP không đúng hoặc đã hết hạn');
+      }
+      // Update phone_verified in public_users.
+      await this.db
+        .update(publicUsers)
+        .set({ phoneVerified: true, updatedAt: new Date() })
+        .where(eq(publicUsers.id, userId));
+      this.logger.log({ action: 'verify-phone-otp', userId, reason: 'success' }, 'Phone verified');
+      return { verified: true };
+    } catch (e) {
+      if (e instanceof BadRequestException) throw e;
+      this.logger.error(
+        { action: 'verify-phone-otp', reason: 'network', err: this.safeErr(e) },
+        'Verify phone OTP network error',
+      );
+      throw new BadRequestException('Xác thực OTP thất bại');
+    }
+  }
 }
 
 export { registerApiSchema };

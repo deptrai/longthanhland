@@ -54,7 +54,7 @@ export class AdminGuard implements CanActivate {
       throw new InternalServerErrorException('Lỗi xác thực quyền');
     }
 
-    if (!role || role !== 'admin') {
+    if (!role || (role !== 'admin' && role !== 'super-admin')) {
       // E2/E3: not admin → 403. Orphan → 403 (KHÔNG 404 — không leak existence).
       this.logger.warn(
         { userId: user.id, action: 'admin-guard', reason: role ? 'not-admin' : 'orphan' },
@@ -63,6 +63,8 @@ export class AdminGuard implements CanActivate {
       throw new ForbiddenException('Không có quyền truy cập');
     }
 
+    // Attach role to request for downstream use (e.g. SuperAdminGuard).
+    (request as Request & { user: JwtUser & { role?: string } }).user.role = role;
     return true;
   }
 

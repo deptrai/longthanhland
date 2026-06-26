@@ -16,6 +16,7 @@ import { ZodError, z } from 'zod';
 import type { Request } from 'express';
 import { AdminService, type AdminUserItem, type ListUsersResponse } from './admin.service';
 import { AdminGuard } from './guards/admin.guard';
+import { SuperAdminGuard } from './guards/super-admin.guard';
 import { JwtAuthGuard, type JwtUser } from '../auth/guards/jwt-auth.guard';
 import { listUsersApiSchema } from './dto/list-users.dto';
 import { roleGrantSchema } from './dto/role-grant.dto';
@@ -73,6 +74,7 @@ export class AdminController {
   // endpoint này cụ thể. KHÔNG đăng ký ThrottlerModule mới (reuse global).
   @Post('users/:id/role')
   @HttpCode(HttpStatus.OK)
+  @UseGuards(SuperAdminGuard)
   @Throttle({ default: { limit: 10, ttl: 15 * 60 * 1000 } })
   async grantRole(
     @Param('id') id: string,

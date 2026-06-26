@@ -8,6 +8,7 @@ import {
 import { count, desc, eq, ilike, or } from 'drizzle-orm';
 import { InjectDrizzle, type DrizzleDB } from '../db/database.tokens';
 import { publicUsers } from '../db/schema/public-users';
+import { userAuditLogs } from '../db/schema/user-audit-logs';
 
 // AdminService (AC1, AC2, AC3, AD-2, AD-8) — Story 2.4.
 //
@@ -159,6 +160,7 @@ export class AdminService {
       { action: 'ban', targetId, adminId, reason: 'success' },
       'Admin ban user',
     );
+    await this.insertAudit(adminId, targetId, 'ban');
 
     return this.toItem(target, true);
   }
@@ -186,6 +188,7 @@ export class AdminService {
       { action: 'unban', targetId, adminId, reason: 'success' },
       'Admin unban user',
     );
+    await this.insertAudit(adminId, targetId, 'unban');
 
     return this.toItem(target, false);
   }
@@ -231,9 +234,23 @@ export class AdminService {
       { action: 'role-grant', targetId, adminId, newRole, reason: 'success' },
       'Admin role grant',
     );
+    await this.insertAudit(adminId, targetId, newRole === 'admin' ? 'role_grant' : 'role_revoke', newRole);
 
     // Trả newRole (sau update) — toItem roleOverride tránh stale row.role.
     return this.toItem(target, target.banned, newRole);
+  }
+
+  // Story 2.4 + 2.5: persistent audit log cho user actions.
+  private async insertAudit(adminId: string, targetId: string, action: string, detail?: string): Promise<void> {
+    try {
+      await this.db.insert(userAuditLogs).values({ adminId, targetId, action, detail: detail ?? null });
+    } catch (e) {
+      // Non-blocking — log but don't fail the action.
+      this.logger.warn(
+        { action: 'audit-insert', reason: 'db-fail', err: e instanceof Error ? e.message : String(e) },
+        'Audit log insert failed (non-blocking)',
+      );
+    }
   }
 
   // Query target user → 404 if not exist (E6).

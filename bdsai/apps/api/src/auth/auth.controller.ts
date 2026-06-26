@@ -140,4 +140,31 @@ export class AuthController {
     const user = (req as Request & { user: JwtUser }).user;
     return this.authService.updateMe(user.id, result.data);
   }
+
+  // --- Story 2.3: Phone OTP verification ---
+
+  @Post('phone/otp')
+  @UseGuards(JwtAuthGuard)
+  @Throttle({ default: { limit: 3, ttl: 60 * 60 * 1000 } }) // 3 OTP/hour
+  async sendPhoneOtp(@Body() body: { phone?: string }, @Req() req: Request): Promise<{ sent: boolean }> {
+    const user = (req as Request & { user: JwtUser }).user;
+    if (!body.phone) {
+      throw new ZodError([{ code: 'custom', path: ['phone'], message: 'Phone là bắt buộc' } as never]);
+    }
+    return this.authService.sendPhoneOtp(user.id, body.phone);
+  }
+
+  @Post('phone/verify')
+  @UseGuards(JwtAuthGuard)
+  @Throttle({ default: { limit: 10, ttl: 15 * 60 * 1000 } }) // 10 verify/15min
+  async verifyPhoneOtp(
+    @Body() body: { phone?: string; token?: string },
+    @Req() req: Request,
+  ): Promise<{ verified: boolean }> {
+    const user = (req as Request & { user: JwtUser }).user;
+    if (!body.phone || !body.token) {
+      throw new ZodError([{ code: 'custom', path: ['phone'], message: 'Phone + token là bắt buộc' } as never]);
+    }
+    return this.authService.verifyPhoneOtp(user.id, body.phone, body.token);
+  }
 }

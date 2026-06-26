@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { AdminController } from './admin.controller';
 import { AdminService } from './admin.service';
 import { AdminGuard } from './guards/admin.guard';
+import { SuperAdminGuard } from './guards/super-admin.guard';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 // AdminModule (AD-1 Module Isolation, AC10) — Story 2.4.
@@ -20,6 +21,6 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 // qua DI. Dependencies (ConfigService, SupabaseService, DRIZZLE) đều @Global.
 @Module({
   controllers: [AdminController],
-  providers: [AdminService, AdminGuard, JwtAuthGuard],
+  providers: [AdminService, AdminGuard, SuperAdminGuard, JwtAuthGuard],
 })
 export class AdminModule {}
