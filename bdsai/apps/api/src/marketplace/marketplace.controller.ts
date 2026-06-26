@@ -9,6 +9,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -17,6 +18,7 @@ import { ZodError, z } from 'zod';
 import type { Request } from 'express';
 import { MarketplaceService, type ListingItem } from './marketplace.service';
 import { JwtAuthGuard, type JwtUser } from '../auth/guards/jwt-auth.guard';
+import { AdminGuard } from '../admin/guards/admin.guard';
 import { createListingSchema, updateListingSchema } from './dto/create-listing.dto';
 
 /**
@@ -32,6 +34,10 @@ import { createListingSchema, updateListingSchema } from './dto/create-listing.d
  *   PATCH  /marketplace/listings/:id      — update (owner, DRAFT/PENDING/REJECTED)
  *   DELETE /marketplace/listings/:id      — delete (owner only)
  *   POST   /marketplace/listings/:id/submit — DRAFT → PENDING (owner)
+ *   POST   /marketplace/listings/:id/duplicate — duplicate (owner, Story 3.2)
+ *   POST   /marketplace/listings/:id/approve  — admin approve (Story 3.3)
+ *   POST   /marketplace/listings/:id/reject   — admin reject (Story 3.3)
+ *   GET    /marketplace/admin/pending     — admin pending queue (Story 3.3)
  */
 @Controller('marketplace')
 @UseGuards(JwtAuthGuard)
@@ -124,10 +130,89 @@ export class MarketplaceController {
     return this.marketplaceService.submitListing(id, user.id);
   }
 
+  // Story 3.3: POST /marketplace/listings/:id/approve — admin PENDING → PUBLISHED.
+  @Post('listings/:id/approve')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(AdminGuard)
+  async approveListing(
+    @Param('id') id: string,
+    @Req() req: Request,
+  ): Promise<ListingItem> {
+    this.assertUuid(id);
+    const user = (req as Request & { user: JwtUser }).user;
+    return this.marketplaceService.approveListing(id, user.id);
+  }
+
+  // Story 3.3: POST /marketplace/listings/:id/reject — admin PENDING → REJECTED.
+  @Post('listings/:id/reject')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(AdminGuard)
+  async rejectListing(
+    @Param('id') id: string,
+    @Body() body: { reason?: string },
+    @Req() req: Request,
+  ): Promise<ListingItem> {
+    this.assertUuid(id);
+    const user = (req as Request & { user: JwtUser }).user;
+    return this.marketplaceService.rejectListing(id, user.id, body.reason ?? '');
+  }
+
+  // Story 3.3: GET /marketplace/admin/pending — admin pending queue.
+  @Get('admin/pending')
+  @UseGuards(AdminGuard)
+  async listPendingQueue(
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+  ): Promise<{ items: ListingItem[]; total: number; page: number; limit: number; totalPages: number }> {
+    return this.marketplaceService.listPendingQueue({
+      page: page ? Number(page) : 1,
+      limit: limit ? Number(limit) : 20,
+    });
+  }
+
   private assertUuid(id: string): void {
     const parsed = z.string().uuid().safeParse(id);
     if (!parsed.success) {
       throw new BadRequestException('ID tin không hợp lệ');
     }
+  }
+}
+
+// Story 3.3: Public search controller — NO JWT (public access to PUBLISHED listings).
+@Controller('marketplace')
+@Throttle({ default: { limit: 100, ttl: 60_000 } })
+export class MarketplacePublicController {
+  constructor(private readonly marketplaceService: MarketplaceService) {}
+
+  // GET /marketplace/search — public search PUBLISHED listings (FTS + filter + sort + pagination).
+  @Get('search')
+  async searchListings(
+    @Query('q') q?: string,
+    @Query('province') province?: string,
+    @Query('district') district?: string,
+    @Query('listingType') listingType?: string,
+    @Query('propertyType') propertyType?: string,
+    @Query('minPrice') minPrice?: string,
+    @Query('maxPrice') maxPrice?: string,
+    @Query('minArea') minArea?: string,
+    @Query('maxArea') maxArea?: string,
+    @Query('sort') sort?: string,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+  ): Promise<{ items: ListingItem[]; total: number; page: number; limit: number; totalPages: number }> {
+    return this.marketplaceService.searchListings({
+      q,
+      province,
+      district,
+      listingType,
+      propertyType,
+      minPrice: minPrice ? Number(minPrice) : undefined,
+      maxPrice: maxPrice ? Number(maxPrice) : undefined,
+      minArea: minArea ? Number(minArea) : undefined,
+      maxArea: maxArea ? Number(maxArea) : undefined,
+      sort: sort as 'newest' | 'price_asc' | 'price_desc' | undefined,
+      page: page ? Number(page) : 1,
+      limit: limit ? Number(limit) : 20,
+    });
   }
 }

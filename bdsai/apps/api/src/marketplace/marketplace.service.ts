@@ -6,7 +6,7 @@ import {
   NotFoundException,
   ForbiddenException,
 } from '@nestjs/common';
-import { desc, eq } from 'drizzle-orm';
+import { and, asc, desc, eq, gte, lte, sql, type SQL } from 'drizzle-orm';
 import { InjectDrizzle, type DrizzleDB } from '../db/database.tokens';
 import { publicListings, type publicListings as listingsTable } from '../db/schema/public-listings';
 
@@ -278,6 +278,137 @@ export class MarketplaceService {
         'transitionStatus thất bại',
       );
       throw new InternalServerErrorException('Chuyển trạng thái thất bại');
+    }
+  }
+
+  // Story 3.3: public search — PUBLISHED only, FTS + filter + sort + pagination.
+  async searchListings(params: {
+    q?: string;
+    province?: string;
+    district?: string;
+    listingType?: string;
+    propertyType?: string;
+    minPrice?: number;
+    maxPrice?: number;
+    minArea?: number;
+    maxArea?: number;
+    sort?: 'newest' | 'price_asc' | 'price_desc';
+    page?: number;
+    limit?: number;
+  }): Promise<{ items: ListingItem[]; total: number; page: number; limit: number; totalPages: number }> {
+    const page = Math.max(1, params.page ?? 1);
+    const limit = Math.min(50, Math.max(1, params.limit ?? 20));
+    const offset = (page - 1) * limit;
+
+    const conditions: SQL[] = [eq(publicListings.status, 'PUBLISHED')];
+
+    if (params.q && params.q.trim()) {
+      // FTS tiếng Việt không dấu (Story 1.5 — f_unaccent_query).
+      conditions.push(
+        sql`f_unaccent_to_tsvector(
+          COALESCE(${publicListings.title}, '') || ' ' ||
+          COALESCE(${publicListings.description}, '') || ' ' ||
+          COALESCE(${publicListings.province}, '') || ' ' ||
+          COALESCE(${publicListings.district}, '') || ' ' ||
+          COALESCE(${publicListings.ward}, '') || ' ' ||
+          COALESCE(${publicListings.street}, '') || ' ' ||
+          COALESCE(${publicListings.address}, '')
+        ) @@ f_unaccent_query(${params.q.trim()})`,
+      );
+    }
+    if (params.province) conditions.push(eq(publicListings.province, params.province));
+    if (params.district) conditions.push(eq(publicListings.district, params.district));
+    if (params.listingType) conditions.push(eq(publicListings.listingType, params.listingType as 'sell' | 'rent'));
+    if (params.propertyType) conditions.push(eq(publicListings.propertyType, params.propertyType as 'land' | 'house' | 'apartment' | 'commercial' | 'project'));
+    if (params.minPrice != null) conditions.push(gte(publicListings.price, params.minPrice));
+    if (params.maxPrice != null) conditions.push(lte(publicListings.price, params.maxPrice));
+    if (params.minArea != null) conditions.push(gte(publicListings.area, String(params.minArea)));
+    if (params.maxArea != null) conditions.push(lte(publicListings.area, String(params.maxArea)));
+
+    const where = and(...conditions);
+
+    // Sort.
+    const orderBy: SQL =
+      params.sort === 'price_asc' ? asc(publicListings.price) :
+      params.sort === 'price_desc' ? desc(publicListings.price) :
+      desc(publicListings.createdAt);
+
+    try {
+      const [items, countRows] = await Promise.all([
+        this.db
+          .select()
+          .from(publicListings)
+          .where(where)
+          .orderBy(orderBy)
+          .limit(limit)
+          .offset(offset),
+        this.db
+          .select({ count: sql<number>`count(*)::int` })
+          .from(publicListings)
+          .where(where),
+      ]);
+      const total = countRows[0]?.count ?? 0;
+      return {
+        items,
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      };
+    } catch (e) {
+      this.logger.error(
+        { action: 'search-listings', reason: 'db-fail', err: this.safeErr(e) },
+        'searchListings DB query thất bại',
+      );
+      throw new InternalServerErrorException('Tìm kiếm thất bại');
+    }
+  }
+
+  // Story 3.3: admin approve — PENDING → PUBLISHED.
+  async approveListing(listingId: string, adminId: string): Promise<ListingItem> {
+    return this.transitionStatus(listingId, adminId, 'PENDING', 'PUBLISHED' as ListingStatus);
+  }
+
+  // Story 3.3: admin reject — PENDING → REJECTED (kèm lý do).
+  async rejectListing(listingId: string, adminId: string, reason: string): Promise<ListingItem> {
+    if (!reason || reason.trim().length < 3) {
+      throw new BadRequestException('Lý do từ chối tối thiểu 3 ký tự');
+    }
+    return this.transitionStatus(listingId, adminId, 'PENDING', 'REJECTED' as ListingStatus, {
+      rejectedReason: reason.trim(),
+    });
+  }
+
+  // Story 3.3: admin list pending queue — for moderation.
+  async listPendingQueue(params: {
+    page?: number;
+    limit?: number;
+  }): Promise<{ items: ListingItem[]; total: number; page: number; limit: number; totalPages: number }> {
+    const page = Math.max(1, params.page ?? 1);
+    const limit = Math.min(100, Math.max(1, params.limit ?? 20));
+    const offset = (page - 1) * limit;
+    try {
+      const [items, countRows] = await Promise.all([
+        this.db
+          .select()
+          .from(publicListings)
+          .where(eq(publicListings.status, 'PENDING'))
+          .orderBy(asc(publicListings.createdAt))
+          .limit(limit)
+          .offset(offset),
+        this.db
+          .select({ count: sql<number>`count(*)::int` })
+          .from(publicListings)
+          .where(eq(publicListings.status, 'PENDING')),
+      ]);
+      const total = countRows[0]?.count ?? 0;
+      return { items, total, page, limit, totalPages: Math.ceil(total / limit) };
+    } catch (e) {
+      this.logger.error(
+        { action: 'list-pending', reason: 'db-fail', err: this.safeErr(e) },
+        'listPendingQueue DB query thất bại',
+      );
+      throw new InternalServerErrorException('Lỗi truy vấn hàng đợi duyệt');
     }
   }
 

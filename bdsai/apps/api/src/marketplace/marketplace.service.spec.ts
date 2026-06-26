@@ -14,11 +14,30 @@ function createMockDb(rows: any[] = []) {
           where: (cond: any) => {
             const w: any = {
               orderBy: (...args: any[]) => Promise.resolve(state.rows),
+              limit: (n: number) => ({
+                offset: (o: number) => Promise.resolve(state.rows),
+                then: (resolve: any, reject?: any) =>
+                  Promise.resolve(state.rows).then(resolve, reject),
+              }),
             };
             w.then = (resolve: any, reject?: any) =>
               Promise.resolve(state.rows).then(resolve, reject);
             return w;
           },
+          orderBy: (...args: any[]) => ({
+            limit: (n: number) => ({
+              offset: (o: number) => Promise.resolve(state.rows),
+              then: (resolve: any, reject?: any) =>
+                Promise.resolve(state.rows).then(resolve, reject),
+            }),
+            then: (resolve: any, reject?: any) =>
+              Promise.resolve(state.rows).then(resolve, reject),
+          }),
+          limit: (n: number) => ({
+            offset: (o: number) => Promise.resolve(state.rows),
+            then: (resolve: any, reject?: any) =>
+              Promise.resolve(state.rows).then(resolve, reject),
+          }),
         };
         query.then = (resolve: any, reject?: any) =>
           Promise.resolve(state.rows).then(resolve, reject);
@@ -236,6 +255,29 @@ describe('MarketplaceService (AC1-AC4, AD-9)', () => {
     db._state.rows = [sampleListing];
     await expect(service.duplicateListing('listing-1', 'other-seller')).rejects.toThrow(
       ForbiddenException,
+    );
+  });
+
+  // Story 3.3: searchListings — covered by e2e (Drizzle SQL builder hard to mock).
+  // Unit tests focus on approve/reject which use simpler DB operations.
+
+  // Story 3.3: approveListing.
+  it('approveListing: PENDING → PUBLISHED', async () => {
+    db._state.rows = [{ ...sampleListing, status: 'PENDING' }];
+    const result = await service.approveListing('listing-1', 'admin-1');
+    expect(result.status).toBe('PUBLISHED');
+  });
+
+  // Story 3.3: rejectListing.
+  it('rejectListing: PENDING → REJECTED with reason', async () => {
+    db._state.rows = [{ ...sampleListing, status: 'PENDING' }];
+    const result = await service.rejectListing('listing-1', 'admin-1', 'Tiêu đề không rõ ràng');
+    expect(result.status).toBe('REJECTED');
+  });
+
+  it('rejectListing: reason too short → 400', async () => {
+    await expect(service.rejectListing('listing-1', 'admin-1', 'ab')).rejects.toThrow(
+      BadRequestException,
     );
   });
 });

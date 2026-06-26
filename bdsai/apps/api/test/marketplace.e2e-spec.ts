@@ -35,7 +35,7 @@ suite('Marketplace endpoints (e2e — Story 3.1 AC1-AC4)', () => {
   let otherToken: string;
   let otherId: string;
   let listingId: string;
-  const uniqueSuffix = randomUUID().slice(0, 8);
+  const uniqueSuffix = `${Date.now()}-${randomUUID().slice(0, 4)}`;
 
   jest.setTimeout(90_000);
 
@@ -50,19 +50,24 @@ suite('Marketplace endpoints (e2e — Story 3.1 AC1-AC4)', () => {
     supabase = app.get(SupabaseService);
 
     // Register seller + other user via /auth/register (creates both auth + public_users).
+    // Use Date.now() in email for uniqueness across test runs (Supabase data persists).
     const sellerEmail = `e2e31seller${uniqueSuffix}@bdsai.vn`;
     const otherEmail = `e2e31other${uniqueSuffix}@bdsai.vn`;
 
+    // Use unique phone numbers (last 8 digits of timestamp — VN phone format 090XXXXXXX).
+    const sellerPhone = `090${String(Date.now()).slice(-7)}`;
+    const otherPhone = `091${String(Date.now()).slice(-7)}`;
+
     const sellerReg = await request(app.getHttpServer())
       .post('/auth/register')
-      .send({ email: sellerEmail, phone: '0903000020', password: testPassword })
+      .send({ email: sellerEmail, phone: sellerPhone, password: testPassword })
       .expect(201);
     sellerId = sellerReg.body.userId;
     await supabase.auth.admin.updateUserById(sellerId, { email_confirm: true });
 
     const otherReg = await request(app.getHttpServer())
       .post('/auth/register')
-      .send({ email: otherEmail, phone: '0903000021', password: testPassword })
+      .send({ email: otherEmail, phone: otherPhone, password: testPassword })
       .expect(201);
     otherId = otherReg.body.userId;
     await supabase.auth.admin.updateUserById(otherId, { email_confirm: true });
@@ -331,5 +336,208 @@ suite('Marketplace endpoints (e2e — Story 3.1 AC1-AC4)', () => {
       .post('/upload/listing-image')
       .attach('file', pngBuffer, { filename: 'test.png', contentType: 'image/png' })
       .expect(401);
+  });
+
+  // Story 3.3: public search — GET /marketplace/search (no auth needed).
+  it('Story 3.3: GET /marketplace/search → 200 + paginated results', async () => {
+    // Create + submit + approve a listing to make it PUBLISHED.
+    const createRes = await request(app.getHttpServer())
+      .post('/marketplace/listings')
+      .set('Authorization', `Bearer ${sellerToken}`)
+      .send({
+        listingType: 'sell',
+        title: 'Đất nền Long Thành search test',
+        description: 'Đất nền sổ đỏ gần sân bay Long Thành',
+        price: 2000000000,
+        area: 120,
+        propertyType: 'land',
+        province: 'Đồng Nai',
+        district: 'Long Thành',
+        address: 'Khu phố 1, Long Thành',
+      })
+      .expect(201);
+    const searchListingId = createRes.body.id;
+
+    // Submit → PENDING.
+    await request(app.getHttpServer())
+      .post(`/marketplace/listings/${searchListingId}/submit`)
+      .set('Authorization', `Bearer ${sellerToken}`)
+      .expect(200);
+
+    // Set seller as admin to approve (need admin token).
+    await db.update(publicUsers).set({ role: 'admin' }).where(eq(publicUsers.id, sellerId));
+    // Re-login to get fresh token with admin role.
+    const adminLogin = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({ email: `e2e31seller${uniqueSuffix}@bdsai.vn`, password: testPassword })
+      .expect(200);
+    const adminToken = adminLogin.body.accessToken;
+
+    // Approve → PUBLISHED.
+    await request(app.getHttpServer())
+      .post(`/marketplace/listings/${searchListingId}/approve`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .expect(200);
+
+    // Search public (no auth).
+    const searchRes = await request(app.getHttpServer())
+      .get('/marketplace/search?q=long thanh&province=Đồng Nai')
+      .expect(200);
+    expect(searchRes.body.items).toBeInstanceOf(Array);
+    expect(searchRes.body.total).toBeGreaterThan(0);
+    expect(searchRes.body.items.some((l: any) => l.id === searchListingId)).toBe(true);
+    expect(searchRes.body.page).toBe(1);
+
+    // Search with sort.
+    const sortRes = await request(app.getHttpServer())
+      .get('/marketplace/search?sort=price_asc&limit=5')
+      .expect(200);
+    expect(sortRes.body.items).toBeInstanceOf(Array);
+    expect(sortRes.body.limit).toBe(5);
+
+    // Search with price filter.
+    const filterRes = await request(app.getHttpServer())
+      .get('/marketplace/search?minPrice=1000000000&maxPrice=2100000000')
+      .expect(200);
+    expect(filterRes.body.items.every((l: any) => l.price >= 1000000000 && l.price <= 2100000000)).toBe(true);
+
+    // Cleanup.
+    await request(app.getHttpServer())
+      .delete(`/marketplace/listings/${searchListingId}`)
+      .set('Authorization', `Bearer ${sellerToken}`)
+      .expect(200);
+  });
+
+  it('Story 3.3: GET /marketplace/search empty → 200 + empty items', async () => {
+    const res = await request(app.getHttpServer())
+      .get('/marketplace/search?q=zzznonexistentzzz')
+      .expect(200);
+    expect(res.body.items).toHaveLength(0);
+    expect(res.body.total).toBe(0);
+    expect(res.body.totalPages).toBe(0);
+  });
+
+  it('Story 3.3: admin reject → REJECTED + reason', async () => {
+    // Create + submit a listing.
+    const createRes = await request(app.getHttpServer())
+      .post('/marketplace/listings')
+      .set('Authorization', `Bearer ${sellerToken}`)
+      .send({
+        listingType: 'sell',
+        title: 'Tin test reject',
+        description: 'Mô tả tin test reject',
+        price: 500000000,
+        area: 30,
+        propertyType: 'land',
+        province: 'Đồng Nai',
+        district: 'Long Thành',
+        address: 'Khu phố 5, Long Thành',
+      })
+      .expect(201);
+    const rejectListingId = createRes.body.id;
+
+    await request(app.getHttpServer())
+      .post(`/marketplace/listings/${rejectListingId}/submit`)
+      .set('Authorization', `Bearer ${sellerToken}`)
+      .expect(200);
+
+    // Seller is admin (set in previous test).
+    const adminLogin = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({ email: `e2e31seller${uniqueSuffix}@bdsai.vn`, password: testPassword })
+      .expect(200);
+    const adminToken = adminLogin.body.accessToken;
+
+    // Reject.
+    const rejectRes = await request(app.getHttpServer())
+      .post(`/marketplace/listings/${rejectListingId}/reject`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ reason: 'Thông tin không đầy đủ' })
+      .expect(200);
+    expect(rejectRes.body.status).toBe('REJECTED');
+    expect(rejectRes.body.rejectedReason).toBe('Thông tin không đầy đủ');
+
+    // Cleanup.
+    await request(app.getHttpServer())
+      .delete(`/marketplace/listings/${rejectListingId}`)
+      .set('Authorization', `Bearer ${sellerToken}`)
+      .expect(200);
+  });
+
+  it('Story 3.3: admin reject reason too short → 400', async () => {
+    const createRes = await request(app.getHttpServer())
+      .post('/marketplace/listings')
+      .set('Authorization', `Bearer ${sellerToken}`)
+      .send({
+        listingType: 'sell',
+        title: 'Tin test reject short reason',
+        description: 'Mô tả tin test reject short reason',
+        price: 400000000,
+        area: 25,
+        propertyType: 'land',
+        province: 'Đồng Nai',
+        district: 'Long Thành',
+        address: 'Khu phố 6, Long Thành',
+      })
+      .expect(201);
+    const listingId = createRes.body.id;
+
+    await request(app.getHttpServer())
+      .post(`/marketplace/listings/${listingId}/submit`)
+      .set('Authorization', `Bearer ${sellerToken}`)
+      .expect(200);
+
+    const adminLogin = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({ email: `e2e31seller${uniqueSuffix}@bdsai.vn`, password: testPassword })
+      .expect(200);
+
+    await request(app.getHttpServer())
+      .post(`/marketplace/listings/${listingId}/reject`)
+      .set('Authorization', `Bearer ${adminLogin.body.accessToken}`)
+      .send({ reason: 'ab' })
+      .expect(400);
+
+    // Cleanup.
+    await request(app.getHttpServer())
+      .delete(`/marketplace/listings/${listingId}`)
+      .set('Authorization', `Bearer ${sellerToken}`)
+      .expect(200);
+  });
+
+  it('Story 3.3: non-admin approve → 403', async () => {
+    const createRes = await request(app.getHttpServer())
+      .post('/marketplace/listings')
+      .set('Authorization', `Bearer ${sellerToken}`)
+      .send({
+        listingType: 'sell',
+        title: 'Tin test non-admin approve',
+        description: 'Mô tả tin test non-admin approve',
+        price: 600000000,
+        area: 40,
+        propertyType: 'land',
+        province: 'Đồng Nai',
+        district: 'Long Thành',
+        address: 'Khu phố 7, Long Thành',
+      })
+      .expect(201);
+    const listingId = createRes.body.id;
+
+    await request(app.getHttpServer())
+      .post(`/marketplace/listings/${listingId}/submit`)
+      .set('Authorization', `Bearer ${sellerToken}`)
+      .expect(200);
+
+    // Other user (non-admin) tries to approve → 403.
+    await request(app.getHttpServer())
+      .post(`/marketplace/listings/${listingId}/approve`)
+      .set('Authorization', `Bearer ${otherToken}`)
+      .expect(403);
+
+    // Cleanup.
+    await request(app.getHttpServer())
+      .delete(`/marketplace/listings/${listingId}`)
+      .set('Authorization', `Bearer ${sellerToken}`)
+      .expect(200);
   });
 });
