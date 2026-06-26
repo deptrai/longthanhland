@@ -57,13 +57,13 @@ development_status:
   epic-1-retrospective: done
 
   # Epic 2: User Authentication & Profiles
-  epic-2: in-progress
+  epic-2: done
   2-1-dang-ky-email-phone: done
   2-2-dang-nhap-dang-xuat-jwt: done
   2-3-quan-ly-profile: done
   2-4-admin-danh-sach-user-ban-unban: done
   2-5-admin-role-grant: done
-  epic-2-retrospective: optional
+  epic-2-retrospective: done
 
   # Epic 3: Listing Management & Search
   epic-3: backlog
