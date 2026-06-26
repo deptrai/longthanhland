@@ -17,7 +17,7 @@ export async function GET(
   try {
     const headers: Record<string, string> = {};
     if (authHeader) headers['authorization'] = authHeader;
-    const res = await fetch(`${API_BASE_URL}/marketplace/listings/${id}`, {
+    const res = await fetch(`${API_BASE_URL}/marketplace/listings/${id}/detail`, {
       method: 'GET',
       headers,
     });

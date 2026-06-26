@@ -39,7 +39,7 @@ interface Listing {
 
 async function fetchListing(id: string): Promise<Listing | null> {
   try {
-    const res = await fetch(`${API_BASE_URL}/marketplace/listings/${id}`, {
+    const res = await fetch(`${API_BASE_URL}/marketplace/listings/${id}/detail`, {
       method: 'GET',
       // No auth — public access for PUBLISHED only. NestJS returns 403 for non-PUBLISHED.
       // Story 6.5: ISR caching — revalidate every 300s (5 min) for performance.

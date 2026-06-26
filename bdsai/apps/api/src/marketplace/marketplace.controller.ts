@@ -7,6 +7,7 @@ import {
   Header,
   HttpCode,
   HttpStatus,
+  NotFoundException,
   Param,
   Patch,
   Post,
@@ -272,5 +273,21 @@ export class MarketplacePublicController {
       page: page ? Number(page) : 1,
       limit: limit ? Number(limit) : 20,
     });
+  }
+
+  // Story 3.4: GET /marketplace/listings/:id/detail — public detail (PUBLISHED only, for SSR).
+  @Get('listings/:id/detail')
+  @Header('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=3600')
+  async getPublicListing(@Param('id') id: string): Promise<ListingItem> {
+    this.assertUuid(id);
+    // getListing allows PUBLISHED without auth (no requesterId, no isAdmin).
+    return this.marketplaceService.getListing(id, undefined, false);
+  }
+
+  private assertUuid(id: string): void {
+    const parsed = z.string().uuid().safeParse(id);
+    if (!parsed.success) {
+      throw new BadRequestException('ID không hợp lệ');
+    }
   }
 }

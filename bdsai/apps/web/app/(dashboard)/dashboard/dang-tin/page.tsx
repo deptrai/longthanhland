@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
+import { useAuth } from '@/components/auth/use-auth';
+import { useAuthFetch } from '@/lib/auth-fetch';
 
 // Story 3.2 — Multi-step listing form (4 bước).
 // Bước 1: Thông tin (title, description, price, area, propertyType, listingType)
@@ -58,6 +60,8 @@ export default function DangTinPage() {
   const [submitError, setSubmitError] = useState('');
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const submitLockRef = useRef(false);
+  const { isAuthenticated, isLoading } = useAuth();
+  const { authFetch } = useAuthFetch();
 
   // AC: draft tự lưu sau mỗi bước (localStorage). Restore on mount via useState initializer (no setState-in-effect).
   const [form, setForm] = useState<FormData>(() => {
@@ -122,8 +126,7 @@ export default function DangTinPage() {
     }
     setUploading(true);
     setSubmitError('');
-    const token = localStorage.getItem('accessToken');
-    if (!token) {
+    if (!isAuthenticated) {
       setSubmitError('Vui lòng đăng nhập lại');
       setUploading(false);
       return;
@@ -137,9 +140,8 @@ export default function DangTinPage() {
         }
         const fd = new FormData();
         fd.append('file', file);
-        const res = await fetch('/api/upload/listing-image', {
+        const res = await authFetch('/api/upload/listing-image', {
           method: 'POST',
-          headers: { authorization: `Bearer ${token}` },
           body: fd,
         });
         if (!res.ok) {
@@ -184,8 +186,7 @@ export default function DangTinPage() {
     submitLockRef.current = true;
     setSubmitting(true);
     setSubmitError('');
-    const token = localStorage.getItem('accessToken');
-    if (!token) {
+    if (!isAuthenticated) {
       setSubmitError('Vui lòng đăng nhập lại');
       setSubmitting(false);
       submitLockRef.current = false;
@@ -193,9 +194,9 @@ export default function DangTinPage() {
     }
     try {
       // Step 1: create listing (DRAFT).
-      const createRes = await fetch('/api/marketplace/listings', {
+      const createRes = await authFetch('/api/marketplace/listings', {
         method: 'POST',
-        headers: { 'content-type': 'application/json', authorization: `Bearer ${token}` },
+        headers: { 'content-type': 'application/json' },
         body: JSON.stringify({
           listingType: form.listingType,
           title: form.title,
@@ -222,9 +223,8 @@ export default function DangTinPage() {
       const listing = (await createRes.json()) as { id: string };
 
       // Step 2: submit (DRAFT → PENDING).
-      const submitRes = await fetch(`/api/marketplace/listings/${listing.id}/submit`, {
+      const submitRes = await authFetch(`/api/marketplace/listings/${listing.id}/submit`, {
         method: 'POST',
-        headers: { authorization: `Bearer ${token}` },
       });
       if (!submitRes.ok) {
         const err = await submitRes.json().catch(() => ({}));
@@ -240,6 +240,27 @@ export default function DangTinPage() {
       submitLockRef.current = false;
     }
   };
+
+  // Auth đang restore (refresh session) — chờ xong rồi mới check isAuthenticated.
+  if (isLoading) {
+    return (
+      <div className="mx-auto max-w-2xl py-8">
+        <p className="text-center text-sm text-muted-foreground">Đang tải...</p>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="mx-auto max-w-2xl py-8">
+        <div className="rounded-md border border-amber-200 bg-amber-50 p-4 text-center">
+          <p className="text-sm text-amber-800">
+            Vui lòng <a href="/login?redirect=/dashboard/dang-tin" className="font-medium underline">đăng nhập</a> để đăng tin.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   if (submitSuccess) {
     return (

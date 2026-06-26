@@ -21,13 +21,13 @@ export default function AdminLayout({
   useEffect(() => {
     if (isLoading) return;
     if (!isAuthenticated) {
-      router.replace('/login?redirect=/admin/users');
+      router.replace(`/login?redirect=${encodeURIComponent(pathname)}`);
       return;
     }
     if (user && user.role !== 'admin') {
       router.replace('/');
     }
-  }, [isLoading, isAuthenticated, user, router]);
+  }, [isLoading, isAuthenticated, user, router, pathname]);
 
   // Loading state (tránh flash).
   if (isLoading) {
@@ -53,6 +53,7 @@ export default function AdminLayout({
 
   const navItems = [
     { href: '/admin/users', label: 'Người dùng' },
+    { href: '/admin/listings', label: 'Tin chờ duyệt' },
   ];
 
   return (

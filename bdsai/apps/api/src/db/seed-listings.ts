@@ -184,7 +184,7 @@ async function main() {
       id: sellerAuthId,
       email: SEED_SELLER_EMAIL,
       phone: '0900000001',
-      full_name: 'Seed Seller (Demo)',
+      display_name: 'Seed Seller (Demo)',
       role: 'user',
       phone_verified: true,
       banned: false,
