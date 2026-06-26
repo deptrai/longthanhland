@@ -100,6 +100,18 @@ export class MarketplaceController {
     return { success: true };
   }
 
+  // Story 3.2: POST /marketplace/listings/:id/duplicate — tạo DRAFT mới từ listing có sẵn.
+  @Post('listings/:id/duplicate')
+  @HttpCode(HttpStatus.CREATED)
+  async duplicateListing(
+    @Param('id') id: string,
+    @Req() req: Request,
+  ): Promise<ListingItem> {
+    this.assertUuid(id);
+    const user = (req as Request & { user: JwtUser }).user;
+    return this.marketplaceService.duplicateListing(id, user.id);
+  }
+
   // AC4: POST /marketplace/listings/:id/submit — DRAFT → PENDING.
   @Post('listings/:id/submit')
   @HttpCode(HttpStatus.OK)

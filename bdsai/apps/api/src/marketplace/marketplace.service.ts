@@ -61,7 +61,8 @@ export class MarketplaceService {
           area: dto.area != null ? String(dto.area) : undefined,
           lat: dto.lat != null ? String(dto.lat) : undefined,
           lng: dto.lng != null ? String(dto.lng) : undefined,
-        } as Record<string, unknown>)
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } as any)
         .returning();
       if (!row) throw new InternalServerErrorException('Tạo tin thất bại');
       this.logger.log(
@@ -133,7 +134,8 @@ export class MarketplaceService {
       if (dto.lng != null) setValues.lng = String(dto.lng);
       const [updated] = await this.db
         .update(publicListings)
-        .set(setValues as Record<string, unknown>)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .set(setValues as any)
         .where(eq(publicListings.id, listingId))
         .returning();
       if (!updated) throw new InternalServerErrorException('Cập nhật tin thất bại');
@@ -169,6 +171,57 @@ export class MarketplaceService {
         'deleteListing thất bại',
       );
       throw new InternalServerErrorException('Xóa tin thất bại');
+    }
+  }
+
+  // Story 3.2: duplicate listing — tạo DRAFT mới từ listing có sẵn.
+  async duplicateListing(listingId: string, sellerId: string): Promise<ListingItem> {
+    const row = await this.findListingOrThrow(listingId);
+    if (row.sellerId !== sellerId) {
+      throw new ForbiddenException('Không có quyền nhân bản tin này');
+    }
+    // Tạo DRAFT mới copy tất cả field trừ id, status, createdAt, updatedAt,
+    // publishedAt, expiresAt, rejectedReason, searchVector.
+    try {
+      const [newRow] = await this.db
+        .insert(publicListings)
+        .values({
+          sellerId,
+          status: 'DRAFT',
+          listingType: row.listingType,
+          title: `${row.title} (bản sao)`,
+          description: row.description,
+          price: row.price,
+          area: row.area,
+          propertyType: row.propertyType,
+          province: row.province,
+          district: row.district,
+          ward: row.ward,
+          street: row.street,
+          address: row.address,
+          lat: row.lat,
+          lng: row.lng,
+          bedrooms: row.bedrooms,
+          bathrooms: row.bathrooms,
+          floorCount: row.floorCount,
+          legalStatus: row.legalStatus,
+          // Copy images nhưng reset isCover (form sẽ set lại).
+          images: (row.images ?? []).map((img: { url: string; isCover: boolean }) => ({ url: img.url, isCover: false })),
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } as any)
+        .returning();
+      if (!newRow) throw new InternalServerErrorException('Nhân bản tin thất bại');
+      this.logger.log(
+        { action: 'duplicate-listing', sourceId: listingId, newId: newRow.id, sellerId, reason: 'success' },
+        'Listing duplicated',
+      );
+      return newRow;
+    } catch (e) {
+      this.logger.error(
+        { action: 'duplicate-listing', listingId, sellerId, reason: 'db-fail', err: this.safeErr(e) },
+        'duplicateListing thất bại',
+      );
+      throw new InternalServerErrorException('Nhân bản tin thất bại');
     }
   }
 

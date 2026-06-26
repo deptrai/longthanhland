@@ -224,4 +224,112 @@ suite('Marketplace endpoints (e2e — Story 3.1 AC1-AC4)', () => {
       .set('Authorization', `Bearer ${sellerToken}`)
       .expect(404);
   });
+
+  // Story 3.2: POST /marketplace/listings/:id/duplicate.
+  it('Story 3.2: duplicate listing → 201 + DRAFT + title "(bản sao)"', async () => {
+    // Create a listing first.
+    const createRes = await request(app.getHttpServer())
+      .post('/marketplace/listings')
+      .set('Authorization', `Bearer ${sellerToken}`)
+      .send({
+        listingType: 'sell',
+        title: 'Tin gốc để nhân bản',
+        description: 'Mô tả tin gốc nhân bản',
+        price: 1500000000,
+        area: 80,
+        propertyType: 'land',
+        province: 'Đồng Nai',
+        district: 'Nhơn Trạch',
+        address: 'Khu phố 2, Nhơn Trạch',
+      })
+      .expect(201);
+    const sourceId = createRes.body.id;
+
+    const dupRes = await request(app.getHttpServer())
+      .post(`/marketplace/listings/${sourceId}/duplicate`)
+      .set('Authorization', `Bearer ${sellerToken}`)
+      .expect(201);
+    expect(dupRes.body.status).toBe('DRAFT');
+    expect(dupRes.body.title).toContain('(bản sao)');
+    expect(dupRes.body.id).not.toBe(sourceId);
+
+    // Cleanup both.
+    await request(app.getHttpServer())
+      .delete(`/marketplace/listings/${dupRes.body.id}`)
+      .set('Authorization', `Bearer ${sellerToken}`)
+      .expect(200);
+    await request(app.getHttpServer())
+      .delete(`/marketplace/listings/${sourceId}`)
+      .set('Authorization', `Bearer ${sellerToken}`)
+      .expect(200);
+  });
+
+  it('Story 3.2: duplicate wrong seller → 403', async () => {
+    // Create a listing as seller.
+    const createRes = await request(app.getHttpServer())
+      .post('/marketplace/listings')
+      .set('Authorization', `Bearer ${sellerToken}`)
+      .send({
+        listingType: 'sell',
+        title: 'Tin gốc test 403 duplicate',
+        description: 'Mô tả test 403 duplicate',
+        price: 1000000000,
+        area: 50,
+        propertyType: 'land',
+        province: 'Đồng Nai',
+        district: 'Long Thành',
+        address: 'Khu phố 3, Long Thành',
+      })
+      .expect(201);
+    const sourceId = createRes.body.id;
+
+    // Other user tries to duplicate → 403.
+    await request(app.getHttpServer())
+      .post(`/marketplace/listings/${sourceId}/duplicate`)
+      .set('Authorization', `Bearer ${otherToken}`)
+      .expect(403);
+
+    // Cleanup.
+    await request(app.getHttpServer())
+      .delete(`/marketplace/listings/${sourceId}`)
+      .set('Authorization', `Bearer ${sellerToken}`)
+      .expect(200);
+  });
+
+  // Story 3.2: POST /upload/listing-image — magic bytes + WebP + Storage.
+  it('Story 3.2: upload listing-image (valid PNG) → 200 + url', async () => {
+    // 1x1 PNG (magic bytes 89 50 4E 47).
+    const pngBuffer = Buffer.from([
+      0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x0d, 0x49, 0x48, 0x44, 0x52,
+      0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x08, 0x06, 0x00, 0x00, 0x00, 0x1f, 0x15, 0xc4,
+      0x89, 0x00, 0x00, 0x00, 0x0d, 0x49, 0x44, 0x41, 0x54, 0x78, 0x9c, 0x62, 0x00, 0x01, 0x00, 0x00,
+      0x05, 0x00, 0x01, 0x0d, 0x0a, 0x2d, 0xb4, 0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4e, 0x44, 0xae,
+      0x42, 0x60, 0x82,
+    ]);
+    const res = await request(app.getHttpServer())
+      .post('/upload/listing-image')
+      .set('Authorization', `Bearer ${sellerToken}`)
+      .attach('file', pngBuffer, { filename: 'test.png', contentType: 'image/png' })
+      .expect(200);
+    expect(res.body.url).toMatch(/^http/);
+    expect(res.body.isCover).toBe(false);
+  });
+
+  it('Story 3.2: upload listing-image (magic bytes mismatch) → 400', async () => {
+    // Text file with PNG content-type (magic bytes won't match).
+    const textBuffer = Buffer.from('not an image file content here');
+    await request(app.getHttpServer())
+      .post('/upload/listing-image')
+      .set('Authorization', `Bearer ${sellerToken}`)
+      .attach('file', textBuffer, { filename: 'fake.png', contentType: 'image/png' })
+      .expect(400);
+  });
+
+  it('Story 3.2: upload listing-image (no auth) → 401', async () => {
+    const pngBuffer = Buffer.from([0x89, 0x50, 0x4e, 0x47]);
+    await request(app.getHttpServer())
+      .post('/upload/listing-image')
+      .attach('file', pngBuffer, { filename: 'test.png', contentType: 'image/png' })
+      .expect(401);
+  });
 });

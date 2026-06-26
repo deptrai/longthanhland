@@ -25,6 +25,25 @@ export interface AvatarUploadResult {
   avatarUrl: string;
 }
 
+export interface ListingImageUploadResult {
+  url: string;
+  isCover: boolean;
+}
+
+// Story 3.2: listing image upload constants.
+const MAX_LISTING_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB (AD-7).
+const LISTING_BUCKET = 'listings';
+const LISTING_IMAGE_QUALITY = 80;
+const LISTING_MAX_WIDTH = 1920; // resize down nhưng KHÔNG upscale.
+
+// AC: magic bytes signature cho image validation (defense-in-depth — không chỉ extension).
+const IMAGE_MAGIC_BYTES: Record<string, number[]> = {
+  'image/jpeg': [0xff, 0xd8, 0xff],
+  'image/png': [0x89, 0x50, 0x4e, 0x47],
+  'image/webp': [0x52, 0x49, 0x46, 0x46], // RIFF....WEBP
+  'image/gif': [0x47, 0x49, 0x46, 0x38], // GIF8
+};
+
 // AC5b: file size limit 10MB (AD-7 max 10MB/image).
 const MAX_AVATAR_SIZE = 10 * 1024 * 1024;
 // AC5b: allowed image content-types.
@@ -112,6 +131,83 @@ export class UploadService {
     );
 
     return { avatarUrl: publicUrlData.publicUrl };
+  }
+
+  // Story 3.2: upload listing image — magic bytes validation + WebP convert + Storage.
+  async uploadListingImage(
+    userId: string,
+    file: { buffer: Buffer; mimetype: string; size: number; originalname: string },
+  ): Promise<ListingImageUploadResult> {
+    // Validate content-type.
+    if (!ALLOWED_CONTENT_TYPES.includes(file.mimetype)) {
+      throw new BadRequestException('File phải là ảnh (JPEG, PNG, WebP, GIF)');
+    }
+    // Validate file size.
+    if (file.size > MAX_LISTING_IMAGE_SIZE) {
+      throw new BadRequestException('Ảnh tối đa 10MB');
+    }
+    // AC: magic bytes validation — check first bytes match claimed content-type.
+    const expectedMagic = IMAGE_MAGIC_BYTES[file.mimetype];
+    if (expectedMagic) {
+      const actualBytes = Array.from(file.buffer.slice(0, expectedMagic.length));
+      const matches = expectedMagic.every((byte, i) => actualBytes[i] === byte);
+      if (!matches) {
+        this.logger.warn(
+          { userId, action: 'uploadListingImage', reason: 'magic-bytes-mismatch', mimetype: file.mimetype },
+          'Magic bytes không khớp content-type — file giả dạng ảnh',
+        );
+        throw new BadRequestException('File không hợp lệ (magic bytes không khớp)');
+      }
+    }
+
+    // sharp convert → WebP, resize down (max 1920px width, no upscale), quality 80.
+    let webpBuffer: Buffer;
+    try {
+      webpBuffer = await sharp(file.buffer)
+        .resize(LISTING_MAX_WIDTH, null, {
+          fit: 'inside',
+          withoutEnlargement: true,
+        })
+        .webp({ quality: LISTING_IMAGE_QUALITY })
+        .toBuffer();
+    } catch (e) {
+      this.logger.warn(
+        { userId, action: 'uploadListingImage', reason: 'sharp-fail', err: this.safeErr(e) },
+        'Sharp convert thất bại (ảnh hỏng)',
+      );
+      throw new BadRequestException('Ảnh không hợp lệ hoặc bị hỏng');
+    }
+
+    // Upload to Supabase Storage `listings` bucket.
+    const fileId = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+    const path = `${userId}/${fileId}.webp`;
+    try {
+      const { error } = await this.supabase.storage
+        .from(LISTING_BUCKET)
+        .upload(path, webpBuffer, {
+          contentType: 'image/webp',
+          upsert: false,
+        });
+      if (error) throw error;
+    } catch (e) {
+      this.logger.error(
+        { userId, action: 'uploadListingImage', reason: 'storage-fail', err: this.safeErr(e) },
+        'Supabase Storage upload thất bại',
+      );
+      throw new InternalServerErrorException('Tải ảnh thất bại, thử lại sau');
+    }
+
+    const { data: publicUrlData } = this.supabase.storage
+      .from(LISTING_BUCKET)
+      .getPublicUrl(path);
+
+    this.logger.log(
+      { userId, action: 'uploadListingImage', reason: 'success', path },
+      'Listing image upload thành công',
+    );
+
+    // isCover = false by default; caller (form) sets first image as cover.
+    return { url: publicUrlData.publicUrl, isCover: false };
   }
 
   private safeErr(e: unknown): { name: string; message: string } {

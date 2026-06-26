@@ -223,4 +223,19 @@ describe('MarketplaceService (AC1-AC4, AD-9)', () => {
     expect(result.publishedAt).toBeDefined();
     expect(result.expiresAt).toBeDefined();
   });
+
+  // Story 3.2: duplicateListing.
+  it('duplicateListing: owner → DRAFT mới với title "(bản sao)"', async () => {
+    db._state.rows = [sampleListing];
+    const result = await service.duplicateListing('listing-1', 'seller-1');
+    expect(result.status).toBe('DRAFT');
+    expect(result.title).toContain('(bản sao)');
+  });
+
+  it('duplicateListing: wrong seller → 403', async () => {
+    db._state.rows = [sampleListing];
+    await expect(service.duplicateListing('listing-1', 'other-seller')).rejects.toThrow(
+      ForbiddenException,
+    );
+  });
 });

@@ -49,4 +49,25 @@ export class UploadController {
     const user = (req as Request & { user: JwtUser }).user;
     return this.uploadService.uploadAvatar(user.id, file);
   }
+
+  // Story 3.2: listing image upload — magic bytes + WebP + Storage `listings` bucket.
+  @Post('listing-image')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAuthGuard)
+  @Throttle({ default: { limit: 30, ttl: 15 * 60 * 1000 } })
+  @UseInterceptors(
+    FileInterceptor('file', {
+      limits: { fileSize: 10 * 1024 * 1024 }, // 10MB — AD-7.
+    }),
+  )
+  async uploadListingImage(
+    @UploadedFile() file: Express.Multer.File | undefined,
+    @Req() req: Request,
+  ): Promise<{ url: string; isCover: boolean }> {
+    if (!file) {
+      throw new BadRequestException('Thiếu file ảnh');
+    }
+    const user = (req as Request & { user: JwtUser }).user;
+    return this.uploadService.uploadListingImage(user.id, file);
+  }
 }
