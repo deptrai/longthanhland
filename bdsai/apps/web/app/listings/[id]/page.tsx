@@ -114,9 +114,13 @@ export default async function ListingDetailPage({
             name: listing.title,
             description: listing.description,
             url: `https://bdsai.vn/listings/${listing.id}`,
-            image: coverImage?.url,
-            price: listing.price,
-            priceCurrency: 'VND',
+            // Story 6.4: image phải là array, price phải là string (Google requirement).
+            image: listing.images.map((img: { url: string }) => img.url),
+            offers: {
+              '@type': 'Offer',
+              price: String(listing.price),
+              priceCurrency: 'VND',
+            },
             address: {
               '@type': 'PostalAddress',
               streetAddress: listing.address,

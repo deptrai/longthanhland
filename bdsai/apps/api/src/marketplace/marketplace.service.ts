@@ -171,6 +171,17 @@ export class MarketplaceService {
         { action: 'update-listing', listingId, sellerId, reason: 'success' },
         'Listing updated',
       );
+      // Story 4.1: re-enqueue AI summary if content fields changed (cache invalidate).
+      const contentFields = ['title', 'description', 'price', 'area', 'listingType', 'propertyType'];
+      if (contentFields.some((f) => f in dto)) {
+        await this.aiSummaryQueue.add(
+          'generate-summary',
+          { listingId },
+          { attempts: 3, backoff: { type: 'exponential', delay: 5000 } },
+        ).catch((e: unknown) => {
+          this.logger.warn({ action: 'ai-reenqueue', listingId, err: e instanceof Error ? e.message : String(e) }, 'AI re-enqueue failed (non-blocking)');
+        });
+      }
       return updated;
     } catch (e) {
       this.logger.error(
@@ -258,6 +269,10 @@ export class MarketplaceService {
     const row = await this.findListingOrThrow(listingId);
     if (row.sellerId !== sellerId) {
       throw new ForbiddenException('Không có quyền gửi duyệt tin này');
+    }
+    // Story 3.2: tin nhân bản phải sửa trước khi submit (enforce server-side).
+    if (row.title.includes('(bản sao)')) {
+      throw new BadRequestException('Vui lòng sửa tiêu đề tin nhân bản trước khi gửi duyệt');
     }
     return this.transitionStatus(listingId, sellerId, row.status, 'PENDING');
   }

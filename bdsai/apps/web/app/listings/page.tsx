@@ -62,6 +62,10 @@ export default function ListingsPage() {
   const [propertyType, setPropertyType] = useState('');
   const [listingType, setListingType] = useState('');
   const [sort, setSort] = useState('newest');
+  const [minPrice, setMinPrice] = useState('');
+  const [maxPrice, setMaxPrice] = useState('');
+  const [minArea, setMinArea] = useState('');
+  const [maxArea, setMaxArea] = useState('');
 
   useEffect(() => {
     let cancelled = false;
@@ -76,6 +80,10 @@ export default function ListingsPage() {
         if (propertyType) params.set('propertyType', propertyType);
         if (listingType) params.set('listingType', listingType);
         if (sort) params.set('sort', sort);
+        if (minPrice) params.set('minPrice', minPrice);
+        if (maxPrice) params.set('maxPrice', maxPrice);
+        if (minArea) params.set('minArea', minArea);
+        if (maxArea) params.set('maxArea', maxArea);
         params.set('page', String(page));
         params.set('limit', '12');
 
@@ -98,7 +106,7 @@ export default function ListingsPage() {
     return () => {
       cancelled = true;
     };
-  }, [q, province, district, propertyType, listingType, sort, page]);
+  }, [q, province, district, propertyType, listingType, sort, page, minPrice, maxPrice, minArea, maxArea]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -160,6 +168,38 @@ export default function ListingsPage() {
             <option key={opt.value} value={opt.value}>{opt.label}</option>
           ))}
         </select>
+        <input
+          type="number"
+          min={0}
+          placeholder="Giá từ (đ)"
+          value={minPrice}
+          onChange={(e) => setMinPrice(e.target.value)}
+          className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+        />
+        <input
+          type="number"
+          min={0}
+          placeholder="Giá đến (đ)"
+          value={maxPrice}
+          onChange={(e) => setMaxPrice(e.target.value)}
+          className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+        />
+        <input
+          type="number"
+          min={0}
+          placeholder="Diện tích từ (m²)"
+          value={minArea}
+          onChange={(e) => setMinArea(e.target.value)}
+          className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+        />
+        <input
+          type="number"
+          min={0}
+          placeholder="Diện tích đến (m²)"
+          value={maxArea}
+          onChange={(e) => setMaxArea(e.target.value)}
+          className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+        />
         <button
           type="submit"
           className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
