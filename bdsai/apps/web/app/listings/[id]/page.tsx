@@ -157,7 +157,7 @@ export default async function ListingDetailPage({
             height={630}
             className="h-96 w-full object-cover"
             priority
-            unoptimized
+            sizes="(max-width: 768px) 100vw, 1200px"
           />
         </div>
       )}
@@ -173,7 +173,7 @@ export default async function ListingDetailPage({
                 width={200}
                 height={150}
                 className="h-24 w-full object-cover"
-                unoptimized
+                sizes="(max-width: 768px) 25vw, 200px"
               />
             </div>
           ))}

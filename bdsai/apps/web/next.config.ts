@@ -10,6 +10,20 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: path.join(__dirname, '..', '..'),
   },
+  // Story 6.5: image optimization — WebP/AVIF + responsive sizes.
+  images: {
+    formats: ['image/avif', 'image/webp'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**.supabase.co',
+      },
+      {
+        protocol: 'https',
+        hostname: 'supabase.co',
+      },
+    ],
+  },
 };
 
 // AC4 (Story 1.6): Sentry wrapper — auto-wire sentry.client.config.ts vào
