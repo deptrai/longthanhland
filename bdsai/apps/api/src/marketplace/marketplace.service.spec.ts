@@ -280,4 +280,39 @@ describe('MarketplaceService (AC1-AC4, AD-9)', () => {
       BadRequestException,
     );
   });
+
+  // Story 3.6: renewListing.
+  it('renewListing: EXPIRED → PUBLISHED + new expiry', async () => {
+    db._state.rows = [{ ...sampleListing, status: 'EXPIRED', sellerId: 'seller-1' }];
+    const result = await service.renewListing('listing-1', 'seller-1');
+    expect(result.status).toBe('PUBLISHED');
+  });
+
+  it('renewListing: wrong seller → 403', async () => {
+    db._state.rows = [{ ...sampleListing, status: 'EXPIRED', sellerId: 'seller-1' }];
+    await expect(service.renewListing('listing-1', 'other-seller')).rejects.toThrow(
+      ForbiddenException,
+    );
+  });
+
+  it('renewListing: non-EXPIRED → 400', async () => {
+    db._state.rows = [{ ...sampleListing, status: 'PUBLISHED', sellerId: 'seller-1' }];
+    await expect(service.renewListing('listing-1', 'seller-1')).rejects.toThrow(
+      BadRequestException,
+    );
+  });
+
+  // Story 3.6: markAsSold.
+  it('markAsSold: PUBLISHED → SOLD', async () => {
+    db._state.rows = [{ ...sampleListing, status: 'PUBLISHED', sellerId: 'seller-1' }];
+    const result = await service.markAsSold('listing-1', 'seller-1');
+    expect(result.status).toBe('SOLD');
+  });
+
+  it('markAsSold: non-PUBLISHED → 400', async () => {
+    db._state.rows = [{ ...sampleListing, status: 'DRAFT', sellerId: 'seller-1' }];
+    await expect(service.markAsSold('listing-1', 'seller-1')).rejects.toThrow(
+      BadRequestException,
+    );
+  });
 });

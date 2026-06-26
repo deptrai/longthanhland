@@ -364,9 +364,11 @@ export class MarketplaceService {
     }
   }
 
-  // Story 3.3: admin approve — PENDING → PUBLISHED.
+  // Story 3.3: admin approve — PENDING → PUBLISHED + set expiry (Story 3.6).
   async approveListing(listingId: string, adminId: string): Promise<ListingItem> {
-    return this.transitionStatus(listingId, adminId, 'PENDING', 'PUBLISHED' as ListingStatus);
+    const result = await this.transitionStatus(listingId, adminId, 'PENDING', 'PUBLISHED' as ListingStatus);
+    await this.setExpiryOnPublish(listingId);
+    return result;
   }
 
   // Story 3.3: admin reject — PENDING → REJECTED (kèm lý do).
@@ -377,6 +379,95 @@ export class MarketplaceService {
     return this.transitionStatus(listingId, adminId, 'PENDING', 'REJECTED' as ListingStatus, {
       rejectedReason: reason.trim(),
     });
+  }
+
+  // Story 3.6: renew expired listing — EXPIRED → PUBLISHED + new expiry (90 days).
+  async renewListing(listingId: string, sellerId: string): Promise<ListingItem> {
+    const listing = await this.findListingOrThrow(listingId);
+    if (listing.sellerId !== sellerId) {
+      throw new ForbiddenException('Bạn không phải chủ tin này');
+    }
+    if (listing.status !== 'EXPIRED') {
+      throw new BadRequestException('Chỉ gia hạn được tin đã hết hạn');
+    }
+    const newExpiry = new Date();
+    newExpiry.setDate(newExpiry.getDate() + 90);
+    try {
+      const updated = await this.db
+        .update(publicListings)
+        .set({ status: 'PUBLISHED' as ListingStatus, expiresAt: newExpiry, updatedAt: new Date() })
+        .where(eq(publicListings.id, listingId))
+        .returning();
+      if (!updated[0]) throw new InternalServerErrorException('Gia hạn thất bại');
+      this.logger.log(
+        { action: 'renew-listing', listingId, sellerId, newExpiry: newExpiry.toISOString() },
+        'Listing renewed',
+      );
+      return updated[0];
+    } catch (e) {
+      this.logger.error(
+        { action: 'renew-listing', listingId, reason: 'db-fail', err: this.safeErr(e) },
+        'renewListing DB update thất bại',
+      );
+      throw new InternalServerErrorException('Gia hạn thất bại');
+    }
+  }
+
+  // Story 3.6: mark as sold — PUBLISHED → SOLD (owner only).
+  async markAsSold(listingId: string, sellerId: string): Promise<ListingItem> {
+    const listing = await this.findListingOrThrow(listingId);
+    if (listing.sellerId !== sellerId) {
+      throw new ForbiddenException('Bạn không phải chủ tin này');
+    }
+    if (listing.status !== 'PUBLISHED') {
+      throw new BadRequestException('Chỉ đánh dấu đã bán được tin đang hiển thị');
+    }
+    return this.transitionStatus(listingId, sellerId, 'PUBLISHED', 'SOLD' as ListingStatus);
+  }
+
+  // Story 3.6: expire listings — called by cron job. PUBLISHED + expiresAt < now → EXPIRED.
+  async expireListings(): Promise<{ expired: number }> {
+    const now = new Date();
+    try {
+      const result = await this.db
+        .update(publicListings)
+        .set({ status: 'EXPIRED' as ListingStatus, updatedAt: now })
+        .where(
+          and(
+            eq(publicListings.status, 'PUBLISHED' as ListingStatus),
+            lte(publicListings.expiresAt, now),
+          ),
+        )
+        .returning({ id: publicListings.id });
+      this.logger.log(
+        { action: 'expire-listings', count: result.length, now: now.toISOString() },
+        'Expired listings batch processed',
+      );
+      return { expired: result.length };
+    } catch (e) {
+      this.logger.error(
+        { action: 'expire-listings', reason: 'db-fail', err: this.safeErr(e) },
+        'expireListings DB update thất bại',
+      );
+      throw new InternalServerErrorException('Hết hạn tin thất bại');
+    }
+  }
+
+  // Story 3.6: set expiry when listing is published (called by approveListing).
+  private async setExpiryOnPublish(listingId: string): Promise<void> {
+    const expiry = new Date();
+    expiry.setDate(expiry.getDate() + 90); // 90 days default
+    try {
+      await this.db
+        .update(publicListings)
+        .set({ expiresAt: expiry, publishedAt: new Date() })
+        .where(eq(publicListings.id, listingId));
+    } catch (e) {
+      this.logger.error(
+        { action: 'set-expiry', listingId, err: this.safeErr(e) },
+        'setExpiryOnPublish thất bại',
+      );
+    }
   }
 
   // Story 3.3: admin list pending queue — for moderation.

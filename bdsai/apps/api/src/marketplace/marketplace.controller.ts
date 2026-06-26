@@ -194,6 +194,38 @@ export class MarketplaceController {
     return { reasons: REJECT_REASONS };
   }
 
+  // Story 3.6: POST /marketplace/listings/:id/renew — owner gia hạn EXPIRED → PUBLISHED.
+  @Post('listings/:id/renew')
+  @HttpCode(HttpStatus.OK)
+  async renewListing(
+    @Param('id') id: string,
+    @Req() req: Request,
+  ): Promise<ListingItem> {
+    this.assertUuid(id);
+    const user = (req as Request & { user: JwtUser }).user;
+    return this.marketplaceService.renewListing(id, user.id);
+  }
+
+  // Story 3.6: POST /marketplace/listings/:id/sold — owner mark PUBLISHED → SOLD.
+  @Post('listings/:id/sold')
+  @HttpCode(HttpStatus.OK)
+  async markAsSold(
+    @Param('id') id: string,
+    @Req() req: Request,
+  ): Promise<ListingItem> {
+    this.assertUuid(id);
+    const user = (req as Request & { user: JwtUser }).user;
+    return this.marketplaceService.markAsSold(id, user.id);
+  }
+
+  // Story 3.6: POST /marketplace/admin/expire — cron trigger to expire listings.
+  @Post('admin/expire')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(AdminGuard)
+  async expireListings(): Promise<{ expired: number }> {
+    return this.marketplaceService.expireListings();
+  }
+
   private assertUuid(id: string): void {
     const parsed = z.string().uuid().safeParse(id);
     if (!parsed.success) {
