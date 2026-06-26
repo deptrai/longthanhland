@@ -298,4 +298,68 @@ describe('AdminService (AC1, AC2, AC3, E4-E9)', () => {
     const result = await service.unbanUser(targetId, adminId);
     expect(result.banned).toBe(false);
   });
+
+  // --- grantRole (AC1, AC3, AC4) — Story 2.5 ---
+
+  it('grantRole happy path (user → admin) → role=admin', async () => {
+    db.select = findUserSelect(targetUser);
+    const result = await service.grantRole(targetId, 'admin', adminId);
+    expect(result.role).toBe('admin');
+    expect(result.id).toBe(targetId);
+    expect(db.update).toHaveBeenCalled();
+  });
+
+  it('grantRole happy path (admin → user) → role=user', async () => {
+    db.select = findUserSelect({ ...targetUser, role: 'admin' });
+    const result = await service.grantRole(targetId, 'user', adminId);
+    expect(result.role).toBe('user');
+    expect(db.update).toHaveBeenCalled();
+  });
+
+  it('grantRole self-revoke → 400 (E4)', async () => {
+    await expect(
+      service.grantRole(adminId, 'user', adminId),
+    ).rejects.toBeInstanceOf(BadRequestException);
+    expect(db.update).not.toHaveBeenCalled();
+  });
+
+  it('grantRole self-grant → 200 idempotent (E5)', async () => {
+    db.select = findUserSelect({
+      id: adminId,
+      email: 'admin@bdsai.vn',
+      phone: '0901111111',
+      role: 'admin',
+      banned: false,
+      createdAt: new Date('2026-01-01'),
+    });
+    const result = await service.grantRole(adminId, 'admin', adminId);
+    expect(result.role).toBe('admin');
+    expect(db.update).toHaveBeenCalled();
+  });
+
+  it('grantRole not exist → 404 (E3)', async () => {
+    db.select = findUserSelect(null);
+    await expect(
+      service.grantRole('nonexistent', 'admin', adminId),
+    ).rejects.toBeInstanceOf(NotFoundException);
+  });
+
+  it('grantRole idempotent (admin → admin) → 200 (E5)', async () => {
+    db.select = findUserSelect({ ...targetUser, role: 'admin' });
+    const result = await service.grantRole(targetId, 'admin', adminId);
+    expect(result.role).toBe('admin');
+    expect(db.update).toHaveBeenCalled();
+  });
+
+  it('grantRole DB update fail → InternalServerErrorException', async () => {
+    db.select = findUserSelect(targetUser);
+    db.update = jest.fn(() => ({
+      set: jest.fn(() => ({
+        where: jest.fn().mockRejectedValue(new Error('update fail')),
+      })),
+    }));
+    await expect(
+      service.grantRole(targetId, 'admin', adminId),
+    ).rejects.toBeInstanceOf(InternalServerErrorException);
+  });
 });

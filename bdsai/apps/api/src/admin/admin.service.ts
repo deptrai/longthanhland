@@ -190,6 +190,52 @@ export class AdminService {
     return this.toItem(target, false);
   }
 
+  // AC1: POST /admin/users/:id/role — grant/revoke admin role.
+  // AC3/E4: self-revoke (targetId === adminId AND newRole === 'user') → 400
+  //   (R1 — prevent admin lockout). Self-grant (newRole === 'admin' cho chính
+  //   mình) → idempotent 200 (đã là admin — E5, KHÔNG block).
+  // AC4/E5: idempotent — role already === newRole → vẫn 200 (no-op update).
+  // AC6: log chỉ targetId + adminId + newRole (KHÔNG log email/phone raw).
+  async grantRole(
+    targetId: string,
+    newRole: 'admin' | 'user',
+    adminId: string,
+  ): Promise<AdminUserItem> {
+    // E4: self-revoke → 400 (R1 — prevent admin lockout).
+    if (targetId === adminId && newRole === 'user') {
+      this.logger.warn(
+        { action: 'role-grant', targetId, adminId, newRole, reason: 'self-revoke' },
+        'Admin tự thu hồi role mình — từ chối',
+      );
+      throw new BadRequestException('Không thể thu hồi vai trò của chính mình');
+    }
+
+    const target = await this.findUserOrThrow(targetId);
+
+    // E5: idempotent — role already === newRole → vẫn 200 (no-op update).
+    try {
+      await this.db
+        .update(publicUsers)
+        .set({ role: newRole, updatedAt: new Date() })
+        .where(eq(publicUsers.id, targetId));
+    } catch (e) {
+      this.logger.error(
+        { action: 'role-grant', targetId, adminId, newRole, reason: 'update-fail', err: this.safeErr(e) },
+        'grantRole update thất bại',
+      );
+      throw new InternalServerErrorException('Cập nhật vai trò thất bại');
+    }
+
+    // AC6: log chỉ targetId + adminId + newRole (KHÔNG log email/phone raw).
+    this.logger.log(
+      { action: 'role-grant', targetId, adminId, newRole, reason: 'success' },
+      'Admin role grant',
+    );
+
+    // Trả newRole (sau update) — toItem roleOverride tránh stale row.role.
+    return this.toItem(target, target.banned, newRole);
+  }
+
   // Query target user → 404 if not exist (E6).
   private async findUserOrThrow(targetId: string) {
     let row: typeof publicUsers.$inferSelect | undefined;
@@ -215,12 +261,13 @@ export class AdminService {
   private toItem(
     row: typeof publicUsers.$inferSelect,
     banned: boolean,
+    roleOverride?: string,
   ): AdminUserItem {
     return {
       id: row.id,
       email: row.email,
       phone: row.phone,
-      role: row.role,
+      role: roleOverride ?? row.role,
       banned,
       createdAt: row.createdAt,
     };

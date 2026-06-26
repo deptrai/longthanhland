@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  Body,
   Controller,
   Get,
   HttpCode,
@@ -17,6 +18,7 @@ import { AdminService, type AdminUserItem, type ListUsersResponse } from './admi
 import { AdminGuard } from './guards/admin.guard';
 import { JwtAuthGuard, type JwtUser } from '../auth/guards/jwt-auth.guard';
 import { listUsersApiSchema } from './dto/list-users.dto';
+import { roleGrantSchema } from './dto/role-grant.dto';
 
 // UUID validation via Zod (AC2a/AC3a) — validate :id param.
 
@@ -63,6 +65,27 @@ export class AdminController {
     this.assertUuid(id);
     const user = (req as Request & { user: JwtUser }).user;
     return this.adminService.unbanUser(id, user.id);
+  }
+
+  // AC1: POST /admin/users/:id/role — grant/revoke admin role.
+  // AC8: method-level @Throttle 10/15min (chặt hơn controller-level 20/15min
+  // — role grant nhạy cảm hơn ban/unban). Override controller-level cho
+  // endpoint này cụ thể. KHÔNG đăng ký ThrottlerModule mới (reuse global).
+  @Post('users/:id/role')
+  @HttpCode(HttpStatus.OK)
+  @Throttle({ default: { limit: 10, ttl: 15 * 60 * 1000 } })
+  async grantRole(
+    @Param('id') id: string,
+    @Body() body: unknown,
+    @Req() req: Request,
+  ): Promise<AdminUserItem> {
+    this.assertUuid(id);
+    const result = roleGrantSchema.safeParse(body);
+    if (!result.success) {
+      throw new ZodError(result.error.issues);
+    }
+    const user = (req as Request & { user: JwtUser }).user;
+    return this.adminService.grantRole(id, result.data.role, user.id);
   }
 
   // AC2a/AC3a: validate UUID format → 400 if invalid.

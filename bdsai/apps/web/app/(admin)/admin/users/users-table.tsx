@@ -44,6 +44,10 @@ export function UsersTable() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [confirmTarget, setConfirmTarget] = useState<AdminUserItem | null>(null);
+  const [confirmRoleTarget, setConfirmRoleTarget] = useState<{
+    target: AdminUserItem;
+    action: 'grant' | 'revoke';
+  } | null>(null);
 
   // AC6b/E10: auth protect — redirect /login nếu chưa login.
   // E11: user thường → redirect /.
@@ -139,6 +143,42 @@ export function UsersTable() {
       setSuccess('Đã mở khóa tài khoản');
       setUsers((prev) =>
         prev.map((u) => (u.id === target.id ? { ...u, banned: false } : u)),
+      );
+    } catch {
+      setError('Lỗi mạng, thử lại sau');
+    } finally {
+      setActionLoadingId(null);
+    }
+  }
+
+  // AC5b/AC5c: role grant/revoke action (Story 2.5).
+  async function handleRoleChange(
+    target: AdminUserItem,
+    action: 'grant' | 'revoke',
+  ) {
+    setConfirmRoleTarget(null);
+    setActionLoadingId(target.id);
+    setError(null);
+    setSuccess(null);
+    const newRole = action === 'grant' ? 'admin' : 'user';
+    try {
+      const res = await authFetch(`/api/admin/users/${target.id}/role`, {
+        method: 'POST',
+        body: JSON.stringify({ role: newRole }),
+      });
+      const body = (await res.json()) as { message?: string; role?: string };
+      if (!res.ok) {
+        setError(body.message ?? 'Cập nhật vai trò thất bại');
+        return;
+      }
+      setSuccess(
+        action === 'grant'
+          ? 'Đã cấp quyền quản trị viên'
+          : 'Đã thu hồi quyền quản trị viên',
+      );
+      // Update row locally (avoid full reload).
+      setUsers((prev) =>
+        prev.map((u) => (u.id === target.id ? { ...u, role: newRole } : u)),
       );
     } catch {
       setError('Lỗi mạng, thử lại sau');
@@ -280,27 +320,67 @@ export function UsersTable() {
                     {new Date(item.createdAt).toLocaleDateString('vi-VN')}
                   </td>
                   <td className="px-3 py-2">
-                    {item.banned ? (
-                      <button
-                        type="button"
-                        onClick={() => void handleUnban(item)}
-                        disabled={actionLoadingId === item.id}
-                        aria-label={`Mở khóa ${item.email}`}
-                        className="min-h-[44px] rounded-md border border-green-500/50 px-3 py-1 text-sm font-medium text-green-700 transition-colors hover:bg-green-500/10 disabled:cursor-not-allowed disabled:opacity-50 dark:text-green-400"
-                      >
-                        {actionLoadingId === item.id ? '...' : 'Mở khóa'}
-                      </button>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={() => setConfirmTarget(item)}
-                        disabled={actionLoadingId === item.id}
-                        aria-label={`Khóa ${item.email}`}
-                        className="min-h-[44px] rounded-md border border-red-500/50 px-3 py-1 text-sm font-medium text-red-700 transition-colors hover:bg-red-500/10 disabled:cursor-not-allowed disabled:opacity-50 dark:text-red-400"
-                      >
-                        {actionLoadingId === item.id ? '...' : 'Khóa'}
-                      </button>
-                    )}
+                    <div className="flex flex-wrap gap-2">
+                      {item.banned ? (
+                        <button
+                          type="button"
+                          onClick={() => void handleUnban(item)}
+                          disabled={actionLoadingId === item.id}
+                          aria-label={`Mở khóa ${item.email}`}
+                          className="min-h-[44px] rounded-md border border-green-500/50 px-3 py-1 text-sm font-medium text-green-700 transition-colors hover:bg-green-500/10 disabled:cursor-not-allowed disabled:opacity-50 dark:text-green-400"
+                        >
+                          {actionLoadingId === item.id ? '...' : 'Mở khóa'}
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => setConfirmTarget(item)}
+                          disabled={actionLoadingId === item.id}
+                          aria-label={`Khóa ${item.email}`}
+                          className="min-h-[44px] rounded-md border border-red-500/50 px-3 py-1 text-sm font-medium text-red-700 transition-colors hover:bg-red-500/10 disabled:cursor-not-allowed disabled:opacity-50 dark:text-red-400"
+                        >
+                          {actionLoadingId === item.id ? '...' : 'Khóa'}
+                        </button>
+                      )}
+                      {/* Role grant/revoke button (AC5 — Story 2.5) */}
+                      {item.role === 'user' ? (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setConfirmRoleTarget({ target: item, action: 'grant' })
+                          }
+                          disabled={actionLoadingId === item.id}
+                          aria-label={`Cấp admin ${item.email}`}
+                          className="min-h-[44px] rounded-md border border-blue-500/50 px-3 py-1 text-sm font-medium text-blue-700 transition-colors hover:bg-blue-500/10 disabled:cursor-not-allowed disabled:opacity-50 dark:text-blue-400"
+                        >
+                          {actionLoadingId === item.id ? '...' : 'Cấp admin'}
+                        </button>
+                      ) : item.id === user?.id ? (
+                        // AC5d: self-revoke UI block — KHÔNG hiển thị "Thu hồi admin"
+                        // trên row của chính mình (server cũng block — defense-in-depth).
+                        <button
+                          type="button"
+                          disabled
+                          title="Không thể thu hồi vai trò của chính mình"
+                          aria-label={`Thu hồi admin ${item.email}`}
+                          className="min-h-[44px] cursor-not-allowed rounded-md border border-amber-500/30 px-3 py-1 text-sm font-medium text-amber-700/50 dark:text-amber-400/50"
+                        >
+                          Thu hồi admin
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setConfirmRoleTarget({ target: item, action: 'revoke' })
+                          }
+                          disabled={actionLoadingId === item.id}
+                          aria-label={`Thu hồi admin ${item.email}`}
+                          className="min-h-[44px] rounded-md border border-amber-500/50 px-3 py-1 text-sm font-medium text-amber-700 transition-colors hover:bg-amber-500/10 disabled:cursor-not-allowed disabled:opacity-50 dark:text-amber-400"
+                        >
+                          {actionLoadingId === item.id ? '...' : 'Thu hồi admin'}
+                        </button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))
@@ -369,6 +449,54 @@ export function UsersTable() {
                 className="min-h-[44px] rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700"
               >
                 Khóa
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Confirm dialog role grant/revoke (AC5b/AC5c — Story 2.5) */}
+      {confirmRoleTarget && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="confirm-role-title"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+        >
+          <div className="w-full max-w-md rounded-lg border border-border bg-background p-6 shadow-lg">
+            <h2 id="confirm-role-title" className="text-lg font-semibold text-foreground">
+              {confirmRoleTarget.action === 'grant'
+                ? 'Xác nhận cấp quyền quản trị viên'
+                : 'Xác nhận thu hồi quyền quản trị viên'}
+            </h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              {confirmRoleTarget.action === 'grant'
+                ? `Bạn chắc chắn cấp quyền quản trị viên cho ${confirmRoleTarget.target.email}? Người dùng sẽ có quyền quản lý hệ thống.`
+                : `Bạn chắc chắn thu hồi quyền quản trị viên của ${confirmRoleTarget.target.email}? Người dùng sẽ mất quyền admin.`}
+            </p>
+            <div className="mt-4 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setConfirmRoleTarget(null)}
+                className="min-h-[44px] rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
+              >
+                Hủy
+              </button>
+              <button
+                type="button"
+                onClick={() =>
+                  void handleRoleChange(
+                    confirmRoleTarget.target,
+                    confirmRoleTarget.action,
+                  )
+                }
+                className={
+                  confirmRoleTarget.action === 'grant'
+                    ? 'min-h-[44px] rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700'
+                    : 'min-h-[44px] rounded-md bg-amber-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-amber-700'
+                }
+              >
+                {confirmRoleTarget.action === 'grant' ? 'Cấp admin' : 'Thu hồi'}
               </button>
             </div>
           </div>

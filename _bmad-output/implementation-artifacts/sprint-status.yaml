@@ -37,7 +37,7 @@
 
 generated: 2026-06-24
 last_updated: 2026-06-26
-last_updated_note: 2026-06-26 — Story 2.4 (Admin danh sách user ban/unban) dev complete, status → dev
+last_updated_note: 2026-06-26 — Story 2.5 (Admin role grant) story file created, status → in-progress
 project: longthanhland
 project_key: NOKEY
 tracking_system: file-system
@@ -62,7 +62,7 @@ development_status:
   2-2-dang-nhap-dang-xuat-jwt: done
   2-3-quan-ly-profile: done
   2-4-admin-danh-sach-user-ban-unban: done
-  2-5-admin-role-grant: backlog
+  2-5-admin-role-grant: done
   epic-2-retrospective: optional
 
   # Epic 3: Listing Management & Search

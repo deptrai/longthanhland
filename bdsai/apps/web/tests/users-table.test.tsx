@@ -234,4 +234,256 @@ describe('UsersTable (AC6, E10, E11)', () => {
       expect(screen.getByText('Không có quyền truy cập')).toBeInTheDocument();
     });
   });
+
+  // --- Story 2.5: role grant/revoke button ---
+
+  it('AC5: user row → hiển thị button "Cấp admin"', async () => {
+    mockAuthFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        data: [
+          {
+            id: 'u1',
+            email: 'user1@bdsai.vn',
+            phone: '0901111111',
+            role: 'user',
+            banned: false,
+            createdAt: '2026-01-01T00:00:00.000Z',
+          },
+        ],
+        total: 1,
+        page: 1,
+        limit: 20,
+      }),
+    });
+
+    render(<UsersTable />);
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('button', { name: /Cấp admin user1/ }),
+      ).toBeInTheDocument();
+    });
+  });
+
+  it('AC5: admin row (không phải self) → hiển thị button "Thu hồi admin"', async () => {
+    mockAuthFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        data: [
+          {
+            id: 'admin-2',
+            email: 'admin2@bdsai.vn',
+            phone: '0902222222',
+            role: 'admin',
+            banned: false,
+            createdAt: '2026-01-01T00:00:00.000Z',
+          },
+        ],
+        total: 1,
+        page: 1,
+        limit: 20,
+      }),
+    });
+
+    render(<UsersTable />);
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('button', { name: /Thu hồi admin admin2/ }),
+      ).toBeInTheDocument();
+    });
+  });
+
+  it('AC5d: self row (admin) → button "Thu hồi admin" disabled (self-revoke block)', async () => {
+    // mockAuth.user.id = 'admin-1' (default). Row id = 'admin-1' → self.
+    mockAuthFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        data: [
+          {
+            id: 'admin-1',
+            email: 'admin@bdsai.vn',
+            phone: '0901111111',
+            role: 'admin',
+            banned: false,
+            createdAt: '2026-01-01T00:00:00.000Z',
+          },
+        ],
+        total: 1,
+        page: 1,
+        limit: 20,
+      }),
+    });
+
+    render(<UsersTable />);
+
+    await waitFor(() => {
+      const btn = screen.getByRole('button', { name: /Thu hồi admin admin@bdsai/ });
+      expect(btn).toBeDisabled();
+    });
+  });
+
+  it('AC5b: click "Cấp admin" → confirm dialog → role API call + toast', async () => {
+    mockAuthFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        data: [
+          {
+            id: 'u1',
+            email: 'user1@bdsai.vn',
+            phone: '0901111111',
+            role: 'user',
+            banned: false,
+            createdAt: '2026-01-01T00:00:00.000Z',
+          },
+        ],
+        total: 1,
+        page: 1,
+        limit: 20,
+      }),
+    });
+    mockAuthFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ id: 'u1', role: 'admin' }),
+    });
+
+    render(<UsersTable />);
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('button', { name: /Cấp admin user1/ }),
+      ).toBeInTheDocument();
+    });
+
+    // Click "Cấp admin" → confirm dialog.
+    fireEvent.click(screen.getByRole('button', { name: /Cấp admin user1/ }));
+
+    await waitFor(() => {
+      expect(screen.getByText('Xác nhận cấp quyền quản trị viên')).toBeInTheDocument();
+    });
+
+    // Click confirm "Cấp admin" button in dialog.
+    const dialogButtons = screen.getAllByRole('button', { name: 'Cấp admin' });
+    const confirmButton = dialogButtons.find((btn) => btn.closest('[role="dialog"]'));
+    fireEvent.click(confirmButton!);
+
+    await waitFor(() => {
+      expect(mockAuthFetch).toHaveBeenCalledWith('/api/admin/users/u1/role', {
+        method: 'POST',
+        body: JSON.stringify({ role: 'admin' }),
+      });
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('Đã cấp quyền quản trị viên')).toBeInTheDocument();
+    });
+  });
+
+  it('AC5c: click "Thu hồi admin" → confirm dialog → role API call + toast', async () => {
+    mockAuthFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        data: [
+          {
+            id: 'admin-2',
+            email: 'admin2@bdsai.vn',
+            phone: '0902222222',
+            role: 'admin',
+            banned: false,
+            createdAt: '2026-01-01T00:00:00.000Z',
+          },
+        ],
+        total: 1,
+        page: 1,
+        limit: 20,
+      }),
+    });
+    mockAuthFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ id: 'admin-2', role: 'user' }),
+    });
+
+    render(<UsersTable />);
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('button', { name: /Thu hồi admin admin2/ }),
+      ).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: /Thu hồi admin admin2/ }));
+
+    await waitFor(() => {
+      expect(screen.getByText('Xác nhận thu hồi quyền quản trị viên')).toBeInTheDocument();
+    });
+
+    // Click confirm "Thu hồi" button in dialog.
+    const dialogButtons = screen.getAllByRole('button', { name: 'Thu hồi' });
+    const confirmButton = dialogButtons.find((btn) => btn.closest('[role="dialog"]'));
+    fireEvent.click(confirmButton!);
+
+    await waitFor(() => {
+      expect(mockAuthFetch).toHaveBeenCalledWith('/api/admin/users/admin-2/role', {
+        method: 'POST',
+        body: JSON.stringify({ role: 'user' }),
+      });
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('Đã thu hồi quyền quản trị viên')).toBeInTheDocument();
+    });
+  });
+
+  it('AC5f: role API error (400 self-revoke) → hiển thị message', async () => {
+    mockAuthFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        data: [
+          {
+            id: 'admin-2',
+            email: 'admin2@bdsai.vn',
+            phone: '0902222222',
+            role: 'admin',
+            banned: false,
+            createdAt: '2026-01-01T00:00:00.000Z',
+          },
+        ],
+        total: 1,
+        page: 1,
+        limit: 20,
+      }),
+    });
+    mockAuthFetch.mockResolvedValueOnce({
+      ok: false,
+      json: async () => ({
+        statusCode: 400,
+        message: 'Không thể thu hồi vai trò của chính mình',
+      }),
+    });
+
+    render(<UsersTable />);
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('button', { name: /Thu hồi admin admin2/ }),
+      ).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: /Thu hồi admin admin2/ }));
+
+    await waitFor(() => {
+      expect(screen.getByText('Xác nhận thu hồi quyền quản trị viên')).toBeInTheDocument();
+    });
+
+    const dialogButtons = screen.getAllByRole('button', { name: 'Thu hồi' });
+    const confirmButton = dialogButtons.find((btn) => btn.closest('[role="dialog"]'));
+    fireEvent.click(confirmButton!);
+
+    await waitFor(() => {
+      expect(
+        screen.getByText('Không thể thu hồi vai trò của chính mình'),
+      ).toBeInTheDocument();
+    });
+  });
 });
