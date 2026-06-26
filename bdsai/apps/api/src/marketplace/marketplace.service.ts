@@ -7,6 +7,8 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { and, asc, desc, eq, gte, lte, sql, type SQL } from 'drizzle-orm';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
 import { InjectDrizzle, type DrizzleDB } from '../db/database.tokens';
 import { publicListings, type publicListings as listingsTable } from '../db/schema/public-listings';
 
@@ -43,6 +45,7 @@ export class MarketplaceService {
 
   constructor(
     @InjectDrizzle() private readonly db: DrizzleDB,
+    @InjectQueue('ai-summary') private readonly aiSummaryQueue: Queue,
   ) {}
 
   // AC1: POST /marketplace/listings — create DRAFT.
@@ -364,10 +367,12 @@ export class MarketplaceService {
     }
   }
 
-  // Story 3.3: admin approve — PENDING → PUBLISHED + set expiry (Story 3.6).
+  // Story 3.3: admin approve — PENDING → PUBLISHED + set expiry (Story 3.6) + enqueue AI summary (Story 4.1).
   async approveListing(listingId: string, adminId: string): Promise<ListingItem> {
     const result = await this.transitionStatus(listingId, adminId, 'PENDING', 'PUBLISHED' as ListingStatus);
     await this.setExpiryOnPublish(listingId);
+    // Story 4.1: enqueue AI summary generation (background, AD-6).
+    await this.aiSummaryQueue.add('generate-summary', { listingId }, { attempts: 3, backoff: { type: 'exponential', delay: 5000 } });
     return result;
   }
 

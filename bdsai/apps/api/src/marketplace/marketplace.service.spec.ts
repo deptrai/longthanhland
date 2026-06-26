@@ -80,10 +80,12 @@ describe('MarketplaceService (AC1-AC4, AD-9)', () => {
 
   beforeEach(async () => {
     db = createMockDb();
+    const mockQueue = { add: jest.fn().mockResolvedValue(undefined) };
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         MarketplaceService,
         { provide: DRIZZLE, useValue: db },
+        { provide: 'BullQueue_ai-summary', useValue: mockQueue },
       ],
     }).compile();
     service = module.get(MarketplaceService);

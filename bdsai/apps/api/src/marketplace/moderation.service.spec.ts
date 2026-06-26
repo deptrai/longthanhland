@@ -33,7 +33,7 @@ describe('ModerationService (Story 3.5)', () => {
 
   describe('checkSpam', () => {
     it('clean listing → not flagged', () => {
-      const result = service.checkSpam({ title: 'Đất nền Long Thành', description: 'Bán đất sổ đỏ', price: 2000000000 });
+      const result = service.checkSpam({ title: 'Đất nền Long Thành', description: 'Bán đất sổ đỏ', price: 2000000000, images: [{ url: 'http://example.com/1.jpg' }] });
       expect(result.flagged).toBe(false);
       expect(result.matchedKeywords).toHaveLength(0);
     });
@@ -60,6 +60,36 @@ describe('ModerationService (Story 3.5)', () => {
       const result = service.checkSpam({ title: 'BÁN ĐẤT NỀN LONG THÀNH RẺ', description: 'desc', price: 1000000000 });
       expect(result.flagged).toBe(true);
       expect(result.reasons.some((r) => r.includes('chữ hoa'))).toBe(true);
+    });
+
+    // Story 4.3: heuristic nâng cao.
+    it('repeated text → flagged', () => {
+      const result = service.checkSpam({ title: 'Bán đất', description: 'AAAAAAAAAAAAAAAAAAAAAAAA'.repeat(4), price: 1000000000 });
+      expect(result.flagged).toBe(true);
+      expect(result.matchedKeywords).toContain('repeated_text');
+    });
+
+    it('suspicious short URL → flagged', () => {
+      const result = service.checkSpam({ title: 'Bán đất', description: 'Xem thêm tại bit.ly/abc123', price: 1000000000 });
+      expect(result.flagged).toBe(true);
+      expect(result.matchedKeywords).toContain('suspicious_link');
+    });
+
+    it('multiple phone numbers → flagged', () => {
+      const result = service.checkSpam({ title: 'Bán đất', description: 'Liên hệ 0901234567 hoặc 0912345678 hoặc 0987654321', price: 1000000000 });
+      expect(result.flagged).toBe(true);
+      expect(result.matchedKeywords).toContain('multiple_phones');
+    });
+
+    it('no images + high price → flagged', () => {
+      const result = service.checkSpam({ title: 'Bán đất', description: 'desc', price: 1500000000, images: [] });
+      expect(result.flagged).toBe(true);
+      expect(result.matchedKeywords).toContain('no_images_high_price');
+    });
+
+    it('clean listing with images → not flagged', () => {
+      const result = service.checkSpam({ title: 'Bán đất Long Thành', description: 'Đất nền sổ đỏ', price: 1000000000, images: [{ url: 'http://example.com/1.jpg' }] });
+      expect(result.flagged).toBe(false);
     });
   });
 

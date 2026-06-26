@@ -175,6 +175,74 @@ export default async function ListingDetailPage({
           Liên hệ người bán
         </a>
       </div>
+
+      {/* Story 4.4: AI Insights block (graceful hide if no AI result). */}
+      <AiInsightsBlock listingId={listing.id} />
+    </div>
+  );
+}
+
+// Story 4.4 — AI insights block with disclaimer (async client component).
+// Nếu chưa có AI result (job chưa chạy/lỗi) → ẩn gọn gàng, không vỡ layout.
+async function AiInsightsBlock({ listingId }: { listingId: string }) {
+  let aiResult: { summary?: string | null; trustScore?: number | null; trustScoreFactors?: Record<string, number> | null } | null = null;
+  try {
+    const res = await fetch(`${API_BASE_URL}/ai/listings/${listingId}`, { cache: 'no-store' });
+    if (res.ok) {
+      aiResult = await res.json();
+    }
+  } catch {
+    // Graceful hide on error.
+  }
+
+  if (!aiResult || (!aiResult.summary && aiResult.trustScore == null)) {
+    return null; // Hide block if no AI data.
+  }
+
+  return (
+    <div className="mt-8 rounded-lg border border-purple-200 bg-purple-50 p-6">
+      <h2 className="text-lg font-semibold text-purple-900">Phân tích AI</h2>
+
+      {/* Trust Score */}
+      {aiResult.trustScore != null && (
+        <div className="mt-4">
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-medium text-purple-700">Điểm uy tín:</span>
+            <div className="flex items-center gap-2">
+              <div className="h-3 w-32 overflow-hidden rounded-full bg-purple-200">
+                <div
+                  className="h-full rounded-full bg-purple-600"
+                  style={{ width: `${aiResult.trustScore}%` }}
+                />
+              </div>
+              <span className="text-sm font-bold text-purple-900">{aiResult.trustScore}/100</span>
+            </div>
+          </div>
+          {/* Story 4.4 AC: disclaimer minh bạch. */}
+          <p className="mt-2 text-xs text-purple-600">
+            * Điểm tham khảo do AI tạo, không phải xác nhận pháp lý.
+          </p>
+        </div>
+      )}
+
+      {/* AI Summary */}
+      {aiResult.summary && (
+        <div className="mt-4">
+          <h3 className="text-sm font-semibold text-purple-800">Tóm tắt AI</h3>
+          <p className="mt-1 text-sm text-gray-700">{aiResult.summary}</p>
+        </div>
+      )}
+
+      {/* Story 4.4 AC: seller appeal button. */}
+      <div className="mt-4">
+        <button
+          type="button"
+          className="text-xs text-purple-600 underline hover:text-purple-800"
+          onClick={() => alert('Tính năng khiếu nại điểm sẽ khả dụng sau. Vui lòng liên hệ admin.')}
+        >
+          Khiếu nại điểm AI
+        </button>
+      </div>
     </div>
   );
 }

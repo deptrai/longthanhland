@@ -46,8 +46,8 @@ export class ModerationService {
     private readonly marketplaceService: MarketplaceService,
   ) {}
 
-  // AC: spam check — keyword blacklist trên title + description.
-  checkSpam(listing: { title: string; description: string; price: number }): SpamCheckResult {
+  // AC: spam check — keyword blacklist trên title + description + heuristic nâng cao (Story 4.3).
+  checkSpam(listing: { title: string; description: string; price: number; images?: Array<{ url: string }> }): SpamCheckResult {
     const text = `${listing.title} ${listing.description}`.toLowerCase();
     const matched = SPAM_KEYWORDS.filter((kw) => text.includes(kw));
     const reasons: string[] = [];
@@ -63,6 +63,30 @@ export class ModerationService {
     if (listing.title.length > 10 && listing.title === listing.title.toUpperCase()) {
       reasons.push('Tiêu đề toàn chữ hoa (dấu hiệu spam)');
       matched.push('all_caps');
+    }
+    // Story 4.3: heuristic nâng cao.
+    // Repeated text (cùng chuỗi lặp > 3 lần).
+    const repeatMatch = listing.description.match(/(.{10,})\1{3,}/);
+    if (repeatMatch) {
+      reasons.push('Lặp text đáng ngờ (cùng đoạn lặp > 3 lần)');
+      matched.push('repeated_text');
+    }
+    // Suspicious links (rút gọn URL — bit.ly, tinyurl, etc.).
+    const shortUrlPattern = /(bit\.ly|tinyurl\.com|t\.co|goo\.gl|shorturl\.at|cutt\.ly)/gi;
+    if (shortUrlPattern.test(listing.description)) {
+      reasons.push('Chứa link rút gọn đáng ngờ');
+      matched.push('suspicious_link');
+    }
+    // Phone number patterns — multiple phone numbers (> 2) → spam signal.
+    const phoneMatches = listing.description.match(/0\d{9,10}/g);
+    if (phoneMatches && phoneMatches.length > 2) {
+      reasons.push('Nhiều số điện thoại trong mô tả (> 2)');
+      matched.push('multiple_phones');
+    }
+    // No images but high price → suspicious.
+    if ((!listing.images || listing.images.length === 0) && listing.price > 1_000_000_000) {
+      reasons.push('Tin giá cao nhưng không có ảnh');
+      matched.push('no_images_high_price');
     }
     return {
       flagged: reasons.length > 0,

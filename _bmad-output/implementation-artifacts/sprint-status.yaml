@@ -77,11 +77,11 @@ development_status:
   epic-3-retrospective: optional
 
   # Epic 4: AI Intelligence (Phase 1 — Track A)
-  epic-4: backlog
-  4-1-ai-summary-gpt4: backlog
-  4-2a-trust-score-phase-1: backlog
-  4-3-smart-spam-filter-nang-cao: backlog
-  4-4-hien-thi-ai-insights-disclaimer-appeal: backlog
+  epic-4: in-progress
+  4-1-ai-summary-gpt4: done
+  4-2a-trust-score-phase-1: done
+  4-3-smart-spam-filter-nang-cao: done
+  4-4-hien-thi-ai-insights-disclaimer-appeal: done
   epic-4-retrospective: optional
 
   # Epic 6: Inquiry System & SEO
