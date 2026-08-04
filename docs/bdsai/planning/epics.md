@@ -1,8 +1,8 @@
 ---
 stepsCompleted: [step-01-validate-prerequisites, step-02-design-epics, step-03-create-stories, step-04-final-validation]
-inputDocuments: [_bmad-output/planning-artifacts/PRD-marketplace-mvp-v2.md, _bmad-output/planning-artifacts/architecture/ARCHITECTURE-SPINE.md, docs/bdsai/ux-design/wireframe-listing-form.md]
-storiesGenerated: Track A — 27 stories (Epic 1,2,3,4-Phase1,6). Track B (Epic 5 + M4.2b) deferred pending Xaction API docs + ToS compliance.
-validatedOn: 2026-06-24
+inputDocuments: [docs/bdsai/planning/prd-mvp-v2.md, docs/bdsai/architecture/ARCHITECTURE-SPINE.md, docs/bdsai/ux-design/wireframe-listing-form.md, _bmad-output/planning-artifacts/sprint-change-proposal-2026-08-04-bdsai-nowing-pivot.md]
+storiesGenerated: Phase 0 — 9 stories (P0.1-4, P1.1-5). Phase 1 — 27 stories (M1-M6) deferred until pilot green.
+validatedOn: 2026-08-04
 ---
 
 # bdsai.vn - Epic Breakdown
@@ -89,11 +89,40 @@ Không có UX spec riêng. UI sẽ sử dụng shadcn/ui + Tailwind CSS, respons
 
 ## Epic List
 
-> **Track A (build ngay — không phụ thuộc Xaction):** Epic 1, 2, 3, 4 (Trust Score Phase 1), 6
-> **Track B (BLOCKED — chờ Xaction API docs + quyết định compliance):** Epic 5, Epic 4 Phase 2 (market alignment)
-> Xem `sprint-change-proposal-2026-06-24.md` để biết chi tiết điều kiện mở khóa.
+> **Phase 0 (pilot 2 tuần — ACTIVE):** Epic P0, P1
+> **Phase 1 (public marketplace — DEFERRED đến sau pilot xanh):** Epic 1, 2, 3, 4 (Trust Score Phase 1), 6
+> **Track B (BLOCKED — chờ Xaction API docs + quyết định compliance + pilot xanh):** Epic 5, Epic 4 Phase 2 (market alignment)
+> Xem `sprint-change-proposal-2026-08-04-bdsai-nowing-pivot.md` và `sprint-change-proposal-2026-06-24.md`.
 
-### Epic 1: Foundation & Infrastructure  `[Track A]`
+### Epic P0: Demand Validation qua Zalo — `[Phase 0 — ACTIVE]`
+Mục tiêu: có tín hiệu cầu thật từ 30 môi giới Bình Thạnh trong 2 tuần.
+
+**Stories bắt buộc:**
+- **P0.1** — Lập list 30 môi giới Bình Thạnh (sourcing script/tracker)
+- **P0.2** — Nhắn tay 10-15 môi giới/ngày với hook Deal-Radar
+- **P0.3** — Tạo group Zalo private và onboard burner account
+- **P0.4** — Tracker CSV: retention tuần 2, match count, willingness-to-pay
+
+**Deliverable:** Decision gate cuối tuần 2 (XANH/ĐỎ).
+
+### Epic P1: Thin Nowing Engine Integration — `[Phase 0 — ACTIVE]`
+Mục tiêu: Zalo bot nhận filter từ môi giới → gọi Nowing engine → trả Deal-Radar alert.
+
+**Stories bắt buộc:**
+- **P1.1** — Xác định Nowing API endpoint cho matching/automation (workspace + automation trigger)
+- **P1.2** — Script parse tin nhắn Zalo thành filter (location, price range, type)
+- **P1.3** — Gọi Nowing API với filter, nhận match
+- **P1.4** — Định dạng Deal-Radar alert + gửi vào group Zalo
+- **P1.5** — Handoff concierge: khi match đạt ngưỡng, Luis liên hệ trực tiếp
+
+**Deliverable:** Luồng Zalo → Nowing → Zalo hoạt động với ít nhất 1 match.
+
+### Epic M1–M6 — `[Phase 1 — DEFERRED]`
+Toàn bộ 6 epics marketplace (Foundation, Users, Listings, AI, Xaction, Inquiry/SEO) bị hoãn cho đến khi P0 XANH. Sau đó mở khóa dần theo thứ tự ưu tiên.
+
+---
+
+### Epic 1: Foundation & Infrastructure  `[Phase 1 — DEFERRED]`
 Team dev có môi trường làm việc, app chạy được, deploy tự động.
 **FRs covered:** Infrastructure (enables all)
 **Stories bắt buộc (tường minh):**
@@ -102,18 +131,18 @@ Team dev có môi trường làm việc, app chạy được, deploy tự độn
 - Infra phải có story rõ ràng: Redis/BullMQ setup, Turborepo config, Drizzle migration management, Sentry integration
 - **Re-estimate Epic 1: 24h → ~50-70h** (estimate cũ thiếu infra)
 
-### Epic 2: User Authentication & Profiles  `[Track A]`
+### Epic 2: User Authentication & Profiles  `[Phase 1 — DEFERRED]`
 Users đăng ký, đăng nhập, quản lý profile — cả public và admin.
 **FRs covered:** FR1, FR2, FR19
 **Story bổ sung:**
 - **M2.5 — Admin role grant:** quy trình cấp/thu quyền admin (seed super-admin + audit log, KHÔNG self-promote — chặn privilege escalation) | ~4h
 
-### Epic 3: Listing Management & Search  `[Track A]`
+### Epic 3: Listing Management & Search  `[Phase 1 — DEFERRED]`
 Sellers đăng tin, buyers tìm kiếm và xem chi tiết, admin duyệt tin.
 **FRs covered:** FR3, FR4, FR5, FR6, FR9, FR16
 **Lưu ý:** FR9 (Spam Filter) giữ ở Epic 3 nhưng **tách rule-engine** để Epic 5 (crawl) tái dùng — giảm coupling. Xử lý edge case lifecycle: race expire-vs-edit, renew tin đã sold, expire khi đang có inquiry (AD-9).
 
-### Epic 4: AI Intelligence  `[Track A — Phase 1 / Track B — Phase 2]`
+### Epic 4: AI Intelligence  `[Phase 1 — DEFERRED; Phase 2 market alignment BLOCKED]`
 Mỗi listing có AI summary + trust score, giúp buyer đánh giá nhanh.
 **FRs covered:** FR7, FR8
 **Tách phase:**
@@ -121,7 +150,7 @@ Mỗi listing có AI summary + trust score, giúp buyer đánh giá nhanh.
 - **M4.2b Trust Score Phase 2** `[Track B]`: + market alignment (sau khi có Auto-Import M5)
 - AI insights kèm disclaimer + nút appeal (Section 11.3 PRD); AI summary cache invalidate khi seller sửa nội dung (AD-6)
 
-### Epic 5: Xaction — Quảng bá & Import đa kênh  `[Track B — BLOCKED]`
+### Epic 5: Xaction — Quảng bá & Import đa kênh  `[Phase 1+ — DEFERRED + BLOCKED]`
 Seller quảng bá tin lên FB/BDS/Chợ Tốt 1-click. Admin xem listings được import tự động.
 **FRs covered:** FR10, FR11, FR12, FR13, FR17
 **⚠️ BLOCKED — điều kiện mở khóa:** (1) Xaction API docs; (2) quyết định compliance ToS (PRD Section 11.1); (3) schema phone đã hash (AD-8).
@@ -130,14 +159,138 @@ Seller quảng bá tin lên FB/BDS/Chợ Tốt 1-click. Admin xem listings đư�
 - **M5.x — News feed FE rendering** (FR17 hiện thiếu story frontend) | ~4h
 - XactionModule theo provider pattern (AD-3 mở rộng); cross-post lifecycle integrity (AD-9)
 
-### Epic 6: Inquiry System & SEO  `[Track A]`
+### Epic 6: Inquiry System & SEO  `[Phase 1 — DEFERRED]`
 Buyer liên hệ seller trực tiếp. Google index tốt, traffic organic.
 **FRs covered:** FR14, FR15, FR18
 **Lưu ý:** **FR15 — email-first cho MVP, hoãn SMS sang post-MVP** (quyết định Luis 24/06: giảm phụ thuộc + tránh chờ duyệt brandname). Lighthouse CI gate cho NFR3 (AD-4); edge case inquiry khi listing expire.
 
 ---
 
-# Story Details — Track A
+# Story Details — Phase 0 Pilot (P0, P1)
+
+> Story chi tiết cho pilot 2 tuần. Không cần test CI hay DB schema; accept kiểm chứng bằng tracker CSV và log Zalo.
+
+## Epic P0: Demand Validation qua Zalo
+
+### Story P0.1: Lập list 30 môi giới Bình Thạnh
+
+As a **PO**,  
+I want **một danh sách 30 môi giới BĐS tại Bình Thạnh phân khúc 3-4 tỷ**,  
+So that **có đối tượng để chạy pilot Zalo**.
+
+**Acceptance Criteria:**
+
+**Given** tiêu chí: Bình Thạnh, môi giới, phân khúc 3-4 tỷ  
+**When** sourcing qua Facebook groups, Zalo, referral, existing network  
+**Then** có ≥30 profile gồm tên + SĐT/Zalo + nguồn + ngày tiếp cận  
+**And** lưu vào tracker CSV/Notion
+
+### Story P0.2: Nhắn tay 10-15 môi giới/ngày
+
+As a **PO**,  
+I want **gửi 10-15 tin nhắn mỗi ngày với hook Deal-Radar**,  
+So that **môi giới tham gia group Zalo pilot**.
+
+**Acceptance Criteria:**
+
+**Given** list môi giới  
+**When** gửi tin nhắn cá nhân với hook (VD: "Nhóm test Deal-Radar BĐS Bình Thạnh — tìm tin khớp nhu cầu tự động")  
+**Then** ghi lại ai đã đọc, phản hồi, join group  
+**And** mục tiêu ≥15 join trong tuần 1
+
+### Story P0.3: Tạo group Zalo private
+
+As a **PO**,  
+I want **một group Zalo private với tài khoản burner**,  
+So that **có kênh test mỏng nhất để gửi Deal-Radar alert**.
+
+**Acceptance Criteria:**
+
+**Given** số điện thoại burner + zca-js hoặc Zalo mobile  
+**When** tạo group + mời môi giới đã đồng ý  
+**Then** group hoạt động, PO có quyền admin, không auto lấy SĐT, không kho tập trung
+
+### Story P0.4: Tracker CSV retention/match/willingness
+
+As a **PO**,  
+I want **một tracker ghi các chỉ số pilot**,  
+So that **biết pilot XANH hay ĐỎ cuối tuần 2**.
+
+**Acceptance Criteria:**
+
+**Given** tracker với cột: ngày, môi giới, hành động, retention tuần 2, match, willingness-to-pay  
+**When** cập nhật hàng ngày  
+**Then** cuối tuần 2 có số: ≥10 quay lại, ≥2 match, ≥3 sẽ trả tiền
+
+## Epic P1: Thin Nowing Engine Integration
+
+### Story P1.1: Xác định Nowing API cho matching
+
+As a **developer**,  
+I want **xác định endpoint/workspace/automation Nowing để gửi filter và nhận match**,  
+So that **bdsai pilot gọi được engine**.
+
+**Acceptance Criteria:**
+
+**Given** Nowing API docs hoặc thử nghiệm trên workspace test  
+**When** gọi endpoint với filter (location, price range, type)  
+**Then** nhận response có ít nhất listing/alert candidate  
+**And** sử dụng workspace test riêng, không dùng workspace production
+
+### Story P1.2: Script parse tin nhắn Zalo
+
+As a **developer**,  
+I want **script parse tin nhắn từ group Zalo thành filter**,  
+So that **có input cho Nowing matching**.
+
+**Acceptance Criteria:**
+
+**Given** tin nhắn môi giới (VD: "Tìm đất Bình Thạnh 3-4 tỷ, 50-80m2")  
+**When** script chạy  
+**Then** trích xuất location=Bình Thạnh, price_min=3tỷ, price_max=4tỷ, area_min=50, area_max=80, type=đất
+
+### Story P1.3: Gọi Nowing API với filter
+
+As a **developer**,  
+I want **script gọi Nowing API sau khi parse**,  
+So that **nhận kết quả match**.
+
+**Acceptance Criteria:**
+
+**Given** filter đã parse  
+**When** gọi Nowing API  
+**Then** nhận kết quả match/suggestion trong vòng <30s  
+**And** log lỗi nếu engine unavailable (không crash)
+
+### Story P1.4: Định dạng + gửi Deal-Radar alert
+
+As a **PO**,  
+I want **kết quả match được định dạng thành tin nhắn Zalo và gửi vào group**,  
+So that **môi giới thấy giá trị Deal-Radar**.
+
+**Acceptance Criteria:**
+
+**Given** kết quả match từ Nowing  
+**When** định dạng: "🔔 Deal-Radar: [loại] [vị trí] [giá] [diện tích] — link/contact"  
+**Then** gửi vào group Zalo private  
+**And** không gửi PII công khai, không spam
+
+### Story P1.5: Handoff concierge
+
+As a **PO**,  
+I want **khi match đạt ngưỡng thì PO liên hệ trực tiếp**,  
+So that **đo willingness-to-pay và đóng deal thủ công**.
+
+**Acceptance Criteria:**
+
+**Given** alert được gửi + môi giới phản hồi quan tâm  
+**When** PO nhận diện tín hiệu  
+**Then** PO nhắn riêng/kết nối 2 bên  
+**And** ghi lại kết quả vào tracker
+
+---
+
+# Story Details — Phase 1 Track A (DEFERRED đến sau pilot xanh)
 
 > Story chi tiết với AC Given/When/Then cho Track A (Epic 1, 2, 3, 4 Phase 1, 6). Track B (Epic 5 + M4.2b) sinh sau khi gỡ 2 gate (Xaction API docs + ToS compliance).
 > Quy ước: mỗi story độc lập trong epic (không forward dependency); DB table tạo theo story (không upfront); AC tham chiếu invariant AD-x khi liên quan.

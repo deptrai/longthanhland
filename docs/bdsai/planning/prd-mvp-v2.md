@@ -5,13 +5,14 @@
 
 ## Thông tin Tài liệu
 
-- **Phiên bản**: 2.0 (MVP Rewrite)
+- **Phiên bản**: 2.1 (Pivot 2026-08-04)
 - **Ngày tạo**: 22/06/2026
+- **Ngày cập nhật**: 04/08/2026
 - **Người tạo**: Mary (Business Analyst) + Luis
-- **Trạng thái**: READY — Chờ Xaction API docs để finalize Epic M5
-- **Dự án**: bdsai.vn — AI-Powered Real Estate Marketplace
-- **Kiến trúc**: Custom Build (NestJS + Next.js 16 + Supabase)
-- **Scope**: MVP — Public Marketplace Only
+- **Trạng thái**: READY — Đã áp dụng Vision Lock 2026-08-04; Pilot Zalo 2 tuần; M1-M6 deferred đến sau pilot xanh
+- **Dự án**: bdsai.vn — Sàn Rao Vặt Bất Động Sản AI; Nowing = engine AI headless
+- **Kiến trúc**: Pilot = Zalo bot + script + Nowing API; Post-pilot = NestJS + Next.js 16 + Supabase
+- **Scope**: Phase 0 — 2-week Zalo demand validation; Phase 1 — Public Marketplace (mở khóa sau pilot xanh)
 
 ---
 
@@ -19,7 +20,9 @@
 
 ### 1.1. Vision
 
-Xây dựng **sàn rao vặt bất động sản thông minh** tập trung vào khu vực Long Thành, Đồng Nai — nơi thị trường BĐS đang bùng nổ nhờ sân bay Long Thành. Platform tự động hóa việc đăng tin, quảng bá đa kênh, và cung cấp AI insights cho cả người mua lẫn người bán.
+**North star:** bdsai.vn = sàn rao vặt BĐS có AI cho thị trường VN; **Nowing = engine AI** (agent, memory, matching, automation, scraper, deep-research) chạy sau lưng, không còn là research platform độc lập. Thắng BĐS → nhân engine sang vertical khác. Freemium.
+
+**Phase 0 (pilot 2 tuần, demand-first):** kéo 30 môi giới Bình Thạnh qua group Zalo private, đo retention tuần 2, ≥2 match, ≥3 willingness-to-pay. **KHÔNG xây web/mobile/full CRM trong pilot.** Chỉ sau pilot xanh mới mở khóa Phase 1 (public marketplace web/CRM).
 
 ### 1.2. Khác biệt cốt lõi vs Đối thủ
 
@@ -35,7 +38,18 @@ Xây dựng **sàn rao vặt bất động sản thông minh** tập trung vào 
 | **Khu vực focus** | Long Thành → Đồng Nai → MN | Toàn quốc | Toàn quốc |
 | **Giá** | Miễn phí 100% (MVP) | Trả phí | Miễn phí giới hạn |
 
-### 1.3. Mục tiêu MVP (3 tháng đầu)
+### 1.3. Mục tiêu theo Phase
+
+#### Phase 0 — Pilot (2 tuần)
+
+| Metric | Target |
+|--------|--------|
+| Môi giới tiếp cận | 30 |
+| Retention tuần 2 | ≥10 quay lại |
+| Match nhu-cầu/tin | ≥2 |
+| Willingness-to-pay | ≥3 nói "sẽ trả tiền" |
+
+#### Phase 1 — Public Marketplace (chỉ mở khóa sau pilot xanh)
 
 | Metric | Target |
 |--------|--------|
@@ -378,7 +392,18 @@ export const importedListings = pgTable('imported_listings', {
 
 ## 7. Timeline & Resources
 
-### 7.1. MVP Timeline (11 tuần)
+### 7.1. Timeline theo Phase
+
+#### Phase 0 — Pilot Zalo (2 tuần)
+
+```
+Ngày 0:    Lập list 30 môi giới Bình Thạnh 3-4 tỷ
+Tuần 1:    Nhắn tay 10-15/ngày bằng script + hook Deal-Radar; onboard concierge
+Tuần 1-2:  Kênh test = group Zalo private (zca-js tài khoản burner)
+Tuần 2:    Đo retention + match + "sẽ trả tiền?" → tracker CSV
+```
+
+#### Phase 1 — Public Marketplace (mở khóa sau pilot xanh)
 
 ```
 Week 1-2:   Epic M1 — Foundation & Infrastructure
@@ -388,6 +413,8 @@ Week 5-7:   Epic M4 — AI Features
 Week 7-9:   Epic M5 — Xaction Integration
 Week 9-11:  Epic M6 — Inquiry & SEO
 ```
+
+> Tất cả epic M1-M6 bị **deferred** cho đến khi Phase 0 XANH. Xem `epics.md`.
 
 ### 7.2. Team
 
@@ -416,7 +443,15 @@ Week 9-11:  Epic M6 — Inquiry & SEO
 
 ## 8. Success Metrics
 
-### 8.1. Launch Criteria (Week 11)
+### 8.1. Pilot Success Criteria (cuối tuần 2)
+
+- [ ] Tiếp cận 30 môi giới Bình Thạnh
+- [ ] ≥10 môi giới quay lại tuần 2 (retention)
+- [ ] ≥2 match nhu cầu/tin
+- [ ] ≥3 môi giới nói "sẽ trả tiền"
+- [ ] Luồng Zalo → Nowing → Deal-Radar alert hoạt động ≥1 lần
+
+### 8.2. Phase 1 Launch Criteria (mở khóa sau pilot xanh)
 
 - [ ] 50+ listings đăng (seeded + real)
 - [ ] Lighthouse SEO score >90
@@ -425,7 +460,7 @@ Week 9-11:  Epic M6 — Inquiry & SEO
 - [ ] AI Summary generate cho mỗi listing
 - [ ] 0 critical bugs
 
-### 8.2. Month 1 After Launch
+### 8.3. Month 1 After Phase 1 Launch
 
 | Metric | Target |
 |--------|--------|
@@ -435,7 +470,7 @@ Week 9-11:  Epic M6 — Inquiry & SEO
 | Auto-posts sent | 500+ |
 | Imported listings | 1,000+ |
 
-### 8.3. Month 3 After Launch
+### 8.4. Month 3 After Phase 1 Launch
 
 | Metric | Target |
 |--------|--------|
@@ -447,7 +482,23 @@ Week 9-11:  Epic M6 — Inquiry & SEO
 
 ---
 
-## 9. Risks & Mitigations
+## 9. Demand-First Pilot Guardrails
+
+**KHÔNG làm trong 2 tuần pilot:**
+- Re-architect toàn bộ hệ thống
+- Mobile app / full CRM
+- Thu phí
+- Seed scrape / auto-post / auto-import
+- Tích hợp licensed-API
+- Xây web app công khai
+
+**Cổng quyết định cuối tuần 2:**
+- **Pilot XANH** (≥10 môi giới quay lại tuần 2 + ≥2 match + ≥3 nói sẽ trả tiền) → mới bắt đầu Phase 1
+- **Pilot ĐỎ** → chỉnh hook/ngách, chạy lại 1 vòng, chưa xây gì lớn
+
+---
+
+## 10. Risks & Mitigations
 
 | Risk | Impact | Probability | Mitigation |
 |------|--------|-------------|------------|
@@ -462,7 +513,7 @@ Week 9-11:  Epic M6 — Inquiry & SEO
 
 ---
 
-## 10. Xác nhận từ Luis (22/06/2026)
+## 11. Xác nhận từ Luis (22/06/2026)
 
 | # | Câu hỏi | Trả lời |
 |---|---------|---------|
@@ -483,11 +534,11 @@ Week 9-11:  Epic M6 — Inquiry & SEO
 
 ---
 
-## 11. Compliance & Pháp lý
+## 12. Compliance & Pháp lý
 
 > ⚠️ Section này được thêm sau review (24/06/2026) vì cả PRD/Architecture/Epics ban đầu KHÔNG đề cập rủi ro pháp lý — đây là rủi ro tồn vong, không phải kỹ thuật.
 
-### 11.1. Auto-Post & Quản lý danh tính proxy
+### 12.1. Auto-Post & Quản lý danh tính proxy
 
 - **RỦI RO:** Đăng bài dưới danh tính proxy lên Facebook/Batdongsan/Chợ Tốt có thể vi phạm ToS các nền tảng này (fake account, automation trái phép) → ban account hàng loạt, mất kênh quảng bá, rủi ro pháp lý.
 - **QUYẾT ĐỊNH CẦN CHỐT (Luis — business decision):**
@@ -496,14 +547,14 @@ Week 9-11:  Epic M6 — Inquiry & SEO
   - [ ] Bỏ các kênh vi phạm, chỉ giữ kênh hợp lệ
 - **LƯU Ý:** "Rate limiting" trong bảng Risks cũ KHÔNG phải mitigation hợp lệ — nó không giải quyết bản chất fake account.
 
-### 11.2. Bảo vệ Dữ liệu Cá nhân (Nghị định 13/2023/NĐ-CP)
+### 12.2. Bảo vệ Dữ liệu Cá nhân (Nghị định 13/2023/NĐ-CP)
 
 - **KHÔNG lưu `sellerPhone` raw** từ nguồn crawl. Chỉ lưu hash (sha256) phục vụ deduplication (xem AD-8 trong Architecture).
 - Có cơ chế **xóa theo yêu cầu** (data subject request).
 - Imported listing chỉ hiển thị công khai khi có cơ sở pháp lý hoặc đã ẩn PII.
 - Audit log mọi truy cập dữ liệu cá nhân.
 
-### 11.3. AI Trust Score — Trách nhiệm pháp lý
+### 12.3. AI Trust Score — Trách nhiệm pháp lý
 
 - Mọi hiển thị Trust Score phải kèm **disclaimer**: "Điểm tham khảo do AI tạo, không phải xác nhận pháp lý về tính chính xác của tin đăng."
 - Có **quy trình appeal** cho seller khi tin bị gắn nhãn điểm thấp — tránh rủi ro kiện cáo về bôi nhọ/cản trở kinh doanh.
@@ -516,9 +567,10 @@ Week 9-11:  Epic M6 — Inquiry & SEO
 |------|----------|
 | 22/06/2026 | PRD v2.0 MVP — Viết lại hoàn toàn, focus marketplace only |
 | 24/06/2026 | Correct Course: M5 → BLOCKED (Track B); thêm Section 11 Compliance; sửa Risks (ToS + PII = EXISTENTIAL); tách Trust Score Phase 1/2 |
+| 04/08/2026 | Pivot 2026-08-04: Nowing = engine AI headless, bdsai.vn = sản phẩm; thêm Phase 0 Zalo pilot 2 tuần; M1-M6 deferred; thêm Demand-First Pilot Guardrails; cập nhật timeline + metrics |
 
 ---
 
-**Cập nhật lần cuối**: 22 tháng 6, 2026
+**Cập nhật lần cuối**: 04 tháng 8, 2026
 **Tác giả**: Mary (Business Analyst)
-**Trạng thái**: DRAFT — Chờ Luis confirm Xaction details
+**Trạng thái**: READY — Vision Lock 2026-08-04 applied; Phase 0 Zalo pilot active; Xaction deferred đến sau pilot xanh

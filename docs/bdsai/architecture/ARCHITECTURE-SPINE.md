@@ -4,16 +4,55 @@ type: architecture-spine
 purpose: build-substrate
 altitude: feature
 paradigm: layered-modular
-scope: MVP marketplace — bdsai.vn (6 epics, 11 weeks)
-status: draft
+scope: bdsai.vn — Phase 0 Zalo pilot + Phase 1 marketplace; Nowing = engine AI headless
+status: ready
 created: 2026-06-22
-updated: 2026-06-24
-binds: [M1, M2, M3, M4, M5, M6]
-sources: [PRD-marketplace-mvp-v2.md]
+updated: 2026-08-04
+binds: [P0, P1, M1, M2, M3, M4, M5, M6]
+sources: [PRD-marketplace-mvp-v2.md, sprint-change-proposal-2026-08-04-bdsai-nowing-pivot.md]
 companions: []
 ---
 
 # Architecture Spine — bdsai.vn
+
+## Architecture Modes
+
+### Mode 0 — Pilot (2 tuần, demand-first)
+
+```
+┌─────────────────────────────────────────────┐
+│  Luis (concierge) + tracker CSV/Notion      │
+├─────────────────────────────────────────────┤
+│  Zalo group (burner account, zca-js)        │  ← kênh test
+├─────────────────────────────────────────────┤
+│  Thin Node.js automation script             │  ← nhận filter, gọi Nowing
+├─────────────────────────────────────────────┤
+│  Nowing engine API                          │  ← matching, memory, Deal-Radar
+└─────────────────────────────────────────────┘
+```
+
+- Không web app, không NestJS/Supabase full, không CI/CD phức tạp.
+- Lưu trữ tối thiểu: tracker CSV + nếu cần thì Notion/Airtable.
+- Nowing là engine AI headless: agent, memory, matching, automation, scraper, deep-research.
+
+### Mode 1 — Post-pilot (bdsai.vn product)
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  Next.js 16 (Vercel) — public marketplace              │
+├─────────────────────────────────────────────────────────┤
+│  NestJS 11 (Dokploy) — bdsai business logic            │
+├─────────────────────────────────────────────────────────┤
+│  Nowing engine API — AI/memory/matching/automation     │
+├─────────────────────────────────────────────────────────┤
+│  Supabase + Redis (bdsai data)                         │
+└─────────────────────────────────────────────────────────┘
+```
+
+- bdsai BE/FE riêng, gọi Nowing engine qua API.
+- Không gộp codebase, không nhúng iframe.
+
+---
 
 ## Design Paradigm
 
@@ -95,6 +134,18 @@ Layer rules:
 - **Binds:** all backend logic (chống rò rỉ nghiệp vụ ra frontend tier)
 - **Prevents:** business logic bị nhét vào Next.js API routes "cho nhanh" → 2 backend song song, phá vỡ AD-1 (module isolation) và AD-2 (single mutation path)
 - **Rule:** Next.js API routes (`apps/web/app/api/`) chỉ được làm: (1) SSR data-fetch proxy tới NestJS, (2) forward auth token (Bearer), (3) Supabase Auth/Storage callbacks. **ZERO business logic** — không validation nghiệp vụ, không truy cập DB trực tiếp, không gọi OpenAI/Xaction. Mọi nghiệp vụ sống ở NestJS module. Next API route là BFF mỏng (thin pass-through), không phải nơi chứa logic.
+
+### AD-11 — Nowing Engine Boundary [ADOPTED]
+
+- **Binds:** all pilot + post-pilot AI/automation features
+- **Prevents:** bdsai gọi trực tiếp ChainLens/scraper; bdsai trở thành monolith lặp lại Nowing
+- **Rule:** bdsai product gọi Nowing qua public/authenticated API. Nowing owns multi-agent chat, memory, matching, automation, scraper, deep-research. bdsai owns listings, search, auth, billing, SEO, moderation UI.
+
+### AD-12 — Pilot Data Isolation [ADOPTED]
+
+- **Binds:** Mode 0 pilot
+- **Prevents:** pilot data leaching into production schema
+- **Rule:** Pilot data lives in tracker CSV / Notion / ad-hoc storage. Không tạo production DB schema cho đến khi pilot xanh. Nếu dùng Nowing workspace, dùng workspace test riêng.
 
 ### Dependency Direction
 

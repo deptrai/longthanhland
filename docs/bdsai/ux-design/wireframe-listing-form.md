@@ -1,3 +1,8 @@
+---
+status: POST-PILOT
+note: Wireframe này thuộc Epic M3 Listing Management (FR3), bị hoãn cho đến khi P0 XANH. Trong pilot, tin đăng được thu thập qua Zalo hoặc spreadsheet thủ công.
+---
+
 # Wireframe (low-fi) — Multi-Step Listing Form (M3.2 / FR3)
 
 **Mục đích:** Thống nhất số bước, thứ tự field, validation và xử lý lỗi cho form đăng tin trước khi dev. Đây là low-fi (bố cục + hành vi), KHÔNG phải visual design — visual đến từ shadcn/ui.
