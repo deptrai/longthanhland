@@ -6,7 +6,7 @@ import { UsersTable } from './users-table';
 export default function AdminUsersPage() {
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-2xl font-bold text-foreground">Quản lý người dùng</h1>
+      <h1 data-testid="users-title" className="text-2xl font-bold text-foreground">Quản lý người dùng</h1>
       <UsersTable />
     </div>
   );

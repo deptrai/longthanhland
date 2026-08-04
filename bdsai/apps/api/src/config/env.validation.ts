@@ -68,6 +68,45 @@ export const envSchema = z.object({
   // Optional (default empty = dev log-only mode). Prod: set RESEND_API_KEY.
   RESEND_API_KEY: z.string().default(''),
   EMAIL_FROM: z.string().default('no-reply@bdsai.vn'),
+
+  // --- Xaction (Story 5.1) — cross-post promotion providers ---
+  // Optional (default empty = all providers disabled — graceful).
+  // Comma-separated platform names: facebook,cho_tot,zalo.
+  // Story 5.2: facebook → FacebookProvider (gọi XActions REST API thật).
+  XACTION_ENABLED_PROVIDERS: z.string().default(''),
+
+  // --- XActions REST API (Story 5.2) — FacebookProvider backend ---
+  // XActions (Express.js self-hosted) base URL. Default local dev.
+  XACTIONS_API_URL: z.string().url('XACTIONS_API_URL phải là URL hợp lệ').default('http://localhost:3000'),
+  // JWT Bearer token cho XActions auth. Optional — required khi facebook enabled
+  // (ProviderRegistry validate: token empty + facebook enabled → graceful skip, E5).
+  // AD-8: KHÔNG log raw value (pino redact).
+  XACTIONS_API_TOKEN: z.string().default(''),
+  // FB account — preferred path: XActions stored account ID (server-side decrypt).
+  XACTIONS_FB_ACCOUNT_ID: z.string().default(''),
+  // FB account — raw cookie fallback (MVP): c_user + xs cookie values.
+  // AD-8: secret — KHÔNG log raw value.
+  XACTIONS_FB_C_USER: z.string().default(''),
+  XACTIONS_FB_XS: z.string().default(''),
+
+  // --- Web URL (Story 5.2) — ListingFormatter listing link base ---
+  // Default https://bdsai.vn. ListingFormatter tạo link https://bdsai.vn/listings/[id].
+  BDSAI_WEB_URL: z.string().url('BDSAI_WEB_URL phải là URL hợp lệ').default('https://bdsai.vn'),
+
+  // --- Chợ Tốt (Story 5.3) — ChoTotProvider assisted posting ---
+  // Chợ Tốt posting page URL (seller click link → manual post → PATCH confirm).
+  CHOTOT_POSTING_URL: z.string().url('CHOTOT_POSTING_URL phải là URL hợp lệ').default('https://www.chotot.com/dang-tin'),
+
+  // --- Zalo (Story 5.4) — ZaloProvider assisted posting ---
+  // Zalo web client URL (seller click link → manual post → PATCH confirm).
+  ZALO_POSTING_URL: z.string().url('ZALO_POSTING_URL phải là URL hợp lệ').default('https://chat.zalo.me/'),
+
+  // --- Nowing engine (Story 7.1a) — bdsai calls Nowing engine ---
+  // Base URL of Nowing API. Default local dev.
+  NOWING_ENGINE_URL: z.string().url('NOWING_ENGINE_URL phải là URL hợp lệ').default('http://localhost:8000'),
+  // API key for Nowing engine auth.
+  // AD-8: KHÔNG log raw value, KHÔNG commit giá trị thật.
+  NOWING_ENGINE_API_KEY: z.string().default(''),
 });
 
 export type Env = z.infer<typeof envSchema>;

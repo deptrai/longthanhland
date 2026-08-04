@@ -25,6 +25,11 @@ const SECRET_PATTERNS = [
   /token/i,
   /secret/i,
   /jwt/i,
+  // Story 5.2 AD-8: XActions secrets (FB session cookies — full account takeover if leaked).
+  /XACTIONS_FB_C_USER/i,
+  /XACTIONS_FB_XS/i,
+  /XACTIONS_FB_ACCOUNT_ID/i,
+  /c_user/i,
   // Story 2.1 AC8: PII fields — redact khỏi Sentry event.
   /email/i,
   /phone/i,

@@ -13,6 +13,7 @@ import { InjectDrizzle, type DrizzleDB } from '../db/database.tokens';
 import { publicListings, type publicListings as listingsTable } from '../db/schema/public-listings';
 import { publicUsers } from '../db/schema/public-users';
 import { AiService } from '../ai/ai.service';
+import { PromotionService } from '../xaction/promotion.service';
 
 /**
  * MarketplaceService (AC1-AC4, AD-2, AD-9) — Story 3.1.
@@ -49,6 +50,7 @@ export class MarketplaceService {
     @InjectDrizzle() private readonly db: DrizzleDB,
     @InjectQueue('ai-summary') private readonly aiSummaryQueue: Queue,
     private readonly aiService: AiService,
+    private readonly promotionService: PromotionService,
   ) {}
 
   // AC1: POST /marketplace/listings — create DRAFT.
@@ -193,10 +195,39 @@ export class MarketplaceService {
   }
 
   // AC1: DELETE /marketplace/listings/:id — delete (owner only).
+  // H3 fix (AD-9): BEFORE hard delete, enqueue best-effort removal of active
+  // cross-posts. FK ON DELETE CASCADE sẽ xóa cross_posts rows, nhưng BullMQ job
+  // mang đủ data (externalUrl/providerJobId) để provider.removePost() gỡ bài
+  // ngoài mà không phụ thuộc row DB (processor xử lý row-gone + job-data case).
   async deleteListing(listingId: string, sellerId: string): Promise<void> {
     const row = await this.findListingOrThrow(listingId);
     if (row.sellerId !== sellerId) {
       throw new ForbiddenException('Không có quyền xóa tin này');
+    }
+    // H3/AD-9: gỡ active cross-posts TRƯỚC khi hard delete.
+    // AWAIT để đảm bảo remove jobs được enqueue BEFORE cascade delete xóa rows.
+    // Best-effort — lỗi enqueue KHÔNG block delete (catch + log).
+    // removeActiveCrossPosts query cross_posts (status pending/posted) → enqueue
+    // remove job với externalUrl/providerJobId. Sau cascade delete, rows biến mất
+    // nhưng job data đủ để provider gỡ bài ngoài (processor xử lý row-gone case).
+    try {
+      const { enqueued } = await this.promotionService.removeActiveCrossPosts(listingId);
+      if (enqueued > 0) {
+        this.logger.log(
+          { action: 'ad9-delete-removal', listingId, enqueued },
+          'Cross-post removal enqueued before hard delete (AD-9)',
+        );
+      }
+    } catch (e) {
+      this.logger.warn(
+        {
+          action: 'ad9-delete-removal',
+          listingId,
+          reason: 'enqueue-fail',
+          err: e instanceof Error ? { name: e.name, message: e.message } : String(e),
+        },
+        'Cross-post removal enqueue failed before delete (non-blocking — AD-9)',
+      );
     }
     try {
       await this.db.delete(publicListings).where(eq(publicListings.id, listingId));
@@ -314,6 +345,32 @@ export class MarketplaceService {
         { action: 'status-transition', listingId, actorId, fromStatus, toStatus, reason: 'success' },
         `Listing ${fromStatus} → ${toStatus}`,
       );
+      // Story 5.1 AD-9: enqueue best-effort removal of active cross-posts when
+      // listing transitions to a terminal/inactive status. Non-blocking —
+      // removal failure KHÔNG block listing transition.
+      if (['REJECTED', 'SOLD', 'EXPIRED'].includes(toStatus)) {
+        this.promotionService
+          .removeActiveCrossPosts(listingId)
+          .then(({ enqueued }) => {
+            if (enqueued > 0) {
+              this.logger.log(
+                { action: 'ad9-lifecycle-removal', listingId, toStatus, enqueued },
+                'Cross-post removal enqueued (AD-9)',
+              );
+            }
+          })
+          .catch((e: unknown) => {
+            this.logger.warn(
+              {
+                action: 'ad9-lifecycle-removal',
+                listingId,
+                reason: 'enqueue-fail',
+                err: e instanceof Error ? { name: e.name, message: e.message } : String(e),
+              },
+              'Cross-post removal enqueue failed (non-blocking — AD-9)',
+            );
+          });
+      }
       return updated;
     } catch (e) {
       this.logger.error(

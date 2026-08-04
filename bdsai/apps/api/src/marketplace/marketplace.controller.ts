@@ -149,7 +149,7 @@ export class MarketplaceController {
   ): Promise<ListingItem> {
     this.assertUuid(id);
     const user = (req as Request & { user: JwtUser }).user;
-    return this.moderationService.approveWithAudit(id, user.id, body.spamFlagged ?? false);
+    return this.moderationService.approveWithAudit(id, user.id, body?.spamFlagged ?? false);
   }
 
   // Story 3.3 + 3.5: POST /marketplace/listings/:id/reject — admin PENDING → REJECTED + audit log.

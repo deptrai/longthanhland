@@ -1,6 +1,6 @@
 # bdsai.vn — Monorepo
 
-Sàn rao vặt bất động sản AI cho Long Thành. Monorepo Turborepo (Story 1.1).
+Sàn rao vặt bất động sản AI Việt Nam. Monorepo Turborepo (Story 1.1).
 
 ## Cấu trúc
 

@@ -9,10 +9,10 @@ describe('SiteFooter', () => {
     expect(screen.getByRole('link', { name: 'bdsai.vn' })).toBeInTheDocument();
   });
 
-  it('renders tagline "Sàn rao vặt BĐS AI — Long Thành"', () => {
+  it('renders tagline "Sàn rao vặt BĐS AI — Việt Nam"', () => {
     render(<SiteFooter />);
     expect(
-      screen.getByText('Sàn rao vặt BĐS AI — Long Thành'),
+      screen.getByText('Sàn rao vặt BĐS AI — Việt Nam'),
     ).toBeInTheDocument();
   });
 

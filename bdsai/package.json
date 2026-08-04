@@ -2,7 +2,7 @@
   "name": "bdsai",
   "private": true,
   "version": "0.1.0",
-  "description": "bdsai.vn — sàn rao vặt BĐS AI Long Thành (monorepo Turborepo)",
+  "description": "bdsai.vn — sàn rao vặt BĐS AI Việt Nam (monorepo Turborepo)",
   "packageManager": "yarn@4.9.2",
   "engines": {
     "node": ">=22"

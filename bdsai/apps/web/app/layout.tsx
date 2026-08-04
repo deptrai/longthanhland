@@ -5,8 +5,8 @@ import { AuthProvider } from '@/components/auth/auth-provider';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'bdsai.vn — Sàn rao vặt BĐS AI Long Thành',
-  description: 'Sàn rao vặt bất động sản AI — Long Thành',
+  title: 'bdsai.vn — Sàn rao vặt BĐS AI Việt Nam',
+  description: 'Sàn rao vặt bất động sản AI Việt Nam — mua bán an tâm, không lo tin ảo.',
 };
 
 // Root layout — html/body + Geist font + skip nav. KHÔNG render header/footer

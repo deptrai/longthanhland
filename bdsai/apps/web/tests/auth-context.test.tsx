@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, act } from '@testing-library/react';
+import { render, screen, act, waitFor } from '@testing-library/react';
 import { AuthProvider } from '@/components/auth/auth-provider';
 import { useAuth } from '@/components/auth/use-auth';
 
@@ -53,10 +53,10 @@ describe('AuthProvider + useAuth', () => {
     expect(screen.getByTestId('loading-state').textContent).toBe('loading');
 
     // After restore attempt fails → unauthenticated + loaded.
-    await act(async () => {
-      await new Promise((resolve) => setTimeout(resolve, 100));
+    // P3-16: Use waitFor instead of fixed setTimeout.
+    await waitFor(() => {
+      expect(screen.getByTestId('auth-state').textContent).toBe('unauthenticated');
     });
-    expect(screen.getByTestId('auth-state').textContent).toBe('unauthenticated');
     expect(screen.getByTestId('loading-state').textContent).toBe('loaded');
   });
 
@@ -73,8 +73,9 @@ describe('AuthProvider + useAuth', () => {
       </AuthProvider>,
     );
 
-    await act(async () => {
-      await new Promise((resolve) => setTimeout(resolve, 100));
+    // P3-16: Use waitFor instead of fixed setTimeout.
+    await waitFor(() => {
+      expect(screen.getByTestId('loading-state').textContent).toBe('loaded');
     });
 
     // Click login.

@@ -1,39 +1,46 @@
 ---
 stepsCompleted: [step-01-validate-prerequisites, step-02-design-epics, step-03-create-stories, step-04-final-validation]
-inputDocuments: [_bmad-output/planning-artifacts/PRD-marketplace-mvp-v2.md, _bmad-output/planning-artifacts/architecture/ARCHITECTURE-SPINE.md, docs/bdsai/ux-design/wireframe-listing-form.md]
-storiesGenerated: Track A — 27 stories (Epic 1,2,3,4-Phase1,6). Track B (Epic 5 + M4.2b) deferred pending Xaction API docs + ToS compliance.
-validatedOn: 2026-06-24
+inputDocuments:
+  - docs/bdsai/planning/prd-mvp-v2.md
+  - docs/bdsai/architecture/ARCHITECTURE-SPINE.md
+  - docs/bdsai/ux-design/wireframe-listing-form.md
+  - _bmad-output/planning-artifacts/vision-lock-and-this-week-2026-08-04.md
+  - _bmad-output/planning-artifacts/task-list-2weeks-2026-08-04.md
 ---
 
-# bdsai.vn - Epic Breakdown
+# bdsai.vn - Epic Breakdown (Vision Pivot 2026-08-04)
 
 ## Overview
 
-Tài liệu này phân tách requirements từ PRD v2.0 và Architecture Spine thành 6 epics với stories chi tiết cho dự án bdsai.vn — Sàn Rao Vặt Bất Động Sản AI MVP.
+Tài liệu này phân tách requirements cho bdsai.vn theo vision mới: **bdsai.vn = sàn rao vặt BĐS Việt Nam có AI; Nowing = engine AI chạy sau lưng**. Pivot này loại bỏ Xaction proxy auto-post (rủi ro ToS/pháp lý), thay bằng Deal-Radar + browser extension + assisted post. Pilot 2 tuần tập trung Bình Thạnh 3-4 tỷ.
 
 ## Requirements Inventory
 
 ### Functional Requirements
 
 FR1: User đăng ký bằng email + phone, xác thực qua Supabase Auth
-FR2: User đăng nhập, quản lý profile (avatar, bio, phone verified)
-FR3: Seller tạo listing (multi-step form, image upload, draft/publish)
+FR2: User đăng nhập, quản lý profile (avatar, bio, phone verified, role seller/buyer/admin)
+FR3: Seller tạo listing (multi-step form, image upload, draft/publish) với AI gợi ý mô tả
 FR4: Admin approve/reject listings từ moderation queue
-FR5: Buyer browse + search listings (filters: location, price, type, area)
+FR5: Buyer browse + search listings (filters: location, price, type, area; default pilot Bình Thạnh 3-4 tỷ)
 FR6: Listing detail page SSR với dynamic meta tags + structured data
-FR7: AI Summary: GPT-4 phân tích mỗi listing (highlights, neighborhood, investment)
-FR8: Trust Score: algorithm chấm điểm uy tín (0-100)
+FR7: AI Summary: phân tích mỗi listing (highlights, neighborhood, investment, ưu/nhược điểm)
+FR8: Trust Score: algorithm chấm điểm uy tín (0-100) Phase 1 — seller verify + listing quality
 FR9: Smart Spam Filter: rule-based + keyword blacklist
-FR10: Xaction Auto-Post: seller chọn platforms → BullMQ job → Xaction API post dưới proxy
-FR11: Xaction Auto-Import: crawl listings từ BDS/Chợ Tốt/FB → imported_listings DB
-FR12: Seller dashboard: xem link bài đã quảng bá, trạng thái cross-posts
-FR13: Import dashboard (admin): review/approve/reject crawled listings
-FR14: Inquiry form: buyer gửi liên hệ cho seller
-FR15: Notification: email + SMS cho seller khi có inquiry
-FR16: Listing auto-expire + renew + mark sold
-FR17: News feed: tin tức BĐS từ Facebook pages/groups (via Xaction)
-FR18: Dynamic sitemap.xml + robots.txt
-FR19: Admin: user list, ban/unban
+FR10: Inquiry form: buyer gửi liên hệ cho seller
+FR11: Notification: email cho seller khi có inquiry
+FR12: Listing auto-expire + renew + mark sold
+FR13: Dynamic sitemap.xml + robots.txt
+FR14: Admin: user list, ban/unban
+FR15: **Deal-Radar: seller tạo filter bằng lời, hệ thống gửi alert khi có tin khớp**
+FR16: **Lead management: seller quản lý người mua liên hệ, trạng thái, gán listing, notes**
+FR17: **AI viết tin đăng: seller nhập thông tin cơ bản, AI viết lại mô tả chuẩn SEO**
+FR18: **Nowing engine integration: bdsai gọi Nowing API cho AI summary, viết tin, market summary, Deal-Radar matching**
+FR19: **Browser extension MVP: đọc listing từ Batdongsan/Chợ Tốt trong session user, lưu vào bdsai workspace**
+FR20: **Seller workspace: mỗi seller có dashboard CRM riêng (listings, leads, Deal-Radar, AI tools)**
+FR21: News feed: tin tức BĐS từ admin-curated articles
+FR22: Assisted post: hỗ trợ seller đăng lên Chợ Tốt/Zalo bằng tay (không proxy account)
+FR23: **Nowing automation trigger: bdsai gọi Nowing automation khi có Deal-Radar match; Nowing gửi tin vào group Zalo**
 
 ### NonFunctional Requirements
 
@@ -43,10 +50,12 @@ NFR3: Lighthouse SEO > 90
 NFR4: Page load < 2s (P75)
 NFR5: Supabase Free tier limits: 500MB DB, 1GB storage
 NFR6: AI rate limit: max 100 calls/hour
-NFR7: Xaction retry: 3x exponential backoff, never block user
+NFR7: Deal-Radar alert latency < 5 phút kể từ khi tin xuất hiện
 NFR8: Vietnamese full-text search support
 NFR9: Image max 10MB, auto-convert WebP
 NFR10: Domain: bdsai.vn
+NFR11: Không lưu sellerPhone raw từ nguồn crawl/extension (hash hoặc user-consent)
+NFR12: Browser extension MV3 tuân thủ Chrome Web Store policy
 
 ### Additional Requirements
 
@@ -54,539 +63,495 @@ NFR10: Domain: bdsai.vn
 - Deploy: Vercel (FE) + Dokploy Docker (BE)
 - CI/CD: GitHub Actions
 - All mutations through NestJS API (AD-2)
-- Xaction calls always async via BullMQ (AD-3)
 - Auth: Supabase Auth (public) + NestJS guards (admin) (AD-5)
 - Error tracking: Sentry
-- Module isolation: marketplace, auth, ai, xaction, admin, queue (AD-1)
+- Module isolation: marketplace, auth, ai, admin, queue, deal-radar, leads, nowing-engine (AD-1)
+- Next.js API routes chỉ là thin proxy (AD-10)
+- Nowing engine calls qua REST API với service API key
+- Browser extension không tự động bấm "hiện số", không kho PII tập trung
 
 ### UX Design Requirements
 
-Không có UX spec riêng. UI sẽ sử dụng shadcn/ui + Tailwind CSS, responsive mobile-first.
+UX-DR1: Dashboard CRM chuyển từ marketplace sang workspace cho môi giới (sidebar: Tổng quan, Tin đăng, Deal-Radar, Lead, AI viết tin, Tin tức, Cài đặt)
+UX-DR2: Public marketplace mở rộng khắp Việt Nam, default filter pilot ở Bình Thạnh 3-4 tỷ (căn hộ, nhà phố)
+UX-DR3: Listing card hiển thị Trust Score badge + AI summary 1 dòng
+UX-DR4: Deal-Radar page: form tạo filter bằng lời, danh sách alert, badge nguồn + link
+UX-DR5: Lead management page: bảng leads, trạng thái, gán listing, notes
+UX-DR6: Rebrand bdsai.vn: logo, màu indigo/slate, typography Geist
+UX-DR7: Mobile-first responsive, touch target tối thiểu 44px
 
 ### FR Coverage Map
 
-| FR | Epic | Mô tả |
-|---|---|---|
-| FR1 | Epic 2 | Đăng ký email + phone |
-| FR2 | Epic 2 | Đăng nhập, profile |
-| FR3 | Epic 3 | Tạo listing |
-| FR4 | Epic 3 | Admin approve/reject |
-| FR5 | Epic 3 | Browse + search |
-| FR6 | Epic 3 | Listing detail SSR |
-| FR7 | Epic 4 | AI Summary |
-| FR8 | Epic 4 | Trust Score |
-| FR9 | Epic 3 | Spam Filter |
-| FR10 | Epic 5 | Xaction Auto-Post |
-| FR11 | Epic 5 | Xaction Auto-Import |
-| FR12 | Epic 5 | Seller promotion dashboard |
-| FR13 | Epic 5 | Import dashboard admin |
-| FR14 | Epic 6 | Inquiry form |
-| FR15 | Epic 6 | Notifications |
-| FR16 | Epic 3 | Auto-expire/renew/sold |
-| FR17 | Epic 5 | News feed BĐS |
-| FR18 | Epic 6 | Sitemap + robots.txt |
-| FR19 | Epic 2 | Admin user management |
+| FR | Epic | Stories | Mô tả |
+|---|---|---|---|
+| FR1 | Epic 2 | 2.1 | Đăng ký email + phone |
+| FR2 | Epic 2 | 2.1 | Đăng nhập, profile |
+| FR3 | Epic 3 | 3.1 | Tạo listing + AI viết tin |
+| FR4 | Epic 3 | 3.1 | Admin approve/reject |
+| FR5 | Epic 3 | 3.6 | Browse + search |
+| FR6 | Epic 3 | 3.6 | Listing detail SSR |
+| FR7 | Epic 4 | 4.1 | AI Summary |
+| FR8 | Epic 4 | 4.1 | Trust Score |
+| FR9 | Epic 3 | 3.1 | Spam Filter |
+| FR10 | Epic 6 | 6.1 | Inquiry form |
+| FR11 | Epic 6 | 6.1 | Notifications |
+| FR12 | Epic 3 | 3.1 | Auto-expire/renew/sold |
+| FR13 | Epic 6 | 6.4 | Sitemap + robots |
+| FR14 | Epic 2 | 2.1 | Admin user management |
+| FR15 | Epic 5 | 5.1, 7.1d | Deal-Radar |
+| FR16 | Epic 5 | 5.2 | Lead management |
+| FR17 | Epic 4 | 4.3, 7.1b | AI viết tin |
+| FR18 | Epic 7 | 7.1a-7.1e | Nowing engine integration |
+| FR19 | Epic 7 | 7.2a, 7.2b | Browser extension |
+| FR20 | Epic 5 | 5.3 | Seller workspace CRM |
+| FR21 | Epic 6 | 6.4 | News feed |
+| FR22 | Epic 8 | 8.1 | Assisted post (hoãn) |
+| FR23 | Epic 7 | 5.1, 7.1e | Nowing automation trigger (Zalo notification) |
 
 ## Epic List
 
-> **Track A (build ngay — không phụ thuộc Xaction):** Epic 1, 2, 3, 4 (Trust Score Phase 1), 6
-> **Track B (BLOCKED — chờ Xaction API docs + quyết định compliance):** Epic 5, Epic 4 Phase 2 (market alignment)
-> Xem `sprint-change-proposal-2026-06-24.md` để biết chi tiết điều kiện mở khóa.
+> **Track A (build ngay):** Epic 1, 2, 3 (tinh chỉnh), 4 (mở rộng AI), 5 (mới), 6, 7.
+> **Track B (hoãn):** Epic 8 (Multi-Channel Distribution full auto-post).
 
-### Epic 1: Foundation & Infrastructure  `[Track A]`
-Team dev có môi trường làm việc, app chạy được, deploy tự động.
-**FRs covered:** Infrastructure (enables all)
-**Stories bắt buộc (tường minh):**
-- M1.1-M1.4 (như cũ): monorepo, Supabase, CI/CD, base UI
-- **M1.5 — Vietnamese FTS:** `unaccent` + `pg_trgm` extension + custom `to_tsvector` config (NFR8) | ~4-6h
-- Infra phải có story rõ ràng: Redis/BullMQ setup, Turborepo config, Drizzle migration management, Sentry integration
-- **Re-estimate Epic 1: 24h → ~50-70h** (estimate cũ thiếu infra)
+### Epic 1: Foundation & Infrastructure
+Hệ thống chạy được, deploy tự động, có base UI + Vietnamese FTS + monitoring.
+**FRs covered:** — (enables all)
 
-### Epic 2: User Authentication & Profiles  `[Track A]`
-Users đăng ký, đăng nhập, quản lý profile — cả public và admin.
-**FRs covered:** FR1, FR2, FR19
-**Story bổ sung:**
-- **M2.5 — Admin role grant:** quy trình cấp/thu quyền admin (seed super-admin + audit log, KHÔNG self-promote — chặn privilege escalation) | ~4h
+### Epic 2: User Authentication & Profiles
+User đăng ký, đăng nhập, quản lý profile, admin quản lý users.
+**FRs covered:** FR1, FR2, FR14
 
-### Epic 3: Listing Management & Search  `[Track A]`
-Sellers đăng tin, buyers tìm kiếm và xem chi tiết, admin duyệt tin.
-**FRs covered:** FR3, FR4, FR5, FR6, FR9, FR16
-**Lưu ý:** FR9 (Spam Filter) giữ ở Epic 3 nhưng **tách rule-engine** để Epic 5 (crawl) tái dùng — giảm coupling. Xử lý edge case lifecycle: race expire-vs-edit, renew tin đã sold, expire khi đang có inquiry (AD-9).
+### Epic 3: Public Marketplace
+Người mua tìm kiếm, xem tin đăng BĐS Việt Nam; seller tạo và quản lý tin đăng; admin duyệt tin.
+**FRs covered:** FR3, FR4, FR5, FR6, FR9, FR12
 
-### Epic 4: AI Intelligence  `[Track A — Phase 1 / Track B — Phase 2]`
-Mỗi listing có AI summary + trust score, giúp buyer đánh giá nhanh.
-**FRs covered:** FR7, FR8
-**Tách phase:**
-- **M4.2a Trust Score Phase 1** `[Track A]`: seller verify + listing quality (không cần market data)
-- **M4.2b Trust Score Phase 2** `[Track B]`: + market alignment (sau khi có Auto-Import M5)
-- AI insights kèm disclaimer + nút appeal (Section 11.3 PRD); AI summary cache invalidate khi seller sửa nội dung (AD-6)
+### Epic 4: AI Intelligence
+AI phân tích tin đăng (summary, trust score), hỗ trợ seller viết tin chuẩn SEO.
+**FRs covered:** FR7, FR8, FR17
 
-### Epic 5: Xaction — Quảng bá & Import đa kênh  `[Track B — BLOCKED]`
-Seller quảng bá tin lên FB/BDS/Chợ Tốt 1-click. Admin xem listings được import tự động.
-**FRs covered:** FR10, FR11, FR12, FR13, FR17
-**⚠️ BLOCKED — điều kiện mở khóa:** (1) Xaction API docs; (2) quyết định compliance ToS (PRD Section 11.1); (3) schema phone đã hash (AD-8).
-**Stories bổ sung:**
-- **M5.x — Deduplication:** hash(URL+title+phoneHash); xử lý tin trùng đổi giá; tin trùng với listing của chính seller | ~4h
-- **M5.x — News feed FE rendering** (FR17 hiện thiếu story frontend) | ~4h
-- XactionModule theo provider pattern (AD-3 mở rộng); cross-post lifecycle integrity (AD-9)
+### Epic 5: Seller CRM Workspace
+Môi giới có workspace riêng: Deal-Radar theo dõi tin khớp, quản lý lead, xem tổng quan.
+**FRs covered:** FR15, FR16, FR20
 
-### Epic 6: Inquiry System & SEO  `[Track A]`
-Buyer liên hệ seller trực tiếp. Google index tốt, traffic organic.
-**FRs covered:** FR14, FR15, FR18
-**Lưu ý:** **FR15 — email-first cho MVP, hoãn SMS sang post-MVP** (quyết định Luis 24/06: giảm phụ thuộc + tránh chờ duyệt brandname). Lighthouse CI gate cho NFR3 (AD-4); edge case inquiry khi listing expire.
+### Epic 6: Inquiry & Engagement
+Người mua liên hệ seller, seller nhận thông báo, news feed, SEO/sitemap.
+**FRs covered:** FR10, FR11, FR13, FR21
 
----
+### Epic 7: Nowing Engine Integration
+Bdsai kết nối Nowing engine qua API; browser extension MVP để môi giới lưu tin từ các sàn vào workspace.
+**FRs covered:** FR18, FR19, FR23 (across 7.1a-7.1e, 7.2a, 7.2b)
 
-# Story Details — Track A
+### Epic 8: Multi-Channel Distribution (Track B — hoãn)
+Hỗ trợ seller đăng lên Chợ Tốt/Zalo bằng tay (assisted); full auto-post hoãn sau khi có quyết định pháp lý.
+**FRs covered:** FR22
 
-> Story chi tiết với AC Given/When/Then cho Track A (Epic 1, 2, 3, 4 Phase 1, 6). Track B (Epic 5 + M4.2b) sinh sau khi gỡ 2 gate (Xaction API docs + ToS compliance).
-> Quy ước: mỗi story độc lập trong epic (không forward dependency); DB table tạo theo story (không upfront); AC tham chiếu invariant AD-x khi liên quan.
-> **Quy ước test (áp dụng cho MỌI story):** mỗi story phải kèm test tự động trước khi coi là Done — unit test cho business logic (NestJS service), integration test cho API/DB, E2E cho luồng user chính (Playwright). Story chỉ Done khi test pass trong CI (Story 1.3 gate). Edge case nêu trong AC phải có test tương ứng.
+## Requirements Coverage Map
+
+| FR | Epic | Stories | Mô tả |
+|---|---|---|---|
+| FR1 | Epic 2 | 2.1 | Đăng ký email + phone |
+| FR2 | Epic 2 | 2.1 | Đăng nhập, profile |
+| FR3 | Epic 3 | 3.1 | Tạo listing |
+| FR4 | Epic 3 | 3.1 | Admin approve/reject |
+| FR5 | Epic 3 | 3.6 | Browse + search |
+| FR6 | Epic 3 | 3.6 | Listing detail SSR |
+| FR7 | Epic 4 | 4.1 | AI Summary |
+| FR8 | Epic 4 | 4.1 | Trust Score |
+| FR9 | Epic 3 | 3.1 | Spam Filter |
+| FR10 | Epic 6 | 6.1 | Inquiry form |
+| FR11 | Epic 6 | 6.1 | Notifications |
+| FR12 | Epic 3 | 3.1 | Auto-expire/renew/sold |
+| FR13 | Epic 6 | 6.4 | Sitemap + robots |
+| FR14 | Epic 2 | 2.1 | Admin user management |
+| FR15 | Epic 5 | 5.1, 7.1d | Deal-Radar |
+| FR16 | Epic 5 | 5.2 | Lead management |
+| FR17 | Epic 4 | 4.3, 7.1b | AI viết tin |
+| FR18 | Epic 7 | 7.1a-7.1e | Nowing engine integration |
+| FR19 | Epic 7 | 7.2a, 7.2b | Browser extension |
+| FR20 | Epic 5 | 5.3 | Seller workspace CRM |
+| FR21 | Epic 6 | 6.4 | News feed |
+| FR22 | Epic 8 | 8.1 | Assisted post (hoãn) |
+| FR23 | Epic 7 | 5.1, 7.1e | Nowing automation trigger (Zalo notification) |
 
 ## Epic 1: Foundation & Infrastructure
 
-**Goal:** Team dev có monorepo chạy được, deploy tự động, và nền tảng kỹ thuật (DB, queue, search, error tracking) sẵn sàng cho các epic sau. Đây là greenfield infra epic — hợp lệ vì mọi epic sau phụ thuộc nó.
+Hệ thống chạy được, deploy tự động, base UI + Vietnamese FTS + monitoring. Phần lớn đã implement theo Story 1.1–1.6 của PRD v2.0.
 
-### Story 1.1: Khởi tạo monorepo Turborepo
+### Story 1.1: Project setup baseline (DONE)
 
-As a **developer**,
-I want **một monorepo Turborepo với apps/web (Next.js 16) + apps/api (NestJS 11) + packages/shared**,
-So that **cả team làm việc trên một cấu trúc thống nhất, chia sẻ type/schema giữa FE và BE**.
+As a team dev, I want monorepo chạy được với web + api + shared, so that tôi có môi trường phát triển ổn định.
 
 **Acceptance Criteria:**
 
-**Given** một thư mục dự án sạch cho bdsai.vn (greenfield — KHÔNG dùng lại code Twenty CRM tham khảo)
-**When** chạy lệnh setup monorepo
-**Then** có `apps/web` chạy được Next.js 16 (React 19), `apps/api` chạy được NestJS 11, `packages/shared` export được type chung
-**And** `turbo.json` cấu hình task `dev`/`build`/`lint`/`typecheck` cho cả 2 app
-**And** naming convention theo AD: files kebab-case, entities PascalCase
-**And** `yarn dev` chạy đồng thời cả web + api không lỗi
+**Given** môi trường dev
+**When** chạy `yarn install && yarn dev`
+**Then** web chạy ở 3100, api chạy ở 3101
 
-### Story 1.2: Kết nối Supabase (DB + Auth + Storage)
-
-As a **developer**,
-I want **apps/api kết nối Supabase PostgreSQL qua Drizzle ORM, cùng Auth và Storage client cấu hình sẵn**,
-So that **các story sau có thể tạo bảng, xác thực user, và lưu ảnh**.
-
-**Acceptance Criteria:**
-
-**Given** monorepo từ Story 1.1 và một Supabase project (Free tier)
-**When** cấu hình biến môi trường qua NestJS ConfigModule (AD: config qua .env)
-**Then** Drizzle kết nối được PostgreSQL 15, chạy được migration rỗng đầu tiên
-**And** Supabase Auth client + Storage client khởi tạo được, healthcheck pass
-**And** KHÔNG tạo bảng nghiệp vụ nào ở story này (table tạo theo story cần)
-**And** kết nối dùng connection pooling phù hợp giới hạn Supabase Free
-
-### Story 1.3: CI/CD GitHub Actions → Vercel + Dokploy
-
-As a **developer**,
-I want **pipeline CI/CD tự động deploy web lên Vercel và api lên Dokploy khi merge**,
-So that **mỗi thay đổi được build, test, và deploy không cần thao tác thủ công**.
-
-**Acceptance Criteria:**
-
-**Given** monorepo có cả 2 app
-**When** push/merge vào nhánh chính
-**Then** GitHub Actions chạy lint + typecheck + build cho cả 2 app
-**And** web tự deploy lên Vercel, api build Docker image deploy lên Dokploy
-**And** pipeline fail nếu lint/typecheck/build lỗi (gate)
-**And** có job chạy Lighthouse CI trên public pages, fail nếu SEO < 90 (AD-4, NFR3)
-**And** secrets (Supabase keys, OpenAI) quản lý qua GitHub Secrets, không hardcode
-
-### Story 1.4: Base UI — layout, navigation, responsive
-
-As a **buyer hoặc seller**,
-I want **một giao diện nền với header, navigation, footer responsive**,
-So that **tôi có khung điều hướng nhất quán trên mọi trang, cả desktop lẫn mobile**.
-
-**Acceptance Criteria:**
-
-**Given** apps/web với shadcn/ui + Tailwind CSS cài đặt
-**When** truy cập bất kỳ trang nào
-**Then** thấy header (logo bdsai.vn, nav, nút đăng nhập/đăng tin), footer
-**And** layout responsive mobile-first, không vỡ ở viewport 360px → 1440px
-**And** dùng route groups: `(public)`, `(dashboard)`, `(admin)` theo Structural Seed
-**And** trạng thái loading/skeleton có sẵn cho các page sẽ SSR
-
-### Story 1.5: Vietnamese Full-Text Search setup
-
-As a **buyer**,
-I want **hệ thống search hỗ trợ tiếng Việt có dấu và không dấu**,
-So that **gõ "long thanh" vẫn tìm ra tin "Long Thành" (NFR8)**.
-
-**Acceptance Criteria:**
-
-**Given** Supabase PostgreSQL từ Story 1.2
-**When** chạy migration bật search tiếng Việt
-**Then** extension `unaccent` và `pg_trgm` được bật trên database
-**And** có hàm/config `to_tsvector` xử lý tiếng Việt (bỏ dấu khi index)
-**And** truy vấn thử "long thanh" khớp được "Long Thành", "căn hộ" khớp "can ho"
-**And** ghi nhận giới hạn: ranking từ ghép có thể yếu (tham chiếu Deferred — trigger migrate ES là complaint về relevance)
-
-### Story 1.6: Hạ tầng nền — Redis/BullMQ, Drizzle migration, Sentry
-
-As a **developer**,
-I want **Redis + BullMQ queue, quy trình migration Drizzle, và Sentry error tracking cấu hình sẵn**,
-So that **các epic sau (AI, notification) có hạ tầng job nền và lỗi được theo dõi**.
-
-**Acceptance Criteria:**
-
-**Given** apps/api kết nối được Supabase
-**When** cấu hình hạ tầng nền
-**Then** Redis 7 kết nối được, BullMQ tạo/chạy được một test job
-**And** quy trình `drizzle migration:generate` + `migrate` hoạt động, có tài liệu cách thêm migration
-**And** Sentry bắt được lỗi từ cả web và api (structured JSON logging, AD: NestJS Logger)
-**And** error shape chuẩn `{ statusCode, message, error?, details? }` qua NestJS exception filter (AD consistency)
-**And** có monitoring cảnh báo khi Supabase DB > 400MB hoặc Storage > 800MB (NFR5 — trigger nâng Pro trước khi đầy, theo readiness report)
+---
 
 ## Epic 2: User Authentication & Profiles
 
-**Goal:** Users đăng ký, đăng nhập, quản lý profile (public qua Supabase Auth); admin có luồng auth riêng và quy trình cấp quyền an toàn (AD-5). Chống privilege escalation.
+User đăng ký, đăng nhập, quản lý profile, admin quản lý users. Phần lớn đã implement.
 
-### Story 2.1: Đăng ký bằng email + phone
+### Story 2.1: Registration with email + phone (DONE)
 
-As a **người dùng mới (buyer/seller)**,
-I want **đăng ký tài khoản bằng email và số điện thoại**,
-So that **tôi có tài khoản để đăng tin hoặc liên hệ seller**.
+As a user, I want đăng ký bằng email và phone, so that tôi có tài khoản trên bdsai.
 
 **Acceptance Criteria:**
 
-**Given** trang đăng ký và Supabase Auth (Story 1.2)
-**When** nhập email + phone + mật khẩu hợp lệ và submit
-**Then** tài khoản tạo qua Supabase Auth, bản ghi `public_users` tạo với `role = 'user'` (story này tạo bảng `public_users`)
-**And** email xác thực được gửi; tài khoản ở trạng thái chưa verify đến khi xác nhận
-**And** validation: email đúng định dạng, phone VN hợp lệ, mật khẩu ≥ 8 ký tự
-**And** đăng ký trùng email → báo lỗi rõ ràng, không tạo trùng
-**And** phone lưu chuẩn hóa; không lộ PII trong log (AD-8)
+**Given** user chưa có tài khoản
+**When** họ điền email, phone, password và bấm đăng ký
+**Then** Supabase Auth tạo user, public_users insert row, email xác nhận gửi đi
 
-### Story 2.2: Đăng nhập / đăng xuất với JWT session
+---
 
-As a **người dùng đã đăng ký**,
-I want **đăng nhập và đăng xuất an toàn**,
-So that **tôi truy cập được tính năng cần xác thực và bảo vệ phiên của mình**.
+## Epic 3: Public Marketplace
 
-**Acceptance Criteria:**
+Người mua tìm kiếm, xem tin đăng BĐS Việt Nam; seller tạo và quản lý tin đăng; admin duyệt tin. Phần lớn đã implement, cần tinh chỉnh theo vision mới.
 
-**Given** tài khoản đã tạo từ Story 2.1
-**When** đăng nhập bằng email + mật khẩu đúng
-**Then** nhận JWT Supabase, lưu phiên; request tới NestJS xác thực qua `Authorization: Bearer` (AD-5)
-**And** sai mật khẩu → báo lỗi, không tiết lộ email tồn tại hay không
-**And** đăng xuất xóa phiên client + server
-**And** JWT hết hạn → tự refresh im lặng; nếu refresh fail → chuyển về trang đăng nhập (xử lý edge case JWT expire)
+### Story 3.1: Listing CRUD + workflow (DONE)
 
-### Story 2.3: Quản lý profile (avatar, bio, phone verified)
-
-As a **người dùng đã đăng nhập**,
-I want **cập nhật profile gồm avatar, bio và xác thực số điện thoại**,
-So that **tôi tăng độ tin cậy và người khác liên hệ được**.
+As a seller, I want tạo/edit/submit/renew/mark-sold listing, so that tôi quản lý tin đăng của mình.
 
 **Acceptance Criteria:**
 
-**Given** user đã đăng nhập
-**When** cập nhật profile và upload avatar
-**Then** thay đổi lưu qua NestJS API (AD-2); avatar upload trực tiếp Supabase Storage (AD-7, exception AD-2)
-**And** xác thực phone qua OTP → đánh dấu `phone_verified = true`
-**And** avatar auto-convert WebP, ≤ 10MB (AD-7)
-**And** bio giới hạn độ dài, sanitize chống XSS
+**Given** seller đăng nhập
+**When** họ tạo listing mới
+**Then** listing ở trạng thái DRAFT, seller có thể edit và submit để chờ duyệt
 
-### Story 2.4: Admin — danh sách user, ban/unban
+### Story 3.6: Rebrand marketplace to bdsai.vn (Việt Nam)
 
-As an **admin**,
-I want **xem danh sách user và ban/unban**,
-So that **tôi kiểm soát người dùng vi phạm trên nền tảng (FR19)**.
+As a buyer, I want tìm kiếm BĐS trên bdsai.vn, so that tôi thấy tin phù hợp với khu vực mục tiêu.
 
 **Acceptance Criteria:**
 
-**Given** một admin đã đăng nhập (role = 'admin')
-**When** truy cập trang quản lý user trong `(admin)`
-**Then** thấy danh sách user (phân trang, tìm kiếm theo email/phone)
-**And** ban một user → user đó không đăng nhập/đăng tin được, tin đang hiển thị bị ẩn
-**And** unban khôi phục quyền
-**And** route `(admin)` chặn user thường qua NestJS guard role check (AD-5)
-**And** mọi hành động ban/unban ghi audit log
+**Given** user vào `/listings`
+**When** trang load
+**Then** title, hero, filter mặc định đều hiển thị "bdsai.vn" và "Việt Nam" (pilot default: Bình Thạnh 3-4 tỷ)
 
-### Story 2.5: Admin role grant — quy trình cấp quyền an toàn
+**Given** admin duyệt listing
+**When** listing publish
+**Then** SEO meta tag và JSON-LD dùng location do seller nhập (không hard-code Bình Thạnh)
 
-As a **super-admin**,
-I want **một quy trình cấp/thu quyền admin có kiểm soát, không cho tự nâng quyền**,
-So that **ngăn privilege escalation — không user thường nào tự biến mình thành admin**.
+---
 
-**Acceptance Criteria:**
+## Epic 4: AI Intelligence
 
-**Given** hệ thống cần ít nhất một admin
-**When** khởi tạo hệ thống
-**Then** super-admin đầu tiên được seed qua migration/command (KHÔNG qua UI công khai)
-**And** chỉ super-admin cấp/thu quyền admin cho user khác; user thường KHÔNG có endpoint tự nâng quyền
-**And** mọi thay đổi role ghi audit log (ai cấp, cho ai, khi nào)
-**And** thử gọi API đổi role bằng token user thường → 403 Forbidden
-**And** thu quyền admin có hiệu lực ngay (phiên admin cũ mất quyền ở request kế tiếp)
+AI phân tích tin đăng (summary, trust score), hỗ trợ seller viết tin chuẩn SEO. Phần summary/trust score đã implement, cần thêm AI viết tin.
 
-## Epic 3: Listing Management & Search
+### Story 4.1: AI Summary (DONE)
 
-**Goal:** Seller đăng và quản lý tin; buyer duyệt, tìm kiếm, xem chi tiết; admin duyệt tin. Đây là core marketplace. Bám wireframe `wireframe-listing-form.md` cho luồng đăng tin. Governed bởi AD-2, AD-4, AD-7, AD-9.
-
-### Story 3.1: Listing entity + CRUD + status workflow
-
-As a **seller**,
-I want **một thực thể listing với vòng đời trạng thái rõ ràng**,
-So that **tin của tôi đi qua draft → chờ duyệt → hiển thị → hết hạn/đã bán một cách nhất quán**.
+As a buyer, I want xem AI summary cho mỗi listing, so that tôi hiểu nhanh ưu/nhược điểm.
 
 **Acceptance Criteria:**
 
-**Given** apps/api kết nối DB
-**When** tạo schema listing
-**Then** bảng `public_listings` tạo (story này) với các trạng thái: `DRAFT`, `PENDING`, `PUBLISHED`, `REJECTED`, `EXPIRED`, `SOLD`
-**And** CRUD listing chỉ qua NestJS marketplace module → Service → Drizzle (AD-2)
-**And** mỗi listing thuộc về một user (FK `public_users`); chỉ chủ sở hữu hoặc admin sửa được
-**And** chuyển trạng thái tuân theo workflow hợp lệ (vd DRAFT→PENDING, không DRAFT→SOLD)
-**And** IDs dùng UUID v4, dates ISO 8601 UTC (AD consistency)
+**Given** listing đã được publish
+**When** AI processor chạy
+**Then** `ai_results` có `summary` hiển thị trên listing detail
 
-### Story 3.2: Đăng tin — form nhiều bước + upload ảnh
+### Story 4.3: AI viết tin đăng
 
-As a **seller**,
-I want **một form nhiều bước để đăng tin kèm ảnh**,
-So that **tôi tạo tin đầy đủ thông tin mà không bị quá tải, không mất dữ liệu giữa chừng**.
+As a seller, I want AI viết lại mô tả tin đăng từ thông tin cơ bản, so that tin chuẩn SEO và hấp dẫn hơn.
 
 **Acceptance Criteria:**
 
-**Given** seller đã đăng nhập và wireframe `wireframe-listing-form.md`
-**When** đi qua 4 bước (Thông tin → Vị trí → Hình ảnh → Xem lại)
-**Then** mỗi bước validate field bắt buộc trước khi cho qua (theo wireframe)
-**And** draft tự lưu sau mỗi bước; thoát rồi vào lại được hỏi "Tiếp tục tin nháp?"
-**And** ảnh upload trực tiếp Supabase Storage, ≤10 ảnh, mỗi ảnh ≤10MB, auto WebP (AD-7); ảnh đầu = ảnh bìa
-**And** submit → POST qua NestJS, listing chuyển `PENDING` (chờ duyệt)
-**And** JWT expire giữa form → draft giữ nguyên, refresh token im lặng rồi retry; fail thì modal đăng nhập lại, KHÔNG mất data
-**And** double-click "Đăng tin" không tạo tin trùng (idempotency)
-**And** file upload validate magic bytes (không chỉ extension) — reject file giả dạng ảnh; quét kích thước thực tế server-side (AD-7)
-**And** seller nhân bản (duplicate) một tin đã có làm nháp mới — giảm thời gian đăng cho môi giới nhiều lô (persona anh Minh); tin nhân bản phải sửa trước khi submit
-**And** KHÔNG có nút "Quảng bá" (Track B, BLOCKED)
+**Given** seller đang tạo listing
+**When** họ nhập tiêu đề, giá, diện tích, khu vực, loại BĐS và bấm "Viết bằng AI"
+**Then** hệ thống gọi Nowing engine `POST /agent/rewrite-listing` và điền mô tả vào form
 
-### Story 3.3: Duyệt & tìm kiếm — filter, sort, phân trang
+**Given** Nowing engine trả lỗi
+**When** seller bấm "Viết bằng AI"
+**Then** hiển thị thông báo lỗi rõ ràng, giữ nguyên dữ liệu seller đã nhập
 
-As a **buyer**,
-I want **duyệt và tìm kiếm tin theo bộ lọc**,
-So that **tôi nhanh chóng tìm BĐS phù hợp nhu cầu**.
+---
 
-**Acceptance Criteria:**
+## Epic 5: Seller CRM Workspace
 
-**Given** có listing `PUBLISHED` và FTS tiếng Việt (Story 1.5)
-**When** tìm kiếm với từ khóa + filter (location, price range, type, area)
-**Then** kết quả chỉ gồm tin `PUBLISHED`, khớp filter, hỗ trợ tiếng Việt có/không dấu (NFR8)
-**And** sort theo: mới nhất, giá tăng/giảm; phân trang ổn định
-**And** tìm "long thanh" trả về tin "Long Thành"
-**And** không có kết quả → empty state rõ ràng
-**And** API response < 200ms P95 cho truy vấn thông thường (NFR2)
+Môi giới có workspace riêng trên bdsai.vn để theo dõi tin khớp (Deal-Radar), quản lý người mua (leads), và truy cập AI tools.
 
-### Story 3.4: Trang chi tiết listing — SSR + SEO meta
+### Story 5.1: Deal-Radar — tạo filter và nhận alert
 
-As a **buyer hoặc search bot**,
-I want **trang chi tiết tin render server-side với meta tags động**,
-So that **trang tải nhanh, hiển thị đầy đủ, và Google index tốt (FR6)**.
+As a môi giới,
+I want tạo filter bằng lời và nhận alert khi có tin BĐS khớp,
+So that tôi không bỏ lỡ cơ hội mua/bán cho khách hàng.
 
 **Acceptance Criteria:**
 
-**Given** một listing `PUBLISHED`
-**When** truy cập `/listings/[id]`
-**Then** trang server-render (Next.js generateMetadata + server component, AD-4)
-**And** meta tags động (title, description, og:image) theo nội dung tin
-**And** chỉ tin `PUBLISHED` truy cập công khai; tin khác → 404 hoặc chặn theo quyền
-**And** SSR render < 500ms P95 (NFR1), Lighthouse SEO > 90 (NFR3)
-**And** Next.js API route chỉ proxy data-fetch, ZERO business logic (AD-10)
+**Given** môi giới đã đăng nhập và đang ở trang Deal-Radar
+**When** họ nhập filter dạng "căn hộ Bình Thạnh 3-4 tỷ, 60-80m2" (hoặc bất kỳ khu vực Việt Nam nào) và bấm "Lưu filter"
+**Then** hệ thống parse filter thành các trường (propertyType, location, priceRange, areaRange) và lưu vào `deal_radar_filters`
+**And** trả về danh sách tin hiện có khớp filter (tối đa 20)
 
-### Story 3.5: Admin — hàng đợi duyệt + cờ spam
+**Given** filter đã được lưu
+**When** có tin mới được publish hoặc imported khớp filter
+**Then** hệ thống tạo `deal_radar_alerts`
+**And** gọi Nowing automation đã cấu hình sẵn (tay) để gửi tin nhắn vào group Zalo riêng của môi giới kèm link về nguồn
 
-As an **admin**,
-I want **hàng đợi duyệt tin với cờ spam tự động**,
-So that **tôi duyệt/từ chối tin hiệu quả, lọc spam (FR4)**.
+**Given** môi giới mở lại Deal-Radar sau 1 ngày
+**When** trang load
+**Then** họ thấy danh sách alert chưa đọc, đã đọc, và có nút "Mark as read" / "Xóa"
 
-**Acceptance Criteria:**
+**Given** tin mới khớp filter được publish
+**When** hệ thống gọi Nowing automation để gửi Zalo
+**Then** tổng thời gian từ publish → Zalo group message < 5 phút (NFR7)
 
-**Given** có tin `PENDING` và bộ lọc spam rule-based cơ bản (keyword blacklist — **xây ngay trong story này** để moderation dùng được, KHÔNG phụ thuộc Epic 4)
-**When** admin mở hàng đợi moderation trong `(admin)`
-**Then** thấy danh sách tin `PENDING`, tin nghi spam được gắn cờ (keyword blacklist + rule cơ bản)
-**And** approve → tin chuyển `PUBLISHED`; reject → `REJECTED` kèm lý do gửi seller
-**And** hỗ trợ bulk approve nhiều tin cùng lúc + lý do reject chọn từ mẫu (giảm tải admin khi nhiều tin/ngày)
-**And** khi tin bị reject, nếu đã có cross_post (tương lai Track B) thì enqueue gỡ best-effort (AD-9 — hook sẵn, no-op khi chưa có Track B)
-**And** hành động duyệt ghi audit log
+### Story 5.2: Lead Management
 
-### Story 3.6: Vòng đời tin — hết hạn, gia hạn, đánh dấu đã bán
-
-As a **seller**,
-I want **tin tự hết hạn, gia hạn được, và đánh dấu đã bán**,
-So that **danh sách tin luôn cập nhật, không hiển thị tin cũ/đã bán (FR16)**.
+As a môi giới,
+I want quản lý danh sách người mua liên hệ và trạng thái của họ,
+So that tôi theo dõi được ai đang cần gì và gán tin phù hợp.
 
 **Acceptance Criteria:**
 
-**Given** tin `PUBLISHED` có ngày hết hạn
-**When** đến hạn (cron job)
-**Then** tin chuyển `EXPIRED`, ẩn khỏi search; seller nhận thông báo gia hạn
-**And** seller gia hạn tin `EXPIRED` → về `PUBLISHED` với hạn mới; KHÔNG gia hạn được tin `SOLD`
-**And** đánh dấu `SOLD` → ẩn khỏi search, giữ lại cho thống kê
-**And** race condition expire-vs-edit: cron và user edit không ghi đè nhau (optimistic lock hoặc transaction)
-**And** tin `EXPIRED`/`SOLD` đang có inquiry mở → inquiry vẫn xem được, chặn inquiry mới (AD-9)
+**Given** môi giới đăng nhập
+**When** họ vào trang "Lead" và bấm "Thêm lead"
+**Then** form mở ra với fields: tên, số điện thoại (tùy chọn), nhu cầu (text), ngân sách, khu vực, loại BĐS
+**And** sau khi lưu, lead xuất hiện trong bảng
 
-### Story 3.7: Seed dữ liệu listing mẫu
+**Given** môi giới đang xem lead detail
+**When** họ chọn 1 listing từ dropdown và bấm "Gán tin"
+**Then** lead được cập nhật `assignedListingId` và hiển thị link tin
 
-As a **developer / product owner**,
-I want **một bộ seed listing mẫu (Long Thành area) nạp được vào DB**,
-So that **đạt launch criteria "50+ listings" và demo/test marketplace có nội dung thật (PRD §8.1)**.
+**Given** môi giới cập nhật trạng thái lead
+**When** họ chọn trạng thái từ "Mới" → "Đang tư vấn" → "Deal" → "Lost"
+**Then** trạng thái được lưu kèm `updatedAt` và audit log
 
-**Acceptance Criteria:**
+**Given** có inquiry từ public marketplace gửi đến listing của môi giới
+**When** inquiry được tạo
+**Then** hệ thống tự động tạo lead từ inquiry (nếu chưa tồn tại) và gán `source = inquiry`
 
-**Given** schema listing (Story 3.1) và FTS (Story 1.5)
-**When** chạy command seed
-**Then** ≥ 50 listing mẫu khu vực Long Thành/Đồng Nai nạp vào DB ở trạng thái `PUBLISHED`
-**And** dữ liệu seed thực tế (giá/diện tích/vị trí hợp lý), có ảnh placeholder hợp lệ
-**And** seed idempotent (chạy lại không tạo trùng); tách biệt môi trường dev/prod
-**And** seed KHÔNG chứa PII thật của người khác (AD-8) — dùng dữ liệu giả/ẩn danh
+### Story 5.3: Seller Workspace Dashboard
 
-## Epic 4: AI Intelligence (Phase 1 — Track A)
-
-**Goal:** Mỗi listing có AI summary và trust score (phần không cần market data), giúp buyer đánh giá nhanh. Governed bởi AD-6 (AI cost control). **M4.2b (Trust Score Phase 2 — market alignment) thuộc Track B, KHÔNG sinh story ở đây** — chờ Auto-Import (Epic 5).
-
-### Story 4.1: AI Summary — GPT-4 phân tích tin đăng
-
-As a **buyer**,
-I want **một bản tóm tắt AI cho mỗi tin (highlights, khu vực, tiềm năng đầu tư)**,
-So that **tôi hiểu nhanh ưu/nhược điểm mà không đọc hết mô tả dài (FR7)**.
+As a môi giới,
+I want có một dashboard tổng quan workspace,
+So that tôi thấy nhanh tin đăng, lead mới, alert Deal-Radar, và AI tools.
 
 **Acceptance Criteria:**
 
-**Given** một listing `PUBLISHED` và hạ tầng BullMQ (Story 1.6)
-**When** tin được duyệt hoặc nội dung thay đổi
-**Then** một background job (KHÔNG đồng bộ trong request, AD-6) gọi GPT-4 tạo summary
-**And** kết quả lưu bảng `ai_results` (story này tạo bảng), KHÔNG re-generate nếu nội dung không đổi (cache theo AD-6)
-**And** rate limit toàn cục ≤ 100 AI calls/giờ (NFR6); vượt quota → fallback GPT-3.5-turbo
-**And** GPT timeout/lỗi → job retry theo backoff; fail cuối → tin vẫn hiển thị bình thường, summary để trống (không block)
-**And** seller sửa nội dung → cache summary cũ invalidate, regenerate
+**Given** môi giới đăng nhập
+**When** họ vào `/dashboard`
+**Then** họ thấy sidebar với các mục: Tổng quan, Tin đăng, Deal-Radar, Lead, AI viết tin, Tin tức, Cài đặt
 
-### Story 4.2a: Trust Score Phase 1 — seller verify + listing quality
+**Given** môi giới ở trang Tổng quan
+**When** trang load
+**Then** họ thấy cards: số tin đang hiển thị, số lead mới (24h), số alert chưa đọc, tin sắp hết hạn
 
-As a **buyer**,
-I want **điểm uy tín (0-100) dựa trên mức xác thực seller và chất lượng tin**,
-So that **tôi phân biệt tin đáng tin với tin sơ sài (FR8, phần không cần market data)**.
+**Given** môi giới bấm "AI viết tin" từ sidebar
+**When** họ vào trang
+**Then** họ thấy form nhập thông tin cơ bản + nút "Viết lại bằng AI"
 
-**Acceptance Criteria:**
+---
 
-**Given** listing có dữ liệu seller (phone_verified từ Story 2.3) và độ đầy đủ thông tin
-**When** tính Trust Score Phase 1
-**Then** điểm 0-100 tính từ: seller verified, độ đầy đủ tin (ảnh, mô tả, pháp lý), KHÔNG dùng market alignment
-**And** điểm lưu `ai_results`, tính async qua BullMQ (AD-6)
-**And** ghi rõ đây là Phase 1; phần market alignment (Phase 2) để placeholder, kích hoạt ở Track B
-**And** tin mới chưa đủ data → điểm "đang đánh giá" thay vì 0, kèm tooltip giải thích (tránh seller mới hiểu nhầm bị phân biệt → bỏ nền tảng)
+## Epic 7: Nowing Engine Integration
 
-### Story 4.3: Smart Spam Filter — nâng cao rule-engine + heuristic
+Bdsai kết nối Nowing engine qua REST API để dùng AI cho summary, viết tin, market summary, và matching. Browser extension MVP giúp môi giới lưu tin từ các sàn BĐS vào workspace.
 
-As an **admin**,
-I want **nâng cấp bộ lọc spam cơ bản (từ Story 3.5) thành rule-engine có heuristic thông minh**,
-So that **phát hiện spam/lừa đảo tinh vi hơn, không chỉ dựa keyword (FR9)**.
+### Story 7.1a: Nowing Engine Client — Base Client & Health Check
+
+As a bdsai backend,
+I want có một HTTP client để gọi Nowing engine API một cách đáng tin cậy,
+So that tôi có thể kiểm tra kết nối và gọi các endpoint AI sau này.
 
 **Acceptance Criteria:**
 
-**Given** spam filter cơ bản đã có từ Story 3.5 (keyword blacklist)
-**When** chạy spam filter nâng cao
-**Then** rule-engine bổ sung heuristic: giá bất thường so mặt bằng, lặp text, link lạ, phone đáng ngờ
-**And** rule-engine đóng gói thành module độc lập để Epic 5 (crawl, Track B) tái dùng sau
-**And** tin nghi spam gắn cờ trong hàng đợi moderation (Story 3.5), KHÔNG auto-reject
-**And** admin cấu hình được blacklist + ngưỡng heuristic (thêm/xóa keyword, chỉnh threshold)
-**And** false positive: admin override cờ được
+**Given** bdsai đã cấu hình `NOWING_ENGINE_API_KEY` và `NOWING_ENGINE_URL`
+**When** service gọi `GET /health`
+**Then** client trả về trạng thái health của Nowing (up/down)
 
-### Story 4.4: Hiển thị AI insights + disclaimer + appeal
+**Given** Nowing engine trả lỗi mạng hoặc 5xx
+**When** client gọi bất kỳ endpoint
+**Then** client throw typed error (`NowingEngineError`) với status code và message, không crash process
 
-As a **buyer**,
-I want **xem AI summary và Trust Score trên trang chi tiết, kèm ghi chú minh bạch**,
-So that **tôi tham khảo AI một cách có hiểu biết, và seller có quyền khiếu nại (FR8, Section 11.3)**.
+### Story 7.1b: Nowing Engine Client — AI Viết Tin
 
-**Acceptance Criteria:**
-
-**Given** listing có `ai_results` (summary + trust score)
-**When** xem trang chi tiết tin
-**Then** hiển thị AI summary và Trust Score với disclaimer "Điểm tham khảo do AI tạo, không phải xác nhận pháp lý"
-**And** seller thấy nút "Khiếu nại điểm" → tạo request review cho admin (Section 11.3)
-**And** nếu chưa có AI result (job chưa chạy/lỗi) → ẩn block AI gọn gàng, không vỡ layout
-**And** insights render trong SSR page nhưng không chặn render nếu thiếu (AD-4)
-
-## Epic 6: Inquiry System & SEO
-
-**Goal:** Buyer liên hệ seller trực tiếp qua nền tảng; Google index tốt để thu traffic organic. Notification email-first (SMS hoãn post-MVP). Governed bởi AD-4 (SSR/SEO).
-
-### Story 6.1: Form liên hệ — buyer gửi inquiry cho seller
-
-As a **buyer**,
-I want **gửi liên hệ cho seller từ trang chi tiết tin**,
-So that **tôi hỏi thông tin hoặc hẹn xem mà không cần rời nền tảng (FR14)**.
+As a bdsai backend,
+I want gọi Nowing engine để viết lại mô tả tin đăng,
+So that seller có mô tả chuẩn SEO từ thông tin cơ bản.
 
 **Acceptance Criteria:**
 
-**Given** một listing `PUBLISHED`
-**When** buyer điền form inquiry (tên, phone/email, lời nhắn) và gửi
-**Then** inquiry lưu qua NestJS (bảng `inquiries` tạo ở story này, FK tới listing + buyer)
-**And** validation field bắt buộc; chống spam (rate limit theo IP/user)
-**And** chặn gửi inquiry tới tin `EXPIRED`/`SOLD` (nhất quán AD-9, Story 3.6)
-**And** buyer chưa đăng nhập vẫn gửi được (lưu thông tin liên hệ) HOẶC yêu cầu đăng nhập — theo quyết định, mặc định cho khách gửi
+**Given** service gọi `POST /agent/rewrite-listing` với payload `{title, price, area, location, propertyType}`
+**When** request thành công
+**Then** Nowing trả về mô tả được viết lại (SEO-friendly, tiếng Việt, 150-300 từ)
 
-### Story 6.2: Notification email cho seller khi có inquiry
+**Given** Nowing engine trả lỗi hoặc timeout
+**When** service gọi `POST /agent/rewrite-listing`
+**Then** service trả fallback `{description: null, error: "AI không khả dụng"}` và log lỗi, không crash user flow
 
-As a **seller**,
-I want **nhận email khi có người liên hệ tin của tôi**,
-So that **tôi phản hồi lead kịp thời (FR15 — email-first)**.
+### Story 7.1c: Nowing Engine Client — Market Summary
 
-**Acceptance Criteria:**
-
-**Given** một inquiry mới tạo từ Story 6.1
-**When** inquiry được lưu
-**Then** background job (BullMQ) gửi email cho seller qua provider email (Supabase/Resend)
-**And** email chứa nội dung inquiry + thông tin liên hệ buyer + link tới tin
-**And** gửi lỗi → retry theo backoff; không block luồng tạo inquiry
-**And** SMS KHÔNG triển khai ở MVP (hoãn post-MVP, theo Deferred) — kiến trúc notification để mở thêm kênh sau
-**And** ngoài email, có in-app notification + badge "inquiry mới" trong dashboard (seller VN ít check email → tránh bỏ lỡ lead nóng, giảm rủi ro buyer nghĩ tin "ma")
-**And** seller xem được danh sách inquiry trong `(dashboard)`
-
-### Story 6.3: Dynamic sitemap.xml + robots.txt
-
-As a **search bot**,
-I want **sitemap.xml động và robots.txt hợp lệ**,
-So that **tôi crawl và index mọi tin công khai hiệu quả (FR18)**.
+As a bdsai backend,
+I want gọi Nowing engine để lấy tóm tắt thị trường,
+So that Deal-Radar có context khi cần.
 
 **Acceptance Criteria:**
 
-**Given** có listing `PUBLISHED`
-**When** truy cập `/sitemap.xml` và `/robots.txt`
-**Then** sitemap liệt kê mọi URL tin `PUBLISHED` + trang tĩnh, cập nhật động khi có tin mới
-**And** sitemap server-render (AD-4), cache hợp lý để không truy vấn DB mỗi request
-**And** robots.txt cho phép index public pages, chặn `(dashboard)`/`(admin)`
-**And** sitemap chỉ chứa tin `PUBLISHED` (không lộ DRAFT/PENDING/REJECTED)
+**Given** service gọi `POST /agent/market-summary` với `{location, propertyType, priceRange}`
+**When** request thành công
+**Then** Nowing trả về tóm tắt thị trường 3-5 dòng
 
-### Story 6.4: Structured data — JSON-LD Schema.org
+**Given** Nowing engine trả lỗi hoặc timeout
+**When** service gọi `POST /agent/market-summary`
+**Then** service trả fallback `{summary: null, error: "AI không khả dụng"}` và log lỗi
 
-As a **search bot**,
-I want **dữ liệu có cấu trúc JSON-LD trên trang tin**,
-So that **kết quả tìm kiếm Google hiển thị rich result (giá, diện tích, ảnh) (FR18, NFR3)**.
+### Story 7.1d: Nowing Engine Client — Deal-Radar Matching
 
-**Acceptance Criteria:**
-
-**Given** trang chi tiết tin (Story 3.4)
-**When** render SSR
-**Then** nhúng JSON-LD Schema.org phù hợp (RealEstateListing/Product) với giá, diện tích, vị trí, ảnh
-**And** JSON-LD validate qua Google Rich Results Test không lỗi
-**And** dữ liệu JSON-LD khớp nội dung hiển thị (không cloaking)
-
-### Story 6.5: Tối ưu hiệu năng — caching, lazy load
-
-As a **buyer**,
-I want **trang tải nhanh kể cả khi nhiều ảnh**,
-So that **trải nghiệm mượt và đạt mục tiêu hiệu năng (NFR1, NFR4)**.
+As a bdsai backend,
+I want gọi Nowing engine để match filter với danh sách tin,
+So that Deal-Radar tìm được tin khớp.
 
 **Acceptance Criteria:**
 
-**Given** các public page (home, browse, detail)
-**When** đo hiệu năng
-**Then** ảnh lazy-load, dùng WebP + responsive sizes; page load < 2s P75 (NFR4)
-**And** caching hợp lý: search results, listing detail (Redis hoặc Next cache)
-**And** Lighthouse SEO > 90 và Performance đạt ngưỡng chấp nhận (gate CI từ Story 1.3)
-**And** SSR render < 500ms P95 (NFR1)
+**Given** service gọi `POST /agent/match-listings` với `{filter, listings}`
+**When** request thành công
+**Then** Nowing trả về danh sách `{matches[]}` với score và lý do khớp
 
+**Given** Nowing engine trả lỗi hoặc timeout
+**When** service gọi `POST /agent/match-listings`
+**Then** service trả fallback `{matches: [], error: "AI không khả dụng"}` và log lỗi
 
+### Story 7.1e: Nowing Engine Client — Cache & Resilience
 
+As a bdsai backend,
+I want cache kết quả Nowing engine và có fallback đồng nhất,
+So that tôi giảm chi phí AI và không vỡ flow khi engine lỗi.
 
+**Acceptance Criteria:**
 
+**Given** service gọi AI cho 1 listing
+**When** kết quả trả về
+**Then** bdsai cache kết quả theo `contentHash` để tránh gọi lại
+
+**Given** service gọi AI với `contentHash` đã cache
+**When** request đến
+**Then** client trả kết quả từ cache, không gọi Nowing
+
+**Given** Nowing engine trả lỗi hoặc timeout
+**When** bất kỳ endpoint AI (rewrite, market-summary, match) được gọi
+**Then** client trả fallback đồng nhất, log lỗi, và không crash user flow
+
+### Story 7.2a: Browser Extension Scaffold + Side Panel Auth
+
+As a môi giới,
+I want cài extension bdsai và đăng nhập qua side panel,
+So that tôi có thể sử dụng các tính năng extension.
+
+**Acceptance Criteria:**
+
+**Given** môi giới cài extension từ Chrome Web Store
+**When** họ bấm icon extension trên bất kỳ trang nào
+**Then** side panel mở ra với trạng thái: chưa đăng nhập / đã đăng nhập
+
+**Given** môi giới chưa đăng nhập
+**When** họ nhập email/password (hoặc dùng JWT token từ web app)
+**Then** extension lưu JWT an toàn và hiển thị tên user
+
+### Story 7.2b: Browser Extension Content Script + Save to Workspace
+
+As a môi giới,
+I want trích thông tin tin BĐS từ Batdongsan/Chợ Tốt và lưu vào bdsai workspace bằng 1 click,
+So that tôi không phải copy-paste thủ công.
+
+**Acceptance Criteria:**
+
+**Given** môi giới đã đăng nhập extension và mở tab Batdongsan/Chợ Tốt
+**When** họ bấm icon extension
+**Then** side panel mở và hiển thị thông tin tin đã trích: tiêu đề, giá, diện tích, khu vực, nguồn link
+
+**Given** môi giới bấm "Lưu vào bdsai" trong side panel
+**When** extension gửi dữ liệu về bdsai API
+**Then** tin được lưu vào workspace của họ dưới dạng draft listing hoặc deal-radar source, không lưu phone raw
+
+**Given** môi giới muốn xem số điện thoại trên portal
+**When** họ bấm "Hiện số" trên trang portal
+**Then** họ tự bấm theo luồng của portal; extension KHÔNG tự động gọi API hiện số
+
+**Given** extension gửi dữ liệu thất bại
+**When** mất kết nối hoặc lỗi 401
+**Then** extension hiển thị lỗi rõ ràng và không cache PII tại máy user
+
+---
+
+## Epic 6: Inquiry & Engagement
+
+Người mua liên hệ seller, seller nhận thông báo, news feed, SEO/sitemap. Phần lớn đã implement.
+
+### Story 6.1: Inquiry form (DONE)
+
+As a buyer, I want gửi liên hệ cho seller qua form, so that tôi hỏi thêm về tin đăng.
+
+**Acceptance Criteria:**
+
+**Given** buyer xem listing detail
+**When** họ điền tên, phone, email, message và bấm gửi
+**Then** inquiry được lưu, seller nhận email thông báo
+
+### Story 6.4: News feed cải thiện UI
+
+As a user, I want xem tin tức BĐS trên trang `/news`, so that tôi cập nhật thị trường.
+
+**Acceptance Criteria:**
+
+**Given** user vào `/news`
+**When** trang load
+**Then** hiển thị danh sách bài viết admin-curated với ảnh, tiêu đề, tóm tắt, ngày publish
+
+---
+
+## Epic 8: Multi-Channel Distribution (Track B — hoãn)
+
+Hỗ trợ seller đăng lên Chợ Tốt/Zalo bằng tay (assisted); full auto-post hoãn sau khi có quyết định pháp lý.
+
+### Story 8.1: Assisted post Chợ Tốt / Zalo
+
+As a seller, I want được hướng dẫn đăng tin lên Chợ Tốt/Zalo nhanh, so that tôi tự đăng dưới tên mình.
+
+**Acceptance Criteria:**
+
+**Given** seller đã publish 1 listing
+**When** họ bấm "Quảng bá" → chọn "Chợ Tốt" hoặc "Zalo"
+**Then** hệ thống hiển thị nội dung đã định dạng sẵn + nút copy + link đến trang đăng của platform
+
+**Given** seller chọn Zalo
+**When** họ bấm "Gửi vào group Zalo"
+**Then** hệ thống gửi tin nhắn có nội dung + link listing vào group Zalo riêng của seller
+
+---
+
+## Validation Notes
+
+### FR Coverage
+- 23/23 FRs được cover bởi ít nhất 1 story.
+- FR mới theo vision (FR15-20, FR23) nằm ở Epic 5 và Epic 7.
+
+### NFR Coverage
+- NFR1-4: Public marketplace + SSR stories.
+- NFR5: Supabase free tier — documented in Epic 1.
+- NFR6: AI rate limit — Epic 4 + Epic 7.
+- NFR7: Deal-Radar alert latency — Epic 5 Story 5.1.
+- NFR8-9: Existing foundation + upload stories.
+- NFR10: Domain bdsai.vn — Epic 3 rebrand.
+- NFR11-12: Browser extension constraints — Epic 7 Story 7.2.
+
+### UX-DR Coverage
+- UX-DR1: Epic 5 Story 5.3 (workspace sidebar).
+- UX-DR2: Epic 3 Story 3.6 (Việt Nam, pilot default Bình Thạnh 3-4 tỷ).
+- UX-DR3: Epic 4 Story 4.1 (AI summary + trust badge).
+- UX-DR4: Epic 5 Story 5.1 (Deal-Radar page).
+- UX-DR5: Epic 5 Story 5.2 (Lead page).
+- UX-DR6: Epic 3 Story 3.6 (rebrand).
+- UX-DR7: Mobile-first — applies to all new UI stories.
+
+### Dependency Check
+- Epics 1-4 là foundation không phụ thuộc future epics.
+- Epic 5 phụ thuộc Epic 2 (auth) + Epic 3 (listings) + Epic 4 (AI) — đúng thứ tự.
+- Epic 7 phụ thuộc Epic 5 (workspace) + Epic 4 (AI) — đúng thứ tự.
+- Epic 8 hoãn, không chặn Track A.
+- **Story 5.1 cần Story 7.1a (base client) và 7.1e (resilience) để gọi Nowing automation.**
+- **Story 4.3 cần Story 7.1b (AI viết tin) để gọi Nowing `rewrite-listing`.**
+- **Story 5.1 cần Story 7.1d (match-listings) nếu dùng Nowing để match thay vì local matching.**
+
+### Story Readiness
+- Tất cả stories có Given/When/Then.
+- Không có forward dependencies trong cùng epic.
+- Các stories mới (5.1, 5.2, 5.3, 7.1a-7.1e, 7.2a, 7.2b, 4.3, 3.6) đủ nhỏ để 1 dev agent làm.

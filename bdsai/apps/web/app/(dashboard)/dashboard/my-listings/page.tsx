@@ -196,14 +196,22 @@ export default function MyListingsPage() {
                   </button>
                 )}
                 {listing.status === 'PUBLISHED' && (
-                  <button
-                    type="button"
-                    onClick={() => void handleAction(listing.id, 'sold')}
-                    disabled={actionLoading === `${listing.id}-sold`}
-                    className="rounded-md bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700 disabled:opacity-50"
-                  >
-                    {actionLoading === `${listing.id}-sold` ? 'Đang cập nhật...' : 'Đánh dấu đã bán'}
-                  </button>
+                  <>
+                    <Link
+                      href={`/dashboard/cross-posts?promote=${listing.id}`}
+                      className="rounded-md bg-purple-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-purple-700"
+                    >
+                      Quảng bá
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={() => void handleAction(listing.id, 'sold')}
+                      disabled={actionLoading === `${listing.id}-sold`}
+                      className="rounded-md bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+                    >
+                      {actionLoading === `${listing.id}-sold` ? 'Đang cập nhật...' : 'Đánh dấu đã bán'}
+                    </button>
+                  </>
                 )}
               </div>
             </div>

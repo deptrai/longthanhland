@@ -1,10 +1,9 @@
 import Link from 'next/link';
 
 // SiteFooter — server component (AD-4 SSR). Responsive: mobile 1 cột, desktop grid.
-// Links page chưa tạo → Next render 404 runtime (OK cho 1.4, không lỗi build).
 const footerLinks = [
   { label: 'Về chúng tôi', href: '/about' },
-  { label: 'Liên hệ', href: '/inquiry' },
+  { label: 'Liên hệ', href: 'mailto:contact@bdsai.vn' },
   { label: 'Điều khoản', href: '/terms' },
   { label: 'Bảo mật', href: '/privacy' },
 ];
@@ -23,7 +22,7 @@ export function SiteFooter() {
               bdsai.vn
             </Link>
             <p className="text-sm text-muted-foreground">
-              Sàn rao vặt BĐS AI — Long Thành
+              Sàn rao vặt BĐS AI — Việt Nam
             </p>
           </div>
 

@@ -39,7 +39,7 @@ export default function DashboardInquiriesPage() {
       setLoading(true);
       setError(null);
       try {
-        const res = await authFetch('/api/inquiries/list');
+        const res = await authFetch('/api/inquiries');
         const body = (await res.json()) as InquiryItem[] & { message?: string };
         if (cancelled) return;
         if (!res.ok) {

@@ -34,7 +34,7 @@ vi.mock('@/lib/auth-fetch', () => ({
   useAuthFetch: () => ({ authFetch: mockAuthFetch }),
 }));
 
-import { ProfileForm } from '@/app/profile/profile-form';
+import { ProfileForm } from '@/app/(public)/profile/profile-form';
 
 describe('ProfileForm (AC6, E9, E10)', () => {
   beforeEach(() => {

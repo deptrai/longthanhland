@@ -17,6 +17,10 @@ import { MarketplaceModule } from './marketplace/marketplace.module';
 import { AiModule } from './ai/ai.module';
 import { InquiryModule } from './inquiry/inquiry.module';
 import { NotificationModule } from './notification/notification.module';
+import { XactionModule } from './xaction/xaction.module';
+import { ImportModule } from './import/import.module';
+import { NewsModule } from './news/news.module';
+import { NowingModule } from './nowing/nowing.module';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 
 /**
@@ -61,6 +65,14 @@ import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
     InquiryModule,
     // Story 6.2: NotificationModule (email service — Resend/log).
     NotificationModule,
+    // Story 5.1: XactionModule (cross-post promotion — provider pattern + BullMQ).
+    XactionModule,
+    // Story 5.7: ImportModule (admin import + dedup engine).
+    ImportModule,
+    // Story 5.8: NewsModule (admin-curated BĐS news feed).
+    NewsModule,
+    // Story 7.1a: NowingModule (Nowing engine client — base client & health check).
+    NowingModule,
   ],
   controllers: [AppController],
   providers: [

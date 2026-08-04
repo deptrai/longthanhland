@@ -10,6 +10,15 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: path.join(__dirname, '..', '..'),
   },
+  // Redirects cho legacy/deprecated routes → tránh 404 nếu user có bookmark cũ.
+  async redirects() {
+    return [
+      { source: '/my-listings/new', destination: '/dashboard/dang-tin', permanent: false },
+      { source: '/marketplace', destination: '/listings', permanent: false },
+      { source: '/inquiry', destination: '/about', permanent: false },
+      { source: '/dashboard', destination: '/dashboard/my-listings', permanent: false },
+    ];
+  },
   // Story 6.5: image optimization — WebP/AVIF + responsive sizes.
   images: {
     formats: ['image/avif', 'image/webp'],

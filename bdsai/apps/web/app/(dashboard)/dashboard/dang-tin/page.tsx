@@ -285,7 +285,7 @@ export default function DangTinPage() {
 
   return (
     <div className="mx-auto max-w-2xl py-8">
-      <h1 className="mb-6 text-2xl font-bold">Đăng tin bất động sản</h1>
+      <h1 data-testid="dang-tin-title" className="mb-6 text-2xl font-bold">Đăng tin bất động sản</h1>
 
       {/* Progress indicator */}
       <div className="mb-8 flex items-center gap-2">
@@ -332,7 +332,7 @@ export default function DangTinPage() {
               onChange={(e) => updateField('title', e.target.value)}
               maxLength={200}
               className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-              placeholder="VD: Đất nền Long Thành, sổ đỏ, 100m2"
+              placeholder="VD: Đất nền, sổ đỏ, 100m2"
             />
             {errors['title'] && <p className="mt-1 text-sm text-red-600">{errors['title']}</p>}
           </div>
@@ -442,7 +442,7 @@ export default function DangTinPage() {
               value={form.province}
               onChange={(e) => updateField('province', e.target.value)}
               className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-              placeholder="VD: Đồng Nai"
+              placeholder="VD: TP. Hồ Chí Minh"
             />
             {errors['province'] && <p className="mt-1 text-sm text-red-600">{errors['province']}</p>}
           </div>
@@ -453,7 +453,7 @@ export default function DangTinPage() {
               value={form.district}
               onChange={(e) => updateField('district', e.target.value)}
               className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-              placeholder="VD: Long Thành"
+              placeholder="VD: Bình Thạnh"
             />
             {errors['district'] && <p className="mt-1 text-sm text-red-600">{errors['district']}</p>}
           </div>
@@ -482,7 +482,7 @@ export default function DangTinPage() {
               value={form.address}
               onChange={(e) => updateField('address', e.target.value)}
               className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-              placeholder="VD: Khu phố 1, Long Thành, Đồng Nai"
+              placeholder="VD: Phường 12, Bình Thạnh, TP. Hồ Chí Minh"
             />
             {errors['address'] && <p className="mt-1 text-sm text-red-600">{errors['address']}</p>}
           </div>
@@ -514,7 +514,7 @@ export default function DangTinPage() {
                     width={200}
                     height={128}
                     className="h-32 w-full rounded-md object-cover"
-                    unoptimized
+                    sizes="(max-width: 768px) 33vw, 200px"
                   />
                   {img.isCover && (
                     <span className="absolute left-1 top-1 rounded bg-blue-600 px-2 py-0.5 text-xs text-white">
@@ -578,6 +578,7 @@ export default function DangTinPage() {
         {step < 4 ? (
           <button
             onClick={nextStep}
+            data-testid="next-step-button"
             className="rounded-md bg-blue-600 px-6 py-2 text-sm text-white hover:bg-blue-700"
           >
             Tiếp tục

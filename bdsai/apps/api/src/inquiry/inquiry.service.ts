@@ -89,10 +89,17 @@ export class InquiryService {
   // Story 6.2: list inquiries for seller (dashboard).
   async listSellerInquiries(sellerId: string) {
     // Join via listing — seller owns listings, inquiries reference listings.
+    // Return flat shape for frontend: { id, listingId, listingTitle, buyerName, ... }
     const result = await this.db
       .select({
-        inquiry: inquiries,
+        id: inquiries.id,
+        listingId: inquiries.listingId,
         listingTitle: publicListings.title,
+        buyerName: inquiries.buyerName,
+        buyerPhone: inquiries.buyerPhone,
+        buyerEmail: inquiries.buyerEmail,
+        message: inquiries.message,
+        createdAt: inquiries.createdAt,
       })
       .from(inquiries)
       .innerJoin(publicListings, eq(inquiries.listingId, publicListings.id))

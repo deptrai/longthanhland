@@ -93,14 +93,22 @@ development_status:
   6-5-toi-uu-hieu-nang-caching-lazy-load: done
   epic-6-retrospective: optional
 
-  # ===== TRACK B — BLOCKED (chờ Xaction API docs + ToS compliance) =====
-  # Story details CHƯA sinh. Chạy lại create-epics-and-stories sau khi gỡ gate.
+  # ===== TRACK B — UNBLOCKED 2026-08-18 =====
+  # Gate lifted: (1) XActions API docs available (repo explored),
+  # (2) ToS compliance decided (browser automation, accept risk),
+  # (3) AD-8 phone hash in architecture.
 
   # Story 4.2b (Trust Score Phase 2 — market alignment) — phụ thuộc Epic 5 Auto-Import
   4-2b-trust-score-phase-2-market-alignment: blocked
 
   # Epic 5: Xaction — Quảng bá & Import đa kênh
-  epic-5: blocked
-  # FR10 Auto-Post, FR11 Auto-Import, FR12 Promotion dashboard, FR13 Import dashboard, FR17 News feed
-  # (story chi tiết sinh sau khi gỡ 2 gate)
+  epic-5: in-progress
+  5-1-xaction-module-provider-pattern-cross-posts: done
+  5-2-facebook-auto-post-provider: done
+  5-3-cho-tot-auto-post-provider: done
+  5-4-zalo-auto-post-provider: done
+  5-5-image-upload-cross-post: done
+  5-6-seller-promotion-dashboard: done
+  5-7-auto-import-deduplication: done
+  5-8-news-feed-bds: done
   epic-5-retrospective: optional

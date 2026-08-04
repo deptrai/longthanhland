@@ -13,3 +13,6 @@ export * from './public-listings';
 export * from './moderation-audit-logs';
 export * from './ai-results';
 export * from './inquiries';
+export * from './cross-posts';
+export * from './imported-listings';
+export * from './news-articles';

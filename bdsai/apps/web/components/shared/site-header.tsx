@@ -16,7 +16,8 @@ import { HeaderAuthActions } from '@/components/shared/header-auth-actions';
 const navItems = [
   { label: 'Trang chủ', href: '/' },
   { label: 'Tìm kiếm', href: '/listings' },
-  { label: 'Đăng tin', href: '/my-listings/new' },
+  { label: 'Tin tức', href: '/news' },
+  { label: 'Đăng tin', href: '/dashboard/dang-tin' },
 ];
 
 export function SiteHeader() {
@@ -48,14 +49,14 @@ export function SiteHeader() {
         <div className="hidden items-center gap-2 md:flex">
           <HeaderAuthActions />
           <Button asChild>
-            <Link href="/my-listings/new">Đăng tin</Link>
+            <Link href="/dashboard/dang-tin">Đăng tin</Link>
           </Button>
         </div>
 
         {/* Mobile: hamburger + nút đăng tin (luôn hiện) */}
         <div className="flex items-center gap-2 md:hidden">
           <Button asChild size="sm" className="min-h-[44px]">
-            <Link href="/my-listings/new">Đăng tin</Link>
+            <Link href="/dashboard/dang-tin">Đăng tin</Link>
           </Button>
           <MobileNav />
         </div>

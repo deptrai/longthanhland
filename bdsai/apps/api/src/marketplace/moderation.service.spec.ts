@@ -3,13 +3,15 @@ import { BadRequestException } from '@nestjs/common';
 import { describe, it, expect, beforeEach } from '@jest/globals';
 import { ModerationService } from './moderation.service';
 import { MarketplaceService } from './marketplace.service';
+import { EmailService } from '../notification/email.service';
 import { DRIZZLE } from '../db/database.tokens';
 
 // Story 3.5 — ModerationService unit tests (spam filter + bulk approve).
 describe('ModerationService (Story 3.5)', () => {
   let service: ModerationService;
   let mockMarketplaceService: { approveListing: jest.Mock; rejectListing: jest.Mock; listPendingQueue: jest.Mock };
-  let mockDb: { insert: jest.Mock };
+  let mockEmailService: { send: jest.Mock };
+  let mockDb: { insert: jest.Mock; select: jest.Mock };
 
   beforeEach(async () => {
     mockMarketplaceService = {
@@ -17,14 +19,23 @@ describe('ModerationService (Story 3.5)', () => {
       rejectListing: jest.fn().mockResolvedValue({ id: 'l1', status: 'REJECTED' }),
       listPendingQueue: jest.fn().mockResolvedValue({ items: [], total: 0, page: 1, limit: 20, totalPages: 0 }),
     };
+    mockEmailService = { send: jest.fn().mockResolvedValue(undefined) };
     mockDb = {
       insert: jest.fn().mockReturnValue({ values: jest.fn().mockResolvedValue(undefined) }),
+      select: jest.fn().mockReturnValue({
+        from: jest.fn().mockReturnValue({
+          where: jest.fn().mockReturnValue({
+            limit: jest.fn().mockResolvedValue([{ email: 'seller@test.vn' }]),
+          }),
+        }),
+      }),
     };
 
     const moduleRef = await Test.createTestingModule({
       providers: [
         ModerationService,
         { provide: MarketplaceService, useValue: mockMarketplaceService },
+        { provide: EmailService, useValue: mockEmailService },
         { provide: DRIZZLE, useValue: mockDb },
       ],
     }).compile();

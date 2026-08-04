@@ -42,6 +42,11 @@ import type { Params } from 'nestjs-pino';
                 '*.DATABASE_URL',
                 '*.REDIS_URL',
                 '*.SENTRY_DSN',
+                // Story 5.2 AD-8: redact XActions secrets (FB cookies, API token).
+                '*.XACTIONS_API_TOKEN',
+                '*.XACTIONS_FB_C_USER',
+                '*.XACTIONS_FB_XS',
+                '*.XACTIONS_FB_ACCOUNT_ID',
                 // Story 2.1 AC8: redact PII (email, phone) — KHÔNG log raw.
                 '*.email',
                 '*.phone',
