@@ -21,6 +21,7 @@ import { XactionModule } from './xaction/xaction.module';
 import { ImportModule } from './import/import.module';
 import { NewsModule } from './news/news.module';
 import { NowingModule } from './nowing/nowing.module';
+import { DealRadarModule } from './deal-radar/deal-radar.module';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 
 /**
@@ -73,6 +74,8 @@ import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
     NewsModule,
     // Story 7.1a: NowingModule (Nowing engine client — base client & health check).
     NowingModule,
+    // Story 5.1: DealRadarModule (filter + rule-based matching + alerts).
+    DealRadarModule,
   ],
   controllers: [AppController],
   providers: [

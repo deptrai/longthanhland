@@ -16,3 +16,5 @@ export * from './inquiries';
 export * from './cross-posts';
 export * from './imported-listings';
 export * from './news-articles';
+export * from './deal-radar-filters';
+export * from './deal-radar-alerts';
