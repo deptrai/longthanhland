@@ -16,6 +16,7 @@ docs/bdsai/
 |------|--------|--------|
 | `planning/prd-mvp-v2.md` | PRD v2.1 — Vision Lock 2026-08-04 applied; Phase 0 Zalo pilot + Phase 1 marketplace | READY |
 | `architecture/ARCHITECTURE-SPINE.md` | Architecture Spine — Mode 0 pilot + Mode 1 product; 12 invariants AD-1→AD-12 | READY |
+| `architecture/system-context-bdsai-nowing.md` | System Context diagram — bdsai.vn ↔ Nowing engine boundary + data flow | READY |
 | `ux-design/wireframe-listing-form.md` | Wireframe low-fi multi-step form (M3.2) | POST-PILOT |
 | `ux-designs/ux-longthanhland-2026-06-24/` | UX Spec đầy đủ — DESIGN.md + EXPERIENCE.md (post-pilot reference) | FINAL |
 
