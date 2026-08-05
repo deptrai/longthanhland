@@ -105,11 +105,11 @@ Layer rules:
 - **Prevents:** conflicting auth strategies between public users and admin
 - **Rule:** Public users authenticate via Supabase Auth (JWT). Admin users authenticate via separate NestJS guard with role check. Two distinct auth flows, shared user table with `role` column discriminator.
 
-### AD-6 — AI Cost Control
+### AD-6 — Nowing AI Cost Guard
 
-- **Binds:** M4 (AI Features)
-- **Prevents:** runaway OpenAI costs
-- **Rule:** AI calls (GPT-4) are async background jobs via BullMQ. Results cached in DB (never re-generate for same listing unless content changes). Rate limit: max 100 AI calls/hour globally. Fallback: GPT-3.5-turbo if GPT-4 quota exceeded.
+- **Binds:** M4 (AI Features), P1 (Nowing Integration)
+- **Prevents:** runaway Nowing engine costs passed through to bdsai
+- **Rule:** bdsai never calls OpenAI/LLM directly. All AI requests go through `ai-gateway` → Nowing API, async via BullMQ when possible. `ai-gateway` records `cost_micros` / `cost_dollars` per call. Global daily cost cap applies per workspace; per-user cap enforces freemium limits. Results cached in `listing_ai_cache` (never re-generate for same listing unless content changes). If Nowing API fails/degrades, bdsai falls back to cached result or disables AI feature for that request — no direct model fallback.
 
 ### AD-7 — Image Storage Convention
 
@@ -147,6 +147,29 @@ Layer rules:
 - **Prevents:** pilot data leaching into production schema
 - **Rule:** Pilot data lives in tracker CSV / Notion / ad-hoc storage. Không tạo production DB schema cho đến khi pilot xanh. Nếu dùng Nowing workspace, dùng workspace test riêng.
 
+### AD-13 — Nowing API Contract [ADOPTED]
+
+- **Binds:** P1 (Nowing Integration), M4 (AI Features)
+- **Prevents:** undefined integration surface, single point of failure, cost leaks
+- **Rule:** bdsai communicates with Nowing only through public/authenticated API endpoints documented in Nowing API contracts. `ai-gateway` owns the client. Contract MUST define:
+  - **Auth:** service API key or workspace-scoped token, stored in `NOWING_API_KEY` / `NOWING_WORKSPACE_ID` env, never in frontend.
+  - **Endpoints:** use `/api/v1/search` for matching/deep-research, `/api/v1/chat/...` for multi-agent chat, `/api/v1/workspaces/{id}/automations/...` for Deal-Radar, `/api/v1/memories/...` for recall. Exact surface verified in P1.1 before pilot.
+  - **Retry & timeout:** 3 retries with exponential backoff; circuit breaker after 5 consecutive failures; default timeout 30s (SSE research/async jobs longer, up to 300s with degradation).
+  - **Cost:** every response includes `cost_micros` or `cost_dollars`; `ai-gateway` logs to `token_usage` / `nowing_api_calls` for metering and billing.
+  - **Failure mode:** on Nowing API failure, bdsai returns cached result, disables AI for the request, or falls back to manual concierge in pilot. No user-facing crash.
+
+### AD-14 — Pilot Automation Isolation [ADOPTED]
+
+- **Binds:** P0 (Demand Validation)
+- **Prevents:** pilot tooling leaking into production, Zalo burner lock, PII exposure
+- **Rule:** Phase 0 automation is a thin, disposable Node.js script running locally or on a dedicated pilot VPS (not production bdsai infra). It uses a Zalo burner account via `zca-js` with manual fallback. Rate limit: max 50 messages/hour to the burner; content must not auto-collect phone numbers or harvest contacts. All broker messages and matches are logged to a tracker; PII (name/phone) is stored encrypted/managed and not shared. If the burner is blocked, switch to manual concierge without data loss.
+
+### AD-15 — AI Cost Cap per User / Workspace [ADOPTED]
+
+- **Binds:** M4 (AI Features), P1 (Nowing Integration)
+- **Prevents:** freemium cost bleed from a single spam user or runaway automation
+- **Rule:** `ai-gateway` enforces two caps: (1) daily cost cap per bdsai workspace (e.g. 10,000 micros = $0.01 for pilot, configurable); (2) per-user daily cap in freemium. When cap is hit, subsequent AI requests return `429` or fallback to non-AI path. Admin can override for paid users. Alerts fire at 80% cap.
+
 ### Dependency Direction
 
 ```mermaid
@@ -155,13 +178,16 @@ graph TD
     API --> MARKETPLACE[Marketplace Module]
     API --> AUTH[Auth Module]
     API --> ADMIN[Admin Module]
-    MARKETPLACE --> AI[AI Module]
+    MARKETPLACE --> AI[AI-Gateway Module]
     MARKETPLACE --> XACTION[Xaction Module]
     XACTION --> QUEUE[Queue Module / BullMQ]
     AI --> QUEUE
     MARKETPLACE --> DB[(Supabase PostgreSQL)]
     AUTH --> DB
-    AI --> OPENAI[OpenAI API]
+    AI --> NOWING[Nowing API v1]
+    NOWING --> OPENAI[OpenAI / LLM providers]
+    NOWING --> CHAINLENS[ChainLens Deep-Research]
+    NOWING --> SCRAPER[Scraper Platform]
     XACTION --> XACTION_API[Xaction External API]
     FE --> STORAGE[Supabase Storage]
     FE --> SUPA_AUTH[Supabase Auth]
@@ -203,7 +229,7 @@ graph TD
 | BullMQ | 5.x | Job queue |
 | Redis | 7.x | Cache + queue backend |
 | Supabase | Free tier | PostgreSQL 15 + Auth + Storage |
-| OpenAI | GPT-4 API | AI features |
+| Nowing API | v1 | AI / memory / matching / automation / scraper engine |
 | Sharp | 0.33.x | Image processing |
 | Vercel | - | Frontend deploy |
 | Dokploy | 0.18.x | Backend deploy (Docker) |
@@ -249,7 +275,7 @@ bdsai/
 │       │   ├── modules/
 │       │   │   ├── marketplace/    # Listings CRUD, search, status
 │       │   │   ├── auth/           # Supabase Auth + admin guards
-│       │   │   ├── ai/            # GPT-4 summary, trust score, spam
+│       │   │   ├── ai-gateway/    # Nowing API client, proxy AI requests, cost guard
 │       │   │   ├── xaction/       # Xaction API client, auto-post/import
 │       │   │   ├── admin/         # Moderation, user mgmt, reports
 │       │   │   └── queue/         # BullMQ jobs config
@@ -294,16 +320,20 @@ C4Context
     System(bdsai, "bdsai.vn", "Sàn rao vặt BĐS AI")
 
     System_Ext(supabase, "Supabase", "DB + Auth + Storage")
-    System_Ext(openai, "OpenAI", "GPT-4 AI")
-    System_Ext(xaction, "Xaction API", "Auto-post + Crawl")
+    System_Ext(nowing, "Nowing Engine", "AI / memory / matching / automation / scraper")
+    System_Ext(chainlens, "ChainLens", "Deep-research engine")
+    System_Ext(openai, "OpenAI / LLM", "Model providers (via Nowing)")
+    System_Ext(xaction, "Xaction API", "Auto-post proxy")
     System_Ext(platforms, "FB / BDS / Chợ Tốt", "Nền tảng bên ngoài")
 
     Rel(buyer, bdsai, "Browse, search, inquire")
     Rel(seller, bdsai, "Post, manage, promote")
     Rel(admin, bdsai, "Moderate, configure")
     Rel(bdsai, supabase, "Data, auth, files")
-    Rel(bdsai, openai, "AI summary, trust score")
-    Rel(bdsai, xaction, "Auto-post, import data")
+    Rel(bdsai, nowing, "AI summary, trust score, Deal-Radar, chat")
+    Rel(nowing, chainlens, "Deep research when needed")
+    Rel(nowing, openai, "LLM calls")
+    Rel(bdsai, xaction, "Auto-post via bdsai queue")
     Rel(xaction, platforms, "Post/crawl via proxy accounts")
 ```
 
@@ -315,7 +345,8 @@ erDiagram
     PUBLIC_USERS ||--o{ INQUIRIES : sends
     PUBLIC_LISTINGS ||--o{ INQUIRIES : receives
     PUBLIC_LISTINGS ||--o{ CROSS_POSTS : promoted_to
-    PUBLIC_LISTINGS ||--o{ AI_RESULTS : analyzed_by
+    PUBLIC_LISTINGS ||--o{ LISTING_AI_CACHE : cached_ai_by
+    LISTING_AI_CACHE }o--|| NOWING_MEMORY : mirrors
     IMPORTED_LISTINGS }o--|| PUBLIC_LISTINGS : linked_to
 ```
 
@@ -340,7 +371,7 @@ graph LR
     end
 
     subgraph External
-        OPENAI[OpenAI API]
+        NOWING[Nowing API<br/>engine.nowing.net]
         XACTION[Xaction API]
     end
 
@@ -351,7 +382,7 @@ graph LR
     WEB --> STORAGE
     WEB --> AUTH
     WORKER --> PG
-    WORKER --> OPENAI
+    WORKER --> NOWING
     WORKER --> XACTION
 ```
 
@@ -362,7 +393,9 @@ graph LR
 | M1: Foundation | `apps/web`, `apps/api`, CI/CD | AD-1, AD-2, AD-10 |
 | M2: User Management | `auth` module, Supabase Auth | AD-5, AD-8 |
 | M3: Listing Management | `marketplace` module, `(public)` routes | AD-2, AD-4, AD-7, AD-9 |
-| M4: AI Features | `ai` module, `queue` module | AD-6, AD-3 |
+|| P0: Demand Validation | `tracker` (CSV/Notion), concierge | AD-14, AD-8 |
+|| P1: Nowing Integration | `ai-gateway` module, `tracker` | AD-13, AD-11 |
+|| M4: AI Features | `ai-gateway` module, `queue` module | AD-6, AD-11, AD-15 |
 | M5: Xaction Integration | `xaction` module, `queue` module | AD-3, AD-8, AD-9 |
 | M6: Inquiry & SEO | `marketplace` module, `(public)` routes | AD-4 |
 

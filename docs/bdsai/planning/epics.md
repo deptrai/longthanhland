@@ -183,7 +183,8 @@ So that **có đối tượng để chạy pilot Zalo**.
 **Given** tiêu chí: Bình Thạnh, môi giới, phân khúc 3-4 tỷ  
 **When** sourcing qua Facebook groups, Zalo, referral, existing network  
 **Then** có ≥30 profile gồm tên + SĐT/Zalo + nguồn + ngày tiếp cận  
-**And** lưu vào tracker CSV/Notion
+**And** lưu vào tracker CSV/Notion  
+**And** PII (SĐT/Zalo) chỉ PO truy cập, không chia sẻ công khai, có cơ chế xóa theo yêu cầu (AD-8, AD-14)
 
 ### Story P0.2: Nhắn tay 10-15 môi giới/ngày
 
@@ -208,7 +209,8 @@ So that **có kênh test mỏng nhất để gửi Deal-Radar alert**.
 
 **Given** số điện thoại burner + zca-js hoặc Zalo mobile  
 **When** tạo group + mời môi giới đã đồng ý  
-**Then** group hoạt động, PO có quyền admin, không auto lấy SĐT, không kho tập trung
+**Then** group hoạt động, PO có quyền admin, không auto lấy SĐT, không kho tập trung  
+**And** rate limit: max 50 tin nhắn/giờ từ burner; nếu bị block/khoá, chuyển sang manual concierge (AD-14)
 
 ### Story P0.4: Tracker CSV retention/match/willingness
 
@@ -235,7 +237,8 @@ So that **bdsai pilot gọi được engine**.
 **Given** Nowing API docs hoặc thử nghiệm trên workspace test  
 **When** gọi endpoint với filter (location, price range, type)  
 **Then** nhận response có ít nhất listing/alert candidate  
-**And** sử dụng workspace test riêng, không dùng workspace production
+**And** sử dụng workspace test riêng, không dùng workspace production  
+**And** xác định auth model (API key/service token), retry policy, timeout, cost field, failure mode (AD-13)
 
 ### Story P1.2: Script parse tin nhắn Zalo
 
@@ -271,9 +274,10 @@ So that **môi giới thấy giá trị Deal-Radar**.
 **Acceptance Criteria:**
 
 **Given** kết quả match từ Nowing  
-**When** định dạng: "🔔 Deal-Radar: [loại] [vị trí] [giá] [diện tích] — link/contact"  
+**When** định dạng: "🔔 Deal-Radar: [loại] [vị trí] [giá] [diện tích]"  
 **Then** gửi vào group Zalo private  
-**And** không gửi PII công khai, không spam
+**And** không gửi PII công khai, không spam, không ghi SĐT seller vào tin nhắn  
+**And** rate limit: max 50 tin nhắn/giờ từ burner; log mọi alert để kiểm duyệt nội dung (AD-8, AD-14)
 
 ### Story P1.5: Handoff concierge
 

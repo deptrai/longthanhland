@@ -1,7 +1,7 @@
 ---
 title: "Architecture Review — bdsai.vn ↔ Nowing Engine"
 reviewer: Architect lens
-status: draft
+status: RESOLVED — fixes applied to ARCHITECTURE-SPINE.md and epics.md
 updated: 2026-08-04
 ---
 
@@ -184,6 +184,21 @@ Bức tranh tổng thể đúng hướng: **bdsai = product, Nowing = engine hea
 
 ---
 
+## Fixes Applied (2026-08-04)
+
+| Finding | Fix | Where |
+|---|---|---|
+| C1 — `ai` module owns OpenAI | Renamed to `ai-gateway`; OpenAI removed from bdsai stack; `ai-gateway` owns Nowing client | `ARCHITECTURE-SPINE.md` §Stack, §Structural Seed, §Dependency Direction |
+| C2 — AD-6 obsolete | Rewrote AD-6 as `Nowing AI Cost Guard` | `ARCHITECTURE-SPINE.md` |
+| C3 — missing Nowing contract | Added AD-13 `Nowing API Contract` | `ARCHITECTURE-SPINE.md` |
+| C4 — BSL / ChainLens risk | Documented in `system-context-bdsai-nowing.md` §6; flagged for legal review | PRD/Epics deferred |
+| H1 — pilot Zalo ops | Added AD-14 `Pilot Automation Isolation` (burner, rate limit, fallback, PII) | `ARCHITECTURE-SPINE.md` |
+| H2 — PII in tracker | Added PII protection AC to P0.1, P0.3, P1.4 | `epics.md` |
+| H3 — cross_post ownership | Clarified `bdsai owns cross_posts`; Nowing only advises/triggers | `ARCHITECTURE-SPINE.md` AD-9 + system-context §4.2 implicit |
+| H4 — diagrams stale | Updated Dependency, C4Context, Deployment, erDiagram | `ARCHITECTURE-SPINE.md` |
+| M1 — `AI_RESULTS` | Renamed to `LISTING_AI_CACHE` with `NOWING_MEMORY` mirror | `ARCHITECTURE-SPINE.md` §erDiagram |
+| M3 — cost cap | Added AD-15 `AI Cost Cap per User / Workspace` | `ARCHITECTURE-SPINE.md` |
+
 ## Verdict
 
-**Architecture direction is sound, but the spine still carries pre-pivot assumptions about bdsai owning AI and calling OpenAI directly.** Fix C1-C4 before implementation; otherwise the first story (P1.1) will hit an undefined contract and the first `ai` module code will silently re-create the monolith that AD-11 is supposed to prevent.
+**Architecture direction is sound. Critical conflicts C1-C4 and high/medium findings H1-H4, M1-M3 have been applied.** Remaining open item: **legal review of BSL 1.1 crawler + ChainLens closed-source license** in the context of bdsai.vn cloud product (flagged, not a technical blocker for pilot).
